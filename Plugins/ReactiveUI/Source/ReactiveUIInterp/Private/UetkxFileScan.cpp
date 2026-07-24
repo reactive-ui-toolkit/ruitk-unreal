@@ -1255,38 +1255,45 @@ namespace
 		return Bclose + 1;
 	}
 
-	/** Duplicate-import diagnostics (2303) for a parsed name list: a name already imported earlier
-	 *  in this file, or repeated within this same import's braces; records the names into
-	 *  ImportedFrom. Shared by the plain named form and the ES COMBINED form. */
+	/** Duplicate-import diagnostics (2303) for a parsed name list: a LOCAL BINDING already bound
+	 *  earlier in this file, or repeated within this same import's braces; records the bindings
+	 *  into ImportedFrom. Shared by the plain named form and the ES COMBINED form.
+	 *  FILE_SCOPED_EXPORTS (M0 audit): keyed by the LOCAL binding name, not the target —
+	 *  `import { A } from "./x"; import { A as B } from "./y";` binds two DISTINCT locals of
+	 *  same-named exports (legal ES; two files may export the same name); only a repeated LOCAL
+	 *  spelling collides. The diag anchors on the local token when the import is aliased. */
 	void RecordNamedImportDups(const FUetkxImportDecl& Imp, TMap<FString, FString>& ImportedFrom,
 							   FUetkxFileScanResult& Out)
 	{
 		TSet<FString> ThisImport;
 		for (int32 idx = 0; idx < Imp.Names.Num(); ++idx)
 		{
-			const FString& Name = Imp.Names[idx];
-			const int32 NameAt = Imp.NameAts[idx];
-			if (const FString* Prev = ImportedFrom.Find(Name))
+			const bool bAliased = Imp.LocalNames.IsValidIndex(idx) && !Imp.LocalNames[idx].IsEmpty() &&
+								  Imp.LocalNames[idx] != Imp.Names[idx];
+			const FString& Bound = bAliased ? Imp.LocalNames[idx] : Imp.Names[idx];
+			const int32 BoundAt = bAliased && Imp.LocalNameAts.IsValidIndex(idx) ? Imp.LocalNameAts[idx]
+																				 : Imp.NameAts[idx];
+			if (const FString* Prev = ImportedFrom.Find(Bound))
 			{
 				AddDiag(Out.Diags, TEXT("UETKX2303"), 0,
-						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Name, **Prev),
-						NameAt, Name.Len());
+						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound, **Prev),
+						BoundAt, Bound.Len());
 			}
-			else if (ThisImport.Contains(Name))
+			else if (ThisImport.Contains(Bound))
 			{
 				AddDiag(
 					Out.Diags, TEXT("UETKX2303"), 0,
-					FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Name, *Imp.Specifier),
-					NameAt, Name.Len());
+					FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound, *Imp.Specifier),
+					BoundAt, Bound.Len());
 			}
 			else
 			{
-				ThisImport.Add(Name);
+				ThisImport.Add(Bound);
 			}
 		}
-		for (const FString& Name : ThisImport)
+		for (const FString& Bound : ThisImport)
 		{
-			ImportedFrom.Add(Name, Imp.Specifier);
+			ImportedFrom.Add(Bound, Imp.Specifier);
 		}
 	}
 

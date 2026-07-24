@@ -10,8 +10,87 @@
 #include "Misc/AutomationTest.h"
 #include "UetkxCodegen.h"
 #include "UetkxFileScan.h"
+#include "UetkxResolve.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
+
+namespace
+{
+	/** FILE_SCOPED_EXPORTS: import qualification needs the TARGET file's surface (its namespace +
+	 *  decl kinds), so the alias/shadow pins compile against this in-memory resolver instead of
+	 *  the old resolver-less plane. Specifier "./X" resolves to key "X", label "X.uetkx" —
+	 *  namespaces derive as `RuiUetkx::X`, the same convention the contract harness pins. */
+	class FUetkxCodegenTestResolver final : public IUetkxImportResolver
+	{
+	public:
+		TMap<FString, TMap<FString, FUetkxTargetDecl>> Files; // key -> exported surface
+		TMap<FString, FString> Defaults;					  // key -> default-export name
+
+		virtual FString Resolve(const FString& Spec, const FString&) const override
+		{
+			FString Key = Spec;
+			Key.RemoveFromStart(TEXT("./"));
+			return Files.Contains(Key) ? Key : FString();
+		}
+		virtual bool GetDecls(const FString& Key, TMap<FString, FUetkxTargetDecl>& Out) const override
+		{
+			if (const TMap<FString, FUetkxTargetDecl>* F = Files.Find(Key))
+			{
+				Out = *F;
+				return true;
+			}
+			return false;
+		}
+		virtual FString DefaultExportOf(const FString& Key) const override { return Defaults.FindRef(Key); }
+		virtual bool CrossesModuleBoundary(const FString&, const FString&) const override { return false; }
+		virtual uint32 ExportHashOf(const FString&) const override { return 1u; }
+		virtual FString LabelForKey(const FString& Key) const override { return Key + TEXT(".uetkx"); }
+		virtual FString WouldBeLabel(const FString& Spec, const FString&) const override
+		{
+			FString Key = Spec;
+			Key.RemoveFromStart(TEXT("./"));
+			return Key + TEXT(".uetkx");
+		}
+		virtual FString FindExporter(const FString& Name, EUetkxDeclKind& OutKind) const override
+		{
+			for (const TPair<FString, TMap<FString, FUetkxTargetDecl>>& File : Files)
+			{
+				if (const FUetkxTargetDecl* D = File.Value.Find(Name); D != nullptr && D->bExported)
+				{
+					OutKind = D->Kind;
+					return File.Key;
+				}
+			}
+			return FString();
+		}
+		virtual FString SuggestSpecifier(const FString&, const FString& Key) const override
+		{
+			return TEXT("./") + Key;
+		}
+	};
+
+	/** The shared alias-plane fixture surface: Palette2 (values Cool/Accent + default component
+	 *  PalCard), StatusChip (component), Hooks2 (hook UseCounter). */
+	FUetkxCodegenTestResolver MakeAliasResolver()
+	{
+		FUetkxCodegenTestResolver R;
+		auto Decl = [](EUetkxDeclKind K)
+		{
+			FUetkxTargetDecl D;
+			D.Kind = K;
+			D.bExported = true;
+			return D;
+		};
+		TMap<FString, FUetkxTargetDecl>& Pal = R.Files.Add(TEXT("Palette2"));
+		Pal.Add(TEXT("Cool"), Decl(EUetkxDeclKind::Value));
+		Pal.Add(TEXT("Accent"), Decl(EUetkxDeclKind::Value));
+		Pal.Add(TEXT("PalCard"), Decl(EUetkxDeclKind::Component));
+		R.Defaults.Add(TEXT("Palette2"), TEXT("PalCard"));
+		R.Files.Add(TEXT("StatusChip")).Add(TEXT("StatusChip"), Decl(EUetkxDeclKind::Component));
+		R.Files.Add(TEXT("Hooks2")).Add(TEXT("UseCounter"), Decl(EUetkxDeclKind::Hook));
+		return R;
+	}
+} // namespace
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxCodegenTest, "ReactiveUI.Uetkx.Codegen",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
@@ -51,9 +130,9 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("impl signature"),
 				 Out.Inl.Contains(
 					 TEXT("static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props")));
-		TestTrue(
-			TEXT("registration emitted"),
-			Out.Inl.Contains(TEXT("RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"Counter\")))")));
+		TestTrue(TEXT("registration emitted (FQN runtime identity, FS-04)"),
+				 Out.Inl.Contains(TEXT(
+					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx::Counter::Counter\")))")));
 		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUI_HOOK_SIG = 0x")));
 		TestTrue(TEXT("wrapper for cross-component refs"), Out.Inl.Contains(TEXT("inline FRuiNode Counter(")));
 		TestTrue(TEXT("event lowered with the Value payload"),
@@ -62,9 +141,9 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("text child NSLOCTEXT"), Out.Inl.Contains(TEXT("NSLOCTEXT(\"Uetkx.Counter\"")));
 		TestTrue(TEXT("@if lowered to if"), Out.Inl.Contains(TEXT("if (Count > 3)")));
 		TestTrue(TEXT("factory targeted"), Out.Inl.Contains(TEXT("RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch)")));
-		TestTrue(
-			TEXT("named factory self-registers"),
-			Out.Inl.Contains(TEXT("RUI::RegisterNamedFactory(FName(TEXT(\"Counter\")), []() { return Counter(); })")));
+		TestTrue(TEXT("named factory self-registers under the FQN"),
+				 Out.Inl.Contains(TEXT("RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Counter::Counter\")), []() { "
+									   "return Counter(); })")));
 		TestEqual(TEXT("hook sig from one UseState"), Out.HookSig, FUetkxFileScan::HookSignature({TEXT("UseState")}));
 	}
 
@@ -369,10 +448,9 @@ component CardStack(Names: TArray<FString>) {
 		TestNotEqual(TEXT("sig order-sensitive"), A, C);
 	}
 
-	// ── exports/privacy (M5): detail namespace + tree-shake + same-file qualification ─────────
+	// ── exports/privacy (M5, reshaped by FILE_SCOPED_EXPORTS): ONE file namespace for every
+	// decl; privates are tree-shaken (no factory) and same-file references stay BARE ─────────
 	{
-		// A file with an EXPORTED component that references a PRIVATE same-file component, hook, and
-		// module — the private decls wrap in RuiPriv_<Basename> and their references qualify.
 		const FString Src = TEXT("module RowStyle {\n\tinline const int32 Gap = 4;\n}\n")
 			TEXT("hook UseLocalCount() -> int32 {\n\treturn 0;\n}\n")
 				TEXT("component Row {\n\treturn ( <Spacer /> );\n}\n") TEXT("export component Panel {\n")
@@ -381,21 +459,26 @@ component CardStack(Names: TArray<FString>) {
 		const FUetkxCompileOutput Out = FUetkxCodegen::CompileSource(Src, TEXT("Panel"));
 		if (TestTrue(TEXT("privacy sample compiles"), Out.bOk))
 		{
-			// exported component: file scope + named factory.
-			TestTrue(
-				TEXT("exported component registers a named factory"),
-				Out.Inl.Contains(TEXT("RUI::RegisterNamedFactory(FName(TEXT(\"Panel\")), []() { return Panel(); })")));
-			TestTrue(TEXT("only exported decls in the export ledger"),
+			// exported component: FQN named factory.
+			TestTrue(TEXT("exported component registers a named factory under the FQN"),
+					 Out.Inl.Contains(TEXT(
+						 "RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Panel::Panel\")), []() { return Panel(); })")));
+			TestTrue(TEXT("only exported decls in the export surface"),
 					 Out.ExportedNames.Num() == 1 && Out.ExportedNames[0] == TEXT("Panel"));
-			// private decls wrap in the per-file detail namespace.
-			TestTrue(TEXT("private component wrapped"), Out.Inl.Contains(TEXT("namespace RuiPriv_Panel")));
+			// EVERYTHING wraps in the file namespace; RuiPriv_ is retired.
+			TestTrue(TEXT("file namespace wraps the decls"), Out.Inl.Contains(TEXT("namespace RuiUetkx::Panel")));
+			TestFalse(TEXT("RuiPriv_ detail namespace is retired"), Out.Inl.Contains(TEXT("RuiPriv_")));
 			TestTrue(TEXT("private component NOT globally registered"),
-					 !Out.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")));
-			// same-file references reach into the detail namespace.
-			TestTrue(TEXT("private component tag qualified"), Out.Inl.Contains(TEXT("RuiPriv_Panel::FRowUetkxProps")) &&
-																  Out.Inl.Contains(TEXT("RuiPriv_Panel::Row(")));
-			TestTrue(TEXT("private hook call qualified"), Out.Inl.Contains(TEXT("RuiPriv_Panel::UseLocalCount(Ctx)")));
-			TestTrue(TEXT("private module qual qualified"), Out.Inl.Contains(TEXT("RuiPriv_Panel::RowStyle::Gap")));
+					 !Out.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) &&
+						 !Out.Inl.Contains(TEXT("::Row\")), []()")));
+			TestTrue(TEXT("private component id is FILE-QUALIFIED"),
+					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
+										   "FName(TEXT(\"RuiUetkx::Panel::Row\")))")));
+			// same-file references stay BARE — they share the file namespace.
+			TestTrue(TEXT("same-file component tag stays bare"),
+					 Out.Inl.Contains(TEXT("FRowUetkxProps P;")) && Out.Inl.Contains(TEXT("return Row(MoveTemp(P)")));
+			TestTrue(TEXT("same-file hook call stays bare"), Out.Inl.Contains(TEXT("auto V = UseLocalCount(Ctx);")));
+			TestTrue(TEXT("same-file module qual stays bare"), Out.Inl.Contains(TEXT("int32 Pad = RowStyle::Gap;")));
 		}
 	}
 
@@ -466,7 +549,8 @@ component CardStack(Names: TArray<FString>) {
 			TestFalse(TEXT("no Ctx in a util signature"), Util.Inl.Contains(TEXT("FormatScore(FRuiContext&")));
 		}
 
-		// Private value + util: wrapped in the detail namespace, same-file references qualified.
+		// Private value + util: inside the file namespace with everything else; same-file
+		// references stay BARE (the value still lowers as a CALL — TB-15).
 		const FUetkxCompileOutput Priv = FUetkxCodegen::CompileSource(
 			TEXT("FLinearColor RowTint = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);\n")
 				TEXT("FString Pad(FString S) {\n\treturn S;\n}\n") TEXT("export FRuiNode Panel2() {\n")
@@ -474,17 +558,18 @@ component CardStack(Names: TArray<FString>) {
 			TEXT("Panel2"));
 		if (TestTrue(TEXT("private value/util sample compiles"), Priv.bOk))
 		{
-			TestTrue(TEXT("private value wrapped"), Priv.Inl.Contains(TEXT("namespace RuiPriv_Panel2")));
-			TestTrue(TEXT("private value reference qualified"), Priv.Inl.Contains(TEXT("RuiPriv_Panel2::RowTint")));
-			TestTrue(TEXT("private util call qualified"), Priv.Inl.Contains(TEXT("RuiPriv_Panel2::Pad(")));
+			TestTrue(TEXT("file namespace wraps the decls"), Priv.Inl.Contains(TEXT("namespace RuiUetkx::Panel2")));
+			TestTrue(TEXT("private value reference stays bare, as a CALL (TB-15)"),
+					 Priv.Inl.Contains(TEXT("auto T = RowTint();")));
+			TestTrue(TEXT("private util call stays bare"), Priv.Inl.Contains(TEXT("auto S = Pad(FString());")));
+			TestFalse(TEXT("RuiPriv_ is retired"), Priv.Inl.Contains(TEXT("RuiPriv_")));
 			TestTrue(TEXT("exported list excludes privates"),
 					 Priv.ExportedNames.Num() == 1 && Priv.ExportedNames[0] == TEXT("Panel2"));
 		}
 
-		// ES parity (family 0.9.1 field wave): a DEFAULT-exported declaration is PUBLIC — a
-		// default importer binds the bare symbol (same-name) or rewrites to it (renamed), so
-		// it must emit at file scope, not inside the detail namespace, and it joins the 2106
-		// global-name ledger. It stays name-import-private (the resolver's export table never
+		// ES parity (family 0.9.1 field wave): a DEFAULT-exported declaration is PUBLIC — the
+		// default importer rewrites to its qualified target (FS-03); like every decl it lives in
+		// the file namespace. It stays name-import-private (the resolver's export table never
 		// marks it — `import { FmtD }` still 2301s; pinned in the Resolve suite).
 		const FUetkxCompileOutput DefPriv = FUetkxCodegen::CompileSource(
 			TEXT("FString FmtD(int32 S) {\n\treturn FString::FromInt(S);\n}\n")
@@ -493,12 +578,12 @@ component CardStack(Names: TArray<FString>) {
 			TEXT("Panel3"));
 		if (TestTrue(TEXT("default-exported private util compiles"), DefPriv.bOk))
 		{
-			TestTrue(TEXT("default-exported util emits at file scope"),
-					 DefPriv.Inl.Contains(TEXT("inline FString FmtD(int32 S);")));
-			TestFalse(TEXT("default-exported util is NOT detail-wrapped"),
-					  DefPriv.Inl.Contains(TEXT("namespace RuiPriv_Panel3")));
-			TestFalse(TEXT("same-file references stay bare"), DefPriv.Inl.Contains(TEXT("RuiPriv_Panel3::FmtD")));
-			TestTrue(TEXT("default name joins the 2106 ledger"), DefPriv.ExportedNames.Contains(TEXT("FmtD")));
+			TestTrue(TEXT("default-exported util fwd-declares in the file namespace"),
+					 DefPriv.Inl.Contains(TEXT("inline FString FmtD(int32 S);")) &&
+						 DefPriv.Inl.Contains(TEXT("namespace RuiUetkx::Panel3")));
+			TestFalse(TEXT("RuiPriv_ is retired"), DefPriv.Inl.Contains(TEXT("RuiPriv_")));
+			TestTrue(TEXT("same-file references stay bare"), DefPriv.Inl.Contains(TEXT("auto S = FmtD(1);")));
+			TestTrue(TEXT("default name joins the export surface"), DefPriv.ExportedNames.Contains(TEXT("FmtD")));
 		}
 
 		// New-form component + hook feed the EXISTING emitters (props struct + registrations).
@@ -515,12 +600,15 @@ component CardStack(Names: TArray<FString>) {
 			TestTrue(TEXT("new-form hook takes Ctx first"),
 					 NewForm.Inl.Contains(TEXT("inline int32 UseTick(FRuiContext& Ctx, int32 Start)")));
 			TestTrue(TEXT("hook call site Ctx-injected"), NewForm.Inl.Contains(TEXT("UseTick(Ctx, 1)")));
-			TestTrue(TEXT("named factory registered"),
-					 NewForm.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Chip2\"))")));
+			TestTrue(TEXT("named factory registered under the FQN"),
+					 NewForm.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Chip2::Chip2\"))")));
 		}
 
-		// Alias plane: rename import rewrites the tag, a hook call, and a bare value reference;
-		// `* as` strips the namespace qual. (No resolver — emission-plane behavior only.)
+		// The import-binding plane (FS-03): every imported reference — renamed, bare, star, or
+		// default — rewrites to the TARGET FILE's qualified spelling (imported values gain their
+		// call form, TB-15). Qualification needs the target surface, so a stub resolver supplies
+		// Palette2/StatusChip/Hooks2.
+		const FUetkxCodegenTestResolver AliasResolver = MakeAliasResolver();
 		const FUetkxCompileOutput Alias = FUetkxCodegen::CompileSource(
 			TEXT("import { StatusChip as Chip } from \"./StatusChip\"\n")
 				TEXT("import { UseCounter as UseTick } from \"./Hooks2\"\n")
@@ -528,57 +616,66 @@ component CardStack(Names: TArray<FString>) {
 						TEXT("import * as Palette from \"./Palette2\"\n") TEXT("export FRuiNode AliasUser() {\n")
 							TEXT("\tauto A = UseTick(1);\n\tauto B = Primary;\n\tauto C = Palette::Accent;\n")
 								TEXT("\treturn ( <Chip /> );\n}\n"),
-			TEXT("AliasUser"));
+			TEXT("AliasUser"), FString(), &AliasResolver);
 		if (TestTrue(TEXT("alias sample compiles"), Alias.bOk))
 		{
-			TestTrue(TEXT("renamed tag emits the target props+factory"),
-					 Alias.Inl.Contains(TEXT("FStatusChipUetkxProps")) && Alias.Inl.Contains(TEXT("StatusChip(")));
+			TestTrue(TEXT("renamed tag emits the target props+factory, FILE-QUALIFIED"),
+					 Alias.Inl.Contains(TEXT("RuiUetkx::StatusChip::FStatusChipUetkxProps")) &&
+						 Alias.Inl.Contains(TEXT("RuiUetkx::StatusChip::StatusChip(")));
 			TestFalse(TEXT("the local tag alias never reaches the C++"), Alias.Inl.Contains(TEXT("FChipUetkxProps")));
-			TestTrue(TEXT("renamed hook call rewrites to the target + Ctx"),
-					 Alias.Inl.Contains(TEXT("UseCounter(Ctx, 1)")));
-			TestTrue(TEXT("renamed value reference rewrites"), Alias.Inl.Contains(TEXT("auto B = Cool;")));
-			TestTrue(TEXT("namespace qual strips"), Alias.Inl.Contains(TEXT("auto C = Accent;")));
+			TestTrue(TEXT("renamed hook call rewrites to the qualified target + Ctx"),
+					 Alias.Inl.Contains(TEXT("RuiUetkx::Hooks2::UseCounter(Ctx, 1)")));
+			TestTrue(TEXT("renamed value reference rewrites to a qualified CALL"),
+					 Alias.Inl.Contains(TEXT("auto B = RuiUetkx::Palette2::Cool();")));
+			TestTrue(TEXT("star qual maps to the target file namespace"),
+					 Alias.Inl.Contains(TEXT("auto C = RuiUetkx::Palette2::Accent();")));
 			TestTrue(TEXT("Uses records the TARGET component"), Alias.Uses.Contains(TEXT("StatusChip")));
 			TestFalse(TEXT("Uses does not record the alias"), Alias.Uses.Contains(TEXT("Chip")));
 		}
 
-		// ES COMBINED forms at the alias plane: ONE declaration carrying default + named/star —
-		// the named renames and the namespace strip must all land even though the declaration
-		// also carries a default binding (exclusive branching dropped them; Unity 0.9.1 parity).
+		// ES COMBINED forms at the binding plane: ONE declaration carrying default + named/star —
+		// every part must land even though the declaration also carries a default binding
+		// (exclusive branching dropped them; Unity 0.9.1 parity).
 		const FUetkxCompileOutput Combined = FUetkxCodegen::CompileSource(
 			TEXT("import Def, { Cool as Primary } from \"./Palette2\"\n")
 				TEXT("import Def2, * as Palette from \"./Palette2\"\n") TEXT("export FRuiNode CombinedUser() {\n")
 					TEXT("\tauto B = Primary;\n\tauto C = Palette::Accent;\n\tauto D = Def2(1);\n")
 						TEXT("\treturn ( <Def /> );\n}\n"),
-			TEXT("CombinedUser"));
+			TEXT("CombinedUser"), FString(), &AliasResolver);
 		if (TestTrue(TEXT("combined alias sample compiles"), Combined.bOk))
 		{
 			TestTrue(TEXT("combined named rename rewrites beside the default"),
-					 Combined.Inl.Contains(TEXT("auto B = Cool;")));
-			TestTrue(TEXT("combined namespace qual strips beside the default"),
-					 Combined.Inl.Contains(TEXT("auto C = Accent;")));
+					 Combined.Inl.Contains(TEXT("auto B = RuiUetkx::Palette2::Cool();")));
+			TestTrue(TEXT("combined star qual maps beside the default"),
+					 Combined.Inl.Contains(TEXT("auto C = RuiUetkx::Palette2::Accent();")));
+			TestTrue(TEXT("default binding rewrites to the qualified default target"),
+					 Combined.Inl.Contains(TEXT("auto D = RuiUetkx::Palette2::PalCard(1);")));
+			TestTrue(TEXT("default TAG emits the qualified target"),
+					 Combined.Inl.Contains(TEXT("RuiUetkx::Palette2::PalCard(MoveTemp(P)")));
 		}
 
-		// IMPORT-3 regression at the ALIAS plane (M7 bughunt): a ternary's SECOND arm sits after a
-		// lone `:` — the scan-back must not read it as a `::` scope qual, or the alias survives
-		// into broken C++ (`? Good : LabStyle::Warn` shipped exactly that before the fix).
+		// IMPORT-3 regression at the BINDING plane (M7 bughunt): a ternary's SECOND arm sits after
+		// a lone `:` — the scan-back must not read it as a `::` scope qual, or the binding
+		// survives unrewritten into broken C++.
 		const FUetkxCompileOutput Tern = FUetkxCodegen::CompileSource(
 			TEXT("import * as Pal from \"./Palette2\"\n") TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT(
 				"export FRuiNode TernAlias() {\n") TEXT("\tconst FLinearColor T = true ? Pal::Accent : Pal::Cool;\n")
 				TEXT("\tconst FLinearColor U = false ? Primary : Primary;\n") TEXT("\treturn ( <Spacer /> );\n}\n"),
-			TEXT("TernAlias"));
+			TEXT("TernAlias"), FString(), &AliasResolver);
 		if (TestTrue(TEXT("ternary alias sample compiles"), Tern.bOk))
 		{
-			TestTrue(TEXT("ternary second arm strips the namespace qual"),
-					 Tern.Inl.Contains(TEXT("true ? Accent : Cool;")));
-			TestTrue(TEXT("ternary second arm rewrites the rename alias"),
-					 Tern.Inl.Contains(TEXT("false ? Cool : Cool;")));
-			TestFalse(TEXT("no alias qual survives"), Tern.Inl.Contains(TEXT("Pal::")));
+			TestTrue(TEXT("ternary second arm maps the star qual"),
+					 Tern.Inl.Contains(
+						 TEXT("true ? RuiUetkx::Palette2::Accent() : RuiUetkx::Palette2::Cool();")));
+			TestTrue(TEXT("ternary second arm rewrites the rename binding"),
+					 Tern.Inl.Contains(
+						 TEXT("false ? RuiUetkx::Palette2::Cool() : RuiUetkx::Palette2::Cool();")));
+			TestFalse(TEXT("no local alias qual survives"), Tern.Inl.Contains(TEXT("Pal::")));
 		}
 
-		// TD-026 (M3): private runtime identity is FILE-QUALIFIED — two files' private `Row`s get
-		// distinct RegisterComponentId keys; the exported wrapper keeps its short name; NEITHER
-		// private registers a named factory (tree-shaken).
+		// FS-04 (supersedes TD-026's split): runtime identity is FILE-QUALIFIED for EVERY
+		// component — two files' `Row`s (private) AND their exported wrappers get distinct
+		// RegisterComponentId keys; neither private registers a named factory (tree-shaken).
 		{
 			const FString PairSrc = TEXT("FRuiNode Row() {\n\treturn ( <Spacer /> );\n}\n")
 				TEXT("export FRuiNode PAIRNAME() {\n\treturn ( <VerticalBox> <Row /> </VerticalBox> );\n}\n");
@@ -588,20 +685,61 @@ component CardStack(Names: TArray<FString>) {
 				FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("PAIRNAME"), TEXT("PrivPairB")), TEXT("PrivPairB"));
 			if (TestTrue(TEXT("PrivPair sources compile"), A.bOk && B.bOk))
 			{
-				TestTrue(TEXT("A's private Row keys RuiPriv_PrivPairA::Row"),
+				TestTrue(TEXT("A's private Row keys RuiUetkx::PrivPairA::Row"),
 						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiPriv_PrivPairA::Row\")))")));
-				TestTrue(TEXT("B's private Row keys RuiPriv_PrivPairB::Row"),
+											 "FName(TEXT(\"RuiUetkx::PrivPairA::Row\")))")));
+				TestTrue(TEXT("B's private Row keys RuiUetkx::PrivPairB::Row"),
 						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiPriv_PrivPairB::Row\")))")));
-				TestTrue(TEXT("exported components keep the SHORT runtime id"),
+											 "FName(TEXT(\"RuiUetkx::PrivPairB::Row\")))")));
+				TestTrue(TEXT("exported components carry the FILE-QUALIFIED runtime id too (FS-04)"),
 						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl, "
-											 "FName(TEXT(\"PrivPairA\")))")));
+											 "FName(TEXT(\"RuiUetkx::PrivPairA::PrivPairA\")))")));
 				TestFalse(TEXT("no bare-name id for a private component"),
 						  A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, FName(TEXT(\"Row\")))")));
 				TestFalse(TEXT("neither private registers a named factory"),
 						  A.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) ||
-							  B.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")));
+							  B.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) ||
+							  A.Inl.Contains(TEXT("::Row\")), []()")) || B.Inl.Contains(TEXT("::Row\")), []()")));
+			}
+		}
+
+		// FILE_SCOPED_EXPORTS headline (FS-01..FS-04): TWO files may export the SAME names — each
+		// emits into its own namespace with its own FQN identities; an importer binding both via
+		// `as` aliases addresses each unambiguously (the ExpPair contract fixtures pin the same
+		// truth against the golden harness).
+		{
+			FUetkxCodegenTestResolver PairResolver;
+			auto Decl = [](EUetkxDeclKind K)
+			{
+				FUetkxTargetDecl D;
+				D.Kind = K;
+				D.bExported = true;
+				return D;
+			};
+			TMap<FString, FUetkxTargetDecl>& FA = PairResolver.Files.Add(TEXT("ExpPairA"));
+			FA.Add(TEXT("Widget"), Decl(EUetkxDeclKind::Component));
+			FA.Add(TEXT("Accent"), Decl(EUetkxDeclKind::Value));
+			TMap<FString, FUetkxTargetDecl>& FB = PairResolver.Files.Add(TEXT("ExpPairB"));
+			FB.Add(TEXT("Widget"), Decl(EUetkxDeclKind::Component));
+			FB.Add(TEXT("Accent"), Decl(EUetkxDeclKind::Value));
+			const FUetkxCompileOutput Use = FUetkxCodegen::CompileSource(
+				TEXT("import { Widget, Accent } from \"./ExpPairA\"\n")
+					TEXT("import { Widget as WidgetB, Accent as AccentB } from \"./ExpPairB\"\n")
+						TEXT("export FRuiNode PairUse() {\n")
+							TEXT("\tconst FLinearColor Mix = FLinearColor(Accent.R, AccentB.B, 0.0f, 1.0f);\n")
+								TEXT("\treturn ( <VerticalBox> <Widget /> <WidgetB /> <Border "
+									 "BorderBackgroundColor={ Mix }><Spacer /></Border> </VerticalBox> );\n}\n"),
+				TEXT("PairUse"), FString(), &PairResolver);
+			if (TestTrue(TEXT("same-name pair importer compiles"), Use.bOk))
+			{
+				TestTrue(TEXT("A's Widget addresses A's namespace"),
+						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairA::Widget(MoveTemp(P)")));
+				TestTrue(TEXT("B's Widget addresses B's namespace"),
+						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairB::Widget(MoveTemp(P)")));
+				TestTrue(TEXT("A's Accent value-call qualifies to A"),
+						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairA::Accent().R")));
+				TestTrue(TEXT("B's Accent value-call qualifies to B"),
+						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairB::Accent().B")));
 			}
 		}
 
@@ -610,24 +748,25 @@ component CardStack(Names: TArray<FString>) {
 		// rewrite still fires. Every recognized pattern is pinned here (params, `Type Name =`,
 		// `auto [A, B]`, inner-brace expiry).
 		{
-			// A local `FLinearColor Primary = …` shadows the rename alias: references AFTER the
-			// declaration stay bare; the reference BEFORE it still rewrites to the target.
+			// A local `FLinearColor Primary = …` shadows the rename binding: references AFTER the
+			// declaration stay bare; the reference BEFORE it still rewrites to the qualified target.
+			const FUetkxCodegenTestResolver ShadowResolver = MakeAliasResolver();
 			const FUetkxCompileOutput Shadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowVal() {\n")
 					TEXT("\tauto Before = Primary;\n")
 						TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
 							TEXT("\tauto After = Primary;\n\treturn ( <Spacer /> );\n}\n"),
-				TEXT("ShadowVal"));
+				TEXT("ShadowVal"), FString(), &ShadowResolver);
 			if (TestTrue(TEXT("alias-shadow sample compiles"), Shadow.bOk))
 			{
-				TestTrue(TEXT("pre-declaration reference still rewrites"),
-						 Shadow.Inl.Contains(TEXT("auto Before = Cool;")));
+				TestTrue(TEXT("pre-declaration reference still rewrites (qualified value call)"),
+						 Shadow.Inl.Contains(TEXT("auto Before = RuiUetkx::Palette2::Cool();")));
 				TestTrue(TEXT("post-declaration reference keeps the local"),
 						 Shadow.Inl.Contains(TEXT("auto After = Primary;")));
 			}
 
-			// A local shadowing a PRIVATE value is NOT RuiPriv_-qualified; the un-shadowed private
-			// util call still is. Inner scope: the shadow dies at `}` and the qual returns.
+			// A local shadowing a same-file PRIVATE value keeps its bare no-call spelling; the
+			// un-shadowed reference lowers as the bare CALL (TB-15; same file ⇒ no qualification).
 			const FUetkxCompileOutput PrivShadow = FUetkxCodegen::CompileSource(
 				TEXT("FLinearColor RowTint = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);\n")
 					TEXT("FString Pad(FString S) {\n\treturn S;\n}\n") TEXT("export FRuiNode ShadowPriv() {\n")
@@ -637,36 +776,43 @@ component CardStack(Names: TArray<FString>) {
 				TEXT("ShadowPriv"));
 			if (TestTrue(TEXT("private-shadow sample compiles"), PrivShadow.bOk))
 			{
-				TestTrue(TEXT("inner-scope shadow keeps the bare local"),
+				TestTrue(TEXT("inner-scope shadow keeps the bare local (no call)"),
 						 PrivShadow.Inl.Contains(TEXT("auto Inner = RowTint;")));
-				TestTrue(TEXT("outer reference re-qualifies after the scope closes (as a CALL — TB-15)"),
-						 PrivShadow.Inl.Contains(TEXT("auto Outer = RuiPriv_ShadowPriv::RowTint();")));
-				TestTrue(TEXT("un-shadowed private util still qualifies"),
-						 PrivShadow.Inl.Contains(TEXT("RuiPriv_ShadowPriv::Pad(")));
+				TestTrue(TEXT("outer reference lowers as the bare CALL after the scope closes (TB-15)"),
+						 PrivShadow.Inl.Contains(TEXT("auto Outer = RowTint();")));
+				TestFalse(TEXT("RuiPriv_ is retired"), PrivShadow.Inl.Contains(TEXT("RuiPriv_")));
 			}
 
-			// A component PARAM shadowing an alias name suppresses the rewrite for the whole body;
-			// a structured binding (`auto [Primary, SetPrimary] = …`) does too.
-			const FUetkxCompileOutput ParamShadow =
-				FUetkxCodegen::CompileSource(TEXT("import { Cool as Primary } from \"./Palette2\"\n")
-												 TEXT("export FRuiNode ShadowParam(FLinearColor Primary) {\n")
-													 TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
-											 TEXT("ShadowParam"));
+			// A component PARAM shadowing a binding name suppresses the rewrite for the whole body
+			// (a sibling component in the same file keeps the import genuinely used); a structured
+			// binding (`auto [Primary, SetPrimary] = …`) does too.
+			const FUetkxCompileOutput ParamShadow = FUetkxCodegen::CompileSource(
+				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode UsesIt() {\n")
+					TEXT("\tauto K = Primary;\n\treturn ( <Spacer /> );\n}\n")
+						TEXT("export FRuiNode ShadowParam(FLinearColor Primary) {\n")
+							TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
+				TEXT("ShadowParam"), FString(), &ShadowResolver);
 			if (TestTrue(TEXT("param-shadow sample compiles"), ParamShadow.bOk))
 			{
 				TestTrue(TEXT("param shadow keeps the bare spelling"),
 						 ParamShadow.Inl.Contains(TEXT("auto V = Primary;")));
-				TestFalse(TEXT("no rewrite to the target"), ParamShadow.Inl.Contains(TEXT("auto V = Cool;")));
+				TestFalse(TEXT("no rewrite to the target inside the shadowed body"),
+						  ParamShadow.Inl.Contains(TEXT("auto V = RuiUetkx::Palette2::Cool();")));
+				TestTrue(TEXT("the un-shadowed sibling still rewrites"),
+						 ParamShadow.Inl.Contains(TEXT("auto K = RuiUetkx::Palette2::Cool();")));
 			}
 			const FUetkxCompileOutput BindShadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowBind() {\n")
-					TEXT("\tauto [Primary, SetPrimary] = UseState(FLinearColor());\n")
-						TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
-				TEXT("ShadowBind"));
+					TEXT("\tauto Use0 = Primary;\n")
+						TEXT("\tauto [Primary, SetPrimary] = UseState(FLinearColor());\n")
+							TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
+				TEXT("ShadowBind"), FString(), &ShadowResolver);
 			if (TestTrue(TEXT("binding-shadow sample compiles"), BindShadow.bOk))
 			{
 				TestTrue(TEXT("structured-binding shadow keeps the bare spelling"),
 						 BindShadow.Inl.Contains(TEXT("auto V = Primary;")));
+				TestTrue(TEXT("the pre-binding reference still rewrites"),
+						 BindShadow.Inl.Contains(TEXT("auto Use0 = RuiUetkx::Palette2::Cool();")));
 			}
 
 			// A local callable named like a USER hook (`auto UseWobble = …;`) is NOT Ctx-injected.
@@ -686,33 +832,35 @@ component CardStack(Names: TArray<FString>) {
 		// value-markup fragmentation — a setup local is live in attr exprs (the impl body scope),
 		// and a declaration BEFORE a value-markup range is still visible after it.
 		{
-			// A setup local shadowing a rename alias, referenced from an ATTR expression: the
+			// A setup local shadowing a rename binding, referenced from an ATTR expression: the
 			// attr must emit the LOCAL spelling (rewriting to the target would silently read the
-			// imported value instead of the local).
+			// imported value instead of the local). `Use0` keeps the import genuinely used.
+			const FUetkxCodegenTestResolver AttrResolver = MakeAliasResolver();
 			const FUetkxCompileOutput AttrShadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowAttr() {\n")
-					TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
-						TEXT("\treturn ( <Border BorderBackgroundColor={ Primary } /> );\n}\n"),
-				TEXT("ShadowAttr"));
+					TEXT("\tauto Use0 = Primary;\n")
+						TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
+							TEXT("\treturn ( <Border BorderBackgroundColor={ Primary } /> );\n}\n"),
+				TEXT("ShadowAttr"), FString(), &AttrResolver);
 			if (TestTrue(TEXT("attr-shadow sample compiles"), AttrShadow.bOk))
 			{
 				TestTrue(TEXT("attr expr keeps the shadowing local"),
 						 AttrShadow.Inl.Contains(TEXT("FRuiValue(Primary)")) ||
 							 AttrShadow.Inl.Contains(TEXT("( Primary )")) ||
 							 AttrShadow.Inl.Contains(TEXT("(Primary)")));
-				TestFalse(TEXT("attr expr does NOT rewrite to the alias target"),
-						  AttrShadow.Inl.Contains(TEXT("FRuiValue(Cool)")) ||
-							  AttrShadow.Inl.Contains(TEXT("( Cool )")));
+				TestFalse(TEXT("attr expr does NOT rewrite to the binding target"),
+						  AttrShadow.Inl.Contains(TEXT("FRuiValue(RuiUetkx::Palette2::Cool())")));
 			}
 
 			// Value-markup fragmentation: a local declared BEFORE an embedded markup value stays
 			// visible in the setup code AFTER it (the emitter splits the region around the range).
 			const FUetkxCompileOutput FragShadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowFrag() {\n")
-					TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
-						TEXT("\tFRuiNode Chip = <Spacer />;\n") TEXT("\tauto After = Primary;\n")
-							TEXT("\treturn ( <VerticalBox>{ Chip }</VerticalBox> );\n}\n"),
-				TEXT("ShadowFrag"));
+					TEXT("\tauto Use0 = Primary;\n")
+						TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
+							TEXT("\tFRuiNode Chip = <Spacer />;\n") TEXT("\tauto After = Primary;\n")
+								TEXT("\treturn ( <VerticalBox>{ Chip }</VerticalBox> );\n}\n"),
+				TEXT("ShadowFrag"), FString(), &AttrResolver);
 			if (TestTrue(TEXT("fragmented-shadow sample compiles"), FragShadow.bOk))
 			{
 				TestTrue(TEXT("post-range reference keeps the local"),
@@ -723,37 +871,40 @@ component CardStack(Names: TArray<FString>) {
 		// N4 audit round 2: range-for vars, lambda params, directive-frame locals, and the
 		// comma rule — every recognized tracker pattern pinned at the EMISSION plane.
 		{
-			// A range-for variable shadowing the alias keeps its bare spelling in the loop body.
+			// A range-for variable shadowing the binding keeps its bare spelling in the loop body
+			// (`Use0` keeps the import used under strict resolution).
+			const FUetkxCodegenTestResolver TrackerResolver = MakeAliasResolver();
 			const FUetkxCompileOutput RangeFor = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowRange() {\n")
-					TEXT("\tTArray<FLinearColor> Tints;\n")
+					TEXT("\tauto Use0 = Primary;\n\tTArray<FLinearColor> Tints;\n")
 						TEXT("\tfor (const FLinearColor& Primary : Tints) {\n\t\tauto V = Primary;\n\t}\n")
 							TEXT("\treturn ( <Spacer /> );\n}\n"),
-				TEXT("ShadowRange"));
+				TEXT("ShadowRange"), FString(), &TrackerResolver);
 			if (TestTrue(TEXT("range-for shadow compiles"), RangeFor.bOk))
 			{
 				TestTrue(TEXT("range-for var stays bare"), RangeFor.Inl.Contains(TEXT("auto V = Primary;")));
 			}
 
-			// A lambda parameter shadowing the alias keeps its bare spelling in the lambda body.
+			// A lambda parameter shadowing the binding keeps its bare spelling in the lambda body.
 			const FUetkxCompileOutput Lambda = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowLambda() {\n")
-					TEXT("\tauto Fn = [](const FLinearColor& Primary) { return Primary.R; };\n")
-						TEXT("\treturn ( <Spacer /> );\n}\n"),
-				TEXT("ShadowLambda"));
+					TEXT("\tauto Use0 = Primary;\n")
+						TEXT("\tauto Fn = [](const FLinearColor& Primary) { return Primary.R; };\n")
+							TEXT("\treturn ( <Spacer /> );\n}\n"),
+				TEXT("ShadowLambda"), FString(), &TrackerResolver);
 			if (TestTrue(TEXT("lambda-param shadow compiles"), Lambda.bOk))
 			{
 				TestTrue(TEXT("lambda param stays bare"), Lambda.Inl.Contains(TEXT("return Primary.R;")));
 			}
 
-			// An @for loop var shadowing the alias stays bare inside a NESTED attr expression.
+			// An @for loop var shadowing the binding stays bare inside a NESTED attr expression.
 			const FUetkxCompileOutput LoopAttr = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowLoopAttr() {\n")
-					TEXT("\treturn (\n\t\t<VerticalBox>\n")
+					TEXT("\tauto Use0 = Primary;\n\treturn (\n\t\t<VerticalBox>\n")
 						TEXT("\t\t\t@for (int32 Primary = 0; Primary < 3; ++Primary) {\n")
 							TEXT("\t\t\t\treturn ( <TextBlock Text={ FText::AsNumber(Primary) } /> )\n\t\t\t}\n")
 								TEXT("\t\t</VerticalBox>\n\t);\n}\n"),
-				TEXT("ShadowLoopAttr"));
+				TEXT("ShadowLoopAttr"), FString(), &TrackerResolver);
 			if (TestTrue(TEXT("loop-var attr shadow compiles"), LoopAttr.bOk))
 			{
 				TestTrue(TEXT("nested attr keeps the loop var"),
@@ -765,12 +916,37 @@ component CardStack(Names: TArray<FString>) {
 			const FUetkxCompileOutput Comma = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode CommaArg() {\n")
 					TEXT("\tauto T = MakeTuple(1, Primary);\n\treturn ( <Spacer /> );\n}\n"),
-				TEXT("CommaArg"));
+				TEXT("CommaArg"), FString(), &TrackerResolver);
 			if (TestTrue(TEXT("comma-arg sample compiles"), Comma.bOk))
 			{
-				TestTrue(TEXT("second argument rewrites to the target"),
-						 Comma.Inl.Contains(TEXT("MakeTuple(1, Cool)")));
+				TestTrue(TEXT("second argument rewrites to the qualified target"),
+						 Comma.Inl.Contains(TEXT("MakeTuple(1, RuiUetkx::Palette2::Cool())")));
 			}
+		}
+
+		// FS-01: the namespace derivation table — the ONE rule every caller (codegen, driver,
+		// preview, LSP mirror) derives from. Sanitization edges: companion dots, digits, C++
+		// keywords, non-identifier characters, empty ProjRel fallback.
+		{
+			TestEqual(TEXT("fixture fallback (empty ProjRel)"),
+					  FUetkxCodegen::FileNamespaceFor(FString(), TEXT("Counter")), TEXT("RuiUetkx::Counter"));
+			TestEqual(TEXT("project-relative path derives nested segments"),
+					  FUetkxCodegen::FileNamespaceFor(
+						  TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"), TEXT("SimpleCounter")),
+					  TEXT("RuiUetkx::Source::RuiDemo::Screens::SimpleCounter::SimpleCounter"));
+			TestEqual(TEXT("companion dots fold to underscores"),
+					  FUetkxCodegen::FileNamespaceFor(
+						  TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"), TEXT("")),
+					  TEXT("RuiUetkx::Source::RuiDemo::Screens::SimpleCounter::SimpleCounter_style"));
+			TestEqual(TEXT("leading digit gets an underscore prefix"),
+					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/3D/Hud.uetkx"), TEXT("")),
+					  TEXT("RuiUetkx::Source::_3D::Hud"));
+			TestEqual(TEXT("a C++ keyword segment gets an underscore prefix"),
+					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/template/Card.uetkx"), TEXT("")),
+					  TEXT("RuiUetkx::Source::_template::Card"));
+			TestEqual(TEXT("non-identifier characters fold to underscores"),
+					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/My Game/Hud-Main.uetkx"), TEXT("")),
+					  TEXT("RuiUetkx::Source::My_Game::Hud_Main"));
 		}
 
 		// Mixed 5-kind file: source order preserved within each phase region.

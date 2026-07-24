@@ -3,24 +3,30 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx::ChipSupport
+{
 inline float Padding()
 {
 	return
 #line 6 "ChipSupport.uetkx"
 4.0f
-#line 12 "ChipSupport.uetkx.inl"
+#line 14 "ChipSupport.uetkx.inl"
 ;
 }
 
 inline int32 UseChipCount(FRuiContext& Ctx, int32 Start);
 
+} // namespace RuiUetkx::ChipSupport
 #else
+namespace RuiUetkx::ChipSupport
+{
 inline int32 UseChipCount(FRuiContext& Ctx, int32 Start)
 {
 #line 2 "ChipSupport.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
 		return Count;
-#line 24 "ChipSupport.uetkx.inl"
+#line 29 "ChipSupport.uetkx.inl"
 }
 
+} // namespace RuiUetkx::ChipSupport
 #endif

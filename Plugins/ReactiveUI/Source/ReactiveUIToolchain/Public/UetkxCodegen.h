@@ -56,6 +56,14 @@ public:
 	static FString GeneratedCopyrightLine(const FString& Basename,
 										  TOptional<bool> bSellerRepoOverride = TOptional<bool>());
 
+	/** FILE_SCOPED_EXPORTS (FS-01): the C++ namespace one .uetkx file's declarations emit into,
+	 *  derived from the SAME machine-stable relative path the `#line` mapping uses (driver:
+	 *  project-relative; fixtures/tests: `<Basename>.uetkx` when ProjectRelPath is empty).
+	 *  `RuiUetkx::<sanitized path segments>::<sanitized stem>` — the single source of truth for
+	 *  codegen, the driver, the editor preview, and the tests; the LSP mirrors the rule. The
+	 *  runtime identity of every component is `<this>::<Name>` (FS-04). */
+	static FString FileNamespaceFor(const FString& ProjectRelPath, const FString& Basename);
+
 	/** The markup vocabulary as JSON — elements/attrs (typed), style keys, slot keys, hooks.
 	 *  RUIExportSchema writes this to Saved/ReactiveUI/schema.json for the LSP (Phase 5). */
 	static FString ExportSchemaJson();

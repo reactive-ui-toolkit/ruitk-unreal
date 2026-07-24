@@ -168,8 +168,17 @@ under **their own name**", "designer pick a screen from a dropdown"),
 
 ## §3 — Decisions (FS-01..FS-10) — owner confirms at plan review
 
-**FS-01 Namespace scheme (locked-by-precedent).** One helper, one truth:
-`FUetkxCodegen::FileNamespaceFor(UetkxAbsPath)` → segments
+**FS-01 Namespace scheme (locked-by-precedent; AMENDED at M1).** One helper, one truth:
+`FUetkxCodegen::FileNamespaceFor(ProjectRelPath, Basename)` → `RuiUetkx::<sanitized path
+segments>::<sanitized stem>`.
+> **M1 AMENDMENT (executed):** the anchor is the SAME machine-stable relative-path string the
+> `#line` mapping already uses (driver: project-relative via `ProjectRelPathFor`; contract
+> harness + unit tests: `<Basename>.uetkx`; resolver targets: `LabelForKey`) — NOT a
+> `*.Build.cs` filesystem walk. Rationale: zero filesystem access, every caller (codegen,
+> driver, contract harness, unit tests, preview, LSP) derives the identical namespace from
+> strings it already has, and fixture mode stays machine-independent. The module segment is
+> implied by the path (`RuiUetkx::Source::RuiDemo::…`); the 2308 fence still scopes imports.
+Original sketch (superseded):
 `{ "RuiUetkx", <ModuleName>, <sanitized dir segments under module root>, <sanitized file stem> }`.
 Emitted as C++17 nested namespace `namespace RuiUetkx::RuiDemo::Screens::SimpleCounter::SimpleCounter_style { … }`.
 Sanitization = sibling rule verbatim (identifier chars, `_` fallback, leading-digit prefix, C++

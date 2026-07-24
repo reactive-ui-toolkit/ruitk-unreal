@@ -334,13 +334,14 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 		FUetkxDriver::CompileAll(Scratch);
 	}
 
-	// ── ES-modules (M5/TD-026): private HMR identity is per-FILE — signatures never alias ────────
+	// ── FILE_SCOPED_EXPORTS (FS-04): HMR identity is per-FILE for EVERY decl — signatures never
+	// alias across files ──────────────────────────────────────────────────────────────────────
 	{
-		// The M3 emission keys two files' private `Row`s as RuiPriv_<File>::Row; the HMR maps key
-		// by that FName, so editing one file's private component can never flip the other's
-		// signature (pre-M3 both keyed bare `Row` — last-swap-wins).
-		const FName IdA(TEXT("RuiPriv_HmrPairA::Row"));
-		const FName IdB(TEXT("RuiPriv_HmrPairB::Row"));
+		// The emission keys two files' `Row`s as RuiUetkx::<File>::Row; the HMR maps key by that
+		// FName, so editing one file's component can never flip the other's signature (pre-M3
+		// both keyed bare `Row` — last-swap-wins; TD-026 fixed privates, FS-04 covers exports).
+		const FName IdA(TEXT("RuiUetkx::HmrPairA::Row"));
+		const FName IdB(TEXT("RuiUetkx::HmrPairB::Row"));
 		RUI::RegisterHookSignature(IdA, 0x11111111u);
 		RUI::RegisterHookSignature(IdB, 0x22222222u);
 		RUI::RegisterHookSignature(IdA, 0x33333333u); // "edit" A's file — its signature moves
@@ -348,7 +349,7 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 		TestEqual(TEXT("B's private signature untouched"), RUI::FindHookSignature(IdB), 0x22222222u);
 	}
 
-	// ── ES-modules (M5/G-01): renaming a file renames RuiPriv_<Basename> — privates remount ─────
+	// ── G-01 (uniform under FS-04): renaming a file renames its namespace — EVERYTHING remounts ──
 	{
 		const FString PairSrc = TEXT("FRuiNode Row() {\n\treturn ( <Spacer /> );\n}\n")
 			TEXT("export FRuiNode RENAMED() {\n\treturn ( <VerticalBox> <Row /> </VerticalBox> );\n}\n");
@@ -357,8 +358,11 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 		const FUetkxCompileOutput AsB =
 			FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("RENAMED"), TEXT("RenameB")), TEXT("RenameB"));
 		TestTrue(TEXT("rename gives the private a FRESH runtime id (remount semantic)"),
-				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuiPriv_RenameA::Row")) &&
-					 AsB.Inl.Contains(TEXT("RuiPriv_RenameB::Row")));
+				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuiUetkx::RenameA::Row")) &&
+					 AsB.Inl.Contains(TEXT("RuiUetkx::RenameB::Row")));
+		TestTrue(TEXT("rename ALSO refreshes the exported component's id (uniform G-01)"),
+				 AsA.Inl.Contains(TEXT("RuiUetkx::RenameA::RenameA")) &&
+					 AsB.Inl.Contains(TEXT("RuiUetkx::RenameB::RenameB")));
 	}
 
 	// ── ES-modules (U-08): the sidecar records the default-export marker ─────────────────────────
