@@ -1,5 +1,5 @@
 import { UseCounter } from "./SimpleCounter.hooks"
-import { CounterPanelBackground, PanelPadding, ButtonPadding, RowGap, PanelSlotPadding, ButtonSlotPadding } from "./SimpleCounter.style"
+import { PanelBackground, PanelPadding, ButtonPadding, RowGap, PanelSlotPadding, ButtonSlotPadding } from "./SimpleCounter.style"
 
 export FRuiNode SimpleCounter() {
 	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, RUI::Deps());
@@ -10,7 +10,7 @@ export FRuiNode SimpleCounter() {
 		<Border
 			Padding={ PanelPadding }
 			BorderImage="WhiteBrush"
-			BorderBackgroundColor={ CounterPanelBackground }
+			BorderBackgroundColor={ PanelBackground }
 			Slot.Padding={ PanelSlotPadding }
 		>
 			<VerticalBox>

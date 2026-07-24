@@ -32,7 +32,7 @@ static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCoun
 		FRuiBorderProps P;
 		P.SetPadding((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelPadding()));
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
-		P.SetBorderBackgroundColor((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::CounterPanelBackground()));
+		P.SetBorderBackgroundColor((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
 		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
 		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelSlotPadding()));

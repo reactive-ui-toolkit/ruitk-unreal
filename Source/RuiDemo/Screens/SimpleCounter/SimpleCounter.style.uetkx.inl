@@ -5,10 +5,10 @@
 #if defined(RUI_UETKX_DECL_PHASE)
 namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style
 {
-inline FLinearColor CounterPanelBackground()
+inline FLinearColor PanelBackground()
 {
 	return
-#line 6 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 8 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 { 0.02f, 0.02f, 0.03f, 0.85f }
 #line 14 "SimpleCounter.style.uetkx.inl"
 ;
@@ -17,7 +17,7 @@ inline FLinearColor CounterPanelBackground()
 inline FMargin PanelPadding()
 {
 	return
-#line 8 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 10 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 { 12.0f }
 #line 23 "SimpleCounter.style.uetkx.inl"
 ;
@@ -26,7 +26,7 @@ inline FMargin PanelPadding()
 inline FMargin ButtonPadding()
 {
 	return
-#line 10 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 12 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 { 12.0f, 4.0f }
 #line 32 "SimpleCounter.style.uetkx.inl"
 ;
@@ -35,7 +35,7 @@ inline FMargin ButtonPadding()
 inline FVector2D RowGap()
 {
 	return
-#line 12 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 14 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 { 1.0f, 6.0f }
 #line 41 "SimpleCounter.style.uetkx.inl"
 ;
@@ -44,7 +44,7 @@ inline FVector2D RowGap()
 inline FString PanelSlotPadding()
 {
 	return
-#line 14 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 16 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 TEXT("0,10,0,0")
 #line 50 "SimpleCounter.style.uetkx.inl"
 ;
@@ -53,7 +53,7 @@ TEXT("0,10,0,0")
 inline FString ButtonSlotPadding()
 {
 	return
-#line 16 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
+#line 18 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"
 TEXT("0,0,6,0")
 #line 59 "SimpleCounter.style.uetkx.inl"
 ;
