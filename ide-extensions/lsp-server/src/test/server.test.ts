@@ -364,6 +364,22 @@ test("semantic tokens: imported bindings color by the KIND of the export they bi
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+test("2303 keys on LOCAL bindings (FILE_SCOPED_EXPORTS parity with RecordNamedImportDups)", () => {
+  // Same-named exports from two files, disambiguated with `as` — LEGAL ES, no 2303.
+  const legal = scanFile(
+    'import { Accent } from "./A"\nimport { Accent as AccentB } from "./B"\nexport FRuiNode P() {\n\treturn ( <Spacer /> );\n}\n',
+    "P",
+  );
+  assert.ok(!legal.diags.some((d) => d.code === "UETKX2303"), "distinct local bindings of same-named exports are legal");
+  // A repeated LOCAL spelling — via a plain re-import AND via an alias landing on a taken local.
+  const dupPlain = scanFile('import { Accent } from "./A"\nimport { Accent } from "./B"\n', "P");
+  assert.ok(dupPlain.diags.some((d) => d.code === "UETKX2303"), "repeated plain local collides");
+  const dupAlias = scanFile('import { Accent } from "./A"\nimport { Cool as Accent } from "./B"\n', "P");
+  const aliasDiag = dupAlias.diags.find((d) => d.code === "UETKX2303");
+  assert.ok(aliasDiag, "an alias landing on a taken local collides");
+  assert.ok(aliasDiag!.message.includes("`Accent`"), "the diag names the LOCAL binding, not the target");
+});
+
 test("drainMessages: frames by UTF-8 BYTE length, not UTF-16 units (LSP-1)", () => {
   // A body with multi-byte chars (é = 2 bytes; 🎉 = 4 bytes / 2 UTF-16 units) must frame by byte length —
   // a UTF-16 string slice would over/under-read and desync the stream.

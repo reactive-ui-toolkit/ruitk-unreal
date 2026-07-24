@@ -369,8 +369,18 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     fail("2106 is RETIRED — same-name exports across files are legal: " + JSON.stringify(dupDiags.map((d) => d.message)));
   if (dupDiags.length !== 0)
     fail("a same-name export pair must publish ZERO diagnostics: " + JSON.stringify(dupDiags.map((d) => d.code + ":" + d.message.slice(0, 60))));
+  // UETKX2329 live (same-file case-twins): two exports differing only by case would alias in
+  // the case-insensitive FName registry — the one surviving collision class.
+  const foldPath = path.join(dupDir, "Source", "Fold.uetkx").replace(/\\/g, "/");
+  const foldUri = "file:///" + foldPath;
+  notify("textDocument/didOpen", { textDocument: { uri: foldUri, languageId: "uetkx", version: 1,
+    text: "export FLinearColor Accent = { 0.1f, 0.1f, 0.1f, 1.0f };\nexport FString accent(int32 S) {\n\treturn FString::FromInt(S);\n}\n" } });
+  await settle();
+  const foldDiags = diagnostics[foldUri] || [];
+  if (!foldDiags.some((d) => String(d.code) === "UETKX2329" && /accent.*case-folds onto.*Accent/.test(d.message)))
+    fail("same-file case-twin exports must 2329 live: " + JSON.stringify(foldDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
   fs.rmSync(dupDir, { recursive: true, force: true });
-  console.log("file-scoped exports OK (same-name export pair publishes zero diagnostics; 2106 retired)");
+  console.log("file-scoped exports OK (same-name pair clean, 2106 retired, case-twin 2329 live)");
 
   // TB-18: CROSS-FILE re-diagnosis — renaming an EXPORT must re-flag every open importer
   // WITHOUT touching it (the owner's screenshot: importer showed stale "No problems" after

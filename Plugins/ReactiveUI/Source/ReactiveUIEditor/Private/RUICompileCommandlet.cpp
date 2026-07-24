@@ -51,8 +51,9 @@ int32 URUICompileCommandlet::Main(const FString& Params)
 		return Check.Passed() ? 0 : 1;
 	}
 
-	// One sweep over all roots under a SINGLE ledger (A5e): the UETKX2106 exported-name table spans
-	// Source + Plugins so a name exported in both is a collision.
+	// One sweep over all roots as ONE universe: the UETKX2329 case-fold table spans Source +
+	// Plugins (same-name exports are LEGAL under FILE_SCOPED_EXPORTS — only case-folded FQN
+	// collisions error), and the aggregators + orphan sweep + fingerprint cover the combined set.
 	const bool bForce = HasSwitch(Switches, TEXT("full")) || FUetkxDriver::FingerprintMismatch();
 	const FUetkxSweepResult Sweep = FUetkxDriver::CompileAllRoots(Roots, bForce);
 	UE_LOG(LogRUICompile, Display, TEXT("RUICompile: %d file(s) — %d compiled, %d up-to-date, %d error(s)"),

@@ -1275,25 +1275,29 @@ function parseImportNameList(src: number[], braceAt: number, imp: UetkxImportDec
   return bclose + 1;
 }
 
-/** Duplicate-import diagnostics (2303) for a parsed name list: a name already imported earlier
- *  in this file, or repeated within this same import's braces; records the names into
- *  importedFrom. Shared by the plain named form and the ES COMBINED form. C++-identical
- *  (RecordNamedImportDups). */
+/** Duplicate-import diagnostics (2303) for a parsed name list: a LOCAL BINDING already bound
+ *  earlier in this file, or repeated within this same import's braces; records the bindings
+ *  into importedFrom. Shared by the plain named form and the ES COMBINED form. C++-identical
+ *  (RecordNamedImportDups). FILE_SCOPED_EXPORTS: keyed by the LOCAL binding name, not the
+ *  target — `import { A } from "./x"; import { A as B } from "./y";` binds two DISTINCT
+ *  locals of same-named exports (legal ES; two files may export the same name); only a
+ *  repeated LOCAL spelling collides. The diag anchors on the local token when aliased. */
 function recordNamedImportDups(imp: UetkxImportDecl, importedFrom: Map<string, string>, out: UetkxFileScanResult): void {
   const thisImport = new Set<string>();
   for (let idx = 0; idx < imp.names.length; idx++) {
-    const name = imp.names[idx];
-    const nameAt = imp.nameAts[idx];
-    const prev = importedFrom.get(name);
+    const aliased = !!imp.localNames[idx] && imp.localNames[idx] !== imp.names[idx];
+    const bound = aliased ? imp.localNames[idx] : imp.names[idx];
+    const boundAt = aliased && imp.localNameAts[idx] !== undefined ? imp.localNameAts[idx] : imp.nameAts[idx];
+    const prev = importedFrom.get(bound);
     if (prev !== undefined) {
-      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${name}\` (already imported from ${prev})`, nameAt, name.length);
-    } else if (thisImport.has(name)) {
-      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${name}\` (already imported from ${imp.specifier})`, nameAt, name.length);
+      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${bound}\` (already imported from ${prev})`, boundAt, bound.length);
+    } else if (thisImport.has(bound)) {
+      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${bound}\` (already imported from ${imp.specifier})`, boundAt, bound.length);
     } else {
-      thisImport.add(name);
+      thisImport.add(bound);
     }
   }
-  for (const name of thisImport) importedFrom.set(name, imp.specifier);
+  for (const bound of thisImport) importedFrom.set(bound, imp.specifier);
 }
 
 function parseImport(src: number[], start: number, out: UetkxFileScanResult, importedFrom: Map<string, string>): number {

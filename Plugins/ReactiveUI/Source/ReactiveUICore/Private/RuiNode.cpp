@@ -142,9 +142,14 @@ namespace RUI
 		{
 			// Never a silent first-wins: name every candidate ONCE per ambiguous name so the
 			// designer can paste the qualified id (the on-widget error text does the same).
+			// Lock-guarded like every registry structure (mounts can come from async loads).
 			static TSet<FName> ReportedAmbiguous;
+			static FCriticalSection ReportedLock;
 			bool bAlready = false;
-			ReportedAmbiguous.Add(Name, &bAlready);
+			{
+				FScopeLock Guard(&ReportedLock);
+				ReportedAmbiguous.Add(Name, &bAlready);
+			}
 			if (!bAlready)
 			{
 				FString List;

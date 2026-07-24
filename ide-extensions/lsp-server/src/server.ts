@@ -1040,6 +1040,28 @@ function validate(doc: TextDocument): void {
             `\`${r.name}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${r.name} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
         }
       }
+      // UETKX2329 live mirror, SAME-FILE case: two exports differing only by case share this
+      // file's namespace, so their case-folded FQNs collide (FName runtime identities are
+      // case-insensitive). The compiler reports this in sweeps; case-twins in ONE file are the
+      // editor-visible repro (cross-file twins need case-folding PATHS — same file on Windows).
+      {
+        const foldedSeen = new Map<string, string>();
+        for (const d of declsOfScan(scan)) {
+          if (!d.exported) continue;
+          const folded = d.name.toLowerCase();
+          const incumbent = foldedSeen.get(folded);
+          if (incumbent === undefined) {
+            foldedSeen.set(folded, d.name);
+            continue;
+          }
+          const key = `UETKX2329@${d.nameAt}:${[...d.name].length}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            push(d.nameAt, [...d.name].length, 0, "UETKX2329",
+              `exported binding \`${d.name}\` case-folds onto \`${incumbent}\` — FName runtime identities are case-insensitive; rename one`);
+          }
+        }
+      }
     } catch (e) {
       logServerError("live strict-usage sweep", e); // never let the mirror kill the publish
     }

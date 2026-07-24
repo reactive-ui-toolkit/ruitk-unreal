@@ -21,7 +21,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxCompileOutput
 	FString Inl; // the generated .uetkx.inl text ("" on failure)
 	TArray<FUetkxDiag> Diags;
 	TArray<FString> ComponentNames;	 // ALL decl bindings (component/hook/module names) -> this file; refs
-	TArray<FString> ExportedNames;	 // EXPORTED decl names only — the UETKX2106 global-uniqueness ledger (A5e)
+	TArray<FString> ExportedNames;	 // EXPORTED decl names only — feeds the UETKX2329 case-fold ledger + tests
 	TArray<FString> Uses;			 // component names REFERENCED by markup (aggregator topo order)
 	bool bSupportFile = false;		 // no markup (only hooks/modules) — HMR rebuild, not interp swap
 	uint32 HookSig = 0;				 // first component's hook signature (interp swap key)

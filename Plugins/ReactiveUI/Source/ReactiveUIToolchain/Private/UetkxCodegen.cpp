@@ -2469,10 +2469,10 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	Inl += TEXT("\n");
 
 	// ES parity (family 0.9.1 field wave): a DEFAULT-exported declaration is PUBLIC — a default
-	// importer binds the bare symbol (same-name) or rewrites to it (renamed), so it must emit at
-	// file scope and join the 2106 global-name ledger (ExportedNames below), never the detail
-	// namespace it would be unreachable in. It stays NAME-IMPORT-private: the resolver's export
-	// table is a separate preamble scan that never marks it, so `import { X }` still 2301s.
+	// importer rewrites to its qualified target (FS-03), so it must join the export surface
+	// (ExportedNames below; a default-exported COMPONENT also registers its named factory). It
+	// stays NAME-IMPORT-private: the resolver's export table is a separate preamble scan that
+	// never marks it, so `import { X }` still 2301s.
 	if (!Scan.DefaultExportName.IsEmpty())
 	{
 		auto MarkPublic = [&Scan](auto& Decls)
@@ -2688,8 +2688,9 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 	}
 
-	// EXPORTED decl names — the cross-file-addressable bindings the 2106 global ledger keys on
-	// (private decls may collide across files by construction, A5e).
+	// EXPORTED decl names — the cross-file-addressable export surface (feeds the driver's
+	// UETKX2329 case-fold ledger and the test pins; same-name exports across files are legal
+	// under FILE_SCOPED_EXPORTS — each file's decls live in their own namespace).
 	for (const FUetkxComponentDecl& D : Scan.Components)
 	{
 		if (D.bExported)
