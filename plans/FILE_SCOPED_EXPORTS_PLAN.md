@@ -307,6 +307,27 @@ Engine commands per CLAUDE.md (build → `-run=RUICompile -full`/`-check` → su
    `.style`/`.hooks` stems, digits, `template`/`class` keyword segments, non-ASCII).
    **Verify:** probe TU compiles + boots; audit notes appended to this file.
 
+> **M0 RESULTS (2026-07-24, executed):**
+> - **Probe:** a temporary `FseM0Probe.cpp` in RuiDemo compiled clean (Build.bat Succeeded)
+>   with every planned pattern: C++17 nested namespaces, SAME-NAMED `inline` value fns +
+>   props structs in sibling file namespaces, a qualified imported-value member default,
+>   `namespace T = ::…;` star-import lowering, FQN `RegisterComponentId`/
+>   `RegisterNamedFactory` strings, and reopened namespaces across the two phases. File
+>   deleted after the check.
+> - **Audit (a) — 2303 is keyed on TARGET names** (`RecordNamedImportDups`,
+>   UetkxFileScan.cpp:1261-1291: `ImportedFrom.Find(Name)`). Under file-scoped exports,
+>   `import { A as B } from "./x"; import { A as C } from "./y";` is LEGAL ES (distinct
+>   local bindings of same-named exports) but would false-positive. **M2 re-keys 2303 to
+>   LOCAL binding names** (`LocalNames[idx] ?? Names[idx]`), keeping the same code + message
+>   shape. Host-include payload dup check unaffected.
+> - **Audit (b) — import-vs-same-file-decl is uncovered** anywhere in scan/resolve →
+>   UETKX2328 confirmed as planned.
+> - **Audit (c) — there is NO sidecar `exports` array.** DRV-1's skip-path recovery is a
+>   fresh preamble re-scan (UetkxDriver.cpp:492-524) feeding `ExportedNames`; the whole
+>   block retires with the ledger. `FUetkxCompileOutput::ExportedNames` has exactly four
+>   consumers — the two driver ledger sites, the skip-path fill, and the codemod gate
+>   (RUIMigrateImportsCommandlet.cpp:360) — so the FIELD and its fills retire too.
+
 ### M1 — Codegen core
 `UetkxCodegen.cpp/.h`: add `FileNamespaceFor` (public static; module root via
 `FUetkxConfig::ModuleRootFor`, project-root fallback for fixture mode); wrap every decl's both
