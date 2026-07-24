@@ -22,6 +22,14 @@
 - ~~**Widget completion (owner re-decision 2026-07-16)**~~ — ✅ **COMPLETE 2026-07-16**
   (waves 0–4 + G, 0.5.0 → 0.9.0); see §5 and
   [WIDGET_COMPLETION_PLAN.md](archive/WIDGET_COMPLETION_PLAN.md).
+- **File-scoped exports campaign (owner-mandated 2026-07-24 — "exactly like react, es
+  modules; scale doesn't matter, this must be right").** Exports become per-file C++
+  namespaces like privates already are; UETKX2106 ("one exported name, one file" — TD-026
+  debt, not design) retires; runtime/HMR identity goes FQN with short-name suffix resolution
+  at the designer edges. Full execution plan:
+  [FILE_SCOPED_EXPORTS_PLAN.md](FILE_SCOPED_EXPORTS_PLAN.md) (M0–M8; origin TB-20). Lands
+  BEFORE 1.0 — it changes generated-code shape + runtime identity (CodegenVersion 3→4,
+  one-time remount on upgrade), which must not break post-1.0 users.
 - **Phase 9 — release & publishing (owner-gated).** Per-engine zips (packaging stamps
   `EngineVersion` — release-process skill), Fab listing + upload (identity verification has
   lead time), the demo video (AI storyboards, owner records), Discord announcement, and the
@@ -93,6 +101,9 @@
 - **TD-HMR-XPLAT** live HMR is Windows-only (Live Coding); Hot Reload as the potential
   cross-platform path.
 - **TD-HMR-DEMOS** the `ReactiveUetkx ▸ Demos` launcher submenu.
+- **VS2022 `.uetkx` file icon** in Solution Explorer (the VS Code language icon shipped
+  2026-07-21; VS2022 needs the VSSDK image-manifest mechanism — no infrastructure for it in
+  `UetkxVsix` yet, small and cosmetic).
 - **TD-009 / TD-018** cross-repo corpus mirroring PRs into the Godot/Unity repos (process
   items; the corpus itself is hash-gated here).
 - **TD-013 tail** typed authoring API follow-ons; **TD-015** deliberate v1 grammar cuts;

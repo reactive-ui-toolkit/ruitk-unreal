@@ -18,6 +18,9 @@ reversals and consciously-deferred scope (and where that scope is tracked now).
 | `WIDGET_COMPLETION_PLAN.md` | Widget-completion campaign COMPLETE (waves 0–4 + G, plugin 0.5.0→0.9.0, 63 tags): every clause of the v1 widget gate met; `plans/WIDGET_INVENTORY.md` (still live) is the ongoing tracker |
 | `EXTENSION_LISTING_PLAN.md` | Marketplace-listing overhaul shipped (extensions 0.3.1): distinguishable display names + structured page bodies on both marketplaces, README generated via `changelog.mjs extract-overview` |
 | `INCLUDE_RETIREMENT_PLAN.md` | Include retirement shipped (plugin 0.10.0, extensions 0.4.0): imports-only preambles, `import "@Header.h"` host includes, auto-included prelude, UETKX2317 hint, `-tidy` codemod; family follow-up tracked as TD-030 |
+| `MARKUP_EVERYWHERE_PLAN.md` | The third IDE pass shipped (plugin 0.11.0, extensions 0.5.0): §1 crash-hardening + E2E, §2 markup-expression lifting, §3 Tools menu entry, §4 markup-everywhere grammar/codegen parity, §5 bundled clangd — all Verify green, release out (archived 2026-07-21) |
+| `ES_MODULES_GENERAL_PLAN.md` + `ES_MODULES_EXECUTION_PLAN.md` | ES-modules redesign shipped (plugin 0.12.0, extensions 0.6.0): the Unreal leg (M0–M9) executed 2026-07-18 — banner + final evidence inside (128/128 battery, 49/49 LSP); the general plan is the verbatim family spec (do not edit — sibling copies must match) |
+| `LSP_COMPLETION_PLAN.md` | TD-033/TD-034 complete 2026-07-18: N0–N7 landed (scope-aware rename/refs/completion + the clangd-rename stretch) — banner + commit shas inside |
 
 ## Still live in `plans/`
 

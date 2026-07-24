@@ -36,21 +36,26 @@
       after the patch; the count SURVIVES. (Hook cells heap-resident — the core v2 claim.)
 - [ ] **2. Hook-order-sensitive state.** Component with `UseMemo`/`UseRef` before two
       `UseState`s; drive both states; save a cosmetic edit. ✅ Both states keep their
-      values, no cross-seeding. (The v1 HMR-1 ordinal bug's modern equivalent — should be
-      a non-event now; state is untouched, not migrated.)
+      values, no cross-seeding (stable shape = untouched cells).
+- [ ] **2b. Hook-shape EDIT (TB-13 — the family reset rule).** Drive the states, then save
+      an edit that ADDS or REMOVES a hook call. ✅ MessageLog: `[ReactiveUI][HMR] <Comp>:
+      hook shape changed by the edit (N -> M hooks) — state reset`, and the component
+      re-renders with DEFAULT values — clean reset, never a neighbor's value. (Suite pin:
+      `ReactiveUI.Hooks.HmrShapeReset`.)
 - [ ] **3. Cross-file: edit an IMPORTED component.** Edit `LabCard`/`DemoContextPanel`
       (something imported by an open screen), save. ✅ Every screen using it re-renders
       patched; importing screens' state survives.
 - [ ] **4. Structural edit.** Add/remove a widget in the tree (not just a prop), save.
       ✅ Patch lands; the changed subtree remounts (its OWN local state resets — expected
       React semantics for a structural change); siblings/ancestors keep state.
-- [ ] **5. Broken save while HMR is active (the R10–R14 gates in the loop).** Save with a
-      typo'd enum value (`Slot.HAlign="cesnter"`), a wrong-cased key (`slot.fill`), and a
-      butchered local's usage. ✅ Compile FAILS loudly: errors in MessageLog "ReactiveUI"
-      (0106 / 0112 / C++), the running UI keeps the LAST GOOD patch, VS Code shows the
-      same diagnostics live. ⚠ Known behavior: the watcher deletes the `.uetkx.inl` on a
-      failed markup compile — the next GOOD save regenerates it; do not be alarmed by the
-      transient deletion (never commit in that window).
+- [ ] **5. Broken save while HMR is active (the R10–R16 gates in the loop).** Save with a
+      typo, a wrong-cased key (`slot.fill`), and a DUPLICATE EXPORT (a name another file
+      already exports — TB-14). ✅ All flag in VS Code as-you-type (0106/0112/2106) and in
+      MessageLog on the sweep; the running UI keeps the LAST GOOD patch. The HMR window
+      shows ONE Recent-Errors row that grows `(still failing ×N)` — not a new row per
+      sweep/alt-tab — and the Errors counter reads CURRENT errors (drops to 0 on recovery).
+      ⚠ Known: the watcher deletes the `.uetkx.inl` on a failed markup compile — the next
+      GOOD save regenerates it (never commit in that window).
 - [ ] **6. Fix the break, save again.** ✅ Patch lands, UI resumes from the same state —
       the error round-trip costs nothing.
 - [ ] **7. Rapid saves (debounce).** Save 3–4 edits in quick succession. ✅ One coherent
@@ -59,6 +64,37 @@
       HMR. ✅ Both directions work; Stop restores the Live Coding console visibility.
 - [ ] **9. PIE stop/start under HMR.** Stop PIE, start PIE again with HMR still active,
       save an edit. ✅ Fresh session patches normally.
+
+## File-manipulation matrix (owner request 2026-07-24 — the watcher's Added/Removed/Rename
+## legs; run each once WITH HMR active, then spot-check 10a/10c with it stopped)
+
+- [ ] **10a. Create a new component file + wire it in.** Create
+      `Source/RuiDemo/Screens/SimpleCounter/CounterBadge.uetkx` exporting a tiny component
+      (`export FRuiNode CounterBadge() { return ( <TextBlock Text="BADGE" /> ); }`), then
+      import + render `<CounterBadge />` in SimpleCounter, save both. ✅ HMR on: the sweep
+      compiles BOTH (new file scanned + registered, importer recompiled), one patch, badge
+      appears live. HMR off: `.inl`s regenerate, nothing patches until F11 + remount.
+- [ ] **10b. COPY a file (the duplicate-export trap).** Copy `SimpleCounter.style.uetkx` to
+      `SimpleCounterCopy.style.uetkx` (same directory is fine). ✅ Every export in the copy
+      flags **UETKX2106** live in VS Code AND the sweep errors — first-wins per name, the
+      copy is the offender; the running UI keeps the last good patch. Delete the copy →
+      clean sweep, `compile errors resolved` line.
+- [ ] **10c. RENAME a file (the Added/Removed pair).** Rename `CounterBadge.uetkx` →
+      `CounterBadgeX.uetkx` WITHOUT touching the import. ✅ The importer flags the dead
+      specifier live (2300/2302); sweep errors; UI keeps last good. Fix the import
+      specifier → recovers in one save. (The watcher sees rename as Removed+Added; the
+      orphaned `CounterBadge.uetkx.inl` gets swept.)
+- [ ] **10d. DELETE an imported file.** Delete `CounterBadgeX.uetkx` while SimpleCounter
+      still imports it. ✅ Same failure shape as 10c live + in the sweep; the orphan sweep
+      unregisters the dead component (`.inl` removed); removing the import + usage
+      recovers. Confirm no ghost `CounterBadgeX` remains in tag completion afterward.
+- [ ] **10e. Rename an EXPORT (not the file).** In `SimpleCounter.style.uetkx` rename one
+      export and save WITHOUT updating the importer. ✅ Importer flags 2302 live naming the
+      exporter file; recovery on either side works in one save.
+- [ ] **10f. New file while HMR is STOPPED, then Start.** Create a valid new component
+      file with HMR off (watcher regenerates its `.inl` silently), then Start HMR and wire
+      it into a screen. ✅ First save after Start patches it in — the mode picks up files
+      born outside it.
 
 ## What "done" means
 

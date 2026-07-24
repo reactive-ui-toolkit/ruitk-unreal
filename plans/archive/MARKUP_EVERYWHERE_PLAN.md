@@ -1,5 +1,11 @@
 # Markup Everywhere — the third IDE pass + grammar-parity campaign
 
+> **✅ DONE — archived 2026-07-21.** All sections shipped in plugin 0.11.0 / extensions 0.5.0
+> (released 2026-07-17): §1 crash-hardening + E2E, §2 markup-expression lifting (virtualDoc
+> liftNode), §3 Tools ▸ ReactiveUI Message Log, §4 markup-everywhere parity (DONE note at §4),
+> §5 bundled clangd (DONE note at §5), §6 the release itself (CHANGELOG `[0.11.0]`; extensions
+> since moved past it). Bug ledger: `plans/TESTING_BUGS.md`.
+
 One plan for the whole remaining batch of the 2026-07-17 owner testing session (TESTING_BUGS.md
 is the bug ledger; this is the execution plan). Sections run IN ORDER; each has its Verify.
 The commit checkpoint that preceded this plan (5 commits on `feat/click-counter-demo`,

@@ -538,3 +538,48 @@ truths.
 ZOrder absent, Fill/Padding present, already-present HAlign absent; Border child: zero
 Slot.*; 5.6 fixture: SearchableComboBox hidden, ordinary tags intact). 91/91 node + SMOKE.
 LSP-only round (no C++ changes).
+
+---
+
+# Round 16 (2026-07-24): the HMR session finds — 2106 invisible live, the toast storm, and the type-confusion crash
+
+Owner HMR field-testing (matrix underway). Three finds, one of them a crash with a lesson.
+
+**1. TB-14 — UETKX2106 invisible live + standing-error spam.** Extracting SimpleCounter's
+styles created a duplicate `PanelBackground` export; the LSP said CLEAN (the global
+"one exported name, one file" ledger was full-sweep-only) and Live Coding failed with no
+editor hint; meanwhile the HMR window re-rowed `save/stale-poll — 1 error(s)` on every
+sweep and alt-tab, and the Errors counter summed one standing error forever. Fixed: live
+2106 mirror in the LSP (project-rooted, publish-safe, smoke-pinned with the exact session
+shape), Recent-Errors coalescing (`still failing ×N`), Errors = CURRENT count.
+
+**2. TB-13 v1 — my render-then-detect design CRASHED the editor.** The first
+implementation let the patched body render against the old cells and compared shapes
+after. The owner's Ctrl+Alt+F11 proved that render is not merely wrong — it is UB:
+`UseMemo` at slot 0 static_cast a STATE cell to a MEMO cell and destructed garbage
+(EXCEPTION_ACCESS_VIOLATION in FRuiValue::~FRuiValue). Same crash shape reproduced
+headlessly by the new suite before the fix. Note: this UB pre-existed for ANY
+rules-of-hooks violation — the field test hardened the engine, not just HMR.
+
+**3. TB-13 v2 — the memory-safe design (shipped).**
+- `IRuiHookCell::TypeHash()` — a CONTENT-based per-instantiation identity
+  (compiler-signature CRC; stable across DLLs and Live Coding patches, unlike a static's
+  address, which would false-reset on every stable patch). All 12 cell types stamped.
+- `FRuiComponentState::EnsureCellShape` at every render-ordered accessor (11 sites incl.
+  the generic `AcquireCell` and `StubSlot`): a type/kind mismatch TRUNCATES the tail —
+  prefix cells already served this render stay valid, mismatched ones rebuild fresh; no
+  cast ever type-confuses. Late-call paths (setters both forms, reducer dispatch,
+  deferred timer, signal subscribe/cleanup ×3) type-check and IGNORE instead (the C3
+  late-call precedent).
+- The render tail compares against a dedicated `HmrShapeSnapshot` (the PREVIOUS render's
+  shape — validation's `HookSignatures` stays first-primed to keep its nagging semantics;
+  two consumers, two baselines) and, when the shape moved ACROSS a generation boundary
+  (`RUI::BumpHmrGeneration` on patch-complete), runs the clean `HmrResetHooks` +
+  re-render + MessageLog line. Without a boundary it stays the `[Hooks][order]` user
+  error — but is now crash-proof either way.
+- Also learned operationally (docs updated): plugin C++ that adds struct fields or new
+  cross-module exports can NEVER Live-Code (old-layout objects / unresolved patch links)
+  — those changes always take the full close → build → reopen path.
+
+**Pins:** `ReactiveUI.Hooks.HmrShapeReset` (stable-shape preserve / boundary reset /
+no-boundary safe rebuild — the pre-fix crash repro is case 2). LSP 91/91 + smoke.
