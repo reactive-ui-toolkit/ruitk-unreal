@@ -352,10 +352,10 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     fail("NO slot keys under a SingleContent parent (Border passes none): " + JSON.stringify(py2Labels.filter((l) => l.startsWith("Slot."))));
   console.log("completion/diagnostic parity OK (parent-consumed slot keys only, no dupes, none under Border)");
 
-  // R16 (TB-14): live UETKX2106 — exported names are globally unique ("one exported name,
-  // one file"); the compiler only reported collisions in full sweeps, so the owner's style
-  // extraction validated CLEAN live and then broke the HMR session's Live Coding compile.
-  const dupDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-2106-"));
+  // FILE_SCOPED_EXPORTS: same-name exports across files are LEGAL (each file is its own
+  // module — the R16/TB-14 live 2106 mirror is RETIRED with the compiler's ledger). The
+  // exact pair that used to flag must now publish ZERO diagnostics.
+  const dupDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-scoped-"));
   fs.writeFileSync(path.join(dupDir, "Demo.uproject"), "{}");
   fs.mkdirSync(path.join(dupDir, "Source"), { recursive: true });
   fs.writeFileSync(path.join(dupDir, "Source", "A.style.uetkx"), "export FLinearColor PanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
@@ -365,12 +365,12 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     text: "export FLinearColor PanelBg = { 0.2f, 0.2f, 0.2f, 1.0f };\nexport FLinearColor UniqueBg = { 0.3f, 0.3f, 0.3f, 1.0f };\n" } });
   await settle();
   const dupDiags = diagnostics[dupUri] || [];
-  if (!dupDiags.some((d) => String(d.code) === "UETKX2106" && /PanelBg.*already bound by.*A\.style/.test(d.message)))
-    fail("duplicate export across files must 2106 LIVE: " + JSON.stringify(dupDiags.map((d) => d.message)));
-  if (dupDiags.some((d) => String(d.code) === "UETKX2106" && /UniqueBg/.test(d.message)))
-    fail("a unique export must NOT flag 2106");
+  if (dupDiags.some((d) => String(d.code) === "UETKX2106"))
+    fail("2106 is RETIRED — same-name exports across files are legal: " + JSON.stringify(dupDiags.map((d) => d.message)));
+  if (dupDiags.length !== 0)
+    fail("a same-name export pair must publish ZERO diagnostics: " + JSON.stringify(dupDiags.map((d) => d.code + ":" + d.message.slice(0, 60))));
   fs.rmSync(dupDir, { recursive: true, force: true });
-  console.log("live 2106 OK (duplicate export flagged as-you-type, unique export clean)");
+  console.log("file-scoped exports OK (same-name export pair publishes zero diagnostics; 2106 retired)");
 
   // TB-18: CROSS-FILE re-diagnosis — renaming an EXPORT must re-flag every open importer
   // WITHOUT touching it (the owner's screenshot: importer showed stale "No problems" after

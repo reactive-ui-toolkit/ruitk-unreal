@@ -273,8 +273,13 @@ test("rename refusals: invalid ident, collision in an edited file, exported else
     assert.ok("error" in renameSymbolAt(chip, at, "not an ident", new Set()), "invalid identifier refused");
     // `Cool` is bound in Chip.uetkx AND PlainUser.uetkx — collision in an edited file
     assert.ok("error" in renameSymbolAt(chip, at, "Cool", new Set()), "collision refused");
-    // `PlainUser` is exported by another file — the 2106 shape
-    assert.ok("error" in renameSymbolAt(chip, at, "PlainUser", new Set()), "cross-file export collision refused");
+    // `PlainUser` refuses for the RIGHT reason now: PlainUser.uetkx imports Chip, so the
+    // rename would rewrite its import into a binding that collides with its own declaration
+    // (the touched-file 2325 shape) — NOT because exports are globally unique.
+    assert.ok("error" in renameSymbolAt(chip, at, "PlainUser", new Set()), "touched-file collision still refused");
+    // `NsUser` is exported by a file the rename NEVER touches — LEGAL under
+    // FILE_SCOPED_EXPORTS (each file is its own module; the 2106 refusal is retired).
+    assert.ok("edits" in renameSymbolAt(chip, at, "NsUser", new Set()), "cross-file same-name export is legal now");
     // a host element name
     assert.ok("error" in renameSymbolAt(chip, at, "Border", new Set(["Border"])), "host-tag shadowing refused");
     void plain;

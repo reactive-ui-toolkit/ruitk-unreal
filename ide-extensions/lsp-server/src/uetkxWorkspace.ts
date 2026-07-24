@@ -340,14 +340,25 @@ export function sweptUetkxFiles(importerFsPath: string): string[] {
 /** The file that EXPORTS `name` under the importer's sweep universe (first exporter wins,
  *  mirroring FUetkxFsResolver::EnsureIndex / FindExporter). null when no file exports it. */
 export function findExporter(name: string, importerFsPath: string, overlay?: TextOverlay): ExporterHit | null {
+  // FILE_SCOPED_EXPORTS (FS-08): several files may export one name — return the importer-
+  // NEAREST exporter (fewest `../` hops in the specifier a fix-it would suggest; the sweep's
+  // sorted order breaks ties), matching the compiler's FindExporter so suggestions agree.
+  let best: ExporterHit | null = null;
+  let bestHops = Number.MAX_SAFE_INTEGER;
   for (const file of sweptUetkxFiles(importerFsPath)) {
     const decls = getDecls(file, overlay);
     if (!decls) continue;
     for (const d of decls) {
-      if (d.exported && d.name === name) return { file, kind: d.kind, nameAt: d.nameAt };
+      if (d.exported && d.name === name) {
+        const hops = (suggestSpecifier(importerFsPath, file).match(/\.\.\//g) ?? []).length;
+        if (hops < bestHops) {
+          bestHops = hops;
+          best = { file, kind: d.kind, nameAt: d.nameAt };
+        }
+      }
     }
   }
-  return null;
+  return best;
 }
 
 // ── live resolution diagnostics (FUetkxResolve::Apply, import-name portion) ───────────────────
@@ -727,8 +738,8 @@ export type UetkxRenameResult = { edits: UetkxRenameEdit[] } | { error: string }
 const IDENT_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /** Does `file` already bind `name` at its top level (a declaration or any import binding)?
- *  The N-05 refusal check — never produce an edit the compiler immediately rejects (2325/2106
- *  shapes). */
+ *  The N-05 refusal check — never produce an edit the compiler immediately rejects (the 2325
+ *  shape; cross-file same-name exports are LEGAL under FILE_SCOPED_EXPORTS). */
 function fileBindsName(file: string, name: string, overlay?: TextOverlay): boolean {
   const index = getFileIndex(file, overlay);
   if (!index) return false;
@@ -785,11 +796,9 @@ export function renameSymbolAt(
     }
   }
   if (symbol.type === "global") {
-    // 2106 shape: an EXPORTED name must stay globally unique.
-    const exporter = findExporter(newName, fsPath);
-    if (exporter) {
-      return { error: `\`${newName}\` is already exported by ${path.basename(exporter.file)} (one exported name, one file)` };
-    }
+    // FILE_SCOPED_EXPORTS: renaming an export to a name ANOTHER file exports is LEGAL (each
+    // file is its own module — the retired 2106 refusal lived here); the per-touched-file
+    // fileBindsName sweep above already refuses every real collision (the 2325 shape).
     // a component renamed to a host tag would shadow the vocabulary in tag position
     const declIndex = getFileIndex(symbol.file, overlay);
     const isComponent = declIndex?.scan.components.some((d) => d.name === symbol.name) ?? false;

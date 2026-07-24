@@ -973,15 +973,14 @@ function validate(doc: TextDocument): void {
         push(d.off, d.len, d.severity, d.code, d.message);
       }
     }
-    // R16 — UETKX2106 mirror (TB-14): exported names are GLOBALLY unique across the sweep
-    // universe ("one exported name, one file" — the driver's NameToFile ledger; exported
-    // decls keep their short C++ name BECAUSE of it). The compiler only reports this in
-    // full sweeps, so live a collision surfaced as a mystery Live-Coding failure. Flag the
-    // OPEN doc's exports against every other swept file's cached export surface.
+    // FILE_SCOPED_EXPORTS: the R16/TB-14 UETKX2106 mirror is RETIRED — same-name exports
+    // across files are legal ES-module scoping. The sweep of every other file's export
+    // surface SURVIVES: it feeds the TB-19 live 2305 mirror below, now multi-exporter aware
+    // (FS-08 — the suggestion picks the importer-NEAREST exporter, fewest `../` hops, exactly
+    // like the compiler's FindExporter, so live and sidecar messages stay identical).
     try {
-      // Only inside a REAL project (a .uproject ancestor): the compiler's ledger spans the
-      // project sweep roots — a bare fixture/tmp file has no sweep universe, and the
-      // directory-fallback root would send us walking the whole OS temp tree.
+      // Only inside a REAL project (a .uproject ancestor): a bare fixture/tmp file has no
+      // sweep universe, and the directory-fallback root would send us walking the OS temp tree.
       let projDir: string | null = null;
       for (let d = path.dirname(path.resolve(fsPathOf(doc))), i = 0; i < 40; i++) {
         try {
@@ -992,23 +991,18 @@ function validate(doc: TextDocument): void {
         d = parent;
       }
       const myAbs = path.resolve(fsPathOf(doc));
-      const otherExports = new Map<string, { file: string; kind: string }>();
+      const otherExports = new Map<string, Array<{ file: string; kind: string }>>();
       for (const file of projDir ? sweptUetkxFiles(fsPathOf(doc)) : []) {
         if (path.resolve(file) === myAbs) continue;
         for (const d of getDecls(file, overlay) ?? []) {
-          if (d.exported && !otherExports.has(d.name)) otherExports.set(d.name, { file, kind: d.kind });
+          if (d.exported) {
+            const list = otherExports.get(d.name) ?? [];
+            list.push({ file, kind: d.kind });
+            otherExports.set(d.name, list);
+          }
         }
       }
-      for (const d of declsOfScan(scan)) {
-        if (!d.exported) continue;
-        const incumbent = otherExports.get(d.name);
-        if (!incumbent) continue;
-        const key = `UETKX2106@${d.nameAt}:${[...d.name].length}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          push(d.nameAt, [...d.name].length, 0, "UETKX2106", `exported binding \`${d.name}\` is already bound by ${incumbent.file.replace(/\\/g, "/")} (one exported name, one file)`);
-        }
-      }
+      const hopsOf = (spec: string): number => (spec.match(/\.\.\//g) ?? []).length;
       // TB-19 — live UETKX2305 mirror (UetkxResolve strict usage, step 2): a CODE reference
       // whose name a workspace file EXPORTS (matching kind) but this file never imports is a
       // strict-imports violation the compiler only reports in full sweeps — live, deleting an
@@ -1027,8 +1021,18 @@ function validate(doc: TextDocument): void {
       for (const r of usageRefs) {
         if (r.kind !== "code") continue;
         if (usageKnown.has(r.name) || usageLocals.has(r.name)) continue;
-        const hit = otherExports.get(r.name);
-        if (!hit || hit.kind !== refShape(r.start, r.len, r.name)) continue; // ambient / kind mismatch — not this reference
+        const want = refShape(r.start, r.len, r.name);
+        const candidates = (otherExports.get(r.name) ?? []).filter((c) => c.kind === want);
+        if (candidates.length === 0) continue; // ambient / kind mismatch — not this reference
+        let hit = candidates[0];
+        let bestHops = hopsOf(suggestSpecifier(fsPathOf(doc), hit.file));
+        for (let i = 1; i < candidates.length; i++) {
+          const hops = hopsOf(suggestSpecifier(fsPathOf(doc), candidates[i].file));
+          if (hops < bestHops) {
+            bestHops = hops;
+            hit = candidates[i];
+          }
+        }
         const key = `UETKX2305@${r.start}:${r.len}`;
         if (!seen.has(key)) {
           seen.add(key);
@@ -1037,7 +1041,7 @@ function validate(doc: TextDocument): void {
         }
       }
     } catch (e) {
-      logServerError("live 2106 sweep", e); // never let the ledger mirror kill the publish
+      logServerError("live strict-usage sweep", e); // never let the mirror kill the publish
     }
     // TB-16(b): the LIVE checkers mirror most compiler rules with richer output (2311 has
     // the did-you-mean, full token ranges). When a live diag of the MIRRORED family already
@@ -1047,7 +1051,6 @@ function validate(doc: TextDocument): void {
       const MIRROR: Record<string, string[]> = {
         UETKX0106: ["UETKX2311", "UETKX0105", "UETKX0106"],
         UETKX0105: ["UETKX0105", "UETKX2311"],
-        UETKX2106: ["UETKX2106"],
         UETKX2305: ["UETKX2305"],
         UETKX0112: ["UETKX0112"],
         UETKX0109: ["UETKX0109"],
@@ -1157,8 +1160,8 @@ documents.onDidChangeContent((change) => {
     logServerError("validate", e); // markup diagnostics silently missing = this bug class
   }
   // TB-18 — cross-file re-diagnosis: an edit to THIS file can change the truth of every
-  // other open file (renamed export -> importers must flag 2302; new export -> 2106
-  // collisions; deleted component -> 2307). Re-validate the other open docs, debounced —
+  // other open file (renamed export -> importers must flag 2302; new export -> 2305
+  // resolutions move; deleted component -> 2307). Re-validate the other open docs, debounced —
   // they are few, validation is textual, and stale "No problems" on an importer while its
   // exporter was renamed is exactly how the owner lost trust in the diagnostics (TB-18).
   if (crossRevalidateTimer) clearTimeout(crossRevalidateTimer);
