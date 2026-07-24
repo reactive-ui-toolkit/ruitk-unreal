@@ -6,6 +6,7 @@
 
 #include "RuiMarshal.h"
 
+#include "UObject/TextProperty.h"
 #include "UObject/UnrealType.h"
 
 bool RUI::Umg::MarshalToProperty(UObject* Object, FName PropertyName, const FRuiValue& Value)

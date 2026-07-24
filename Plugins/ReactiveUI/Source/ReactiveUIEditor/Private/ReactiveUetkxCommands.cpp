@@ -3,6 +3,7 @@
 #include "ReactiveUetkxCommands.h"
 
 #include "Framework/Docking/TabManager.h"
+#include "Widgets/Docking/SDockTab.h"
 #include "Logging/LogMacros.h"
 #include "ReactiveUetkxMenu.h"
 #include "Styling/AppStyle.h"

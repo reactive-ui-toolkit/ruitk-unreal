@@ -11,6 +11,8 @@
 #include "CoreMinimal.h"
 #include "FieldNotificationId.h"
 #include "INotifyFieldValueChanged.h"
+#include "UObject/TextProperty.h"
+#include "UObject/UnrealType.h"
 #include "RuiContext.h"
 #include "UObject/Package.h"
 #include "UObject/StrongObjectPtr.h"

@@ -6,6 +6,7 @@
 
 #include "Misc/AutomationTest.h"
 #include "Framework/Application/SlateApplication.h"
+#include "UObject/Package.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 

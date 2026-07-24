@@ -79,9 +79,10 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 		// SimpleCounter.hooks, AcceptanceLab.style, AcceptanceLab.hooks) + 2 CycleProof (CycleA/CycleB)
 		// + 2 ChildrenProof (ChildHost/ChildParent) + 2 GrammarProof (MultiReturnProof wave G,
 		// HostImportProof INCLUDE_RETIREMENT_PLAN.md §B).
-		TestEqual(TEXT("1. all 43 swept .uetkx files (gallery + interop + cycle + children + grammar proof + "
-					   "SimpleCounter.style — the HMR value-companion, R16)"),
-				  Drift.Total, 43);
+		TestEqual(TEXT("1. all 45 swept .uetkx files (gallery + interop + cycle + children + grammar proof + "
+					   "SimpleCounter.style — the HMR value-companion, R16 — and the LabScopeProof pair: "
+				   "the compiled default-import + ~/ + dual same-name-export proof, FILE_SCOPED_EXPORTS)"),
+				  Drift.Total, 45);
 	}
 
 	// 2. The contract goldens hold (codegen shape is what the fixtures pinned).

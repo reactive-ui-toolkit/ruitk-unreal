@@ -2,6 +2,7 @@
 
 #include "RuiWorldSubsystem.h"
 
+#include "Engine/World.h"
 #include "RuiRoot.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiSubsystem, Log, All);

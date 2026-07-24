@@ -1,0 +1,7 @@
+// LabScopeBadge.uetkx — the demo tree's ONLY `export default` (FILE_SCOPED_EXPORTS proof):
+// the default-import lowering (resolver-supplied target name -> qualified binding) compiles
+// here for real, not just in the string-golden harness.
+export FRuiNode LabScopeBadge() {
+	return ( <TextBlock Text="scope-proof" /> );
+}
+export default LabScopeBadge;

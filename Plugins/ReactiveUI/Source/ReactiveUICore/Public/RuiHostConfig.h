@@ -12,6 +12,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HAL/PlatformTime.h"
 #include "RuiTypes.h"
 #include "RuiPropsBase.h"
 

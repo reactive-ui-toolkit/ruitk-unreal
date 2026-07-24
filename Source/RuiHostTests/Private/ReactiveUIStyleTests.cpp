@@ -11,6 +11,7 @@
 #include "RuiSlateElements.h"
 #include "RuiSlateHost.h"
 #include "RuiStyle.h"
+#include "Widgets/IToolTip.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Layout/SSeparator.h"
 #include "Widgets/Text/STextBlock.h"

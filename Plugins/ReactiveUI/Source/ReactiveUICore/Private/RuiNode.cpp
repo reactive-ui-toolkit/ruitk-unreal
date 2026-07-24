@@ -3,7 +3,9 @@
 #include "RuiNode.h"
 #include "RuiElementRegistry.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCore, Log, All);
+// Per-file static category (the LogRuiCoreHooks pattern) — NEVER a second LogRuiCore: the
+// module cpp defines that one, and unity builds merge TUs (a duplicate static is C2011).
+DEFINE_LOG_CATEGORY_STATIC(LogRuiCoreRegistry, Log, All);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Component registry (D-05)
@@ -157,7 +159,7 @@ namespace RUI
 				{
 					List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 				}
-				UE_LOG(LogRuiCore, Error,
+				UE_LOG(LogRuiCoreRegistry, Error,
 					   TEXT("RUI::Named('%s') is AMBIGUOUS — several files export this name; use a qualified id: %s"),
 					   *Name.ToString(), *List);
 			}

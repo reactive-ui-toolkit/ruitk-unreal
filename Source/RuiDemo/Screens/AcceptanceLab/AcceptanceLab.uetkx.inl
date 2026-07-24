@@ -23,7 +23,7 @@ namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
 {
 static FRuiNodeArray AcceptanceLab_UetkxImpl(FRuiContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuiNode>& children)
 {
-#line 20 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.uetkx"
+#line 21 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.uetkx"
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
 		// Imported hook: destructured from a 3-tuple. F12 on UseLabState jumps to AcceptanceLab.hooks.
 		auto [Count, Increment, Reset] = RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks::UseLabState(Ctx, 0);
@@ -493,6 +493,11 @@ static FRuiNodeArray AcceptanceLab_UetkxImpl(FRuiContext& Ctx, const FAcceptance
 		return RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::HorizontalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+	}());
+		Ch.Add([&]() -> FRuiNode {
+		RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::FLabScopeProofUetkxProps P;
+		TArray<FRuiNode> Ch;
+		return RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());

@@ -8,6 +8,7 @@
 #include "Misc/AutomationTest.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
+#include "UObject/Package.h"
 #include "RuiRoot.h"
 #include "RuiTypes.h"
 #include "RuiUmgElement.h"
