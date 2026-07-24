@@ -42,7 +42,7 @@ const MIGRATE = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUIMigrateE
 <Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUICompile -check`
 
 const DIAGS: Array<[string, string, string]> = [
-  ['UETKX2106', 'err', '`X` is exported by two files — one exported name, one file (rename or keep one private)'],
+  ['UETKX2329', 'err', "`X` case-folds onto an export from another declaration — FName runtime identities are case-insensitive; rename one"],
   ['UETKX2300', 'err', 'unknown import specifier — no file at that path'],
   ['UETKX2301', 'err', '`X` is not exported by that file — add `export` to its declaration'],
   ['UETKX2302', 'err', '`X` is not declared in that file'],
@@ -168,11 +168,13 @@ export const ImportsPage: FC = () => (
       C++ header.
     </Typography>
     <CodeBlock code={MIGRATE} language="bash" />
-    <Alert severity="warning" sx={{ mt: 1 }}>
-      Because migration exports <em>everything</em>, two files that previously held same-named{' '}
-      <em>private</em> declarations now both export that name — a{' '}
-      <code>UETKX2106</code> duplicate-export collision. The codemod reports it (and so does{' '}
-      <code>RUICompile -check</code>); resolve it by renaming one declaration or keeping one private.
+    <Alert severity="info" sx={{ mt: 1 }}>
+      Every file is its own module — exactly like an ES module. Two files exporting the same
+      name is <em>legal</em>; each export lives in its file&apos;s own generated namespace, and an
+      importer that wants both disambiguates with <code>as</code> aliases
+      (<code>{'import { PanelBg as MenuBg } from "./Menu.style"'}</code>). The only collisions
+      that error are <em>inside one file</em>: a repeated local binding (<code>UETKX2303</code>)
+      or an import colliding with a same-file declaration (<code>UETKX2325</code>).
     </Alert>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>

@@ -123,11 +123,10 @@ No headless test forces the GC timing; this is the one to eyeball under stress.
 
 ## §G. The import codemod — MIGRATE-1 (~5 min; terminal, on a scratch copy)
 
-- [ ] On a **throwaway branch/copy**, create two `.uetkx` files that each hold a same-named **private**
-      component (legal today). Run `<Engine>\UnrealEditor-Cmd <proj>.uproject -run=RUIMigrateImports`.
-      ✅ Expect: the codemod **reports `UETKX2106`** (export-everything collided the two names) and exits
-      non-zero — matching what `RUICompile -check` would say. Before the fix it green-lit a tree `-check`
-      then rejected. Discard the scratch copy.
+- [ ] ~~(SUPERSEDED by FILE_SCOPED_EXPORTS, 2026-07-24)~~ On a **throwaway branch/copy**, create two
+      `.uetkx` files that each hold a same-named **private** component, run `-run=RUIMigrateImports`.
+      ✅ Expect NOW: the codemod **succeeds** — export-everything making two files export one name is
+      LEGAL (each file is its own module; UETKX2106 is retired). `RUICompile -check` agrees (0 errors).
 - [ ] Sanity: on a clean tree, `-run=RUIMigrateImports` twice in a row is a **no-op** the second time
       (idempotent), and `-run=RUICompile -check` stays 0.
 

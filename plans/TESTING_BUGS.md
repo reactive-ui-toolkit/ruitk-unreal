@@ -453,3 +453,11 @@ for ALL decls, FQN runtime identity, suffix resolution at the designer edges (sh
 working; ambiguity is loud), 2106 retired-not-reused, 2303 becomes the load-bearing collision
 diagnostic. The earlier a/b/c question dissolved: the family answer (React + Unity sibling) is
 file-qualified identity everywhere with short-name convenience only at human edges.
+
+> **TB-20 EXECUTED (2026-07-24):** the FILE_SCOPED_EXPORTS campaign shipped on this branch —
+> per-file flat namespaces for every decl (`RuiUetkx_<path>_<stem>`), FQN runtime identity with
+> short-name suffix resolution at the designer edges, UETKX2106 retired (UETKX2329 case-fold
+> check is the one survivor), UETKX2303 re-keyed to local bindings, CodegenVersion 4. Evidence:
+> full battery 132/0, LSP 91/91 + smoke, `-check` 0 drift, the demo tree carries the owner's
+> original `PanelBackground` rename as the living same-name proof. Owner-side remainder:
+> HMR_FIELD_TEST items 5b + 10b (same-name live) and the M6 legs.

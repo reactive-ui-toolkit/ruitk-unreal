@@ -1,6 +1,18 @@
 # File-Scoped Exports — per-file module identity for `.uetkx` (kill the global export ledger)
 
-> **Status: DRAFT FOR OWNER REVIEW — authored 2026-07-24** from a full code investigation
+> **✅ EXECUTED 2026-07-24 (M0–M5 + M7/M8 on `fix/lsp-field-test-false-positives`; owner
+> directive "scale doesn't matter, this must be right").** Evidence: full battery **132/0** ·
+> LSP **91/91** + smoke PASSED · `RUICompile -full` 43/43, `-check` 0 drift · 35 contract
+> goldens re-pinned (flat scheme) · corpus hash untouched (grammar unchanged). Two in-flight
+> refinements, both recorded in place: FS-01 anchors on the `#line` relative-path convention
+> (not a Build.cs walk), and the namespace is ONE FLAT identifier
+> (`RuiUetkx_Source_..._SimpleCounter`) because nested segments SHADOWED real C++ namespaces
+> in user expressions (found by the demo build; §M0/M1/M2 notes). UETKX2328 proved
+> unnecessary (2325 already covers import-vs-decl); UETKX2329 (case-folded FQNs) shipped.
+> Owner-side remainder: HMR_FIELD_TEST 5b/10b + the M6 legs; release drains
+> PENDING_CHANGELOG per `release-process`.
+>
+> Original status line (authoring context): **DRAFT FOR OWNER REVIEW — authored 2026-07-24** from a full code investigation
 > (this repo + the Unity sibling), triggered by TB-20 (owner, field-test session 2026-07-24:
 > "every file is its own module, exactly like React"). **UETKX2106's "one exported name, one
 > file" rule is recorded tech debt (TD-026), not design** — this plan removes the debt at the

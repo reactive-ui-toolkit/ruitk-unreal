@@ -49,13 +49,19 @@
       ✅ Patch lands; the changed subtree remounts (its OWN local state resets — expected
       React semantics for a structural change); siblings/ancestors keep state.
 - [ ] **5. Broken save while HMR is active (the R10–R16 gates in the loop).** Save with a
-      typo, a wrong-cased key (`slot.fill`), and a DUPLICATE EXPORT (a name another file
-      already exports — TB-14). ✅ All flag in VS Code as-you-type (0106/0112/2106) and in
-      MessageLog on the sweep; the running UI keeps the LAST GOOD patch. The HMR window
-      shows ONE Recent-Errors row that grows `(still failing ×N)` — not a new row per
-      sweep/alt-tab — and the Errors counter reads CURRENT errors (drops to 0 on recovery).
+      typo and a wrong-cased key (`slot.fill`). ✅ Both flag in VS Code as-you-type
+      (0106/0112) and in MessageLog on the sweep; the running UI keeps the LAST GOOD patch.
+      The HMR window shows ONE Recent-Errors row that grows `(still failing ×N)` — not a new
+      row per sweep/alt-tab — and the Errors counter reads CURRENT errors (drops to 0 on
+      recovery). FILE_SCOPED_EXPORTS (2026-07-24): a duplicate export is NO LONGER an error —
+      see 5b.
       ⚠ Known: the watcher deletes the `.uetkx.inl` on a failed markup compile — the next
       GOOD save regenerates it (never commit in that window).
+- [ ] **5b. Same-name export across files (FILE_SCOPED_EXPORTS M6a).** Rename an export so it
+      matches one in ANOTHER file (e.g. SimpleCounter.style's `PanelBackground`, which now
+      deliberately matches ContextDemo.style's). ✅ NO diagnostic anywhere (VS Code clean,
+      sweep clean, Live Coding patch lands); both screens keep their own value. Edit EACH
+      file's `PanelBackground` independently → each screen updates with its own color.
 - [ ] **6. Fix the break, save again.** ✅ Patch lands, UI resumes from the same state —
       the error round-trip costs nothing.
 - [ ] **7. Rapid saves (debounce).** Save 3–4 edits in quick succession. ✅ One coherent
@@ -74,11 +80,13 @@
       import + render `<CounterBadge />` in SimpleCounter, save both. ✅ HMR on: the sweep
       compiles BOTH (new file scanned + registered, importer recompiled), one patch, badge
       appears live. HMR off: `.inl`s regenerate, nothing patches until F11 + remount.
-- [ ] **10b. COPY a file (the duplicate-export trap).** Copy `SimpleCounter.style.uetkx` to
-      `SimpleCounterCopy.style.uetkx` (same directory is fine). ✅ Every export in the copy
-      flags **UETKX2106** live in VS Code AND the sweep errors — first-wins per name, the
-      copy is the offender; the running UI keeps the last good patch. Delete the copy →
-      clean sweep, `compile errors resolved` line.
+- [ ] **10b. COPY a file (FILE_SCOPED_EXPORTS: now LEGAL).** Copy `SimpleCounter.style.uetkx`
+      to `SimpleCounterCopy.style.uetkx` (same directory is fine). ✅ NO diagnostic — the copy
+      is its own module; the sweep compiles both clean (2106 is retired). The ONE thing that
+      still errors is importing the same name from both files into one importer WITHOUT an
+      `as` alias (UETKX2303 on the second import). Delete the copy → clean sweep, orphan
+      `.inl` removed. Bonus check: a file-rename of the copy remounts its components (G-01 —
+      identity is path-derived).
 - [ ] **10c. RENAME a file (the Added/Removed pair).** Rename `CounterBadge.uetkx` →
       `CounterBadgeX.uetkx` WITHOUT touching the import. ✅ The importer flags the dead
       specifier live (2300/2302); sweep errors; UI keeps last good. Fix the import

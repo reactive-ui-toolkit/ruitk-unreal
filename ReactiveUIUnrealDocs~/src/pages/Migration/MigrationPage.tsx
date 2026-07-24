@@ -5,7 +5,7 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 const LEAF = `// Stage 1 — in the UMG Designer: drop a "ReactiveUI Host" (URuiHostWidget)
 // into your EXISTING UserWidget layout and set ComponentName to a registered
 // component. Nothing else about your screen changes.
-RUI_COMPONENT(InventoryPanel);   // compiled .uetkx components self-register by name`
+RUI_COMPONENT(InventoryPanel);   // compiled .uetkx components self-register; short names resolve when unambiguous`
 
 const SCREEN = `// Stage 2 — whole screens. Your CommonUI stack stays; the screen it pushes
 // is now ours (see the CommonUI guide):

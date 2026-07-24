@@ -141,7 +141,7 @@ export const sections: DocSection[] = [
         path: '/uetkx/imports',
         keywords: ['import', 'export', 'module', 'strict', 'codemod', 'uetkx', 'privacy', 'root alias'],
         searchContent:
-          'uetkx imports exports static import export module strict resolution codemod RUIMigrateEsModules ~/ root alias specifier relative extensionless named export rename as namespace import star as default import export default export list privacy tree-shaken UETKX2106 2300 2301 2302 2303 2304 2305 2306 2307 2308 2309 2316 2317 2320 2321 2322 2323 2324 2325 2326 2327 duplicate export binding unknown specifier not exported not declared duplicate unused used not imported value cycle module boundary preamble wrapper deprecated uetkx.config.json root key',
+          'uetkx imports exports static import export module strict resolution codemod RUIMigrateEsModules ~/ root alias specifier relative extensionless named export rename as namespace import star as default import export default export list privacy tree-shaken file-scoped same-name exports legal 2300 2301 2302 2303 2304 2305 2306 2307 2308 2309 2316 2317 2320 2321 2322 2323 2324 2325 2326 2327 duplicate export binding unknown specifier not exported not declared duplicate unused used not imported value cycle module boundary preamble wrapper deprecated uetkx.config.json root key',
         element: () => <ImportsPage />,
       },
       {
@@ -409,7 +409,7 @@ export const sections: DocSection[] = [
         path: '/reference/diagnostics',
         keywords: ['diagnostics', 'UETKX', 'errors', 'warnings', 'codes'],
         searchContent:
-          'diagnostics UETKX code stable catalog compiler build time language server editor as you type same meaning everywhere machine-readable uetkx.diags.json sidecar gitignored ReactiveUI message log bands UETKX01xx structural 0103 name file mismatch 0105 unknown element 0108 multiple roots UETKX03xx syntax 0300 0301 0302 0303 0304 0305 UETKX21xx declarations 2100 pascalcase 2101 no declaration 2106 duplicate export UETKX22xx hooks modules 2200 2201 2202 2203 2204 2205 UETKX23xx imports 2300 2309 UETKX25xx directives 2506 2508 UETKX30xx codegen 3006 template hook',
+          'diagnostics UETKX code stable catalog compiler build time language server editor as you type same meaning everywhere machine-readable uetkx.diags.json sidecar gitignored ReactiveUI message log bands UETKX01xx structural 0103 name file mismatch 0105 unknown element 0108 multiple roots UETKX03xx syntax 0300 0301 0302 0303 0304 0305 UETKX21xx declarations 2100 pascalcase 2101 no declaration 2106 retired file-scoped exports 2329 case-fold UETKX22xx hooks modules 2200 2201 2202 2203 2204 2205 UETKX23xx imports 2300 2309 UETKX25xx directives 2506 2508 UETKX30xx codegen 3006 template hook',
         element: () => <DiagnosticsPage />,
       },
       {

@@ -68,9 +68,13 @@ export const InteropOverviewPage: FC = () => (
       Every Epic-side host — <code>URuiHostWidget</code>, <code>URuiActivatableScreen</code>,{' '}
       <code>URuiWorldSubsystem::MountNamed</code> — takes a <code>ComponentName</code> and resolves
       it against the <strong>named-component registry</strong>. Compiled <code>.uetkx</code>{' '}
-      components self-register under their own name; hand-written C++ components register with{' '}
-      <code>RUI_COMPONENT(Fn)</code> or <code>RUI::RegisterNamedFactory</code>. That one indirection
-      is what lets a designer pick a screen from a dropdown without touching C++.
+      components self-register under a <em>file-qualified</em> id (every file is its own module,
+      so two files may export the same component name); the <strong>short name still works</strong>{' '}
+      whenever it is unambiguous — the registry resolves it by suffix. If two files export the
+      same name, the host shows the qualified candidates and you paste one. Hand-written C++
+      components register with <code>RUI_COMPONENT(Fn)</code> or{' '}
+      <code>RUI::RegisterNamedFactory</code>; <code>RUI::GetRegisteredFactoryNames</code>{' '}
+      enumerates everything registered.
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>

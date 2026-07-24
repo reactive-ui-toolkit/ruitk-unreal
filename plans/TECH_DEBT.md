@@ -650,6 +650,13 @@ referenced from plans/PRs.
   in ONE `CompileAll` (the A/B verdict-poisoning test now asserts single-sweep). battery 55/55,
   -check 0 drift; plan M8 test row updated.
 
+> **TD-026 AMENDMENT (FILE_SCOPED_EXPORTS, 2026-07-24):** the resolution note below — "exported
+> components keep the short name (2106 ledger guarantees uniqueness)" — is SUPERSEDED. Exports
+> are now file-scoped exactly like privates (owner decision, TB-20): every decl emits inside its
+> file's flat namespace, EVERY component's runtime identity is the FQN, the 2106 ledger is
+> retired, and short names resolve by suffix at the designer edges (`RUI::ResolveNamed`).
+> See plans/FILE_SCOPED_EXPORTS_PLAN.md.
+
 ## TD-026 — Accepted v1 divergences: interp global-name scoping + private-FName last-swap-wins
 - **Where:** `RuiNode.cpp` (process-global name/factory registries), `RuiHmr.cpp`, `UetkxInterpComponent.cpp`
 - **What/why deferred:** privacy (A5e) is a COMPILE-TIME scoping (per-file detail namespace +

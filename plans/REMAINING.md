@@ -22,8 +22,8 @@
 - ~~**Widget completion (owner re-decision 2026-07-16)**~~ — ✅ **COMPLETE 2026-07-16**
   (waves 0–4 + G, 0.5.0 → 0.9.0); see §5 and
   [WIDGET_COMPLETION_PLAN.md](archive/WIDGET_COMPLETION_PLAN.md).
-- **File-scoped exports campaign (owner-mandated 2026-07-24 — "exactly like react, es
-  modules; scale doesn't matter, this must be right").** Exports become per-file C++
+- ~~**File-scoped exports campaign**~~ — ✅ **EXECUTED 2026-07-24** (same branch; battery 132/0,
+  LSP 91/91+smoke, -check 0): Exports become per-file C++
   namespaces like privates already are; UETKX2106 ("one exported name, one file" — TD-026
   debt, not design) retires; runtime/HMR identity goes FQN with short-name suffix resolution
   at the designer edges. Full execution plan:

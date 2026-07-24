@@ -4,7 +4,7 @@ import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, Tab
 const BANDS: Array<[string, string]> = [
   ['UETKX01xx', 'Structural — name/file mismatch (0103), unknown element (0105), rules of hooks (0013 conditional / 0014 loop / 0015 match / 0016 callback — hooks run unconditionally at the top level of the body, never inside directives or markup), unreachable code after return (0107, hint — the editor fades it), multiple roots (0108), a paren-less markup return (0114 — markup-as-value itself is first-class since 0.11.0).'],
   ['UETKX03xx', 'Syntax — bad tag/attribute tokens (0300), unclosed tag (0301), mismatched close (0302), unexpected EOF (0303), unclosed brace/paren/comment (0304), unknown @directive (0305).'],
-  ['UETKX21xx', 'Declarations — component not PascalCase (2100), no declaration or no markup return (2101), duplicate export collision (2106).'],
+  ['UETKX21xx', 'Declarations — component not PascalCase (2100), no declaration or no markup return (2101). 2106 is RETIRED: same-name exports across files are legal (each file is its own module).'],
   ['UETKX22xx', 'Deprecated wrapper grammar — missing hook name (2200) / params (2201) / body (2202), Use* naming (2203), missing module name (2204) / body (2205). These fire only inside the old component/hook/module wrappers, which themselves warn UETKX2320.'],
   ['UETKX23xx', 'Imports & exports — resolution and privacy (2300–2309); a redundant auto-included host include (2317, hint); a project-local host-include header the IDE cannot find in the workspace (2316, err — IDE-only: the compiler cannot see engine include paths, the language server can at least see your Source/ and Plugins/); the ES-modules grammar (2320 deprecated wrapper, 2321–2327 classification, inference, export-list and import-form errors — see Migrating to ES modules).'],
   ['UETKX25xx', 'Directives — malformed @if/@for/@match shape (2506–2508).'],
@@ -93,7 +93,8 @@ export const DiagnosticsPage: FC = () => (
 
     <Alert severity="info">
       Import diagnostics (UETKX23xx) have their own walkthrough on the <strong>Imports &amp;
-      exports</strong> page, including the fix-it for the duplicate-export collision (UETKX2106).
+      exports</strong> page. Same-name exports across files are legal (file-scoped, like ES
+      modules); the one cross-file check left is UETKX2329 (case-folded runtime identities).
     </Alert>
   </Box>
 )
