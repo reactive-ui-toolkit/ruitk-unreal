@@ -43,10 +43,10 @@ function normAbs(p: string): string {
   return path.resolve(p).replace(/\\/g, "/");
 }
 
-function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
-  // Signature-list mode: keep listing exported decls even if one body is mid-edit / malformed, so the
-  // export list matches the C++ ScanPreamble resolver instead of truncating at the error (bughunt LSP-1).
-  const scan = scanFile(source, path.basename(key, ".uetkx"), /*resyncOnBodyError*/ true);
+/** Every declaration of a scan as flat records (ExportedDecl.exported says which are public).
+ *  Shared by the index cache and the live 2106 duplicate-export check (R16) — one list, one
+ *  notion of "the file's export surface". */
+export function declsOfScan(scan: UetkxFileScanResult): ExportedDecl[] {
   const decls: ExportedDecl[] = [];
   for (const c of scan.components) decls.push({ name: c.name, kind: "component", exported: c.exported, nameAt: c.nameAt });
   for (const h of scan.hooks) decls.push({ name: h.name, kind: "hook", exported: h.exported, nameAt: h.nameAt });
@@ -54,7 +54,14 @@ function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
   // ES-modules (M6): value/util decls join the export index (completions / go-to-def / fix-its).
   for (const v of scan.values) decls.push({ name: v.name, kind: "value", exported: v.exported, nameAt: v.nameAt });
   for (const u of scan.utils) decls.push({ name: u.name, kind: "util", exported: u.exported, nameAt: u.nameAt });
-  return { mtimeMs, decls, defaultExportName: scan.defaultExportName, scan, refs: collectFileReferences(scan, source), text: source };
+  return decls;
+}
+
+function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
+  // Signature-list mode: keep listing exported decls even if one body is mid-edit / malformed, so the
+  // export list matches the C++ ScanPreamble resolver instead of truncating at the error (bughunt LSP-1).
+  const scan = scanFile(source, path.basename(key, ".uetkx"), /*resyncOnBodyError*/ true);
+  return { mtimeMs, decls: declsOfScan(scan), defaultExportName: scan.defaultExportName, scan, refs: collectFileReferences(scan, source), text: source };
 }
 
 /** Live-document overlay (TD-033 N-04): rename/references must never read stale disk text for
@@ -98,14 +105,14 @@ export function getFileIndex(
 
 /** All top-level declarations of a .uetkx file (name -> kind/exported/nameAt), mtime-cached.
  *  Returns null when the file is unreadable. */
-export function getDecls(fsPath: string): ExportedDecl[] | null {
-  return cachedScan(fsPath)?.decls ?? null;
+export function getDecls(fsPath: string, overlay?: TextOverlay): ExportedDecl[] | null {
+  return cachedScan(fsPath, overlay)?.decls ?? null;
 }
 
 /** ES-modules (U-08): the file's `export default <Name>` target ("" = none / unreadable) —
  *  mirrors IUetkxImportResolver::DefaultExportOf. */
-export function defaultExportOf(fsPath: string): string {
-  return cachedScan(fsPath)?.defaultExportName ?? "";
+export function defaultExportOf(fsPath: string, overlay?: TextOverlay): string {
+  return cachedScan(fsPath, overlay)?.defaultExportName ?? "";
 }
 
 // ── module + workspace roots ─────────────────────────────────────────────────────────────────
@@ -332,9 +339,9 @@ export function sweptUetkxFiles(importerFsPath: string): string[] {
 
 /** The file that EXPORTS `name` under the importer's sweep universe (first exporter wins,
  *  mirroring FUetkxFsResolver::EnsureIndex / FindExporter). null when no file exports it. */
-export function findExporter(name: string, importerFsPath: string): ExporterHit | null {
+export function findExporter(name: string, importerFsPath: string, overlay?: TextOverlay): ExporterHit | null {
   for (const file of sweptUetkxFiles(importerFsPath)) {
-    const decls = getDecls(file);
+    const decls = getDecls(file, overlay);
     if (!decls) continue;
     for (const d of decls) {
       if (d.exported && d.name === name) return { file, kind: d.kind, nameAt: d.nameAt };
@@ -349,7 +356,7 @@ export function findExporter(name: string, importerFsPath: string): ExporterHit 
  *  module, 2302 not-declared, 2301 not-exported), computed live from the workspace — instant import
  *  feedback without a recompile. The usage-policing codes (2304 unused / 2305 missing / 2307
  *  unknown) stay with the hash-gated sidecar (they need the emitter's full reference set). */
-export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: string): ResolveDiag[] {
+export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: string, overlay?: TextOverlay): ResolveDiag[] {
   const diags: ResolveDiag[] = [];
   const importerModule = moduleRootFor(importerFsPath);
   for (const imp of scan.imports) {
@@ -405,7 +412,7 @@ export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: st
     // own diagnostics. A namespace part validates its MEMBERS at use sites (the compiler's
     // sidecar carries those — they need the code walk); nothing to name-check at the import line.
     // ES-modules (U-08): a default part needs the target to HAVE a default export — live 2326.
-    if (imp.isDefault && !defaultExportOf(key)) {
+    if (imp.isDefault && !defaultExportOf(key, overlay)) {
       diags.push({
         code: "UETKX2326",
         severity: 0,
@@ -414,7 +421,7 @@ export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: st
         len: Math.max(1, imp.defaultAlias.length),
       });
     }
-    const decls = getDecls(key) ?? [];
+    const decls = getDecls(key, overlay) ?? [];
     const byName = new Map(decls.map((d) => [d.name, d]));
     // Rename imports (`{ A as B }`) validate the TARGET name A — the local alias is the
     // importer's business (2325 is the scanner's, collisions-wise).

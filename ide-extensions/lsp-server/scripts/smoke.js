@@ -352,6 +352,126 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     fail("NO slot keys under a SingleContent parent (Border passes none): " + JSON.stringify(py2Labels.filter((l) => l.startsWith("Slot."))));
   console.log("completion/diagnostic parity OK (parent-consumed slot keys only, no dupes, none under Border)");
 
+  // R16 (TB-14): live UETKX2106 — exported names are globally unique ("one exported name,
+  // one file"); the compiler only reported collisions in full sweeps, so the owner's style
+  // extraction validated CLEAN live and then broke the HMR session's Live Coding compile.
+  const dupDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-2106-"));
+  fs.writeFileSync(path.join(dupDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(dupDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(dupDir, "Source", "A.style.uetkx"), "export FLinearColor PanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const dupPath = path.join(dupDir, "Source", "B.style.uetkx").replace(/\\/g, "/");
+  const dupUri = "file:///" + dupPath;
+  notify("textDocument/didOpen", { textDocument: { uri: dupUri, languageId: "uetkx", version: 1,
+    text: "export FLinearColor PanelBg = { 0.2f, 0.2f, 0.2f, 1.0f };\nexport FLinearColor UniqueBg = { 0.3f, 0.3f, 0.3f, 1.0f };\n" } });
+  await settle();
+  const dupDiags = diagnostics[dupUri] || [];
+  if (!dupDiags.some((d) => String(d.code) === "UETKX2106" && /PanelBg.*already bound by.*A\.style/.test(d.message)))
+    fail("duplicate export across files must 2106 LIVE: " + JSON.stringify(dupDiags.map((d) => d.message)));
+  if (dupDiags.some((d) => String(d.code) === "UETKX2106" && /UniqueBg/.test(d.message)))
+    fail("a unique export must NOT flag 2106");
+  fs.rmSync(dupDir, { recursive: true, force: true });
+  console.log("live 2106 OK (duplicate export flagged as-you-type, unique export clean)");
+
+  // TB-18: CROSS-FILE re-diagnosis — renaming an EXPORT must re-flag every open importer
+  // WITHOUT touching it (the owner's screenshot: importer showed stale "No problems" after
+  // the exporter was renamed in another tab), and the resolution must read the OPEN BUFFER
+  // (dirty overlay), not stale disk.
+  const xDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-cross-"));
+  fs.writeFileSync(path.join(xDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(xDir, "Source"), { recursive: true });
+  const xStylePath = path.join(xDir, "Source", "X.style.uetkx");
+  fs.writeFileSync(xStylePath, "export FLinearColor XPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const xImpPath = path.join(xDir, "Source", "XScreen.uetkx").replace(/\\/g, "/");
+  const xImpUri = "file:///" + xImpPath;
+  const xStyleUri = "file:///" + xStylePath.replace(/\\/g, "/");
+  fs.writeFileSync(path.join(xDir, "Source", "XScreen.uetkx"),
+    'import { XPanelBg } from "./X.style"\nexport FRuiNode XScreen() {\n\treturn ( <Border BorderBackgroundColor={ XPanelBg }><Spacer /></Border> );\n}\n');
+  notify("textDocument/didOpen", { textDocument: { uri: xStyleUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(xStylePath, "utf8") } });
+  notify("textDocument/didOpen", { textDocument: { uri: xImpUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(xDir, "Source", "XScreen.uetkx"), "utf8") } });
+  await settle();
+  if ((diagnostics[xImpUri] || []).some((d) => String(d.code) === "UETKX2302"))
+    fail("clean cross-file fixture must start clean");
+  // rename the EXPORT in the exporter's BUFFER only (didChange — disk stays old)
+  notify("textDocument/didChange", { textDocument: { uri: xStyleUri, version: 2 },
+    contentChanges: [{ text: "export FLinearColor XPanelBgRenamed = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle(); // the cross-file revalidation is debounced (150ms)
+  const xDiags = diagnostics[xImpUri] || [];
+  if (!xDiags.some((d) => String(d.code) === "UETKX2302" && /XPanelBg/.test(d.message)))
+    fail("renaming an export must re-flag the UNTOUCHED importer (2302, from the dirty buffer): " + JSON.stringify(xDiags.map((d) => d.code + ":" + d.message.slice(0, 60))));
+  // rename it back — the importer must clear, again untouched
+  notify("textDocument/didChange", { textDocument: { uri: xStyleUri, version: 3 },
+    contentChanges: [{ text: "export FLinearColor XPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle();
+  if ((diagnostics[xImpUri] || []).some((d) => String(d.code) === "UETKX2302"))
+    fail("restoring the export must clear the importer without touching it");
+  fs.rmSync(xDir, { recursive: true, force: true });
+  console.log("cross-file re-diagnosis OK (exporter edits re-flag/clear open importers, dirty-buffer truth)");
+
+  // TB-19: a USAGE bound by nothing must flag. (a) import MISSPELLED while the usage is
+  // spelled right (the owner's session) -> the usage 2310s naming the broken import as the
+  // near-miss; (b) import line DELETED while the exporter still exports the name -> live
+  // UETKX2305 (compiler strict-usage mirror) with the add-import fix tail the code action
+  // parses. Import intact but exporter renamed stays SINGLE-SOURCE (2302 on the import only).
+  const uDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-usage-"));
+  fs.writeFileSync(path.join(uDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(uDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(uDir, "Source", "Y.style.uetkx"), "export FLinearColor YPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const uImpPath = path.join(uDir, "Source", "YScreen.uetkx").replace(/\\/g, "/");
+  const uImpUri = "file:///" + uImpPath;
+  const uClean = 'import { YPanelBg } from "./Y.style"\nexport FRuiNode YScreen() {\n\treturn ( <Border BorderBackgroundColor={ YPanelBg }><Spacer /></Border> );\n}\n';
+  fs.writeFileSync(path.join(uDir, "Source", "YScreen.uetkx"), uClean);
+  notify("textDocument/didOpen", { textDocument: { uri: uImpUri, languageId: "uetkx", version: 1, text: uClean } });
+  await settle();
+  if ((diagnostics[uImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("clean usage fixture must start clean: " + JSON.stringify((diagnostics[uImpUri] || []).map((d) => d.code)));
+  // (a) misspell the IMPORT, keep the usage — the exporter STILL exports the name, so the
+  // usage gets the precise fix: live 2305 (add-import), and 2310 defers to it.
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 2 },
+    contentChanges: [{ text: uClean.replace('import { YPanelBg }', 'import { YPasnelBsg }') }] });
+  await settle();
+  let uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2302" && /YPasnelBsg/.test(d.message)))
+    fail("misspelled import must 2302: " + JSON.stringify(uDiags.map((d) => d.code)));
+  if (!uDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YPanelBg } from "./Y.style"')))
+    fail("usage still exported elsewhere must 2305 (2310 defers): " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  // (a2) the owner's exact session: exporter ALSO renamed — the usage's name is now exported
+  // by NO file, so 2305 has no owner and the near-miss lint points at the broken import.
+  const uStyleUri = "file:///" + path.join(uDir, "Source", "Y.style.uetkx").replace(/\\/g, "/");
+  notify("textDocument/didOpen", { textDocument: { uri: uStyleUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(uDir, "Source", "Y.style.uetkx"), "utf8") } });
+  notify("textDocument/didChange", { textDocument: { uri: uStyleUri, version: 2 },
+    contentChanges: [{ text: "export FLinearColor ZPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle(); // cross-file revalidation is debounced (150ms)
+  uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2310" && /'YPanelBg'.*the import 'YPasnelBsg'/.test(d.message)))
+    fail("usage exported NOWHERE must 2310 toward the misspelled import: " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  if (uDiags.some((d) => String(d.code) === "UETKX2305"))
+    fail("no 2305 when no file exports the name");
+  // restore the exporter buffer for step (b)
+  notify("textDocument/didChange", { textDocument: { uri: uStyleUri, version: 3 },
+    contentChanges: [{ text: "export FLinearColor YPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle();
+  // (b) delete the import line entirely — the usage must 2305 with the add-import fix
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 3 },
+    contentChanges: [{ text: uClean.replace('import { YPanelBg } from "./Y.style"\n', "") }] });
+  await settle();
+  uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YPanelBg } from "./Y.style"')))
+    fail("usage with NO import must 2305 live with the add-import tail: " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 80))));
+  // restore — clean again, no residue
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 4 }, contentChanges: [{ text: uClean }] });
+  await settle();
+  if ((diagnostics[uImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("restoring the import must clear the usage diags");
+  fs.rmSync(uDir, { recursive: true, force: true });
+  console.log("strict-usage live OK (orphaned usage: 2310 toward broken import, 2305 when unimported, clean restore)");
+
   // R15: sinceUE parity in TAG completion (5.6 fixture workspace)
   const tgDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tagver-"));
   fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');

@@ -50,6 +50,7 @@ import {
   defaultExportOf,
   findExporter,
   findReferencesTo,
+  declsOfScan,
   getDecls,
   getFileIndex,
   importCursorAt,
@@ -60,6 +61,7 @@ import {
   resolveSymbolAt,
   suggestSpecifier,
   sweptUetkxFiles,
+  workspaceRelLabel,
   workspaceRootFor,
 } from "./uetkxWorkspace";
 import { ClangdProxy, findClangd, type ClangdPublishedDiagnostics } from "./clangdProxy";
@@ -421,6 +423,11 @@ async function syncEmbeddedDoc(doc: TextDocument): Promise<void> {
 
 function validate(doc: TextDocument): void {
   const text = doc.getText();
+  // TB-18 — cross-file reads must see the OPEN BUFFERS, not stale disk: an exporter being
+  // edited in another tab is resolved through this overlay (the N-04 rename machinery,
+  // now applied to every live diagnostic).
+  const overlay = new Map<string, string>();
+  for (const d of documents.all()) overlay.set(path.resolve(fsPathOf(d)).replace(/\\/g, "/"), d.getText());
   const diags: Diagnostic[] = [];
   const push = (offCp: number, lenCp: number, severity: number, code: string, message: string) => {
     const start = doc.positionAt(codePointToUtf16(text, Math.max(offCp, 0)));
@@ -623,7 +630,7 @@ function validate(doc: TextDocument): void {
           if (!targetName) continue;
           const key = resolveSpecifier(fsPathOf(doc), imp.specifier);
           if (!key) break;
-          const idx = getFileIndex(key);
+          const idx = getFileIndex(key, overlay);
           if (!idx) break;
           const real = targetName === "__default__" ? idx.scan.defaultExportName : targetName;
           const comp = idx.scan.components.find((c) => c.name === real);
@@ -740,7 +747,7 @@ function validate(doc: TextDocument): void {
             }
           }
           if (!validTags.has(el.tag)) {
-            if (!findExporter(el.tag, fsPathOf(doc))) {
+            if (!findExporter(el.tag, fsPathOf(doc), overlay)) {
               const key = `UETKX2307@${tagOff}:${el.tag.length}`;
               if (!seen.has(key)) {
                 seen.add(key);
@@ -861,29 +868,48 @@ function validate(doc: TextDocument): void {
       sweepSpans(bodyCp, comp.bodyAt, merged);
     }
   }
+  // R6 (+TB-19): the shared usage-resolution sets. `usageLocals` = every in-scope local a body
+  // declares; `usageKnown` = every name this file BINDS (same-file decls, import locals/aliases,
+  // builtin hooks). A CODE ref in neither is unresolvable — fed to the near-miss typo lint
+  // (2310) below and the live strict-usage mirror (2305) in the clean-parse block.
+  const usageRefs = collectFileReferences(scan, text);
+  const usageLocals = new Set<string>();
+  for (const comp of scan.components) {
+    const bodyCp = toCodePoints(comp.body);
+    const ranges = findMarkupRanges(bodyCp, 0, bodyCp.length).map((r) => ({ start: r.start, end: r.end === -1 ? bodyCp.length : r.end }));
+    for (const n of new UetkxScopedLocals(bodyCp, comp.params.map((p) => p.name), ranges).allDeclNames()) usageLocals.add(n);
+  }
+  for (const h of scan.hooks) for (const n of new UetkxScopedLocals(toCodePoints(h.body), paramNamesOf(h.params)).allDeclNames()) usageLocals.add(n);
+  for (const u of scan.utils) for (const n of new UetkxScopedLocals(toCodePoints(u.body), paramNamesOf(u.params)).allDeclNames()) usageLocals.add(n);
+  const usageKnown = new Set<string>();
+  for (const d of [...scan.components, ...scan.hooks, ...scan.modules, ...scan.values, ...scan.utils]) usageKnown.add(d.name);
+  for (const imp of scan.imports) {
+    if (imp.hostInclude) continue;
+    for (const l of imp.localNames) usageKnown.add(l);
+    if (imp.namespaceAlias) usageKnown.add(imp.namespaceAlias);
+    if (imp.defaultAlias) usageKnown.add(imp.defaultAlias);
+  }
+  for (const hk of schemaOf(doc).hooks) usageKnown.add(hk);
   // R6: local-typo lint (LSP-only UETKX2310). collectFileReferences suppresses true locals,
   // so every CODE ref here already failed to resolve as one — measure the leftovers against
-  // the local names and flag near-misses. Guards: >=5 chars, same first char (case matters),
-  // distance <= 1 (<=2 from 9 chars), not an import/decl/builtin, not exported anywhere.
+  // the candidates and flag near-misses. Guards: >=5 chars, same first char (case matters),
+  // distance <= 1 (<=2 from 7 chars), not an import/decl/builtin, not exported anywhere.
+  // TB-19: candidates are the LOCALS first, then the file's IMPORT names (the owner's case —
+  // usage spelled right, import line misspelled: nothing binds the usage and its nearest
+  // neighbor is the broken import), then same-file decl names.
   {
-    const localNames = new Set<string>();
-    for (const comp of scan.components) {
-      const bodyCp = toCodePoints(comp.body);
-      const ranges = findMarkupRanges(bodyCp, 0, bodyCp.length).map((r) => ({ start: r.start, end: r.end === -1 ? bodyCp.length : r.end }));
-      for (const n of new UetkxScopedLocals(bodyCp, comp.params.map((p) => p.name), ranges).allDeclNames()) localNames.add(n);
+    const localNames = usageLocals;
+    const importCands = new Set<string>();
+    for (const imp of scan.imports) {
+      if (imp.hostInclude) continue;
+      for (const l of imp.localNames) importCands.add(l);
+      if (imp.namespaceAlias) importCands.add(imp.namespaceAlias);
+      if (imp.defaultAlias) importCands.add(imp.defaultAlias);
     }
-    for (const h of scan.hooks) for (const n of new UetkxScopedLocals(toCodePoints(h.body), paramNamesOf(h.params)).allDeclNames()) localNames.add(n);
-    for (const u of scan.utils) for (const n of new UetkxScopedLocals(toCodePoints(u.body), paramNamesOf(u.params)).allDeclNames()) localNames.add(n);
-    if (localNames.size > 0) {
-      const known = new Set<string>();
-      for (const d of [...scan.components, ...scan.hooks, ...scan.modules, ...scan.values, ...scan.utils]) known.add(d.name);
-      for (const imp of scan.imports) {
-        if (imp.hostInclude) continue;
-        for (const l of imp.localNames) known.add(l);
-        if (imp.namespaceAlias) known.add(imp.namespaceAlias);
-        if (imp.defaultAlias) known.add(imp.defaultAlias);
-      }
-      for (const hk of schemaOf(doc).hooks) known.add(hk);
+    const declCands = new Set<string>();
+    for (const d of [...scan.components, ...scan.hooks, ...scan.modules, ...scan.values, ...scan.utils]) declCands.add(d.name);
+    if (localNames.size + importCands.size + declCands.size > 0) {
+      const known = usageKnown;
       const dist = (a: string, b: string, max: number): number => {
         if (Math.abs(a.length - b.length) > max) return max + 1;
         const prev = new Array(b.length + 1).fill(0).map((_, i) => i);
@@ -901,7 +927,14 @@ function validate(doc: TextDocument): void {
         }
         return prev[b.length];
       };
-      for (const r of collectFileReferences(scan, text)) {
+      const nearest = (name: string, max: number, cands: ReadonlySet<string>): string | null => {
+        for (const c of cands) {
+          if (c[0] !== name[0] || c === name) continue;
+          if (dist(name, c, max) <= max) return c;
+        }
+        return null;
+      };
+      for (const r of usageRefs) {
         if (r.kind !== "code") continue;
         const name = r.name;
         if (name.length < 5 || known.has(name) || localNames.has(name)) continue;
@@ -909,20 +942,22 @@ function validate(doc: TextDocument): void {
         // name is already UNRESOLVABLE before this fires, so the cost of a loose match is a
         // wrong hint on broken code, never a false alarm on working code.
         const max = name.length >= 7 ? 2 : 1;
-        let best: string | null = null;
-        for (const local of localNames) {
-          if (local[0] !== name[0] || local === name) continue;
-          if (dist(name, local, max) <= max) {
-            best = local;
-            break;
-          }
+        let best = nearest(name, max, localNames);
+        let hint = best ? `the local '${best}'` : "";
+        if (!best) {
+          best = nearest(name, max, importCands);
+          hint = best ? `the import '${best}'` : "";
+        }
+        if (!best) {
+          best = nearest(name, max, declCands);
+          hint = best ? `'${best}' (declared in this file)` : "";
         }
         if (!best) continue;
-        if (findExporter(name, fsPathOf(doc))) continue; // a real workspace symbol — 2305's business
+        if (findExporter(name, fsPathOf(doc), overlay)) continue; // a real workspace symbol — 2305's business
         const key = `UETKX2310@${r.start}:${r.len}`;
         if (!seen.has(key)) {
           seen.add(key);
-          push(r.start, r.len, 0, "UETKX2310", `unknown name '${name}' — did you mean the local '${best}'?`);
+          push(r.start, r.len, 0, "UETKX2310", `unknown name '${name}' — did you mean ${hint}?`);
         }
       }
     }
@@ -931,15 +966,106 @@ function validate(doc: TextDocument): void {
     // clean parse: live import resolution (2300/2301/2302/2308) off the workspace, then the
     // compiler's full hash-gated verdict for the rest — de-duped by code+range so a code the live
     // pass already produced does not double when the sidecar is fresh.
-    for (const d of resolveDiagnostics(scan, fsPathOf(doc))) {
+    for (const d of resolveDiagnostics(scan, fsPathOf(doc), overlay)) {
       const key = `${d.code}@${d.off}:${d.len}`;
       if (!seen.has(key)) {
         seen.add(key);
         push(d.off, d.len, d.severity, d.code, d.message);
       }
     }
-    for (const d of readSidecarDiags(fsPathOf(doc), text)) {
-      if (!seen.has(`${d.code}@${d.off}:${d.len}`)) push(d.off, d.len, d.severity, d.code, d.message);
+    // R16 — UETKX2106 mirror (TB-14): exported names are GLOBALLY unique across the sweep
+    // universe ("one exported name, one file" — the driver's NameToFile ledger; exported
+    // decls keep their short C++ name BECAUSE of it). The compiler only reports this in
+    // full sweeps, so live a collision surfaced as a mystery Live-Coding failure. Flag the
+    // OPEN doc's exports against every other swept file's cached export surface.
+    try {
+      // Only inside a REAL project (a .uproject ancestor): the compiler's ledger spans the
+      // project sweep roots — a bare fixture/tmp file has no sweep universe, and the
+      // directory-fallback root would send us walking the whole OS temp tree.
+      let projDir: string | null = null;
+      for (let d = path.dirname(path.resolve(fsPathOf(doc))), i = 0; i < 40; i++) {
+        try {
+          if (fs.readdirSync(d).some((e) => e.endsWith(".uproject"))) { projDir = d; break; }
+        } catch { break; }
+        const parent = path.dirname(d);
+        if (parent === d) break;
+        d = parent;
+      }
+      const myAbs = path.resolve(fsPathOf(doc));
+      const otherExports = new Map<string, { file: string; kind: string }>();
+      for (const file of projDir ? sweptUetkxFiles(fsPathOf(doc)) : []) {
+        if (path.resolve(file) === myAbs) continue;
+        for (const d of getDecls(file, overlay) ?? []) {
+          if (d.exported && !otherExports.has(d.name)) otherExports.set(d.name, { file, kind: d.kind });
+        }
+      }
+      for (const d of declsOfScan(scan)) {
+        if (!d.exported) continue;
+        const incumbent = otherExports.get(d.name);
+        if (!incumbent) continue;
+        const key = `UETKX2106@${d.nameAt}:${[...d.name].length}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          push(d.nameAt, [...d.name].length, 0, "UETKX2106", `exported binding \`${d.name}\` is already bound by ${incumbent.file.replace(/\\/g, "/")} (one exported name, one file)`);
+        }
+      }
+      // TB-19 — live UETKX2305 mirror (UetkxResolve strict usage, step 2): a CODE reference
+      // whose name a workspace file EXPORTS (matching kind) but this file never imports is a
+      // strict-imports violation the compiler only reports in full sweeps — live, deleting an
+      // import line while its usages remain showed NOTHING until the next sweep. Same message
+      // as the compiler (the 2305 code action parses the `add: import { X } from "spec"` tail).
+      // A name exported by NO file stays undiagnosed — it may be ambient C++ (engine/hand-
+      // written header); that judgment is clangd's, not ours (compiler rule A4).
+      const cpAll = toCodePoints(text);
+      const refShape = (start: number, len: number, name: string): string => {
+        let p = start + len;
+        while (p < cpAll.length && (cpAll[p] === 32 || cpAll[p] === 9)) p++;
+        if (cpAll[p] === 40 /* ( */) return /^Use[A-Z0-9_]/.test(name) ? "hook" : "util";
+        if (cpAll[p] === 58 && cpAll[p + 1] === 58 /* :: */) return "module";
+        return "value";
+      };
+      for (const r of usageRefs) {
+        if (r.kind !== "code") continue;
+        if (usageKnown.has(r.name) || usageLocals.has(r.name)) continue;
+        const hit = otherExports.get(r.name);
+        if (!hit || hit.kind !== refShape(r.start, r.len, r.name)) continue; // ambient / kind mismatch — not this reference
+        const key = `UETKX2305@${r.start}:${r.len}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          push(r.start, r.len, 0, "UETKX2305",
+            `\`${r.name}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${r.name} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
+        }
+      }
+    } catch (e) {
+      logServerError("live 2106 sweep", e); // never let the ledger mirror kill the publish
+    }
+    // TB-16(b): the LIVE checkers mirror most compiler rules with richer output (2311 has
+    // the did-you-mean, full token ranges). When a live diag of the MIRRORED family already
+    // overlaps a sidecar diag's range, the sidecar copy is redundant noise (the owner saw
+    // a full-width 2311 next to a 1-char 0106 for one bad brush) — suppress it.
+    {
+      const MIRROR: Record<string, string[]> = {
+        UETKX0106: ["UETKX2311", "UETKX0105", "UETKX0106"],
+        UETKX0105: ["UETKX0105", "UETKX2311"],
+        UETKX2106: ["UETKX2106"],
+        UETKX2305: ["UETKX2305"],
+        UETKX0112: ["UETKX0112"],
+        UETKX0109: ["UETKX0109"],
+        UETKX0110: ["UETKX0110"],
+        UETKX0111: ["UETKX0111"],
+      };
+      const liveMarks = [...seen].map((k) => {
+        const m = /^(UETKX\d+)@(\d+):(\d+)$/.exec(k);
+        return m ? { code: m[1], off: Number(m[2]), len: Number(m[3]) } : null;
+      }).filter((x): x is { code: string; off: number; len: number } => x !== null);
+      for (const d of readSidecarDiags(fsPathOf(doc), text)) {
+        if (seen.has(`${d.code}@${d.off}:${d.len}`)) continue;
+        const mirrors = MIRROR[d.code];
+        if (mirrors && liveMarks.some((m) => mirrors.includes(m.code) && d.off < m.off + m.len && m.off < d.off + Math.max(1, d.len))) {
+          continue; // a richer live diag already covers this finding
+        }
+        push(d.off, d.len, d.severity, d.code, d.message);
+      }
     }
   }
   markupDiagsByUri.set(doc.uri, diags);
@@ -1030,7 +1156,25 @@ documents.onDidChangeContent((change) => {
   } catch (e) {
     logServerError("validate", e); // markup diagnostics silently missing = this bug class
   }
+  // TB-18 — cross-file re-diagnosis: an edit to THIS file can change the truth of every
+  // other open file (renamed export -> importers must flag 2302; new export -> 2106
+  // collisions; deleted component -> 2307). Re-validate the other open docs, debounced —
+  // they are few, validation is textual, and stale "No problems" on an importer while its
+  // exporter was renamed is exactly how the owner lost trust in the diagnostics (TB-18).
+  if (crossRevalidateTimer) clearTimeout(crossRevalidateTimer);
+  crossRevalidateTimer = setTimeout(() => {
+    crossRevalidateTimer = undefined;
+    for (const other of documents.all()) {
+      if (other.uri === change.document.uri) continue;
+      try {
+        validate(other);
+      } catch (e) {
+        logServerError("cross-file revalidate", e);
+      }
+    }
+  }, 150);
 });
+let crossRevalidateTimer: ReturnType<typeof setTimeout> | undefined;
 documents.onDidClose((e) => {
   const timer = embedSyncTimers.get(e.document.uri);
   if (timer) {

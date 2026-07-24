@@ -525,7 +525,7 @@ export interface UetkxParam {
 }
 
 /** The five declaration kinds a .uetkx file may hold, in any number/order (mixed-decl v1).
- *  ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): `value`/`util` are the new
+ *  ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): `value`/`util` are the new
  *  plain-declaration kinds — C++-identical (EUetkxDeclKind). */
 export type UetkxDeclKind = "component" | "hook" | "module" | "value" | "util";
 
