@@ -3,6 +3,8 @@
 #include "RuiNode.h"
 #include "RuiElementRegistry.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogRuiCore, Log, All);
+
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Component registry (D-05)
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -79,13 +81,89 @@ namespace RUI
 		return true;
 	}
 
+	EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey, TArray<FName>* OutCandidates)
+	{
+		FRuiNamedFactoryRegistry& Reg = FRuiNamedFactoryRegistry::Get();
+		FScopeLock Guard(&Reg.Lock);
+		// Exact key first — a fully-qualified id always addresses one registration.
+		if (Reg.Factories.Contains(NameOrFqn))
+		{
+			OutKey = NameOrFqn;
+			return EResolveNamed::Hit;
+		}
+		// FILE_SCOPED_EXPORTS (FS-05): generated registrations key by the FILE-QUALIFIED name
+		// (`RuiUetkx_<path>::<Name>`), but the designer edges (URuiHostWidget.ComponentName,
+		// ActivatableScreen, MountNamed, the preview) speak SHORT names. A short name resolves
+		// when exactly ONE registration's `::<Short>` tail matches (case-sensitive on the tail —
+		// FName's own case-insensitivity already folded the lookup key); several matches are
+		// AMBIGUOUS and the caller must qualify — never a silent first-wins.
+		const FString Short = NameOrFqn.ToString();
+		if (Short.Contains(TEXT("::")))
+		{
+			return EResolveNamed::Miss; // an explicit qualification that matched nothing
+		}
+		const FString Tail = TEXT("::") + Short;
+		FName Found = NAME_None;
+		int32 Matches = 0;
+		for (const TPair<FName, TFunction<FRuiNode()>>& Pair : Reg.Factories)
+		{
+			if (Pair.Key.ToString().EndsWith(Tail, ESearchCase::IgnoreCase))
+			{
+				++Matches;
+				Found = Pair.Key;
+				if (OutCandidates != nullptr)
+				{
+					OutCandidates->Add(Pair.Key);
+				}
+			}
+		}
+		if (Matches == 1)
+		{
+			OutKey = Found;
+			return EResolveNamed::Hit;
+		}
+		return Matches == 0 ? EResolveNamed::Miss : EResolveNamed::Ambiguous;
+	}
+
+	void GetRegisteredFactoryNames(TArray<FName>& Out)
+	{
+		FRuiNamedFactoryRegistry& Reg = FRuiNamedFactoryRegistry::Get();
+		FScopeLock Guard(&Reg.Lock);
+		Reg.Factories.GenerateKeyArray(Out);
+		Out.Sort([](const FName& A, const FName& B) { return A.LexicalLess(B); });
+	}
+
 	FRuiNode Named(FName Name)
 	{
+		FName Key;
+		TArray<FName> Candidates;
+		const EResolveNamed Verdict = ResolveNamed(Name, Key, &Candidates);
+		if (Verdict == EResolveNamed::Ambiguous)
+		{
+			// Never a silent first-wins: name every candidate ONCE per ambiguous name so the
+			// designer can paste the qualified id (the on-widget error text does the same).
+			static TSet<FName> ReportedAmbiguous;
+			bool bAlready = false;
+			ReportedAmbiguous.Add(Name, &bAlready);
+			if (!bAlready)
+			{
+				FString List;
+				for (const FName& C : Candidates)
+				{
+					List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
+				}
+				UE_LOG(LogRuiCore, Error,
+					   TEXT("RUI::Named('%s') is AMBIGUOUS — several files export this name; use a qualified id: %s"),
+					   *Name.ToString(), *List);
+			}
+			return Fragment({});
+		}
 		TFunction<FRuiNode()> Factory;
+		if (Verdict == EResolveNamed::Hit)
 		{
 			FRuiNamedFactoryRegistry& Reg = FRuiNamedFactoryRegistry::Get();
 			FScopeLock Guard(&Reg.Lock);
-			if (const TFunction<FRuiNode()>* Found = Reg.Factories.Find(Name))
+			if (const TFunction<FRuiNode()>* Found = Reg.Factories.Find(Key))
 			{
 				Factory = *Found;
 			}
@@ -95,9 +173,8 @@ namespace RUI
 
 	bool HasNamedFactory(FName Name)
 	{
-		FRuiNamedFactoryRegistry& Reg = FRuiNamedFactoryRegistry::Get();
-		FScopeLock Guard(&Reg.Lock);
-		return Reg.Factories.Contains(Name);
+		FName Key;
+		return ResolveNamed(Name, Key) == EResolveNamed::Hit;
 	}
 
 	namespace

@@ -27,12 +27,32 @@ TSharedRef<SWidget> URuiHostWidget::BuildContent()
 			.Text(FText::Format(NSLOCTEXT("ReactiveUI", "HostDesignTime", "[ReactiveUI: {0}]"),
 								FText::FromName(ComponentName.IsNone() ? FName(TEXT("<unset>")) : ComponentName)));
 	}
-	if (ComponentName.IsNone() || !RUI::HasNamedFactory(ComponentName))
 	{
-		return SNew(STextBlock)
-			.Text(FText::Format(
-				NSLOCTEXT("ReactiveUI", "HostUnknown", "[ReactiveUI: '{0}' is not a registered component]"),
-				FText::FromName(ComponentName)));
+		FName Resolved;
+		TArray<FName> Candidates;
+		const RUI::EResolveNamed Verdict =
+			ComponentName.IsNone() ? RUI::EResolveNamed::Miss : RUI::ResolveNamed(ComponentName, Resolved, &Candidates);
+		if (Verdict == RUI::EResolveNamed::Ambiguous)
+		{
+			// FILE_SCOPED_EXPORTS (FS-05): several files export this short name — name the
+			// qualified candidates ON the widget so the designer can paste one; never first-wins.
+			FString List;
+			for (const FName& C : Candidates)
+			{
+				List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
+			}
+			return SNew(STextBlock)
+				.Text(FText::Format(NSLOCTEXT("ReactiveUI", "HostAmbiguous",
+											  "[ReactiveUI: '{0}' is ambiguous — use a qualified id: {1}]"),
+									FText::FromName(ComponentName), FText::FromString(List)));
+		}
+		if (Verdict != RUI::EResolveNamed::Hit)
+		{
+			return SNew(STextBlock)
+				.Text(FText::Format(
+					NSLOCTEXT("ReactiveUI", "HostUnknown", "[ReactiveUI: '{0}' is not a registered component]"),
+					FText::FromName(ComponentName)));
+		}
 	}
 	Root = FRuiRoot::Create(BuildTree());
 	Root->FlushSync();

@@ -17,9 +17,13 @@ class REACTIVEUIEDITOR_API FUetkxPreview : public TSharedFromThis<FUetkxPreview>
 {
 public:
 	/** Build a preview from `.uetkx` source. `ComponentName` picks a component (None = the first).
-	 *  Always returns a preview: on failure it carries diagnostics + a placeholder widget. */
+	 *  Always returns a preview: on failure it carries diagnostics + a placeholder widget.
+	 *  FILE_SCOPED_EXPORTS (FS-05): `ProjectRelPath`, when known, addresses THIS file's
+	 *  file-qualified registration exactly (two files may export the same name); empty falls
+	 *  back to unique-short-name resolution. */
 	static TSharedRef<FUetkxPreview> FromSource(const FString& Source, const FString& Basename,
-												FName ComponentName = NAME_None);
+												FName ComponentName = NAME_None,
+												const FString& ProjectRelPath = FString());
 
 	/** Read a `.uetkx` file and preview it (None = the first component). */
 	static TSharedRef<FUetkxPreview> FromFile(const FString& FilePath, FName ComponentName = NAME_None);

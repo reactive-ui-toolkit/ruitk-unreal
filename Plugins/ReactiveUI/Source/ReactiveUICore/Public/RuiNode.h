@@ -108,9 +108,29 @@ namespace RUI
 	 *  (Live Coding / HMR). */
 	REACTIVEUICORE_API bool RegisterNamedFactory(FName Name, TFunction<FRuiNode()> Factory);
 
-	/** Instantiate a named component with default props (empty Fragment when unknown). */
+	/** FILE_SCOPED_EXPORTS (FS-05): generated registrations key by the FILE-QUALIFIED id
+	 *  (`RuiUetkx_<path>::<Name>`); the designer edges speak SHORT names. Resolution: an exact
+	 *  key always Hits; a short name Hits when exactly ONE registration's `::<Name>` tail
+	 *  matches, Misses on none, and is AMBIGUOUS on several (the caller must qualify — never a
+	 *  silent first-wins). OutCandidates (optional) collects every tail match for error text. */
+	enum class EResolveNamed : uint8
+	{
+		Hit,
+		Miss,
+		Ambiguous
+	};
+	REACTIVEUICORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey,
+												  TArray<FName>* OutCandidates = nullptr);
+
+	/** Every registered factory id, lexically sorted — the first enumeration surface (dropdown
+	 *  pickers, diagnostics, tests). */
+	REACTIVEUICORE_API void GetRegisteredFactoryNames(TArray<FName>& Out);
+
+	/** Instantiate a named component with default props (empty Fragment when unknown; an
+	 *  AMBIGUOUS short name renders nothing and error-logs the qualified candidates once). */
 	REACTIVEUICORE_API FRuiNode Named(FName Name);
 
+	/** True when Name resolves to exactly one registration (exact or unique short-name tail). */
 	REACTIVEUICORE_API bool HasNamedFactory(FName Name);
 
 	// ── HMR seams (consumed by ReactiveUIInterp; the registries themselves are tiny and
