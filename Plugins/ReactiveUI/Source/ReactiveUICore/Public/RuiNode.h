@@ -122,6 +122,19 @@ namespace RUI
 	REACTIVEUICORE_API void RegisterHookSignature(FName ComponentId, uint32 Signature);
 	REACTIVEUICORE_API uint32 FindHookSignature(FName ComponentId);
 
+	/** TB-13 — HMR hook-shape tracking (the family rule: state preserved on a stable hook
+	 *  shape, RESET on a real shape change). The editor's HMR controller arms tracking for
+	 *  the session (Start/Stop) and bumps the generation on every Live-Coding patch-complete;
+	 *  while armed, every render records the component's FLATTENED hook sequence, and a
+	 *  sequence that changed across a generation boundary resets that component's hook state
+	 *  (v1's interpreter enforced this via its AST signature; v2 detects it at render time).
+	 *  A shape change WITHOUT a generation bump stays what it always was: a rules-of-hooks
+	 *  user error (rui.HookValidation). */
+	REACTIVEUICORE_API void SetHmrHookTracking(bool bActive);
+	REACTIVEUICORE_API bool IsHmrHookTracking();
+	REACTIVEUICORE_API void BumpHmrGeneration();
+	REACTIVEUICORE_API uint32 HmrGeneration();
+
 	/** A live definition override for a ComponentId: the reconciler invokes this INSTEAD of
 	 *  the fiber's compiled Invoke. Each Set bumps the generation; bResetState additionally
 	 *  disposes hook state the first time each fiber renders under the new generation (hook

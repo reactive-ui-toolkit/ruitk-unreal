@@ -1,5 +1,6 @@
 export TTuple<int32, TFunction<void()>> UseCounter(int32 Start) {
 	auto [Count, SetCount] = UseState<int32>(Start);
 	TFunction<void()> Increment = [SetCount, Count]() { SetCount(Count + 1); };
+
 	return MakeTuple(Count, Increment);
 }

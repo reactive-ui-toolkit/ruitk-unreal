@@ -99,6 +99,12 @@ private:
 	double CycleStartSeconds = 0.0;
 	FUetkxHmrStatus Status;
 	TArray<FUetkxHmrError> RecentErrors; // newest-first, capped (see NotifyCodegen)
+	// R16 (TB-14): coalescing state — a STANDING error re-reports on every sweep (saves of
+	// other files, the 10s stale-poll, every activation poll); identical consecutive reports
+	// bump a ×N on the newest row instead of inserting a new one.
+	FString LastErrorReason;
+	int32 LastErrorCount = -1;
+	int32 ErrorRepeat = 0;
 	FDelegateHandle PatchCompleteHandle;
 	FDelegateHandle PiePostStartedHandle;
 	FDelegateHandle PieEndedHandle;

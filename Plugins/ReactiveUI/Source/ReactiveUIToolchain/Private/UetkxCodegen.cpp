@@ -934,7 +934,8 @@ namespace
 	 *  RewriteAliases. `ParamNames` (TD-034 #1, N4) seeds the scope tracker: a LOCAL (param or
 	 *  body declaration) matching an alias/private name is never rewritten/qualified/injected. */
 	FString PrefixHookCalls(const FString& Code, const TMap<FString, FString>& Qualified = {},
-							const FUetkxAliasPlane* Aliases = nullptr, const TArray<FString>* ParamNames = nullptr)
+							const FUetkxAliasPlane* Aliases = nullptr, const TArray<FString>* ParamNames = nullptr,
+							const TSet<FString>* ValueCalls = nullptr)
 	{
 		static const TArray<FString> NoParams;
 		const TArray<FString>& Seed = ParamNames ? *ParamNames : NoParams;
@@ -1038,6 +1039,42 @@ namespace
 					Out += bEmptyArgs ? TEXT("(Ctx") : TEXT("(Ctx, ");
 					i = p + 1;
 					bMatched = true;
+				}
+			}
+			// TB-15: VALUE references lower as CALLS — value exports are inline FUNCTIONS (a Live
+			// Coding patch replaces the CODE that produces the value; a global initializer would
+			// never re-run, which left every style-companion edit invisible to HMR). A local
+			// shadowing the name keeps its bare spelling; an existing call form is left alone.
+			if (!bMatched && bWordStart && ValueCalls != nullptr && !ValueCalls->IsEmpty() &&
+				FUetkxLexer::IsIdentCode(Src[i]) && !(Src[i] >= '0' && Src[i] <= '9'))
+			{
+				int32 e = i;
+				while (e < N && FUetkxLexer::IsIdentCode(Src[e]))
+				{
+					++e;
+				}
+				const FString Ident = FUetkxLexer::FromCodePoints(Src, i, e - i);
+				if (ValueCalls->Contains(Ident))
+				{
+					bool bMember = false, bScope = false;
+					ScanBack(i, bMember, bScope);
+					int32 p = e;
+					while (p < N && (Src[p] == ' ' || Src[p] == '	'))
+					{
+						++p;
+					}
+					const bool bAlreadyCall = p < N && Src[p] == '(';
+					if (!bMember && !bScope && !bAlreadyCall && !Locals.IsLocal(Ident, i))
+					{
+						if (const FString* Prefix = Qualified.Find(Ident))
+						{
+							Out += *Prefix;
+						}
+						Out += Ident;
+						Out += TEXT("()");
+						i = e;
+						bMatched = true;
+					}
 				}
 			}
 			// private same-file reference → RuiPriv_<Basename>:: qualification. Originally (M5)
@@ -1197,7 +1234,8 @@ namespace
 	 *  calls in the body Ctx.-prefixed, nested user hooks Ctx-injected). DECL phase = the forward
 	 *  declaration; BODY phase = the definition. A non-exported hook wraps in the detail namespace. */
 	FEmittedDecl EmitHookInl(const FUetkxHookDecl& Hook, const FString& PrivNs, const TMap<FString, FString>& Qualified,
-							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr)
+							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr,
+							 const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Ret = Hook.Ret.IsEmpty() ? FString(TEXT("void")) : Hook.Ret;
 		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuiContext& Ctx%s%s)"), *Ret, *Hook.Name,
@@ -1206,7 +1244,7 @@ namespace
 		E.DeclPhase = Sig + TEXT(";\n");
 		FString Def = Sig + TEXT("\n{\n");
 		const TArray<FString> HookParams = FUetkxScopedLocals::ParamNamesOf(Hook.Params);
-		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Qualified, Aliases, &HookParams);
+		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Qualified, Aliases, &HookParams, ValueCalls);
 		if (!Body.IsEmpty())
 		{
 			Def += WithLine(TEXT("\t") + IndentRegion(Body) + TEXT("\n"), SrcLineOfRegion(Hook.Body, Hook.BodyAt, Line),
@@ -1253,13 +1291,18 @@ namespace
 	 *  any other misuse. A non-exported value nests in the per-file detail namespace. */
 	FEmittedDecl EmitValueInl(const FUetkxValueDecl& Value, const FString& PrivNs,
 							  const TMap<FString, FString>& Qualified, const FLineCtx& Line,
-							  const FUetkxAliasPlane* Aliases = nullptr)
+							  const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Type = Value.Type.IsEmpty() ? FString(TEXT("auto")) : Value.Type;
-		const FString Init = PrefixHookCalls(Value.Init.TrimStartAndEnd(), Qualified, Aliases);
-		FString Out = FString::Printf(TEXT("inline const %s %s =\n"), *Type, *Value.Name);
+		const FString Init = PrefixHookCalls(Value.Init.TrimStartAndEnd(), Qualified, Aliases, nullptr, ValueCalls);
+		// TB-15: a value export is an inline FUNCTION returning by value, not a global — a Live
+		// Coding patch replaces the CODE producing the value (a global initializer never re-runs
+		// on patch, which made every style-companion edit invisible to HMR). References are
+		// rewritten to calls by the walker's ValueCalls branch. Consequence (owned): value
+		// exports are VALUES — `&Name` no longer compiles.
+		FString Out = FString::Printf(TEXT("inline %s %s()\n{\n\treturn\n"), *Type, *Value.Name);
 		Out += WithLine(Init + TEXT("\n"), SrcLineOfRegion(Value.Init, Value.InitAt, Line), Line);
-		Out += TEXT(";\n");
+		Out += TEXT(";\n}\n");
 		FEmittedDecl E;
 		E.DeclPhase = Out;
 		if (!Value.bExported)
@@ -1277,14 +1320,15 @@ namespace
 	 *  body that happens to call something hook-shaped is not specially policed; it fails to
 	 *  compile downstream (no `Ctx` in scope), the same as any other misuse. */
 	FEmittedDecl EmitUtilInl(const FUetkxUtilDecl& Util, const FString& PrivNs, const TMap<FString, FString>& Qualified,
-							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr)
+							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr,
+							 const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Sig = FString::Printf(TEXT("inline %s %s(%s)"), *Util.RetType, *Util.Name, *Util.Params);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
 		FString Def = Sig + TEXT("\n{\n");
 		const TArray<FString> UtilParams = FUetkxScopedLocals::ParamNamesOf(Util.Params);
-		const FString Body = PrefixHookCalls(Util.Body.TrimStartAndEnd(), Qualified, Aliases, &UtilParams);
+		const FString Body = PrefixHookCalls(Util.Body.TrimStartAndEnd(), Qualified, Aliases, &UtilParams, ValueCalls);
 		if (!Body.IsEmpty())
 		{
 			Def += WithLine(TEXT("\t") + IndentRegion(Body) + TEXT("\n"), SrcLineOfRegion(Util.Body, Util.BodyAt, Line),
@@ -1305,9 +1349,10 @@ namespace
 	public:
 		FEmitter(const FString& InBasename, const FUetkxComponentDecl& InDecl, TArray<FUetkxDiag>& InDiags,
 				 TSet<FString>& InUses, TMap<FString, int32>& InUseAts, const TMap<FString, FString>& InQualified,
-				 const FLineCtx& InLine, const FUetkxAliasPlane& InAliases)
+				 const FLineCtx& InLine, const FUetkxAliasPlane& InAliases,
+				 const TSet<FString>* InValueCalls = nullptr)
 			: Basename(InBasename), Decl(InDecl), Diags(InDiags), Uses(InUses), UseAts(InUseAts),
-			  Qualified(InQualified), Line(InLine), Aliases(InAliases)
+			  Qualified(InQualified), Line(InLine), Aliases(InAliases), ValueCalls(InValueCalls)
 		{
 			// TD-034 #1 (N4): the component's params seed the scope tracker for every code region.
 			for (const FUetkxParam& Param : Decl.Params)
@@ -1327,13 +1372,16 @@ namespace
 		bool HasError() const { return bError; }
 
 	private:
-		void Fail(const TCHAR* Code, const FString& Msg, int32 At)
+		void Fail(const TCHAR* Code, const FString& Msg, int32 At, int32 Len = 1)
 		{
+			// TB-16(a): Len is the TOKEN length (attr name / value literal) — the editor
+			// renders the sidecar copy of this diag, and a default 1 drew one-char squiggles.
 			FUetkxDiag D;
 			D.Code = Code;
 			D.Severity = 0;
 			D.Message = Msg;
 			D.Offset = At;
+			D.Length = FMath::Max(1, Len);
 			Diags.Add(MoveTemp(D));
 			bError = true;
 		}
@@ -1371,15 +1419,15 @@ namespace
 			{
 				TArray<FString> Seed = BodyLocals->NamesInScopeAt(OriginAbs - Decl.BodyAt);
 				Seed.Append(DirectiveSeed);
-				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed);
+				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed, ValueCalls);
 			}
 			if (DirectiveSeed.Num() > 0)
 			{
 				TArray<FString> Seed = ComponentParamNames;
 				Seed.Append(DirectiveSeed);
-				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed);
+				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed, ValueCalls);
 			}
-			return PrefixHookCalls(Code, Qualified, &Aliases, &ComponentParamNames);
+			return PrefixHookCalls(Code, Qualified, &Aliases, &ComponentParamNames, ValueCalls);
 		}
 
 		/** An embedded expression: rewrite nested markup ranges (jsx scan) to element exprs.
@@ -1457,6 +1505,7 @@ namespace
 		const TMap<FString, FString>& Qualified;   // private same-file decl name -> RuiPriv_<Basename>::name
 		const FLineCtx& Line;					   // #line directive context (M7)
 		const FUetkxAliasPlane& Aliases;		   // ES-modules import-alias substitution plane (U-03)
+		const TSet<FString>* ValueCalls = nullptr; // TB-15: value names → call rewrite (`Name` → `Name()`)
 		TArray<FString> ComponentParamNames;	   // scope-tracker seed for every code region (N4)
 		TArray<int32> BodyCp;					   // the component body, code points (N4 audit)
 		TArray<FUetkxMarkupRange> BodyRanges;	   // its markup ranges (skipped by BodyLocals)
@@ -1570,7 +1619,7 @@ namespace
 					Fail(TEXT("UETKX0109"),
 						 FString::Printf(TEXT("duplicate attribute '%s' on <%s> — the last one wins"), *Attr.Name,
 										 *Node.Tag),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 				const FString Canon = MiscasedCanonName(Attr.Name, Tag);
 				if (!Canon.IsEmpty())
@@ -1579,7 +1628,7 @@ namespace
 						 FString::Printf(TEXT("attribute casing is canonical — write '%s', not '%s' (host names "
 											  "are case-sensitive, 1:1 with Slate)"),
 										 *Canon, *Attr.Name),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 			}
 		}
@@ -1650,7 +1699,7 @@ namespace
 					{
 						Fail(TEXT("UETKX0105"),
 							 TEXT("attribute 'Ref' on <TextBlock> needs an {expr} value (a ref callable)"),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, 3 /* Ref */);
 					}
 				}
 				else if (IsStyleKey(Attr.Name) || Attr.Name.StartsWith(TEXT("Slot."), ESearchCase::CaseSensitive))
@@ -1667,13 +1716,13 @@ namespace
 							Fail(TEXT("UETKX0106"),
 								 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
 												 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
-								 AbsAt + Attr.At);
+								 AbsAt + Attr.At, Attr.Name.Len());
 							continue;
 						}
 						const FString FormatErr = FailedStyleSlotFormat(Attr.Name, Attr.Value);
 						if (!FormatErr.IsEmpty())
 						{
-							Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At);
+							Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At, Attr.Name.Len());
 							continue;
 						}
 					}
@@ -1686,7 +1735,7 @@ namespace
 							Fail(TEXT("UETKX0106"),
 								 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
 												 FlagKind != nullptr ? **FlagKind : TEXT("vocabulary")),
-								 AbsAt + Attr.At);
+								 AbsAt + Attr.At, Attr.Name.Len());
 							continue;
 						}
 					}
@@ -1704,7 +1753,7 @@ namespace
 				else
 				{
 					Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown attribute '%s' on <TextBlock>"), *Attr.Name),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 			}
 			if (!bStyled)
@@ -1800,7 +1849,7 @@ namespace
 					Fail(TEXT("UETKX0105"),
 						 FString::Printf(TEXT("attribute 'Ref' on <%s> needs an {expr} value (a ref callable)"),
 										 *Node.Tag),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 				continue;
 			}
@@ -1814,7 +1863,7 @@ namespace
 						Fail(TEXT("UETKX0106"),
 							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
 											 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
 					// R11: typed style/slot strings — the runtime parses well-formed literals
@@ -1822,7 +1871,7 @@ namespace
 					const FString FormatErr = FailedStyleSlotFormat(Attr.Name, Attr.Value);
 					if (!FormatErr.IsEmpty())
 					{
-						Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At);
+						Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
 				}
@@ -1837,7 +1886,7 @@ namespace
 						Fail(TEXT("UETKX0106"),
 							 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
 											 FlagKind != nullptr ? **FlagKind : TEXT("vocabulary")),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
 				}
@@ -1871,7 +1920,7 @@ namespace
 			if (AttrType == nullptr)
 			{
 				Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown attribute '%s' on <%s>"), *Attr.Name, *Node.Tag),
-					 AbsAt + Attr.At);
+					 AbsAt + Attr.At, Attr.Name.Len());
 				continue;
 			}
 			FString Value;
@@ -1904,7 +1953,7 @@ namespace
 						Fail(TEXT("UETKX0106"),
 							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
 											 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
 					// R13: brush names — closed per engine (FCoreStyle only); the injected
@@ -1916,7 +1965,7 @@ namespace
 							 FString::Printf(
 								 TEXT("invalid value '%s' for %s — not a brush registered in FCoreStyle"),
 								 *Attr.Value, *Attr.Name),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
 					Value = FString::Printf(TEXT("FName(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
@@ -1935,7 +1984,7 @@ namespace
 					Fail(TEXT("UETKX0105"),
 						 FString::Printf(TEXT("attribute '%s' on <%s> needs an {expr} value (no string form)"),
 										 *Attr.Name, *Node.Tag),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 					continue;
 				}
 			}
@@ -2008,7 +2057,7 @@ namespace
 								 FString::Printf(TEXT("duplicate key \"%s\" among siblings — the duplicate "
 													  "remounts every render (state loss)"),
 												 *Attr.Value),
-								 AbsAt + Attr.At);
+								 AbsAt + Attr.At, Attr.Value.Len() + 2 /* key + quotes */);
 						}
 					}
 					else if (Consumed != nullptr && Attr.Name.StartsWith(TEXT("Slot.")) &&
@@ -2021,7 +2070,7 @@ namespace
 												   *Attr.Name, *ParentTag)
 								 : FString::Printf(TEXT("%s is ignored by <%s> — it reads: %s"), *Attr.Name,
 												   *ParentTag, *FString::Join(*Consumed, TEXT(" | "))),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, Attr.Name.Len());
 					}
 				}
 			}
@@ -2473,6 +2522,66 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 	}
 
+	// TB-15 — the VALUE-name set for the call rewrite (`Name` → `Name()`): value exports lower
+	// as inline functions so Live Coding patches carry edited values (a global's initializer
+	// never re-runs on patch). TARGET spellings — the alias plane rewrites renamed/default
+	// imports to target names before the walker runs. Same-file values (any visibility) plus
+	// every imported name (named/default/namespace-star) that resolves to a VALUE decl.
+	TSet<FString> ValueCalls;
+	for (const FUetkxValueDecl& D : Scan.Values)
+	{
+		ValueCalls.Add(D.Name);
+	}
+	if (Resolver != nullptr)
+	{
+		const FString ImporterRel = ProjectRelPath.IsEmpty() ? Basename + TEXT(".uetkx") : ProjectRelPath;
+		for (const FUetkxImportDecl& Imp : Scan.Imports)
+		{
+			if (Imp.bHostInclude)
+			{
+				continue;
+			}
+			const FString Key = Resolver->Resolve(Imp.Specifier, ImporterRel);
+			if (Key.IsEmpty())
+			{
+				continue;
+			}
+			TMap<FString, FUetkxTargetDecl> TargetDecls;
+			if (!Resolver->GetDecls(Key, TargetDecls))
+			{
+				continue;
+			}
+			for (const FString& Target : Imp.Names)
+			{
+				if (const FUetkxTargetDecl* TD = TargetDecls.Find(Target);
+					TD != nullptr && TD->Kind == EUetkxDeclKind::Value)
+				{
+					ValueCalls.Add(Target);
+				}
+			}
+			if (Imp.bDefault)
+			{
+				const FString DefName = Resolver->DefaultExportOf(Key);
+				if (const FUetkxTargetDecl* TD = DefName.IsEmpty() ? nullptr : TargetDecls.Find(DefName);
+					TD != nullptr && TD->Kind == EUetkxDeclKind::Value)
+				{
+					ValueCalls.Add(DefName);
+				}
+			}
+			if (Imp.bNamespace)
+			{
+				// `* as X` + `X::Name` — the namespace strip leaves the bare target name
+				for (const TPair<FString, FUetkxTargetDecl>& Pair : TargetDecls)
+				{
+					if (Pair.Value.Kind == EUetkxDeclKind::Value && Pair.Value.bExported)
+					{
+						ValueCalls.Add(Pair.Key);
+					}
+				}
+			}
+		}
+	}
+
 	// #line mapping (M7): breakpoints in the .uetkx bind to the generated body. ProjRel is the
 	// machine-stable path (M3); fixtures/tests fall back to `<Basename>.uetkx`.
 	FLineCtx Line;
@@ -2495,7 +2604,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		case EUetkxDeclKind::Component:
 		{
 			const FUetkxComponentDecl& Decl = Scan.Components[Entry.Value];
-			FEmitter Emitter(Basename, Decl, Out.Diags, Uses, UseAts, Qualified, Line, Aliases);
+			FEmitter Emitter(Basename, Decl, Out.Diags, Uses, UseAts, Qualified, Line, Aliases, &ValueCalls);
 			const FEmittedDecl E = Emitter.Emit();
 			if (Emitter.HasError())
 			{
@@ -2512,7 +2621,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 		case EUetkxDeclKind::Hook:
 		{
-			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], PrivNs, Qualified, Line, &Aliases);
+			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], PrivNs, Qualified, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Hooks[Entry.Value].Name);
@@ -2527,14 +2636,14 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		// every props struct exactly as module constants do).
 		case EUetkxDeclKind::Value:
 			ModuleDecls +=
-				EmitValueInl(Scan.Values[Entry.Value], PrivNs, Qualified, Line, &Aliases).DeclPhase + TEXT("\n");
+				EmitValueInl(Scan.Values[Entry.Value], PrivNs, Qualified, Line, &Aliases, &ValueCalls).DeclPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Values[Entry.Value].Name);
 			break;
 		// ES-modules (U-04): a UTIL is hook-shaped (fwd-decl in the DECL phase, definition in
 		// the BODY phase) minus Ctx/HookSig.
 		case EUetkxDeclKind::Util:
 		{
-			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], PrivNs, Qualified, Line, &Aliases);
+			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], PrivNs, Qualified, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Utils[Entry.Value].Name);

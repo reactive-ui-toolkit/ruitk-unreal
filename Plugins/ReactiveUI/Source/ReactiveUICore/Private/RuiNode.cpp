@@ -124,6 +124,31 @@ namespace RUI
 		Reg.HookSignatures.Add(ComponentId, Signature);
 	}
 
+	// TB-13 — session-scoped HMR hook-shape tracking (armed by the editor controller; consumed
+	// by the reconciler's render tail). Atomics: read every render, written from editor events.
+	static TAtomic<bool> GHmrHookTracking{false};
+	static TAtomic<uint32> GHmrGeneration{0};
+
+	void SetHmrHookTracking(bool bActive)
+	{
+		GHmrHookTracking = bActive;
+	}
+
+	bool IsHmrHookTracking()
+	{
+		return GHmrHookTracking;
+	}
+
+	void BumpHmrGeneration()
+	{
+		++GHmrGeneration;
+	}
+
+	uint32 HmrGeneration()
+	{
+		return GHmrGeneration;
+	}
+
 	uint32 FindHookSignature(FName ComponentId)
 	{
 		FRuiHmrRegistry& Reg = FRuiHmrRegistry::Get();

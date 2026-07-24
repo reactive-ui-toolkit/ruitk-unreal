@@ -109,13 +109,15 @@ bool FRuiDemosTest::RunTest(const FString&)
 		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RuiDemo::GetGalleryEntries()[1].Make()); // Counter
 		Root->FlushSync();
 		SWidget& RootWidget = Root->GetWidget().Get();
-		TestTrue(TEXT("starts at 0"), DemoTest::ContainsText(RootWidget, TEXT("Count: 0")));
+		// SimpleCounter became the two-counter HMR field-test vehicle (custom hook + UseState
+		// + the .style companion) — the pin follows its real content.
+		TestTrue(TEXT("starts at 0"), DemoTest::ContainsText(RootWidget, TEXT("Count1: 0")));
 		SButton* Plus = DemoTest::FindButton(RootWidget, TEXT("+"));
 		if (TestNotNull(TEXT("found the + button"), Plus))
 		{
 			Plus->SimulateClick();
 			Root->FlushSync();
-			TestTrue(TEXT("count incremented"), DemoTest::ContainsText(RootWidget, TEXT("Count: 1")));
+			TestTrue(TEXT("count incremented"), DemoTest::ContainsText(RootWidget, TEXT("Count1: 1")));
 		}
 	}
 

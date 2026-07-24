@@ -3,11 +3,14 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-inline const FLinearColor ListedTone =
+inline FLinearColor ListedTone()
+{
+	return
 #line 9 "ExportList.uetkx"
 FLinearColor(0.5f, 0.5f, 0.5f, 1.0f)
-#line 10 "ExportList.uetkx.inl"
+#line 12 "ExportList.uetkx.inl"
 ;
+}
 
 struct FListedCardUetkxProps final : public FRuiPropsBase
 {

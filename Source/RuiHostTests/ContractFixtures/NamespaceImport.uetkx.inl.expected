@@ -19,7 +19,7 @@ inline FRuiNode NamespaceImport(FNamespaceImportUetkxProps InProps = FNamespaceI
 static FRuiNodeArray NamespaceImport_UetkxImpl(FRuiContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "NamespaceImport.uetkx"
-	const FLinearColor Tint = Cool;
+	const FLinearColor Tint = Cool();
 #line 24 "NamespaceImport.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiNode __N = RUI::TextBlock((FText::FromString(FormatScore(3))), FRuiKey());

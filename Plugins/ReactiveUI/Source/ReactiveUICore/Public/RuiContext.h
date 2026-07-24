@@ -48,6 +48,7 @@ public:
 	{
 		Record(ERuiHookKind::State);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiStateCell<T>::StaticTypeHash(), ERuiHookKind::State); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			// TD-019: on a migrating HMR reset the reconciler stashed the old cell's exported value
@@ -73,6 +74,7 @@ public:
 	{
 		Record(ERuiHookKind::Reducer);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiReducerCell<T, TAction>::StaticTypeHash(), ERuiHookKind::Reducer); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<TRuiReducerCell<T, TAction>>(MoveTemp(Initial)));
@@ -83,7 +85,8 @@ public:
 		TFunction<void(TAction)> Dispatch = [Weak, i](TAction Action)
 		{
 			TSharedPtr<FRuiComponentState> S = Weak.Pin();
-			if (!S.IsValid() || i >= S->Hooks.Num()) // torn down — ignore late dispatch
+			if (!S.IsValid() || i >= S->Hooks.Num() ||
+				S->Hooks[i]->TypeHash() != TRuiReducerCell<T, TAction>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late dispatch
 			{
 				return;
 			}
@@ -104,6 +107,7 @@ public:
 	{
 		Record(ERuiHookKind::Ref);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiRefCell<T>::StaticTypeHash(), ERuiHookKind::Ref); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<TRuiRefCell<T>>(MoveTemp(Initial)));
@@ -116,6 +120,7 @@ public:
 	{
 		Record(ERuiHookKind::Memo);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiMemoCell<T>::StaticTypeHash(), ERuiHookKind::Memo); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			TUniquePtr<TRuiMemoCell<T>> Cell = MakeUnique<TRuiMemoCell<T>>();
@@ -272,6 +277,7 @@ public:
 	{
 		Record(ERuiHookKind::Deferred);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiDeferredCell<T>::StaticTypeHash(), ERuiHookKind::Deferred); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			TUniquePtr<TRuiDeferredCell<T>> Cell = MakeUnique<TRuiDeferredCell<T>>();
@@ -309,6 +315,7 @@ public:
 	{
 		Record(ERuiHookKind::Transition);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, FRuiTransitionCell::StaticTypeHash(), ERuiHookKind::Transition); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<FRuiTransitionCell>());
@@ -342,6 +349,7 @@ public:
 	{
 		Record(ERuiHookKind::Stable);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, FRuiStableCell::StaticTypeHash(), ERuiHookKind::Stable); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			TUniquePtr<FRuiStableCell> Cell = MakeUnique<FRuiStableCell>();
@@ -369,6 +377,7 @@ public:
 	{
 		Record(ERuiHookKind::SafeArea);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, FRuiMarkerCell::StaticTypeHash(), ERuiHookKind::SafeArea); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<FRuiMarkerCell>(ERuiHookKind::SafeArea));
@@ -413,6 +422,7 @@ public:
 	{
 		Record(ERuiHookKind::Sfx);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, FRuiMarkerCell::StaticTypeHash(), ERuiHookKind::Sfx); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<FRuiMarkerCell>(ERuiHookKind::Sfx));
@@ -427,6 +437,7 @@ public:
 	{
 		Record(Kind);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TRuiTweenCell<T>::StaticTypeHash(), Kind); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			TUniquePtr<TRuiTweenCell<T>> Cell = MakeUnique<TRuiTweenCell<T>>(Kind);
@@ -477,6 +488,7 @@ public:
 	{
 		Record(Kind);
 		const int32 i = State.HookIndex++;
+		State.EnsureCellShape(i, TCell::StaticTypeHash(), Kind); // TB-13
 		if (i >= State.Hooks.Num())
 		{
 			State.Hooks.Emplace(MakeUnique<TCell>(Forward<TCellArgs>(Args)...));
@@ -527,7 +539,8 @@ private:
 			[Weak, SlotIndex]()
 			{
 				TSharedPtr<FRuiComponentState> S = Weak.Pin();
-				if (!S.IsValid() || SlotIndex >= S->Hooks.Num())
+				if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
+					S->Hooks[SlotIndex]->TypeHash() != TRuiDeferredCell<T>::StaticTypeHash()) // TB-13: reshaped — ignore
 				{
 					return;
 				}

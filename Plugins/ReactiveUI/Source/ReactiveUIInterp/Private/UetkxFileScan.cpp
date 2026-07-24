@@ -360,7 +360,7 @@ namespace
 		return Out;
 	}
 
-	/** ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): split NEW-form params
+	/** ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): split NEW-form params
 	 *  `Type Name = Default, ...` (type-first — the mirror image of legacy ParseParams'
 	 *  `Name: Type = Default`). Reuses the exact same comma-splitting depth walk
 	 *  (SplitTopLevelCommaPieces); per piece, NAME is the LAST top-level identifier before that

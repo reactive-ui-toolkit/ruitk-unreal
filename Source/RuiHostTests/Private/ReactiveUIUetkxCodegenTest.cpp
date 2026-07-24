@@ -430,17 +430,19 @@ component CardStack(Names: TArray<FString>) {
 
 	// ── ES-modules M2: value/util emission + the alias plane (U-03/U-04) ─────────────────────────
 	{
-		// Typed + inferred value exports: DECL-phase-only `inline const`, no body-phase trace.
+		// Typed + inferred value exports: DECL-phase-only inline FUNCTIONS returning by value
+		// (TB-15: a Live Coding patch replaces the CODE that produces the value — a global's
+		// initializer never re-runs on patch, which made style-companion edits invisible to HMR).
 		const FUetkxCompileOutput Vals =
 			FUetkxCodegen::CompileSource(TEXT("export FLinearColor Cool = FLinearColor(0.2f, 0.6f, 0.9f, 1.0f);\n")
 											 TEXT("export Accent = FLinearColor(0.9f, 0.2f, 0.2f, 1.0f);\n"),
 										 TEXT("Palette2"));
 		if (TestTrue(TEXT("value exports compile"), Vals.bOk))
 		{
-			TestTrue(TEXT("typed value emits inline const <T>"),
-					 Vals.Inl.Contains(TEXT("inline const FLinearColor Cool =")));
-			TestTrue(TEXT("inferred value emits inline const auto"),
-					 Vals.Inl.Contains(TEXT("inline const auto Accent =")));
+			TestTrue(TEXT("typed value emits an inline FUNCTION (TB-15 — HMR-patchable code, not data)"),
+					 Vals.Inl.Contains(TEXT("inline FLinearColor Cool()")));
+			TestTrue(TEXT("inferred value emits an inline auto FUNCTION"),
+					 Vals.Inl.Contains(TEXT("inline auto Accent()")));
 			const int32 Split = Vals.Inl.Find(TEXT("#else"));
 			TestTrue(TEXT("values are DECL-phase-only (before #else)"),
 					 Split >= 0 && Vals.Inl.Find(TEXT("Cool")) < Split &&
@@ -637,8 +639,8 @@ component CardStack(Names: TArray<FString>) {
 			{
 				TestTrue(TEXT("inner-scope shadow keeps the bare local"),
 						 PrivShadow.Inl.Contains(TEXT("auto Inner = RowTint;")));
-				TestTrue(TEXT("outer reference re-qualifies after the scope closes"),
-						 PrivShadow.Inl.Contains(TEXT("auto Outer = RuiPriv_ShadowPriv::RowTint;")));
+				TestTrue(TEXT("outer reference re-qualifies after the scope closes (as a CALL — TB-15)"),
+						 PrivShadow.Inl.Contains(TEXT("auto Outer = RuiPriv_ShadowPriv::RowTint();")));
 				TestTrue(TEXT("un-shadowed private util still qualifies"),
 						 PrivShadow.Inl.Contains(TEXT("RuiPriv_ShadowPriv::Pad(")));
 			}
@@ -783,7 +785,7 @@ component CardStack(Names: TArray<FString>) {
 		{
 			TestTrue(TEXT("all five kinds present"),
 					 Mixed.Inl.Contains(TEXT("FWidget5UetkxProps")) && Mixed.Inl.Contains(TEXT("UseFive")) &&
-						 Mixed.Inl.Contains(TEXT("inline const FLinearColor Five")) &&
+						 Mixed.Inl.Contains(TEXT("inline FLinearColor Five()")) &&
 						 Mixed.Inl.Contains(TEXT("FmtFive")) && Mixed.Inl.Contains(TEXT("namespace FiveStyles")));
 			TestTrue(TEXT("exported ledger carries all five"),
 					 Mixed.ExportedNames.Contains(TEXT("Widget5")) && Mixed.ExportedNames.Contains(TEXT("UseFive")) &&

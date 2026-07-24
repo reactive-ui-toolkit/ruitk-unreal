@@ -17,6 +17,11 @@
 
 namespace
 {
+	/** TB-16(c): standing-error files already reported at Error severity — later sweeps over
+	 *  the SAME standing error (other files' saves, stale-polls, activation polls) repeat at
+	 *  Verbose only. A successful compile of the file clears its entry (loud again next time). */
+	TSet<FString> GReportedStandingErrors;
+
 	FString FingerprintPath()
 	{
 		return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("compiler.fp"));
@@ -1050,14 +1055,24 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 		else if (R.bSkipped) // skipped over a STANDING ERROR verdict — the tree is still broken (DRV-3)
 		{
 			++Out.Errors;
-			UE_LOG(LogRuiToolchain, Error,
-				   TEXT("%s: standing compile error (source unchanged since the last failed compile) — fix the "
-						"source, or run -run=RUICompile -full to re-surface the diagnostics"),
-				   *R.UetkxPath);
+			if (!GReportedStandingErrors.Contains(R.UetkxPath))
+			{
+				GReportedStandingErrors.Add(R.UetkxPath);
+				UE_LOG(LogRuiToolchain, Error,
+					   TEXT("%s: standing compile error (source unchanged since the last failed compile) — fix the "
+							"source, or run -run=RUICompile -full to re-surface the diagnostics"),
+					   *R.UetkxPath);
+			}
+			else
+			{
+				UE_LOG(LogRuiToolchain, Verbose,
+					   TEXT("%s: standing compile error (unchanged, already reported)"), *R.UetkxPath);
+			}
 		}
 		else if (R.bOk)
 		{
 			++Out.Compiled;
+			GReportedStandingErrors.Remove(R.UetkxPath); // recovered — the next standing error is loud again
 		}
 		else
 		{

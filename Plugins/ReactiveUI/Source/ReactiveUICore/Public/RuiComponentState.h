@@ -61,6 +61,9 @@ public:
 
 	// --- dev diagnostics (rui.HookValidation) ---
 	TArray<ERuiHookKind> HookLog;		 // this render (transient)
+	uint32 HmrGenerationStamp = 0;		 // TB-13: the HMR generation this state last rendered under
+	TArray<ERuiHookKind> HmrShapeSnapshot; // TB-13: the PREVIOUS render's shape (validation's
+										   // HookSignatures stays first-primed to keep nagging — two consumers, two baselines)
 	TArray<ERuiHookKind> HookSignatures; // primed first render
 	bool bHookOrderPrimed = false;
 	TSet<FName> DiagWarned; // warn-once keys
@@ -75,6 +78,23 @@ public:
 	 *  it instead of the interpreter's Init, so numeric/string/bool/text state survives the FIRST
 	 *  save too. Cleared after the migrating render. Null entries (non-migratable slots) re-init. */
 	TArray<FRuiValue> MigratedState;
+
+	/** TB-13 hardening — call BEFORE downcasting the cell at Slot: verifies the stored cell
+	 *  is EXACTLY the concrete type (and kind) the caller expects. A mismatch means the hook
+	 *  list changed under this live fiber (an HMR edit, or a rules-of-hooks violation): the
+	 *  TAIL from Slot on is truncated — cells before Slot were already served this render
+	 *  (their references must stay valid), the mismatched ones rebuild fresh via the normal
+	 *  allocate-on-miss path. The render-tail detector then decides between the HMR clean
+	 *  reset and the rules-of-hooks error report. Without this, the old unchecked cast
+	 *  destructed garbage (the 2026-07-24 crash). */
+	void EnsureCellShape(int32 Slot, uint32 ExpectedTypeHash, ERuiHookKind ExpectedKind)
+	{
+		if (Slot < Hooks.Num() &&
+			(Hooks[Slot]->TypeHash() != ExpectedTypeHash || Hooks[Slot]->GetKind() != ExpectedKind))
+		{
+			Hooks.SetNum(Slot); // cell dtors release subscriptions (the signal-cell contract)
+		}
+	}
 
 	/** The HMR hook-shape reset: run effect cleanups, then drop every hook slot so the next
 	 *  render re-initializes (cell destructors release external subscriptions). Scheduling
@@ -107,6 +127,7 @@ public:
 		bHookOrderPrimed = false;
 		HookLog.Reset();
 		HookSignatures.Reset();
+		HmrShapeSnapshot.Reset();
 	}
 
 	/** Deliberate full teardown (unmount / HMR hook-shape reset). Cell destructors release
@@ -138,7 +159,8 @@ public:
 template <typename T> void TRuiSetter<T>::operator()(T NewValue) const
 {
 	TSharedPtr<FRuiComponentState> S = State.Pin();
-	if (!S.IsValid() || Slot >= S->Hooks.Num()) // torn down — ignore late calls [audit C3]
+	if (!S.IsValid() || Slot >= S->Hooks.Num() ||
+		S->Hooks[Slot]->TypeHash() != TRuiStateCell<T>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late calls [audit C3]
 	{
 		return;
 	}
@@ -154,7 +176,8 @@ template <typename T> void TRuiSetter<T>::operator()(T NewValue) const
 template <typename T> void TRuiSetter<T>::operator()(TFunction<T(const T&)> Updater) const
 {
 	TSharedPtr<FRuiComponentState> S = State.Pin();
-	if (!S.IsValid() || Slot >= S->Hooks.Num())
+	if (!S.IsValid() || Slot >= S->Hooks.Num() ||
+		S->Hooks[Slot]->TypeHash() != TRuiStateCell<T>::StaticTypeHash()) // torn down / reshaped (TB-13)
 	{
 		return;
 	}

@@ -39,7 +39,7 @@ enum class EUetkxDeclKind : uint8
 	Component,
 	Hook,
 	Module,
-	Value, // ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01): `export <Type> Name = Init;`
+	Value, // ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01): `export <Type> Name = Init;`
 	Util   // `export <Type> Name(params) { body }` — not Use-prefixed, not FRuiNode-returning
 };
 

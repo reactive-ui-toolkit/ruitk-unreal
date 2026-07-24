@@ -5,11 +5,14 @@
 #if defined(RUI_UETKX_DECL_PHASE)
 namespace RuiPriv_ShadowedNames
 {
-inline const FLinearColor RowTint =
+inline FLinearColor RowTint()
+{
+	return
 #line 7 "ShadowedNames.uetkx"
 FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)
-#line 12 "ShadowedNames.uetkx.inl"
+#line 14 "ShadowedNames.uetkx.inl"
 ;
+}
 } // namespace RuiPriv_ShadowedNames
 
 struct FShadowedNamesUetkxProps final : public FRuiPropsBase
@@ -31,7 +34,7 @@ static FRuiNodeArray ShadowedNames_UetkxImpl(FRuiContext& Ctx, const FShadowedNa
 {
 	const auto& Tint = Props.Tint;
 #line 10 "ShadowedNames.uetkx"
-	auto Before = Cool;
+	auto Before = Cool();
 		FLinearColor Primary = Tint;
 		auto After = Primary;
 		auto UseWobble = [](int32 A) { return A; };
@@ -40,14 +43,14 @@ static FRuiNodeArray ShadowedNames_UetkxImpl(FRuiContext& Ctx, const FShadowedNa
 			FLinearColor RowTint = Primary;
 			auto Inner = RowTint;
 		}
-		auto Outer = RuiPriv_ShadowedNames::RowTint;
+		auto Outer = RuiPriv_ShadowedNames::RowTint();
 		auto [Shade, SetShade] = Ctx.UseState(Primary);
 		FRuiNode Chip = [&]() -> FRuiNode {
 			FRuiSpacerProps P;
 			return RUI::Slate::Spacer(MoveTemp(P), FRuiKey());
 		}();
 		auto AfterRange = Primary;
-#line 51 "ShadowedNames.uetkx.inl"
+#line 54 "ShadowedNames.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;

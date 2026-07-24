@@ -8,6 +8,7 @@
 #include "Modules/ModuleManager.h"
 #include "ReactiveUetkxEditorSettings.h"
 #include "RuiReconciler.h"
+#include "RuiNode.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
 #if PLATFORM_WINDOWS
@@ -97,6 +98,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 	PatchCompleteHandle = LC->GetOnPatchCompleteDelegate().AddRaw(this, &FUetkxHmrController::OnPatchComplete);
 	bActive = true;
 	bDirtyAgain = false;
+	RUI::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
 	StartConsoleHider(); // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
@@ -130,6 +132,7 @@ void FUetkxHmrController::StopInternal(bool bForceDisableSession)
 	PatchCompleteHandle.Reset();
 	StopConsoleHider();
 	bActive = false;
+	RUI::SetHmrHookTracking(false); // TB-13
 	bDirtyAgain = false;
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] stopped%s"),
 		   bForceDisableSession ? TEXT(" (Live Coding session disabled — external builds restored)") : TEXT(""));
@@ -277,19 +280,46 @@ void FUetkxHmrController::OnPieEnded(bool /*bSimulating*/)
 
 void FUetkxHmrController::NotifyCodegen(int32 NumChanged, int32 NumErrors, const FString& Reason)
 {
-	Status.Errors += NumErrors;
+	// R16 (TB-14): CURRENT standing errors, not a lifetime sum — one persistent error used to
+	// inflate the counter on every sweep ("Errors: 47" for a single bug).
+	Status.Errors = NumErrors;
 	if (NumErrors > 0)
 	{
-		// Keep a short, newest-first tail for the window; the "ReactiveUI" Message Log has the detail.
-		RecentErrors.Insert(
-			{FDateTime::Now().ToString(TEXT("%H:%M")), FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
-			0);
-		constexpr int32 MaxRecent = 20;
-		if (RecentErrors.Num() > MaxRecent)
+		// Keep a short, newest-first tail for the window; the "ReactiveUI" Message Log has the
+		// detail. A STANDING error re-reports on every sweep (saves of unrelated files, the
+		// stale-poll, every editor-activation poll — the alt-tab storm, TB-14): identical
+		// consecutive reports bump a ×N on the newest row instead of inserting a new one.
+		if (Reason == LastErrorReason && NumErrors == LastErrorCount && RecentErrors.Num() > 0)
 		{
-			RecentErrors.SetNum(MaxRecent);
+			++ErrorRepeat;
+			RecentErrors[0] = {FDateTime::Now().ToString(TEXT("%H:%M")),
+							   FString::Printf(TEXT("%s — %d error(s) (still failing ×%d)"), *Reason, NumErrors,
+											   ErrorRepeat)};
+		}
+		else
+		{
+			LastErrorReason = Reason;
+			LastErrorCount = NumErrors;
+			ErrorRepeat = 1;
+			RecentErrors.Insert(
+				{FDateTime::Now().ToString(TEXT("%H:%M")),
+				 FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
+				0);
+			constexpr int32 MaxRecent = 20;
+			if (RecentErrors.Num() > MaxRecent)
+			{
+				RecentErrors.SetNum(MaxRecent);
+			}
 		}
 		OnStatusChanged.Broadcast(); // errors surface whether or not the mode is active
+	}
+	else if (LastErrorCount > 0)
+	{
+		// recovered — the next failure starts a fresh row (and the panel sees Errors back at 0)
+		LastErrorReason.Reset();
+		LastErrorCount = 0;
+		ErrorRepeat = 0;
+		OnStatusChanged.Broadcast();
 	}
 	if (!bActive)
 	{
@@ -327,6 +357,7 @@ void FUetkxHmrController::OnPatchComplete()
 	{
 		return;
 	}
+	RUI::BumpHmrGeneration(); // TB-13: the refresh renders compare hook shapes across THIS boundary
 	RefreshLiveRoots();
 	++Status.Swaps;
 	Status.LastMs = (FPlatformTime::Seconds() - CycleStartSeconds) * 1000.0;
