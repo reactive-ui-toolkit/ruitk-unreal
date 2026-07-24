@@ -133,12 +133,15 @@ namespace RUI
 	/** True when Name resolves to exactly one registration (exact or unique short-name tail). */
 	REACTIVEUICORE_API bool HasNamedFactory(FName Name);
 
-	// ── HMR seams (consumed by ReactiveUIInterp; the registries themselves are tiny and
-	//    shipping-safe — Shipping builds simply never register anything) ────────────────────
+	// ── HMR seams (the registries themselves are tiny and shipping-safe — Shipping builds
+	//    simply never register anything) ─────────────────────────────────────────────────────
 
-	/** Hook-signature ledger: generated code self-registers its baked __RUI_HOOK_SIG; the
-	 *  interpreter compares its AST-computed signature against this to decide preserve vs
-	 *  deliberate state reset (the family rule). 0 = unknown. */
+	/** Hook-signature ledger, FName-keyed like every identity map (FILE_SCOPED_EXPORTS: the
+	 *  key is the FQN). Interp-era seam: generated code BAKES `__RUI_HOOK_SIG` constants but
+	 *  nothing self-registers them since the interpreter died (HMR v2) — live preserve-vs-reset
+	 *  is decided by the reconciler's hook-shape snapshot (TB-13), not this map. Retained as a
+	 *  per-identity ledger for tooling/tests (per-FILE key independence is pinned in the Driver
+	 *  suite). 0 = unknown. */
 	REACTIVEUICORE_API void RegisterHookSignature(FName ComponentId, uint32 Signature);
 	REACTIVEUICORE_API uint32 FindHookSignature(FName ComponentId);
 

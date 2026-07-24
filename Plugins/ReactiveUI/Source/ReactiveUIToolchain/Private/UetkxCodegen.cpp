@@ -1032,8 +1032,8 @@ namespace
 					}
 					bOutMember = (P == '.') || (P == '>' && k > 0 && Src[k - 1] == '-');
 					// Only a real `::` scope qual blocks — a lone `:` is a ternary/label/case (the
-					// IMPORT-3 rule, applied here in ES-modules M7; a private name in a ternary's
-					// second arm otherwise skipped its RuiPriv_:: qualification).
+					// IMPORT-3 rule, applied here in ES-modules M7; a rewritable name in a
+					// ternary's second arm otherwise skipped its qualification/call rewrite).
 					bOutScope = (P == ':') && k > 0 && Src[k - 1] == ':';
 					break;
 				}
@@ -1140,9 +1140,6 @@ namespace
 		return Out;
 	}
 
-	/** The per-file detail namespace private declarations live in (A5e): `RuiPriv_<Basename>`, with
-	 *  any non-identifier characters in the basename (companion dots) folded to `_`. Two files' same-
-	 *  named private decls never collide in the aggregator TU (the compile-time half of privacy). */
 	/** One path segment → one C++ namespace segment (FILE_SCOPED_EXPORTS FS-01, the family
 	 *  sanitization rule pinned by the Unity sibling's NamespaceDerivation and mirrored by the
 	 *  LSP): keep identifier chars, fold everything else to `_` (companion dots:
