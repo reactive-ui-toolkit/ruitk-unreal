@@ -2410,6 +2410,14 @@ FString FUetkxCodegen::FileNamespaceFor(const FString& ProjectRelPath, const FSt
 	// IDENTICAL namespace for one file with zero filesystem access. Segments sanitize per the
 	// family rule (SanitizeNsSegment); the `.uetkx` extension is dropped from the stem, companion
 	// dots fold to `_` (`SimpleCounter.style` → `SimpleCounter_style`).
+	//
+	// ONE FLAT IDENTIFIER, deliberately — NOT nested namespaces: a nested segment named after a
+	// real C++ namespace (`RuiUetkx::Source::RuiDemo::…`) SHADOWS it inside generated code, so a
+	// user expression `RuiDemo::GDemoThemeCtx` would resolve against the enclosing segment
+	// instead of the global namespace (found live: the ContextDemo tree broke exactly there).
+	// A single identifier can shadow nothing. Two different paths that flat-join identically
+	// (`A_B/C` vs `A/B_C`) are DETECTED, not silent — the UETKX2329 folded-FQN ledger keys on
+	// this exact string.
 	const FString Rel = ProjectRelPath.IsEmpty() ? Basename + TEXT(".uetkx") : ProjectRelPath;
 	FString NoExt = Rel;
 	NoExt.ReplaceInline(TEXT("\\"), TEXT("/"));
@@ -2422,7 +2430,7 @@ FString FUetkxCodegen::FileNamespaceFor(const FString& ProjectRelPath, const FSt
 	FString Ns = TEXT("RuiUetkx");
 	for (const FString& Seg : Segs)
 	{
-		Ns += TEXT("::") + SanitizeNsSegment(Seg);
+		Ns += TEXT("_") + SanitizeNsSegment(Seg);
 	}
 	return Ns;
 }

@@ -4,6 +4,8 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+{
 struct FDoomHUDUetkxProps final : public FRuiPropsBase
 {
 	int32 Health = 100;
@@ -40,7 +42,10 @@ struct FDoomHUDUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomHUD(FDoomHUDUetkxProps InProps = FDoomHUDUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+{
 static FRuiNodeArray DoomHUD_UetkxImpl(FRuiContext& Ctx, const FDoomHUDUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Health = Props.Health;
@@ -100,7 +105,7 @@ static FRuiNodeArray DoomHUD_UetkxImpl(FRuiContext& Ctx, const FDoomHUDUetkxProp
 		const bool bHasBlue = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Blue);
 		const bool bHasYellow = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Yellow);
 		const bool bHasRed = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Red);
-#line 104 "DoomHUD.uetkx.inl"
+#line 109 "DoomHUD.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBoxProps P;
 		P.SetWidthOverride((static_cast<float>(RuiDoom::C::VIEWPORT_W)));
@@ -314,10 +319,10 @@ static FRuiNodeArray DoomHUD_UetkxImpl(FRuiContext& Ctx, const FDoomHUDUetkxProp
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FDoomFaceUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::FDoomFaceUetkxProps P;
 		P.Frame = FaceState;
 		TArray<FRuiNode> Ch;
-		return DoomFace(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
 		FRuiBorderProps P;
@@ -633,12 +638,13 @@ static FRuiNodeArray DoomHUD_UetkxImpl(FRuiContext& Ctx, const FDoomHUDUetkxProp
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomHUDUetkxId = RUI::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("DoomHUD")));
+static const FName GDoomHUDUetkxId = RUI::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")));
 static constexpr uint32 DoomHUD_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode DoomHUD(FDoomHUDUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomHUD_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomHUDUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomHUD")), []() { return DoomHUD(); });
+static const bool GDoomHUDUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")), []() { return DoomHUD(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 #endif

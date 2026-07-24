@@ -4,6 +4,8 @@
 #include "RuiDemoSupport.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+{
 struct FDemoContextPanelUetkxProps final : public FRuiPropsBase
 {
 	FString Label = FString(TEXT("Primary Panel"));
@@ -18,13 +20,16 @@ struct FDemoContextPanelUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DemoContextPanel(FDemoContextPanelUetkxProps InProps = FDemoContextPanelUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+{
 static FRuiNodeArray DemoContextPanel_UetkxImpl(FRuiContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Label = Props.Label;
 #line 4 "Source/RuiDemo/Screens/ContextDemo/components/DemoContextPanel/DemoContextPanel.uetkx"
 	const FLinearColor Theme = Ctx.UseContext(RuiDemo::GDemoThemeCtx);
-#line 28 "DemoContextPanel.uetkx.inl"
+#line 33 "DemoContextPanel.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(10));
@@ -40,12 +45,13 @@ static FRuiNodeArray DemoContextPanel_UetkxImpl(FRuiContext& Ctx, const FDemoCon
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDemoContextPanelUetkxId = RUI::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("DemoContextPanel")));
+static const FName GDemoContextPanelUetkxId = RUI::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
 static constexpr uint32 DemoContextPanel_RUI_HOOK_SIG = 0x3A36D564u;
 inline FRuiNode DemoContextPanel(FDemoContextPanelUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DemoContextPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDemoContextPanelUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DemoContextPanel")), []() { return DemoContextPanel(); });
+static const bool GDemoContextPanelUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")), []() { return DemoContextPanel(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 #endif

@@ -4,6 +4,8 @@
 #include "RuiDemoSupport.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+{
 struct FCustomDrawUetkxProps final : public FRuiPropsBase
 {
 
@@ -16,7 +18,10 @@ struct FCustomDrawUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode CustomDraw(FCustomDrawUetkxProps InProps = FCustomDrawUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+{
 static FRuiNodeArray CustomDraw_UetkxImpl(FRuiContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/CustomDraw/CustomDraw.uetkx"
@@ -42,7 +47,7 @@ static FRuiNodeArray CustomDraw_UetkxImpl(FRuiContext& Ctx, const FCustomDrawUet
 		// 3: STABLE fn + RedrawKey bump forces the repaint instead.
 		const TSharedPtr<FRuiDrawFn>& ScatterFn =
 			Ctx.UseMemo<TSharedPtr<FRuiDrawFn>>([]() { return RUI::Slate::MakeDrawFn(&RuiDemo::DrawScatter); }, RUI::Deps());
-#line 46 "CustomDraw.uetkx.inl"
+#line 51 "CustomDraw.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -196,12 +201,13 @@ static FRuiNodeArray CustomDraw_UetkxImpl(FRuiContext& Ctx, const FCustomDrawUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCustomDrawUetkxId = RUI::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("CustomDraw")));
+static const FName GCustomDrawUetkxId = RUI::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
 static constexpr uint32 CustomDraw_RUI_HOOK_SIG = 0x01D624F6u;
 inline FRuiNode CustomDraw(FCustomDrawUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&CustomDraw_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCustomDrawUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("CustomDraw")), []() { return CustomDraw(); });
+static const bool GCustomDrawUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")), []() { return CustomDraw(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
 #endif

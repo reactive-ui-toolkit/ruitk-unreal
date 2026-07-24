@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ExpPairUse
+namespace RuiUetkx_ExpPairUse
 {
 struct FExpPairUseUetkxProps final : public FRuiPropsBase
 {
@@ -17,27 +17,27 @@ struct FExpPairUseUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ExpPairUse(FExpPairUseUetkxProps InProps = FExpPairUseUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::ExpPairUse
+} // namespace RuiUetkx_ExpPairUse
 #else
-namespace RuiUetkx::ExpPairUse
+namespace RuiUetkx_ExpPairUse
 {
 static FRuiNodeArray ExpPairUse_UetkxImpl(FRuiContext& Ctx, const FExpPairUseUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 5 "ExpPairUse.uetkx"
-	const FLinearColor Mix = FLinearColor(RuiUetkx::ExpPairA::Accent().R, RuiUetkx::ExpPairB::Accent().B, 0.0f, 1.0f);
+	const FLinearColor Mix = FLinearColor(RuiUetkx_ExpPairA::Accent().R, RuiUetkx_ExpPairB::Accent().B, 0.0f, 1.0f);
 #line 29 "ExpPairUse.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
-		RuiUetkx::ExpPairA::FWidgetUetkxProps P;
+		RuiUetkx_ExpPairA::FWidgetUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return RuiUetkx::ExpPairA::Widget(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_ExpPairA::Widget(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		RuiUetkx::ExpPairB::FWidgetUetkxProps P;
+		RuiUetkx_ExpPairB::FWidgetUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return RuiUetkx::ExpPairB::Widget(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_ExpPairB::Widget(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
 		FRuiBorderProps P;
@@ -52,13 +52,13 @@ static FRuiNodeArray ExpPairUse_UetkxImpl(FRuiContext& Ctx, const FExpPairUseUet
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GExpPairUseUetkxId = RUI::RegisterComponentId((void*)&ExpPairUse_UetkxImpl, FName(TEXT("RuiUetkx::ExpPairUse::ExpPairUse")));
+static const FName GExpPairUseUetkxId = RUI::RegisterComponentId((void*)&ExpPairUse_UetkxImpl, FName(TEXT("RuiUetkx_ExpPairUse::ExpPairUse")));
 static constexpr uint32 ExpPairUse_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ExpPairUse(FExpPairUseUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ExpPairUse_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GExpPairUseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::ExpPairUse::ExpPairUse")), []() { return ExpPairUse(); });
+static const bool GExpPairUseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ExpPairUse::ExpPairUse")), []() { return ExpPairUse(); });
 
-} // namespace RuiUetkx::ExpPairUse
+} // namespace RuiUetkx_ExpPairUse
 #endif

@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::Palette
+namespace RuiUetkx_Palette
 {
 namespace Palette
 {
@@ -14,13 +14,13 @@ namespace Palette
 
 inline void UsePrivate(FRuiContext& Ctx);
 
-} // namespace RuiUetkx::Palette
+} // namespace RuiUetkx_Palette
 #else
-namespace RuiUetkx::Palette
+namespace RuiUetkx_Palette
 {
 inline void UsePrivate(FRuiContext& Ctx)
 {
 }
 
-} // namespace RuiUetkx::Palette
+} // namespace RuiUetkx_Palette
 #endif

@@ -537,25 +537,50 @@ void FUetkxFsResolver::EnsureIndex() const
 			}
 			for (const FUetkxPreambleDecl& D : Scan->Decls)
 			{
-				if (D.bExported && !ExporterOf.Contains(D.Name))
+				if (D.bExported)
 				{
-					ExportIndex.Add(D.Name, D.Kind);
-					ExporterOf.Add(D.Name, Norm);
+					// FILE_SCOPED_EXPORTS: several files may export one name — keep EVERY
+					// exporter (Files.Sort() above keeps the order machine-stable).
+					ExportersOf.FindOrAdd(D.Name).Add({Norm, D.Kind});
 				}
 			}
 		}
 	}
 }
 
-FString FUetkxFsResolver::FindExporter(const FString& Name, EUetkxDeclKind& OutKind) const
+FString FUetkxFsResolver::FindExporter(const FString& Name, const FString& ImporterPath,
+									   EUetkxDeclKind& OutKind) const
 {
 	EnsureIndex();
-	if (const FString* Key = ExporterOf.Find(Name))
+	const TArray<FExporterEntry>* Entries = ExportersOf.Find(Name);
+	if (Entries == nullptr || Entries->IsEmpty())
 	{
-		OutKind = ExportIndex[Name];
-		return *Key;
+		return FString();
 	}
-	return FString();
+	// FS-08: pick the DETERMINISTIC nearest exporter — fewest `../` hops in the specifier the
+	// fix-it would suggest; ties break by the stable index order (lexicographic file sort).
+	const FExporterEntry* Best = nullptr;
+	int32 BestHops = MAX_int32;
+	for (const FExporterEntry& Entry : *Entries)
+	{
+		const FString Spec = SuggestSpecifier(ImporterPath, Entry.Key);
+		int32 Hops = 0;
+		for (int32 i = 0; i + 2 < Spec.Len(); ++i)
+		{
+			if (Spec[i] == '.' && Spec[i + 1] == '.' && Spec[i + 2] == '/')
+			{
+				++Hops;
+				i += 2;
+			}
+		}
+		if (Hops < BestHops)
+		{
+			BestHops = Hops;
+			Best = &Entry;
+		}
+	}
+	OutKind = Best->Kind;
+	return Best->Key;
 }
 
 FString FUetkxFsResolver::SuggestSpecifier(const FString& ImporterPath, const FString& Key) const
@@ -740,7 +765,7 @@ void FUetkxResolve::Apply(const FUetkxFileScanResult& Scan, const TMap<FString, 
 			continue;
 		}
 		EUetkxDeclKind Kind;
-		const FString Owner = Resolver.FindExporter(Tag.Key, Kind);
+		const FString Owner = Resolver.FindExporter(Tag.Key, ImporterPath, Kind);
 		if (!Owner.IsEmpty())
 		{
 			Emit2305(Tag.Key, Owner, Tag.Value);
@@ -822,7 +847,7 @@ void FUetkxResolve::Apply(const FUetkxFileScanResult& Scan, const TMap<FString, 
 			}
 		}
 		EUetkxDeclKind Kind;
-		const FString Owner = Resolver.FindExporter(R.Name, Kind);
+		const FString Owner = Resolver.FindExporter(R.Name, ImporterPath, Kind);
 		if (Owner.IsEmpty())
 		{
 			continue; // exported by no file → ambient (hand-written), not policed
@@ -990,7 +1015,7 @@ void FUetkxResolve::MissingImports(const FUetkxFileScanResult& Scan, const TSet<
 			return;
 		}
 		EUetkxDeclKind Kind;
-		const FString Owner = Resolver.FindExporter(Name, Kind);
+		const FString Owner = Resolver.FindExporter(Name, ImporterPath, Kind);
 		if (Owner.IsEmpty())
 		{
 			return; // exported by no file — the codemod cannot fix it (2307 stays for the author)

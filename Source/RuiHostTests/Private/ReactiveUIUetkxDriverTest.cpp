@@ -195,18 +195,17 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 				 Check.Messages.ContainsByPredicate([](const FString& M) { return M.Contains(TEXT("Broken.uetkx")); }));
 	}
 
-	// ── duplicate binding (UETKX2106) + the orphan sweep ───────────────────────────────────
+	// ── FILE_SCOPED_EXPORTS: a duplicate exported binding is LEGAL (2106 retired) + the orphan
+	// sweep ────────────────────────────────────────────────────────────────────────────────
 	{
-		// the sweep REPORTS the duplicate via UE_LOG(Error) — expected here, not a failure
-		AddExpectedError(TEXT("UETKX2106"), EAutomationExpectedErrorFlags::Contains, 0);
 		FFileHelper::SaveStringToFile(FixedSrc, *BrokenPath); // settle the previous block
 		const FString DupPath = Scratch / TEXT("Loose/BadgeCopy.uetkx");
 		FFileHelper::SaveStringToFile(TEXT("export component Badge { return ( <Spacer /> ); }\n"), *DupPath);
 		const FUetkxSweepResult Dup = FUetkxDriver::CompileAll(Scratch, /*bForce*/ true);
-		TestTrue(TEXT("duplicate EXPORTED binding is a sweep error"), Dup.Errors >= 1);
-		TestTrue(TEXT("the drift gate flags duplicates too"),
-				 FUetkxDriver::CheckDrift({Scratch}).Messages.ContainsByPredicate(
-					 [](const FString& M) { return M.Contains(TEXT("UETKX2106")); }));
+		TestEqual(TEXT("a same-name export in a second file sweeps with ZERO errors (ES scoping)"), Dup.Errors, 0);
+		TestFalse(TEXT("the drift gate is 2106-free too"),
+				  FUetkxDriver::CheckDrift({Scratch}).Messages.ContainsByPredicate(
+					  [](const FString& M) { return M.Contains(TEXT("UETKX2106")); }));
 
 		FM.Delete(*DupPath);
 		TestTrue(TEXT("orphan .inl lingers pre-sweep"), FM.FileExists(*FUetkxDriver::InlPathFor(DupPath)));
@@ -340,8 +339,8 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 		// The emission keys two files' `Row`s as RuiUetkx::<File>::Row; the HMR maps key by that
 		// FName, so editing one file's component can never flip the other's signature (pre-M3
 		// both keyed bare `Row` — last-swap-wins; TD-026 fixed privates, FS-04 covers exports).
-		const FName IdA(TEXT("RuiUetkx::HmrPairA::Row"));
-		const FName IdB(TEXT("RuiUetkx::HmrPairB::Row"));
+		const FName IdA(TEXT("RuiUetkx_HmrPairA::Row"));
+		const FName IdB(TEXT("RuiUetkx_HmrPairB::Row"));
 		RUI::RegisterHookSignature(IdA, 0x11111111u);
 		RUI::RegisterHookSignature(IdB, 0x22222222u);
 		RUI::RegisterHookSignature(IdA, 0x33333333u); // "edit" A's file — its signature moves
@@ -358,11 +357,43 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 		const FUetkxCompileOutput AsB =
 			FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("RENAMED"), TEXT("RenameB")), TEXT("RenameB"));
 		TestTrue(TEXT("rename gives the private a FRESH runtime id (remount semantic)"),
-				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuiUetkx::RenameA::Row")) &&
-					 AsB.Inl.Contains(TEXT("RuiUetkx::RenameB::Row")));
+				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuiUetkx_RenameA::Row")) &&
+					 AsB.Inl.Contains(TEXT("RuiUetkx_RenameB::Row")));
 		TestTrue(TEXT("rename ALSO refreshes the exported component's id (uniform G-01)"),
-				 AsA.Inl.Contains(TEXT("RuiUetkx::RenameA::RenameA")) &&
-					 AsB.Inl.Contains(TEXT("RuiUetkx::RenameB::RenameB")));
+				 AsA.Inl.Contains(TEXT("RuiUetkx_RenameA::RenameA")) &&
+					 AsB.Inl.Contains(TEXT("RuiUetkx_RenameB::RenameB")));
+	}
+
+	// ── FILE_SCOPED_EXPORTS headline (the campaign's red→green): TWO files exporting the SAME
+	// name sweep CLEAN — the UETKX2106 "one exported name, one file" ledger is retired ─────────
+	{
+		const FString DirA = Scratch / TEXT("PairLegal/ScreenA");
+		const FString DirB = Scratch / TEXT("PairLegal/ScreenB");
+		FFileHelper::SaveStringToFile(TEXT("export FLinearColor PanelBg = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n"),
+									  *(DirA / TEXT("Theme.style.uetkx")));
+		FFileHelper::SaveStringToFile(TEXT("export FLinearColor PanelBg = FLinearColor(0.9f, 0.9f, 0.9f, 1.0f);\n"),
+									  *(DirB / TEXT("Theme.style.uetkx")));
+		const FUetkxSweepResult Legal = FUetkxDriver::CompileAll(Scratch / TEXT("PairLegal"));
+		TestEqual(TEXT("same-name exports across files sweep with ZERO errors (2106 retired)"), Legal.Errors, 0);
+		TestEqual(TEXT("both files compiled"), Legal.Compiled, 2);
+		FM.Delete(*(DirA / TEXT("Theme.style.uetkx")));
+		FM.Delete(*(DirB / TEXT("Theme.style.uetkx")));
+	}
+
+	// ── UETKX2329: the ONE surviving collision — case-folded FQNs (FName runtime identities
+	// compare case-insensitively; C++ symbols would differ, the registry would alias) ─────────
+	{
+		AddExpectedError(TEXT("UETKX2329"), EAutomationExpectedErrorFlags::Contains, 0);
+		const FString Dir = Scratch / TEXT("CaseFold");
+		// Case-twin exports in ONE file share a namespace, so their FQNs case-fold equal — the
+		// portable repro (cross-file twins need case-folding PATHS, impossible on Windows).
+		FFileHelper::SaveStringToFile(TEXT("export FLinearColor Accent = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
+										  TEXT("export FString accent(int32 S) {\n\treturn FString::FromInt(S);\n}\n"),
+									  *(Dir / TEXT("Tones.uetkx")));
+		const FUetkxSweepResult Fold = FUetkxDriver::CompileAll(Dir);
+		TestEqual(TEXT("case-twin exported FQNs error (UETKX2329)"), Fold.Errors, 1);
+		FM.Delete(*(Dir / TEXT("Tones.uetkx")));
+		// Distinct names sweep clean (the PairLegal block above already pins the cross-file case).
 	}
 
 	// ── ES-modules (U-08): the sidecar records the default-export marker ─────────────────────────

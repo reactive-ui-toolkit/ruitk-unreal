@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiHostTests_CycleProof_CycleA
+{
 struct FCycleAUetkxProps final : public FRuiPropsBase
 {
 	int32 Depth = 0;
@@ -17,7 +19,10 @@ struct FCycleAUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode CycleA(FCycleAUetkxProps InProps = FCycleAUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiHostTests_CycleProof_CycleA
 #else
+namespace RuiUetkx_Source_RuiHostTests_CycleProof_CycleA
+{
 static FRuiNodeArray CycleA_UetkxImpl(FRuiContext& Ctx, const FCycleAUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Depth = Props.Depth;
@@ -28,21 +33,22 @@ static FRuiNodeArray CycleA_UetkxImpl(FRuiContext& Ctx, const FCycleAUetkxProps&
 		if (Depth > 0)
 		{
 			Ch.Add([&]() -> FRuiNode {
-		FCycleBUetkxProps P;
+		RuiUetkx_Source_RuiHostTests_CycleProof_CycleB::FCycleBUetkxProps P;
 		P.Depth = Depth - 1;
 		TArray<FRuiNode> Ch;
-		return CycleB(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		}
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCycleAUetkxId = RUI::RegisterComponentId((void*)&CycleA_UetkxImpl, FName(TEXT("CycleA")));
+static const FName GCycleAUetkxId = RUI::RegisterComponentId((void*)&CycleA_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_CycleProof_CycleA::CycleA")));
 static constexpr uint32 CycleA_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode CycleA(FCycleAUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&CycleA_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCycleAUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("CycleA")), []() { return CycleA(); });
+static const bool GCycleAUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_CycleProof_CycleA::CycleA")), []() { return CycleA(); });
 
+} // namespace RuiUetkx_Source_RuiHostTests_CycleProof_CycleA
 #endif

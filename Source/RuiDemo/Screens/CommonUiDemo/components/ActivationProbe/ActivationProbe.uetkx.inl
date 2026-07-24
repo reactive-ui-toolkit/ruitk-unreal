@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+{
 struct FActivationProbeUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,7 +17,10 @@ struct FActivationProbeUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ActivationProbe(FActivationProbeUetkxProps InProps = FActivationProbeUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+{
 static FRuiNodeArray ActivationProbe_UetkxImpl(FRuiContext& Ctx, const FActivationProbeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/CommonUiDemo/components/ActivationProbe/ActivationProbe.uetkx"
@@ -24,7 +29,7 @@ static FRuiNodeArray ActivationProbe_UetkxImpl(FRuiContext& Ctx, const FActivati
 		const FString MethodStr = Method == ERuiInputMethod::Gamepad ? TEXT("Gamepad")
 										: Method == ERuiInputMethod::Touch ? TEXT("Touch")
 																		: TEXT("Mouse & Keyboard");
-#line 28 "ActivationProbe.uetkx.inl"
+#line 33 "ActivationProbe.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
@@ -33,12 +38,13 @@ static FRuiNodeArray ActivationProbe_UetkxImpl(FRuiContext& Ctx, const FActivati
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GActivationProbeUetkxId = RUI::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("ActivationProbe")));
+static const FName GActivationProbeUetkxId = RUI::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
 static constexpr uint32 ActivationProbe_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ActivationProbe(FActivationProbeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ActivationProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GActivationProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("ActivationProbe")), []() { return ActivationProbe(); });
+static const bool GActivationProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")), []() { return ActivationProbe(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 #endif

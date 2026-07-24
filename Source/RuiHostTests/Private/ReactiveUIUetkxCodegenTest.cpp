@@ -19,7 +19,7 @@ namespace
 	/** FILE_SCOPED_EXPORTS: import qualification needs the TARGET file's surface (its namespace +
 	 *  decl kinds), so the alias/shadow pins compile against this in-memory resolver instead of
 	 *  the old resolver-less plane. Specifier "./X" resolves to key "X", label "X.uetkx" —
-	 *  namespaces derive as `RuiUetkx::X`, the same convention the contract harness pins. */
+	 *  namespaces derive as `RuiUetkx_X`, the same convention the contract harness pins. */
 	class FUetkxCodegenTestResolver final : public IUetkxImportResolver
 	{
 	public:
@@ -51,7 +51,7 @@ namespace
 			Key.RemoveFromStart(TEXT("./"));
 			return Key + TEXT(".uetkx");
 		}
-		virtual FString FindExporter(const FString& Name, EUetkxDeclKind& OutKind) const override
+		virtual FString FindExporter(const FString& Name, const FString&, EUetkxDeclKind& OutKind) const override
 		{
 			for (const TPair<FString, TMap<FString, FUetkxTargetDecl>>& File : Files)
 			{
@@ -132,7 +132,7 @@ export component Counter(StartAt: int32 = 0) {
 					 TEXT("static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props")));
 		TestTrue(TEXT("registration emitted (FQN runtime identity, FS-04)"),
 				 Out.Inl.Contains(TEXT(
-					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx::Counter::Counter\")))")));
+					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
 		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUI_HOOK_SIG = 0x")));
 		TestTrue(TEXT("wrapper for cross-component refs"), Out.Inl.Contains(TEXT("inline FRuiNode Counter(")));
 		TestTrue(TEXT("event lowered with the Value payload"),
@@ -142,7 +142,7 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("@if lowered to if"), Out.Inl.Contains(TEXT("if (Count > 3)")));
 		TestTrue(TEXT("factory targeted"), Out.Inl.Contains(TEXT("RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch)")));
 		TestTrue(TEXT("named factory self-registers under the FQN"),
-				 Out.Inl.Contains(TEXT("RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Counter::Counter\")), []() { "
+				 Out.Inl.Contains(TEXT("RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx_Counter::Counter\")), []() { "
 									   "return Counter(); })")));
 		TestEqual(TEXT("hook sig from one UseState"), Out.HookSig, FUetkxFileScan::HookSignature({TEXT("UseState")}));
 	}
@@ -462,18 +462,18 @@ component CardStack(Names: TArray<FString>) {
 			// exported component: FQN named factory.
 			TestTrue(TEXT("exported component registers a named factory under the FQN"),
 					 Out.Inl.Contains(TEXT(
-						 "RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Panel::Panel\")), []() { return Panel(); })")));
+						 "RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx_Panel::Panel\")), []() { return Panel(); })")));
 			TestTrue(TEXT("only exported decls in the export surface"),
 					 Out.ExportedNames.Num() == 1 && Out.ExportedNames[0] == TEXT("Panel"));
 			// EVERYTHING wraps in the file namespace; RuiPriv_ is retired.
-			TestTrue(TEXT("file namespace wraps the decls"), Out.Inl.Contains(TEXT("namespace RuiUetkx::Panel")));
+			TestTrue(TEXT("file namespace wraps the decls"), Out.Inl.Contains(TEXT("namespace RuiUetkx_Panel")));
 			TestFalse(TEXT("RuiPriv_ detail namespace is retired"), Out.Inl.Contains(TEXT("RuiPriv_")));
 			TestTrue(TEXT("private component NOT globally registered"),
 					 !Out.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) &&
 						 !Out.Inl.Contains(TEXT("::Row\")), []()")));
 			TestTrue(TEXT("private component id is FILE-QUALIFIED"),
 					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-										   "FName(TEXT(\"RuiUetkx::Panel::Row\")))")));
+										   "FName(TEXT(\"RuiUetkx_Panel::Row\")))")));
 			// same-file references stay BARE — they share the file namespace.
 			TestTrue(TEXT("same-file component tag stays bare"),
 					 Out.Inl.Contains(TEXT("FRowUetkxProps P;")) && Out.Inl.Contains(TEXT("return Row(MoveTemp(P)")));
@@ -558,7 +558,7 @@ component CardStack(Names: TArray<FString>) {
 			TEXT("Panel2"));
 		if (TestTrue(TEXT("private value/util sample compiles"), Priv.bOk))
 		{
-			TestTrue(TEXT("file namespace wraps the decls"), Priv.Inl.Contains(TEXT("namespace RuiUetkx::Panel2")));
+			TestTrue(TEXT("file namespace wraps the decls"), Priv.Inl.Contains(TEXT("namespace RuiUetkx_Panel2")));
 			TestTrue(TEXT("private value reference stays bare, as a CALL (TB-15)"),
 					 Priv.Inl.Contains(TEXT("auto T = RowTint();")));
 			TestTrue(TEXT("private util call stays bare"), Priv.Inl.Contains(TEXT("auto S = Pad(FString());")));
@@ -580,7 +580,7 @@ component CardStack(Names: TArray<FString>) {
 		{
 			TestTrue(TEXT("default-exported util fwd-declares in the file namespace"),
 					 DefPriv.Inl.Contains(TEXT("inline FString FmtD(int32 S);")) &&
-						 DefPriv.Inl.Contains(TEXT("namespace RuiUetkx::Panel3")));
+						 DefPriv.Inl.Contains(TEXT("namespace RuiUetkx_Panel3")));
 			TestFalse(TEXT("RuiPriv_ is retired"), DefPriv.Inl.Contains(TEXT("RuiPriv_")));
 			TestTrue(TEXT("same-file references stay bare"), DefPriv.Inl.Contains(TEXT("auto S = FmtD(1);")));
 			TestTrue(TEXT("default name joins the export surface"), DefPriv.ExportedNames.Contains(TEXT("FmtD")));
@@ -601,7 +601,7 @@ component CardStack(Names: TArray<FString>) {
 					 NewForm.Inl.Contains(TEXT("inline int32 UseTick(FRuiContext& Ctx, int32 Start)")));
 			TestTrue(TEXT("hook call site Ctx-injected"), NewForm.Inl.Contains(TEXT("UseTick(Ctx, 1)")));
 			TestTrue(TEXT("named factory registered under the FQN"),
-					 NewForm.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"RuiUetkx::Chip2::Chip2\"))")));
+					 NewForm.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"RuiUetkx_Chip2::Chip2\"))")));
 		}
 
 		// The import-binding plane (FS-03): every imported reference — renamed, bare, star, or
@@ -620,15 +620,15 @@ component CardStack(Names: TArray<FString>) {
 		if (TestTrue(TEXT("alias sample compiles"), Alias.bOk))
 		{
 			TestTrue(TEXT("renamed tag emits the target props+factory, FILE-QUALIFIED"),
-					 Alias.Inl.Contains(TEXT("RuiUetkx::StatusChip::FStatusChipUetkxProps")) &&
-						 Alias.Inl.Contains(TEXT("RuiUetkx::StatusChip::StatusChip(")));
+					 Alias.Inl.Contains(TEXT("RuiUetkx_StatusChip::FStatusChipUetkxProps")) &&
+						 Alias.Inl.Contains(TEXT("RuiUetkx_StatusChip::StatusChip(")));
 			TestFalse(TEXT("the local tag alias never reaches the C++"), Alias.Inl.Contains(TEXT("FChipUetkxProps")));
 			TestTrue(TEXT("renamed hook call rewrites to the qualified target + Ctx"),
-					 Alias.Inl.Contains(TEXT("RuiUetkx::Hooks2::UseCounter(Ctx, 1)")));
+					 Alias.Inl.Contains(TEXT("RuiUetkx_Hooks2::UseCounter(Ctx, 1)")));
 			TestTrue(TEXT("renamed value reference rewrites to a qualified CALL"),
-					 Alias.Inl.Contains(TEXT("auto B = RuiUetkx::Palette2::Cool();")));
+					 Alias.Inl.Contains(TEXT("auto B = RuiUetkx_Palette2::Cool();")));
 			TestTrue(TEXT("star qual maps to the target file namespace"),
-					 Alias.Inl.Contains(TEXT("auto C = RuiUetkx::Palette2::Accent();")));
+					 Alias.Inl.Contains(TEXT("auto C = RuiUetkx_Palette2::Accent();")));
 			TestTrue(TEXT("Uses records the TARGET component"), Alias.Uses.Contains(TEXT("StatusChip")));
 			TestFalse(TEXT("Uses does not record the alias"), Alias.Uses.Contains(TEXT("Chip")));
 		}
@@ -645,13 +645,13 @@ component CardStack(Names: TArray<FString>) {
 		if (TestTrue(TEXT("combined alias sample compiles"), Combined.bOk))
 		{
 			TestTrue(TEXT("combined named rename rewrites beside the default"),
-					 Combined.Inl.Contains(TEXT("auto B = RuiUetkx::Palette2::Cool();")));
+					 Combined.Inl.Contains(TEXT("auto B = RuiUetkx_Palette2::Cool();")));
 			TestTrue(TEXT("combined star qual maps beside the default"),
-					 Combined.Inl.Contains(TEXT("auto C = RuiUetkx::Palette2::Accent();")));
+					 Combined.Inl.Contains(TEXT("auto C = RuiUetkx_Palette2::Accent();")));
 			TestTrue(TEXT("default binding rewrites to the qualified default target"),
-					 Combined.Inl.Contains(TEXT("auto D = RuiUetkx::Palette2::PalCard(1);")));
+					 Combined.Inl.Contains(TEXT("auto D = RuiUetkx_Palette2::PalCard(1);")));
 			TestTrue(TEXT("default TAG emits the qualified target"),
-					 Combined.Inl.Contains(TEXT("RuiUetkx::Palette2::PalCard(MoveTemp(P)")));
+					 Combined.Inl.Contains(TEXT("RuiUetkx_Palette2::PalCard(MoveTemp(P)")));
 		}
 
 		// IMPORT-3 regression at the BINDING plane (M7 bughunt): a ternary's SECOND arm sits after
@@ -666,10 +666,10 @@ component CardStack(Names: TArray<FString>) {
 		{
 			TestTrue(TEXT("ternary second arm maps the star qual"),
 					 Tern.Inl.Contains(
-						 TEXT("true ? RuiUetkx::Palette2::Accent() : RuiUetkx::Palette2::Cool();")));
+						 TEXT("true ? RuiUetkx_Palette2::Accent() : RuiUetkx_Palette2::Cool();")));
 			TestTrue(TEXT("ternary second arm rewrites the rename binding"),
 					 Tern.Inl.Contains(
-						 TEXT("false ? RuiUetkx::Palette2::Cool() : RuiUetkx::Palette2::Cool();")));
+						 TEXT("false ? RuiUetkx_Palette2::Cool() : RuiUetkx_Palette2::Cool();")));
 			TestFalse(TEXT("no local alias qual survives"), Tern.Inl.Contains(TEXT("Pal::")));
 		}
 
@@ -685,15 +685,15 @@ component CardStack(Names: TArray<FString>) {
 				FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("PAIRNAME"), TEXT("PrivPairB")), TEXT("PrivPairB"));
 			if (TestTrue(TEXT("PrivPair sources compile"), A.bOk && B.bOk))
 			{
-				TestTrue(TEXT("A's private Row keys RuiUetkx::PrivPairA::Row"),
+				TestTrue(TEXT("A's private Row keys RuiUetkx_PrivPairA::Row"),
 						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx::PrivPairA::Row\")))")));
-				TestTrue(TEXT("B's private Row keys RuiUetkx::PrivPairB::Row"),
+											 "FName(TEXT(\"RuiUetkx_PrivPairA::Row\")))")));
+				TestTrue(TEXT("B's private Row keys RuiUetkx_PrivPairB::Row"),
 						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx::PrivPairB::Row\")))")));
+											 "FName(TEXT(\"RuiUetkx_PrivPairB::Row\")))")));
 				TestTrue(TEXT("exported components carry the FILE-QUALIFIED runtime id too (FS-04)"),
 						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx::PrivPairA::PrivPairA\")))")));
+											 "FName(TEXT(\"RuiUetkx_PrivPairA::PrivPairA\")))")));
 				TestFalse(TEXT("no bare-name id for a private component"),
 						  A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, FName(TEXT(\"Row\")))")));
 				TestFalse(TEXT("neither private registers a named factory"),
@@ -733,13 +733,13 @@ component CardStack(Names: TArray<FString>) {
 			if (TestTrue(TEXT("same-name pair importer compiles"), Use.bOk))
 			{
 				TestTrue(TEXT("A's Widget addresses A's namespace"),
-						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairA::Widget(MoveTemp(P)")));
+						 Use.Inl.Contains(TEXT("RuiUetkx_ExpPairA::Widget(MoveTemp(P)")));
 				TestTrue(TEXT("B's Widget addresses B's namespace"),
-						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairB::Widget(MoveTemp(P)")));
+						 Use.Inl.Contains(TEXT("RuiUetkx_ExpPairB::Widget(MoveTemp(P)")));
 				TestTrue(TEXT("A's Accent value-call qualifies to A"),
-						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairA::Accent().R")));
+						 Use.Inl.Contains(TEXT("RuiUetkx_ExpPairA::Accent().R")));
 				TestTrue(TEXT("B's Accent value-call qualifies to B"),
-						 Use.Inl.Contains(TEXT("RuiUetkx::ExpPairB::Accent().B")));
+						 Use.Inl.Contains(TEXT("RuiUetkx_ExpPairB::Accent().B")));
 			}
 		}
 
@@ -760,7 +760,7 @@ component CardStack(Names: TArray<FString>) {
 			if (TestTrue(TEXT("alias-shadow sample compiles"), Shadow.bOk))
 			{
 				TestTrue(TEXT("pre-declaration reference still rewrites (qualified value call)"),
-						 Shadow.Inl.Contains(TEXT("auto Before = RuiUetkx::Palette2::Cool();")));
+						 Shadow.Inl.Contains(TEXT("auto Before = RuiUetkx_Palette2::Cool();")));
 				TestTrue(TEXT("post-declaration reference keeps the local"),
 						 Shadow.Inl.Contains(TEXT("auto After = Primary;")));
 			}
@@ -797,9 +797,9 @@ component CardStack(Names: TArray<FString>) {
 				TestTrue(TEXT("param shadow keeps the bare spelling"),
 						 ParamShadow.Inl.Contains(TEXT("auto V = Primary;")));
 				TestFalse(TEXT("no rewrite to the target inside the shadowed body"),
-						  ParamShadow.Inl.Contains(TEXT("auto V = RuiUetkx::Palette2::Cool();")));
+						  ParamShadow.Inl.Contains(TEXT("auto V = RuiUetkx_Palette2::Cool();")));
 				TestTrue(TEXT("the un-shadowed sibling still rewrites"),
-						 ParamShadow.Inl.Contains(TEXT("auto K = RuiUetkx::Palette2::Cool();")));
+						 ParamShadow.Inl.Contains(TEXT("auto K = RuiUetkx_Palette2::Cool();")));
 			}
 			const FUetkxCompileOutput BindShadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowBind() {\n")
@@ -812,7 +812,7 @@ component CardStack(Names: TArray<FString>) {
 				TestTrue(TEXT("structured-binding shadow keeps the bare spelling"),
 						 BindShadow.Inl.Contains(TEXT("auto V = Primary;")));
 				TestTrue(TEXT("the pre-binding reference still rewrites"),
-						 BindShadow.Inl.Contains(TEXT("auto Use0 = RuiUetkx::Palette2::Cool();")));
+						 BindShadow.Inl.Contains(TEXT("auto Use0 = RuiUetkx_Palette2::Cool();")));
 			}
 
 			// A local callable named like a USER hook (`auto UseWobble = …;`) is NOT Ctx-injected.
@@ -849,7 +849,7 @@ component CardStack(Names: TArray<FString>) {
 							 AttrShadow.Inl.Contains(TEXT("( Primary )")) ||
 							 AttrShadow.Inl.Contains(TEXT("(Primary)")));
 				TestFalse(TEXT("attr expr does NOT rewrite to the binding target"),
-						  AttrShadow.Inl.Contains(TEXT("FRuiValue(RuiUetkx::Palette2::Cool())")));
+						  AttrShadow.Inl.Contains(TEXT("FRuiValue(RuiUetkx_Palette2::Cool())")));
 			}
 
 			// Value-markup fragmentation: a local declared BEFORE an embedded markup value stays
@@ -920,7 +920,7 @@ component CardStack(Names: TArray<FString>) {
 			if (TestTrue(TEXT("comma-arg sample compiles"), Comma.bOk))
 			{
 				TestTrue(TEXT("second argument rewrites to the qualified target"),
-						 Comma.Inl.Contains(TEXT("MakeTuple(1, RuiUetkx::Palette2::Cool())")));
+						 Comma.Inl.Contains(TEXT("MakeTuple(1, RuiUetkx_Palette2::Cool())")));
 			}
 		}
 
@@ -929,24 +929,24 @@ component CardStack(Names: TArray<FString>) {
 		// keywords, non-identifier characters, empty ProjRel fallback.
 		{
 			TestEqual(TEXT("fixture fallback (empty ProjRel)"),
-					  FUetkxCodegen::FileNamespaceFor(FString(), TEXT("Counter")), TEXT("RuiUetkx::Counter"));
-			TestEqual(TEXT("project-relative path derives nested segments"),
+					  FUetkxCodegen::FileNamespaceFor(FString(), TEXT("Counter")), TEXT("RuiUetkx_Counter"));
+			TestEqual(TEXT("project-relative path derives the FLAT single-identifier namespace"),
 					  FUetkxCodegen::FileNamespaceFor(
 						  TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"), TEXT("SimpleCounter")),
-					  TEXT("RuiUetkx::Source::RuiDemo::Screens::SimpleCounter::SimpleCounter"));
+					  TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter"));
 			TestEqual(TEXT("companion dots fold to underscores"),
 					  FUetkxCodegen::FileNamespaceFor(
 						  TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"), TEXT("")),
-					  TEXT("RuiUetkx::Source::RuiDemo::Screens::SimpleCounter::SimpleCounter_style"));
+					  TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style"));
 			TestEqual(TEXT("leading digit gets an underscore prefix"),
 					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/3D/Hud.uetkx"), TEXT("")),
-					  TEXT("RuiUetkx::Source::_3D::Hud"));
+					  TEXT("RuiUetkx_Source__3D_Hud"));
 			TestEqual(TEXT("a C++ keyword segment gets an underscore prefix"),
 					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/template/Card.uetkx"), TEXT("")),
-					  TEXT("RuiUetkx::Source::_template::Card"));
+					  TEXT("RuiUetkx_Source__template_Card"));
 			TestEqual(TEXT("non-identifier characters fold to underscores"),
 					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/My Game/Hud-Main.uetkx"), TEXT("")),
-					  TEXT("RuiUetkx::Source::My_Game::Hud_Main"));
+					  TEXT("RuiUetkx_Source_My_Game_Hud_Main"));
 		}
 
 		// Mixed 5-kind file: source order preserved within each phase region.

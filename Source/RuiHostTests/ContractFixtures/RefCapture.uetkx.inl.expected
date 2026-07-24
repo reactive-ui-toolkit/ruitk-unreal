@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::RefCapture
+namespace RuiUetkx_RefCapture
 {
 struct FRefCaptureUetkxProps final : public FRuiPropsBase
 {
@@ -17,9 +17,9 @@ struct FRefCaptureUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode RefCapture(FRefCaptureUetkxProps InProps = FRefCaptureUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::RefCapture
+} // namespace RuiUetkx_RefCapture
 #else
-namespace RuiUetkx::RefCapture
+namespace RuiUetkx_RefCapture
 {
 static FRuiNodeArray RefCapture_UetkxImpl(FRuiContext& Ctx, const FRefCaptureUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -48,13 +48,13 @@ static FRuiNodeArray RefCapture_UetkxImpl(FRuiContext& Ctx, const FRefCaptureUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GRefCaptureUetkxId = RUI::RegisterComponentId((void*)&RefCapture_UetkxImpl, FName(TEXT("RuiUetkx::RefCapture::RefCapture")));
+static const FName GRefCaptureUetkxId = RUI::RegisterComponentId((void*)&RefCapture_UetkxImpl, FName(TEXT("RuiUetkx_RefCapture::RefCapture")));
 static constexpr uint32 RefCapture_RUI_HOOK_SIG = 0x9C23CC96u;
 inline FRuiNode RefCapture(FRefCaptureUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&RefCapture_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GRefCaptureUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::RefCapture::RefCapture")), []() { return RefCapture(); });
+static const bool GRefCaptureUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_RefCapture::RefCapture")), []() { return RefCapture(); });
 
-} // namespace RuiUetkx::RefCapture
+} // namespace RuiUetkx_RefCapture
 #endif

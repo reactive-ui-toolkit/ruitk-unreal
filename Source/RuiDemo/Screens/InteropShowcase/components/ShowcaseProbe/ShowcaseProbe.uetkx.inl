@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe
+{
 struct FShowcaseProbeUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,20 +17,24 @@ struct FShowcaseProbeUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ShowcaseProbe(FShowcaseProbeUetkxProps InProps = FShowcaseProbeUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe
+{
 static FRuiNodeArray ShowcaseProbe_UetkxImpl(FRuiContext& Ctx, const FShowcaseProbeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/InteropShowcase/components/ShowcaseProbe/ShowcaseProbe.uetkx"
 	const bool bActive = RUI::CommonUI::UseIsActive(Ctx);
-#line 24 "ShowcaseProbe.uetkx.inl"
+#line 29 "ShowcaseProbe.uetkx.inl"
 	return { RUI::TextBlock((RUI::Fmt(TEXT("screen is {}"), bActive ? TEXT("ACTIVE") : TEXT("INACTIVE"))), FRuiKey()) };
 }
-static const FName GShowcaseProbeUetkxId = RUI::RegisterComponentId((void*)&ShowcaseProbe_UetkxImpl, FName(TEXT("ShowcaseProbe")));
+static const FName GShowcaseProbeUetkxId = RUI::RegisterComponentId((void*)&ShowcaseProbe_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe")));
 static constexpr uint32 ShowcaseProbe_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ShowcaseProbe(FShowcaseProbeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ShowcaseProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GShowcaseProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("ShowcaseProbe")), []() { return ShowcaseProbe(); });
+static const bool GShowcaseProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe")), []() { return ShowcaseProbe(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe
 #endif

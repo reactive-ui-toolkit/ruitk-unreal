@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::Counter
+namespace RuiUetkx_Counter
 {
 struct FCounterUetkxProps final : public FRuiPropsBase
 {
@@ -19,9 +19,9 @@ struct FCounterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode Counter(FCounterUetkxProps InProps = FCounterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::Counter
+} // namespace RuiUetkx_Counter
 #else
-namespace RuiUetkx::Counter
+namespace RuiUetkx_Counter
 {
 static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -53,13 +53,13 @@ static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProp
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCounterUetkxId = RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT("RuiUetkx::Counter::Counter")));
+static const FName GCounterUetkxId = RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT("RuiUetkx_Counter::Counter")));
 static constexpr uint32 Counter_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode Counter(FCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&Counter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::Counter::Counter")), []() { return Counter(); });
+static const bool GCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Counter::Counter")), []() { return Counter(); });
 
-} // namespace RuiUetkx::Counter
+} // namespace RuiUetkx_Counter
 #endif

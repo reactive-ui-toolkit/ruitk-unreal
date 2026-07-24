@@ -4,7 +4,7 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::HostImport
+namespace RuiUetkx_HostImport
 {
 struct FHostImportUetkxProps final : public FRuiPropsBase
 {
@@ -18,9 +18,9 @@ struct FHostImportUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode HostImport(FHostImportUetkxProps InProps = FHostImportUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::HostImport
+} // namespace RuiUetkx_HostImport
 #else
-namespace RuiUetkx::HostImport
+namespace RuiUetkx_HostImport
 {
 static FRuiNodeArray HostImport_UetkxImpl(FRuiContext& Ctx, const FHostImportUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -32,20 +32,20 @@ static FRuiNodeArray HostImport_UetkxImpl(FRuiContext& Ctx, const FHostImportUet
 		TArray<FRuiNode> Ch;
 		Ch.Add(RUI::TextBlock((FString(Label)), FRuiKey()));
 		Ch.Add([&]() -> FRuiNode {
-		RuiUetkx::StatusChip::FStatusChipUetkxProps P;
+		RuiUetkx_StatusChip::FStatusChipUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return RuiUetkx::StatusChip::StatusChip(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_StatusChip::StatusChip(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GHostImportUetkxId = RUI::RegisterComponentId((void*)&HostImport_UetkxImpl, FName(TEXT("RuiUetkx::HostImport::HostImport")));
+static const FName GHostImportUetkxId = RUI::RegisterComponentId((void*)&HostImport_UetkxImpl, FName(TEXT("RuiUetkx_HostImport::HostImport")));
 static constexpr uint32 HostImport_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode HostImport(FHostImportUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&HostImport_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GHostImportUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::HostImport::HostImport")), []() { return HostImport(); });
+static const bool GHostImportUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_HostImport::HostImport")), []() { return HostImport(); });
 
-} // namespace RuiUetkx::HostImport
+} // namespace RuiUetkx_HostImport
 #endif

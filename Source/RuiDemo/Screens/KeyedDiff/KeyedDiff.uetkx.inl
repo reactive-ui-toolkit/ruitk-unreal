@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+{
 struct FKeyedDiffUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,7 +17,10 @@ struct FKeyedDiffUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode KeyedDiff(FKeyedDiffUetkxProps InProps = FKeyedDiffUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+{
 static FRuiNodeArray KeyedDiff_UetkxImpl(FRuiContext& Ctx, const FKeyedDiffUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/KeyedDiff/KeyedDiff.uetkx"
@@ -83,7 +88,7 @@ static FRuiNodeArray KeyedDiff_UetkxImpl(FRuiContext& Ctx, const FKeyedDiffUetkx
 				Apply(MoveTemp(Next));
 			}
 		};
-#line 87 "KeyedDiff.uetkx.inl"
+#line 92 "KeyedDiff.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -237,12 +242,13 @@ static FRuiNodeArray KeyedDiff_UetkxImpl(FRuiContext& Ctx, const FKeyedDiffUetkx
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GKeyedDiffUetkxId = RUI::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("KeyedDiff")));
+static const FName GKeyedDiffUetkxId = RUI::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
 static constexpr uint32 KeyedDiff_RUI_HOOK_SIG = 0xDDEFCD0Cu;
 inline FRuiNode KeyedDiff(FKeyedDiffUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&KeyedDiff_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GKeyedDiffUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("KeyedDiff")), []() { return KeyedDiff(); });
+static const bool GKeyedDiffUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")), []() { return KeyedDiff(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
 #endif

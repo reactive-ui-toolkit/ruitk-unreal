@@ -334,19 +334,17 @@ namespace
 			   OutCrossModule);
 	}
 
-	/** The final gate: compile the whole tree WITH resolution; ZERO error diagnostics + the
-	 *  cross-file 2106 ledger. When bRequireZero2320 is set (the ES-modules codemod), a UETKX2320
-	 *  deprecation warning in any file NOT in SkippedFiles is ALSO an error — the migrated tree
-	 *  must be wrapper-free outside the explicitly-reported skips. Counted from compile results,
-	 *  never the Message Log (the watcher's log path only reports severity 0). */
+	/** The final gate: compile the whole tree WITH resolution; ZERO error diagnostics. When
+	 *  bRequireZero2320 is set (the ES-modules codemod), a UETKX2320 deprecation warning in any
+	 *  file NOT in SkippedFiles is ALSO an error — the migrated tree must be wrapper-free outside
+	 *  the explicitly-reported skips. Counted from compile results, never the Message Log (the
+	 *  watcher's log path only reports severity 0). FILE_SCOPED_EXPORTS: the cross-file UETKX2106
+	 *  ledger (bughunt MIGRATE-1) is RETIRED — two files exporting the same name is legal ES; the
+	 *  per-file compile already reports every remaining collision class (2303/2328). */
 	int32 RunZeroDiagGate(const TArray<FString>& Files, const FUetkxFsResolver& Resolver, int32 SeedErrors,
 						  bool bRequireZero2320, const TSet<FString>& SkippedFiles, const TCHAR* Label)
 	{
 		int32 Errors = SeedErrors;
-		// Cross-file duplicate-export ledger: export-everything can make two files export the same
-		// name — a CROSS-FILE UETKX2106 collision that a per-file compile cannot see, so the codemod
-		// would green-light a tree that RUICompile -check then rejects (bughunt MIGRATE-1).
-		TMap<FString, FString> NameToFile;
 		for (const FString& File : Files)
 		{
 			FString Source;
@@ -357,21 +355,6 @@ namespace
 			const FString Rel = ProjectRelPathFor(File);
 			const FUetkxCompileOutput Out =
 				FUetkxCodegen::CompileSource(Source, FPaths::GetBaseFilename(File), Rel, &Resolver);
-			for (const FString& Name : Out.ExportedNames)
-			{
-				if (const FString* Incumbent = NameToFile.Find(Name))
-				{
-					UE_LOG(LogRUIMigrate, Error,
-						   TEXT("%s: UETKX2106: exported binding `%s` is already bound by %s (one exported name, one "
-								"file) — rename or keep one private"),
-						   *Rel, *Name, *ProjectRelPathFor(*Incumbent));
-					++Errors;
-				}
-				else
-				{
-					NameToFile.Add(Name, File);
-				}
-			}
 			for (const FUetkxDiag& Diag : Out.Diags)
 			{
 				if (Diag.Severity == 0)

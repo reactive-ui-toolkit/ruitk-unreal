@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+{
 struct FStyledPanelsUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,13 +17,16 @@ struct FStyledPanelsUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode StyledPanels(FStyledPanelsUetkxProps InProps = FStyledPanelsUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+{
 static FRuiNodeArray StyledPanels_UetkxImpl(FRuiContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/StyledPanels/StyledPanels.uetkx"
 	auto [bDim, SetDim] = Ctx.UseState<bool>(false);
 		auto [Text, SetText] = Ctx.UseState<FString>(FString(TEXT("type here")));
-#line 25 "StyledPanels.uetkx.inl"
+#line 30 "StyledPanels.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -100,12 +105,13 @@ static FRuiNodeArray StyledPanels_UetkxImpl(FRuiContext& Ctx, const FStyledPanel
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GStyledPanelsUetkxId = RUI::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("StyledPanels")));
+static const FName GStyledPanelsUetkxId = RUI::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
 static constexpr uint32 StyledPanels_RUI_HOOK_SIG = 0x72A626EBu;
 inline FRuiNode StyledPanels(FStyledPanelsUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&StyledPanels_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GStyledPanelsUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("StyledPanels")), []() { return StyledPanels(); });
+static const bool GStyledPanelsUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")), []() { return StyledPanels(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
 #endif

@@ -25,7 +25,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxFileResult
 	FString InlPath;
 	TArray<FUetkxDiag> Diags;
 	TArray<FString> ComponentNames; // compiled: from codegen; skipped: from the sidecar refs
-	TArray<FString> ExportedNames;	// EXPORTED names only — the 2106 ledger key (A5e)
+	TArray<FString> ExportedNames;	// EXPORTED names only — the 2329 case-fold ledger + test surface
 	bool bSupportFile = false;		// no components (values/hooks/modules/utils only) — ES-modules M5:
 									// the watcher names this file's IMPORTERS in the sweep note
 };
@@ -56,8 +56,12 @@ public:
 	/** Bump when generated-code SHAPE changes — the fingerprint that re-stales everything.
 	 *  v2: two-phase (`RUI_UETKX_DECL_PHASE`) aggregator + fwd-decl emit + `#line` directives (M6/M7).
 	 *  v3: ES-modules (U-10) — value/util emission, the import-alias rewrite plane, and the TD-026
-	 *  file-qualified runtime identity for private components (RuiPriv_<Basename>::<Name> keys). */
-	static constexpr int32 CodegenVersion = 3;
+	 *  file-qualified runtime identity for private components (RuiPriv_<Basename>::<Name> keys).
+	 *  v4: FILE_SCOPED_EXPORTS — every decl emits inside its file's namespace (FileNamespaceFor),
+	 *  imported references rewrite to qualified targets, and EVERY component's runtime identity is
+	 *  the FQN (FS-01..FS-04; RuiPriv_ retired; the 2106 ledger retired). Bumping this regenerates
+	 *  every committed .inl/aggregator on the first sweep — the entire upgrade migration. */
+	static constexpr int32 CodegenVersion = 4;
 
 	static FString InlPathFor(const FString& UetkxPath) { return UetkxPath + TEXT(".inl"); }
 	static FString SidecarPathFor(const FString& UetkxPath) { return UetkxPath + TEXT(".diags.json"); }
@@ -83,15 +87,15 @@ public:
 	static bool HasStale(const FString& RootDir);
 
 	/** Sweep-compile all (stale unless bForce) + orphan sweep (a deleted Foo.uetkx takes its
-	 *  committed Foo.uetkx.inl with it — stale generated code must never build) + duplicate-
-	 *  binding check (UETKX2106: one component name, one file — the incumbent keeps the name)
-	 *  + regenerate aggregators + fingerprint. */
+	 *  committed Foo.uetkx.inl with it — stale generated code must never build) + the UETKX2329
+	 *  case-folded-FQN check (FName identities are case-insensitive) + regenerate aggregators +
+	 *  fingerprint. FILE_SCOPED_EXPORTS: same-name exports across files are LEGAL (the 2106
+	 *  "one exported name, one file" ledger is retired). */
 	static FUetkxSweepResult CompileAll(const FString& RootDir, bool bForce = false);
 
-	/** Sweep every root under ONE ledger (A5e): a single UETKX2106 exported-name table spans all
-	 *  roots (a name exported in Source AND Plugins is a collision), and the aggregators + orphan
-	 *  sweep + fingerprint run over the combined file set. The commandlet calls this once instead
-	 *  of looping CompileAll per root. */
+	/** Sweep every root as ONE universe: the UETKX2329 case-fold table spans all roots, and the
+	 *  aggregators + orphan sweep + fingerprint run over the combined file set. The commandlet
+	 *  calls this once instead of looping CompileAll per root. */
 	static FUetkxSweepResult CompileAllRoots(const TArray<FString>& Roots, bool bForce = false);
 
 	/** Regenerate `<ModuleDirName>.Uetkx.gen.cpp` beside each module's .uetkx set. Returns

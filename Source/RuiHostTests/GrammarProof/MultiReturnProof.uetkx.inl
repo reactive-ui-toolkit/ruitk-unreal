@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof
+{
 struct FMultiReturnProofUetkxProps final : public FRuiPropsBase
 {
 	int32 Mode = 0;
@@ -41,18 +43,21 @@ struct FMultiReturnProofBigUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode MultiReturnProofBig(FMultiReturnProofBigUetkxProps InProps = FMultiReturnProofBigUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof
 #else
+namespace RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof
+{
 static FRuiNodeArray MultiReturnProof_UetkxImpl(FRuiContext& Ctx, const FMultiReturnProofUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Mode = Props.Mode;
 #line 2 "Source/RuiHostTests/GrammarProof/MultiReturnProof.uetkx"
 	if (Mode == 1) {
-#line 51 "MultiReturnProof.uetkx.inl"
+#line 56 "MultiReturnProof.uetkx.inl"
 	return { RUI::TextBlock(NSLOCTEXT("Uetkx.MultiReturnProof", "MultiReturnProof_1", "early-one"), FRuiKey()) };
 #line 4 "Source/RuiHostTests/GrammarProof/MultiReturnProof.uetkx"
 	}
 		if (Mode == 2) {
-#line 56 "MultiReturnProof.uetkx.inl"
+#line 61 "MultiReturnProof.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
@@ -61,7 +66,7 @@ static FRuiNodeArray MultiReturnProof_UetkxImpl(FRuiContext& Ctx, const FMultiRe
 	}() };
 #line 11 "Source/RuiHostTests/GrammarProof/MultiReturnProof.uetkx"
 	}
-#line 65 "MultiReturnProof.uetkx.inl"
+#line 70 "MultiReturnProof.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
@@ -71,13 +76,13 @@ static FRuiNodeArray MultiReturnProof_UetkxImpl(FRuiContext& Ctx, const FMultiRe
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMultiReturnProofUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProof_UetkxImpl, FName(TEXT("MultiReturnProof")));
+static const FName GMultiReturnProofUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProof_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProof")));
 static constexpr uint32 MultiReturnProof_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode MultiReturnProof(FMultiReturnProofUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&MultiReturnProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GMultiReturnProofUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("MultiReturnProof")), []() { return MultiReturnProof(); });
+static const bool GMultiReturnProofUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProof")), []() { return MultiReturnProof(); });
 
 static FRuiNodeArray MultiReturnProofEarly_UetkxImpl(FRuiContext& Ctx, const FMultiReturnProofEarlyUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -88,13 +93,13 @@ static FRuiNodeArray MultiReturnProofEarly_UetkxImpl(FRuiContext& Ctx, const FMu
 		return MultiReturnProof(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMultiReturnProofEarlyUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProofEarly_UetkxImpl, FName(TEXT("MultiReturnProofEarly")));
+static const FName GMultiReturnProofEarlyUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProofEarly_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProofEarly")));
 static constexpr uint32 MultiReturnProofEarly_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode MultiReturnProofEarly(FMultiReturnProofEarlyUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&MultiReturnProofEarly_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GMultiReturnProofEarlyUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("MultiReturnProofEarly")), []() { return MultiReturnProofEarly(); });
+static const bool GMultiReturnProofEarlyUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProofEarly")), []() { return MultiReturnProofEarly(); });
 
 static FRuiNodeArray MultiReturnProofBig_UetkxImpl(FRuiContext& Ctx, const FMultiReturnProofBigUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -105,12 +110,13 @@ static FRuiNodeArray MultiReturnProofBig_UetkxImpl(FRuiContext& Ctx, const FMult
 		return MultiReturnProof(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMultiReturnProofBigUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProofBig_UetkxImpl, FName(TEXT("MultiReturnProofBig")));
+static const FName GMultiReturnProofBigUetkxId = RUI::RegisterComponentId((void*)&MultiReturnProofBig_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProofBig")));
 static constexpr uint32 MultiReturnProofBig_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode MultiReturnProofBig(FMultiReturnProofBigUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&MultiReturnProofBig_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GMultiReturnProofBigUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("MultiReturnProofBig")), []() { return MultiReturnProofBig(); });
+static const bool GMultiReturnProofBigUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof::MultiReturnProofBig")), []() { return MultiReturnProofBig(); });
 
+} // namespace RuiUetkx_Source_RuiHostTests_GrammarProof_MultiReturnProof
 #endif

@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+{
 struct FChildParentUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,23 +17,27 @@ struct FChildParentUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ChildParent(FChildParentUetkxProps InProps = FChildParentUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
 #else
+namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+{
 static FRuiNodeArray ChildParent_UetkxImpl(FRuiContext& Ctx, const FChildParentUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
-		FChildHostUetkxProps P;
+		RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::FChildHostUetkxProps P;
 		TArray<FRuiNode> Ch;
 		Ch.Add(RUI::TextBlock(NSLOCTEXT("Uetkx.ChildParent", "ChildParent_1", "FORWARDED-A"), FRuiKey()));
 		Ch.Add(RUI::TextBlock(NSLOCTEXT("Uetkx.ChildParent", "ChildParent_2", "FORWARDED-B"), FRuiKey()));
-		return ChildHost(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GChildParentUetkxId = RUI::RegisterComponentId((void*)&ChildParent_UetkxImpl, FName(TEXT("ChildParent")));
+static const FName GChildParentUetkxId = RUI::RegisterComponentId((void*)&ChildParent_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")));
 static constexpr uint32 ChildParent_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ChildParent(FChildParentUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ChildParent_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GChildParentUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("ChildParent")), []() { return ChildParent(); });
+static const bool GChildParentUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")), []() { return ChildParent(); });
 
+} // namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
 #endif

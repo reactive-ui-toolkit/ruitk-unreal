@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ValueExports
+namespace RuiUetkx_ValueExports
 {
 inline FLinearColor Cool()
 {
@@ -43,9 +43,9 @@ RowTint()
 
 inline FString FormatScore(int32 Score);
 
-} // namespace RuiUetkx::ValueExports
+} // namespace RuiUetkx_ValueExports
 #else
-namespace RuiUetkx::ValueExports
+namespace RuiUetkx_ValueExports
 {
 inline FString FormatScore(int32 Score)
 {
@@ -54,5 +54,5 @@ inline FString FormatScore(int32 Score)
 #line 55 "ValueExports.uetkx.inl"
 }
 
-} // namespace RuiUetkx::ValueExports
+} // namespace RuiUetkx_ValueExports
 #endif

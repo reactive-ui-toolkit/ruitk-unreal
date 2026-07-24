@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::StatusChip
+namespace RuiUetkx_StatusChip
 {
 struct FStatusChipUetkxProps final : public FRuiPropsBase
 {
@@ -19,9 +19,9 @@ struct FStatusChipUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode StatusChip(FStatusChipUetkxProps InProps = FStatusChipUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::StatusChip
+} // namespace RuiUetkx_StatusChip
 #else
-namespace RuiUetkx::StatusChip
+namespace RuiUetkx_StatusChip
 {
 static FRuiNodeArray StatusChip_UetkxImpl(FRuiContext& Ctx, const FStatusChipUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -35,13 +35,13 @@ static FRuiNodeArray StatusChip_UetkxImpl(FRuiContext& Ctx, const FStatusChipUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GStatusChipUetkxId = RUI::RegisterComponentId((void*)&StatusChip_UetkxImpl, FName(TEXT("RuiUetkx::StatusChip::StatusChip")));
+static const FName GStatusChipUetkxId = RUI::RegisterComponentId((void*)&StatusChip_UetkxImpl, FName(TEXT("RuiUetkx_StatusChip::StatusChip")));
 static constexpr uint32 StatusChip_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode StatusChip(FStatusChipUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&StatusChip_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GStatusChipUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::StatusChip::StatusChip")), []() { return StatusChip(); });
+static const bool GStatusChipUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_StatusChip::StatusChip")), []() { return StatusChip(); });
 
-} // namespace RuiUetkx::StatusChip
+} // namespace RuiUetkx_StatusChip
 #endif

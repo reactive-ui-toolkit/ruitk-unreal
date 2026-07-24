@@ -4,6 +4,8 @@
 #include "RuiDemoSupport.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+{
 struct FStressTestUetkxProps final : public FRuiPropsBase
 {
 
@@ -16,7 +18,10 @@ struct FStressTestUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode StressTest(FStressTestUetkxProps InProps = FStressTestUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+{
 static FRuiNodeArray StressTest_UetkxImpl(FRuiContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/StressTest/StressTest.uetkx"
@@ -134,7 +139,7 @@ static FRuiNodeArray StressTest_UetkxImpl(FRuiContext& Ctx, const FStressTestUet
 				SetRunning(true);
 			}
 		};
-#line 138 "StressTest.uetkx.inl"
+#line 143 "StressTest.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -244,12 +249,13 @@ static FRuiNodeArray StressTest_UetkxImpl(FRuiContext& Ctx, const FStressTestUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GStressTestUetkxId = RUI::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("StressTest")));
+static const FName GStressTestUetkxId = RUI::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")));
 static constexpr uint32 StressTest_RUI_HOOK_SIG = 0x00ED6E73u;
 inline FRuiNode StressTest(FStressTestUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&StressTest_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GStressTestUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("StressTest")), []() { return StressTest(); });
+static const bool GStressTestUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")), []() { return StressTest(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest
 #endif

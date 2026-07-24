@@ -5,6 +5,8 @@
 #include "DemoInteropWidgets.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+{
 struct FCommonUiDemoUetkxProps final : public FRuiPropsBase
 {
 
@@ -17,7 +19,10 @@ struct FCommonUiDemoUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode CommonUiDemo(FCommonUiDemoUetkxProps InProps = FCommonUiDemoUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+{
 static FRuiNodeArray CommonUiDemo_UetkxImpl(FRuiContext& Ctx, const FCommonUiDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 12 "Source/RuiDemo/Screens/CommonUiDemo/CommonUiDemo.uetkx"
@@ -28,7 +33,7 @@ static FRuiNodeArray CommonUiDemo_UetkxImpl(FRuiContext& Ctx, const FCommonUiDem
 		State.bActive = bActive;
 		State.InputMethod = ERuiInputMethod::MouseAndKeyboard;
 		Ctx.ProvideContext(RUI::CommonUI::ActivationContext(), State);
-#line 32 "CommonUiDemo.uetkx.inl"
+#line 37 "CommonUiDemo.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -72,9 +77,9 @@ static FRuiNodeArray CommonUiDemo_UetkxImpl(FRuiContext& Ctx, const FCommonUiDem
 		return __N;
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FActivationProbeUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::FActivationProbeUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return ActivationProbe(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
 		FRuiHorizontalBoxProps P;
@@ -117,12 +122,13 @@ static FRuiNodeArray CommonUiDemo_UetkxImpl(FRuiContext& Ctx, const FCommonUiDem
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCommonUiDemoUetkxId = RUI::RegisterComponentId((void*)&CommonUiDemo_UetkxImpl, FName(TEXT("CommonUiDemo")));
+static const FName GCommonUiDemoUetkxId = RUI::RegisterComponentId((void*)&CommonUiDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")));
 static constexpr uint32 CommonUiDemo_RUI_HOOK_SIG = 0xF574B6D3u;
 inline FRuiNode CommonUiDemo(FCommonUiDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&CommonUiDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCommonUiDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("CommonUiDemo")), []() { return CommonUiDemo(); });
+static const bool GCommonUiDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")), []() { return CommonUiDemo(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
 #endif

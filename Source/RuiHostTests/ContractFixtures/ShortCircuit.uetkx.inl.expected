@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ShortCircuit
+namespace RuiUetkx_ShortCircuit
 {
 struct FShortCircuitUetkxProps final : public FRuiPropsBase
 {
@@ -19,9 +19,9 @@ struct FShortCircuitUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ShortCircuit(FShortCircuitUetkxProps InProps = FShortCircuitUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::ShortCircuit
+} // namespace RuiUetkx_ShortCircuit
 #else
-namespace RuiUetkx::ShortCircuit
+namespace RuiUetkx_ShortCircuit
 {
 static FRuiNodeArray ShortCircuit_UetkxImpl(FRuiContext& Ctx, const FShortCircuitUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -41,13 +41,13 @@ static FRuiNodeArray ShortCircuit_UetkxImpl(FRuiContext& Ctx, const FShortCircui
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GShortCircuitUetkxId = RUI::RegisterComponentId((void*)&ShortCircuit_UetkxImpl, FName(TEXT("RuiUetkx::ShortCircuit::ShortCircuit")));
+static const FName GShortCircuitUetkxId = RUI::RegisterComponentId((void*)&ShortCircuit_UetkxImpl, FName(TEXT("RuiUetkx_ShortCircuit::ShortCircuit")));
 static constexpr uint32 ShortCircuit_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode ShortCircuit(FShortCircuitUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ShortCircuit_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GShortCircuitUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::ShortCircuit::ShortCircuit")), []() { return ShortCircuit(); });
+static const bool GShortCircuitUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ShortCircuit::ShortCircuit")), []() { return ShortCircuit(); });
 
-} // namespace RuiUetkx::ShortCircuit
+} // namespace RuiUetkx_ShortCircuit
 #endif

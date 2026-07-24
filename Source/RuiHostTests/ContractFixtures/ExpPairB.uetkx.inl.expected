@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ExpPairB
+namespace RuiUetkx_ExpPairB
 {
 inline FLinearColor Accent()
 {
@@ -27,9 +27,9 @@ struct FWidgetUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode Widget(FWidgetUetkxProps InProps = FWidgetUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::ExpPairB
+} // namespace RuiUetkx_ExpPairB
 #else
-namespace RuiUetkx::ExpPairB
+namespace RuiUetkx_ExpPairB
 {
 static FRuiNodeArray Widget_UetkxImpl(FRuiContext& Ctx, const FWidgetUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -43,13 +43,13 @@ static FRuiNodeArray Widget_UetkxImpl(FRuiContext& Ctx, const FWidgetUetkxProps&
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GWidgetUetkxId = RUI::RegisterComponentId((void*)&Widget_UetkxImpl, FName(TEXT("RuiUetkx::ExpPairB::Widget")));
+static const FName GWidgetUetkxId = RUI::RegisterComponentId((void*)&Widget_UetkxImpl, FName(TEXT("RuiUetkx_ExpPairB::Widget")));
 static constexpr uint32 Widget_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode Widget(FWidgetUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&Widget_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GWidgetUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::ExpPairB::Widget")), []() { return Widget(); });
+static const bool GWidgetUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ExpPairB::Widget")), []() { return Widget(); });
 
-} // namespace RuiUetkx::ExpPairB
+} // namespace RuiUetkx_ExpPairB
 #endif

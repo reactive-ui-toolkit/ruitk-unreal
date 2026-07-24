@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ShadowedNames
+namespace RuiUetkx_ShadowedNames
 {
 inline FLinearColor RowTint()
 {
@@ -28,15 +28,15 @@ struct FShadowedNamesUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ShadowedNames(FShadowedNamesUetkxProps InProps = FShadowedNamesUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::ShadowedNames
+} // namespace RuiUetkx_ShadowedNames
 #else
-namespace RuiUetkx::ShadowedNames
+namespace RuiUetkx_ShadowedNames
 {
 static FRuiNodeArray ShadowedNames_UetkxImpl(FRuiContext& Ctx, const FShadowedNamesUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Tint = Props.Tint;
 #line 10 "ShadowedNames.uetkx"
-	auto Before = RuiUetkx::ValueExports::Cool();
+	auto Before = RuiUetkx_ValueExports::Cool();
 		FLinearColor Primary = Tint;
 		auto After = Primary;
 		auto UseWobble = [](int32 A) { return A; };
@@ -66,13 +66,13 @@ static FRuiNodeArray ShadowedNames_UetkxImpl(FRuiContext& Ctx, const FShadowedNa
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GShadowedNamesUetkxId = RUI::RegisterComponentId((void*)&ShadowedNames_UetkxImpl, FName(TEXT("RuiUetkx::ShadowedNames::ShadowedNames")));
+static const FName GShadowedNamesUetkxId = RUI::RegisterComponentId((void*)&ShadowedNames_UetkxImpl, FName(TEXT("RuiUetkx_ShadowedNames::ShadowedNames")));
 static constexpr uint32 ShadowedNames_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode ShadowedNames(FShadowedNamesUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ShadowedNames_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GShadowedNamesUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::ShadowedNames::ShadowedNames")), []() { return ShadowedNames(); });
+static const bool GShadowedNamesUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ShadowedNames::ShadowedNames")), []() { return ShadowedNames(); });
 
-} // namespace RuiUetkx::ShadowedNames
+} // namespace RuiUetkx_ShadowedNames
 #endif

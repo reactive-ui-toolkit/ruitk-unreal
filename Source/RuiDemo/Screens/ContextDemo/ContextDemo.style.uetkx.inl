@@ -3,12 +3,14 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+{
 inline FLinearColor CoolTheme()
 {
 	return
 #line 1 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.23f, 0.65f, 0.95f, 1.0f }
-#line 12 "ContextDemo.style.uetkx.inl"
+#line 14 "ContextDemo.style.uetkx.inl"
 ;
 }
 
@@ -17,7 +19,7 @@ inline FLinearColor WarmTheme()
 	return
 #line 2 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.95f, 0.4f, 0.35f, 1.0f }
-#line 21 "ContextDemo.style.uetkx.inl"
+#line 23 "ContextDemo.style.uetkx.inl"
 ;
 }
 
@@ -26,9 +28,13 @@ inline FLinearColor PanelBackground()
 	return
 #line 3 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.02f, 0.02f, 0.03f, 0.85f }
-#line 30 "ContextDemo.style.uetkx.inl"
+#line 32 "ContextDemo.style.uetkx.inl"
 ;
 }
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+{
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
 #endif

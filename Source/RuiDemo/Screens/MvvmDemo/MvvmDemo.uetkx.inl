@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo
+{
 struct FMvvmDemoUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,7 +17,10 @@ struct FMvvmDemoUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode MvvmDemo(FMvvmDemoUetkxProps InProps = FMvvmDemoUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo
+{
 static FRuiNodeArray MvvmDemo_UetkxImpl(FRuiContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/MvvmDemo/MvvmDemo.uetkx"
@@ -26,7 +31,7 @@ static FRuiNodeArray MvvmDemo_UetkxImpl(FRuiContext& Ctx, const FMvvmDemoUetkxPr
 	
 		// The bridge: UseField subscribes once and re-renders when the VM's `Int` field broadcasts.
 		const int32 N = RUI::Umg::UseField<int32>(Ctx, Vm, FName(TEXT("Int")), 0);
-#line 30 "MvvmDemo.uetkx.inl"
+#line 35 "MvvmDemo.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -93,12 +98,13 @@ static FRuiNodeArray MvvmDemo_UetkxImpl(FRuiContext& Ctx, const FMvvmDemoUetkxPr
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMvvmDemoUetkxId = RUI::RegisterComponentId((void*)&MvvmDemo_UetkxImpl, FName(TEXT("MvvmDemo")));
+static const FName GMvvmDemoUetkxId = RUI::RegisterComponentId((void*)&MvvmDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")));
 static constexpr uint32 MvvmDemo_RUI_HOOK_SIG = 0x1676516Fu;
 inline FRuiNode MvvmDemo(FMvvmDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&MvvmDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GMvvmDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("MvvmDemo")), []() { return MvvmDemo(); });
+static const bool GMvvmDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")), []() { return MvvmDemo(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo
 #endif

@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ExportList
+namespace RuiUetkx_ExportList
 {
 inline FLinearColor ListedTone()
 {
@@ -26,9 +26,9 @@ struct FListedCardUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ListedCard(FListedCardUetkxProps InProps = FListedCardUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
-} // namespace RuiUetkx::ExportList
+} // namespace RuiUetkx_ExportList
 #else
-namespace RuiUetkx::ExportList
+namespace RuiUetkx_ExportList
 {
 static FRuiNodeArray ListedCard_UetkxImpl(FRuiContext& Ctx, const FListedCardUetkxProps& Props, const TArray<FRuiNode>& children)
 {
@@ -37,13 +37,13 @@ static FRuiNodeArray ListedCard_UetkxImpl(FRuiContext& Ctx, const FListedCardUet
 		return RUI::Slate::Spacer(MoveTemp(P), FRuiKey());
 	}() };
 }
-static const FName GListedCardUetkxId = RUI::RegisterComponentId((void*)&ListedCard_UetkxImpl, FName(TEXT("RuiUetkx::ExportList::ListedCard")));
+static const FName GListedCardUetkxId = RUI::RegisterComponentId((void*)&ListedCard_UetkxImpl, FName(TEXT("RuiUetkx_ExportList::ListedCard")));
 static constexpr uint32 ListedCard_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ListedCard(FListedCardUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ListedCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GListedCardUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx::ExportList::ListedCard")), []() { return ListedCard(); });
+static const bool GListedCardUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ExportList::ListedCard")), []() { return ListedCard(); });
 
-} // namespace RuiUetkx::ExportList
+} // namespace RuiUetkx_ExportList
 #endif

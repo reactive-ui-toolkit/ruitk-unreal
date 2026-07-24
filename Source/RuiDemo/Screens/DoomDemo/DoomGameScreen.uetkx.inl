@@ -6,6 +6,8 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+{
 struct FDoomGameScreenUetkxProps final : public FRuiPropsBase
 {
 	int32 Level = 1;
@@ -24,7 +26,10 @@ struct FDoomGameScreenUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps = FDoomGameScreenUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+{
 static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Level = Props.Level;
@@ -47,7 +52,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		// ScaleToFit letterboxes the fixed-res game into WHATEVER the demo area gives us — the
 		// siblings' windows ARE 800×590, so scaled-to-fit is the same feel. VAlign=bottom pins
 		// the HUD to the window's bottom edge whenever width is the constraining axis.
-#line 51 "DoomGameScreen.uetkx.inl"
+#line 56 "DoomGameScreen.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiScaleBoxProps P;
 		P.SetStretch(FName(TEXT("scaleToFit")));
@@ -260,11 +265,11 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
-		FDoomMinimapUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::FDoomMinimapUetkxProps P;
 		P.State = St;
 		P.Version = View.Version;
 		TArray<FRuiNode> Ch;
-		return DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
@@ -484,7 +489,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		return RUI::Slate::Overlay(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FDoomHUDUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::FDoomHUDUetkxProps P;
 		P.Health = St->Player.Health;
 		P.Armor = St->Player.Armor;
 		P.ArmorClass = St->Player.ArmorClass;
@@ -498,7 +503,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		P.MapName = RuiDoom::LevelName(ActiveLevel);
 		P.FaceState = St->Player.FaceState;
 		TArray<FRuiNode> Ch;
-		return DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
@@ -507,12 +512,13 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		return RUI::Slate::ScaleBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("DoomGameScreen")));
+static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
 static constexpr uint32 DoomGameScreen_RUI_HOOK_SIG = 0x72A626EBu;
 inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomGameScreen_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomGameScreenUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomGameScreen")), []() { return DoomGameScreen(); });
+static const bool GDoomGameScreenUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")), []() { return DoomGameScreen(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
 #endif

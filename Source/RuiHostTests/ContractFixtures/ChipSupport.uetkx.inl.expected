@@ -3,7 +3,7 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-namespace RuiUetkx::ChipSupport
+namespace RuiUetkx_ChipSupport
 {
 inline float Padding()
 {
@@ -16,9 +16,9 @@ inline float Padding()
 
 inline int32 UseChipCount(FRuiContext& Ctx, int32 Start);
 
-} // namespace RuiUetkx::ChipSupport
+} // namespace RuiUetkx_ChipSupport
 #else
-namespace RuiUetkx::ChipSupport
+namespace RuiUetkx_ChipSupport
 {
 inline int32 UseChipCount(FRuiContext& Ctx, int32 Start)
 {
@@ -28,5 +28,5 @@ inline int32 UseChipCount(FRuiContext& Ctx, int32 Start)
 #line 29 "ChipSupport.uetkx.inl"
 }
 
-} // namespace RuiUetkx::ChipSupport
+} // namespace RuiUetkx_ChipSupport
 #endif

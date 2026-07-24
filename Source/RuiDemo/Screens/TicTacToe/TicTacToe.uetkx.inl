@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+{
 struct FTicTacToeUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,7 +17,10 @@ struct FTicTacToeUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode TicTacToe(FTicTacToeUetkxProps InProps = FTicTacToeUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+{
 static FRuiNodeArray TicTacToe_UetkxImpl(FRuiContext& Ctx, const FTicTacToeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/TicTacToe/TicTacToe.uetkx"
@@ -76,7 +81,7 @@ static FRuiNodeArray TicTacToe_UetkxImpl(FRuiContext& Ctx, const FTicTacToeUetkx
 				SetTurn(Turn == TEXT("X") ? FString(TEXT("O")) : FString(TEXT("X")));
 			}
 		};
-#line 80 "TicTacToe.uetkx.inl"
+#line 85 "TicTacToe.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -221,12 +226,13 @@ static FRuiNodeArray TicTacToe_UetkxImpl(FRuiContext& Ctx, const FTicTacToeUetkx
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GTicTacToeUetkxId = RUI::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("TicTacToe")));
+static const FName GTicTacToeUetkxId = RUI::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe::TicTacToe")));
 static constexpr uint32 TicTacToe_RUI_HOOK_SIG = 0x62237E89u;
 inline FRuiNode TicTacToe(FTicTacToeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&TicTacToe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GTicTacToeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("TicTacToe")), []() { return TicTacToe(); });
+static const bool GTicTacToeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe::TicTacToe")), []() { return TicTacToe(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
 #endif

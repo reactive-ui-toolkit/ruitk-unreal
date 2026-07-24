@@ -4,6 +4,8 @@
 #include "RuiDemoSupport.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+{
 struct FSignalCounterUetkxProps final : public FRuiPropsBase
 {
 
@@ -16,12 +18,15 @@ struct FSignalCounterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode SignalCounter(FSignalCounterUetkxProps InProps = FSignalCounterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+{
 static FRuiNodeArray SignalCounter_UetkxImpl(FRuiContext& Ctx, const FSignalCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 5 "Source/RuiDemo/Screens/SignalCounter/SignalCounter.uetkx"
 	TSharedRef<TRuiSignal<int32>> Signal = RUI::GetOrCreateSignal<int32>(RuiDemo::GDemoCounterSignal, 0);
-#line 25 "SignalCounter.uetkx.inl"
+#line 30 "SignalCounter.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -53,14 +58,14 @@ static FRuiNodeArray SignalCounter_UetkxImpl(FRuiContext& Ctx, const FSignalCoun
 		return RUI::Slate::Spacer(MoveTemp(P), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FSignalPanelUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FSignalPanelUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
 		FRuiSpacerProps P;
@@ -116,12 +121,13 @@ static FRuiNodeArray SignalCounter_UetkxImpl(FRuiContext& Ctx, const FSignalCoun
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GSignalCounterUetkxId = RUI::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("SignalCounter")));
+static const FName GSignalCounterUetkxId = RUI::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter::SignalCounter")));
 static constexpr uint32 SignalCounter_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode SignalCounter(FSignalCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&SignalCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSignalCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("SignalCounter")), []() { return SignalCounter(); });
+static const bool GSignalCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter::SignalCounter")), []() { return SignalCounter(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
 #endif
