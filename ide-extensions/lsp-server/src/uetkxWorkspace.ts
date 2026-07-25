@@ -517,9 +517,11 @@ export function importCursorAt(text: string, off: number): ImportCursor | null {
   if (/^\s*import\s*$/.test(before)) {
     return { kind: "import-keyword" };
   }
-  // inside the `from "…"` string? (unterminated quote before the cursor)
-  if (/\bfrom\s*"[^"]*$/.test(before)) {
-    const q = before.lastIndexOf('"');
+  // inside the `from "…"` string? (unterminated quote before the cursor). The scanner accepts
+  // BOTH quote kinds (C_QUOTE/C_APOS — the formatter canonicalizes to double on save), so the
+  // classifier must too, or single-quote authors get no specifier completion at all (TB-25).
+  if (/\bfrom\s*"[^"]*$/.test(before) || /\bfrom\s*'[^']*$/.test(before)) {
+    const q = Math.max(before.lastIndexOf('"'), before.lastIndexOf("'"));
     return { kind: "import-specifier", partial: before.slice(q + 1) };
   }
   // A COMPLETE `from "…"` before the cursor means the import statement is already closed; the cursor is

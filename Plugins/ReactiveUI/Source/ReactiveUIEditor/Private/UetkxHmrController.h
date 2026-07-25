@@ -108,5 +108,8 @@ private:
 	FDelegateHandle PatchCompleteHandle;
 	FDelegateHandle PiePostStartedHandle;
 	FDelegateHandle PieEndedHandle;
+	// TB-26: rapid saves spawned one toast PER PATCH — the stack of fading notifications
+	// rendered as a blurry smear. One toast, text updated in place, expiry restarted.
+	TWeakPtr<class SNotificationItem> PatchToast;
 	FTSTicker::FDelegateHandle ConsoleHiderHandle; // slow poll: discover the console window + (re)install the hook
 };

@@ -1430,17 +1430,36 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
     }
     if (imp.kind === "import-specifier") {
       const importerDir = path.dirname(fsPath);
+      // TB-25c: accepting a suggestion must REPLACE the specifier content already typed, not
+      // append to it (`./` + accept `./Foo` produced `././Foo`). The edit range spans from
+      // just after the opening quote (cursor - partial) to the closing quote when one exists
+      // on the line (whole-string replace, the R14 attr-name rule), else to the cursor.
+      const cursorOff = doc.offsetAt(params.position);
+      const startPos = doc.positionAt(cursorOff - imp.partial.length);
+      let endOff = cursorOff;
+      for (let i = cursorOff; i < text.length && text[i] !== "\n"; i++) {
+        if (text[i] === '"' || text[i] === "'") {
+          endOff = i;
+          break;
+        }
+      }
+      const editRange = { start: startPos, end: doc.positionAt(endOff) };
       const items: CompletionItem[] = [];
       for (const file of sweptUetkxFiles(fsPath)) {
         if (path.resolve(file) === path.resolve(fsPath)) continue; // never import yourself
         const decls = (getDecls(file) ?? []).filter((d) => d.exported);
         if (decls.length === 0) continue;
         const spec = suggestSpecifier(fsPath, file);
+        // TB-25b: NEAREST first — same folder (`./X`, 0 hops) before parents/siblings, then
+        // alphabetical. VS Code sorts by sortText; hops pad keeps the order stable.
+        const hops = (spec.match(/\.\.\//g) ?? []).length;
         items.push({
           label: spec,
           kind: CompletionItemKind.File,
           detail: decls.map((d) => d.name).join(", "),
-          insertText: spec,
+          sortText: `${String(hops).padStart(3, "0")}_${spec}`,
+          filterText: spec,
+          textEdit: { range: editRange, newText: spec },
           documentation: path.relative(importerDir, file).replace(/\\/g, "/"),
         });
       }

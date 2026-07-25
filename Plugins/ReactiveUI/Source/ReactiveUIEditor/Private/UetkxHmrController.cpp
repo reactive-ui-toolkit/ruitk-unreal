@@ -365,11 +365,32 @@ void FUetkxHmrController::OnPatchComplete()
 		   Status.Swaps);
 	if (GetDefault<UReactiveUetkxEditorSettings>()->bShowNotifications)
 	{
-		FNotificationInfo Info(FText::FromString(
-			FString::Printf(TEXT("HMR: patched %s (%.0f ms)"),
-							Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs)));
-		Info.ExpireDuration = 2.5f;
-		FSlateNotificationManager::Get().AddNotification(Info);
+		const FText Message = FText::FromString(
+			FString::Printf(TEXT("HMR: patched %s (%.0f ms), %d total"),
+							Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs,
+							Status.Swaps));
+		// TB-26: COALESCE — rapid saves stacked one fading toast per patch (a blurry smear).
+		// Reuse the live toast: update its text and restart the expire countdown; spawn a new
+		// one only when the previous has fully faded out.
+		TSharedPtr<SNotificationItem> Existing = PatchToast.Pin();
+		if (Existing.IsValid())
+		{
+			Existing->SetText(Message);
+			Existing->SetExpireDuration(2.5f);
+			Existing->ExpireAndFadeout(); // restarts the countdown on an already-expiring item
+		}
+		else
+		{
+			FNotificationInfo Info(Message);
+			Info.bFireAndForget = false; // lifetime is ours — required for in-place updates
+			Info.ExpireDuration = 2.5f;
+			TSharedPtr<SNotificationItem> Item = FSlateNotificationManager::Get().AddNotification(Info);
+			if (Item.IsValid())
+			{
+				Item->ExpireAndFadeout();
+				PatchToast = Item;
+			}
+		}
 	}
 	OnStatusChanged.Broadcast();
 	if (bDirtyAgain) // changes arrived during the compile — land the latest

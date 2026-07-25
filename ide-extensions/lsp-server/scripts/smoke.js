@@ -544,6 +544,37 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.rmSync(tDir, { recursive: true, force: true });
   console.log("tag policing live OK (unimported tag 2305 with fix, unknown tag 2307, import clears)");
 
+  // TB-25: specifier completion — nearest-path ordering, REPLACE-not-append textEdit, and the
+  // single-quote trigger (the scanner accepts both quote kinds; the formatter canonicalizes).
+  const sDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-spec-"));
+  fs.writeFileSync(path.join(sDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(sDir, "Source", "Sub"), { recursive: true });
+  fs.writeFileSync(path.join(sDir, "Source", "FarThing.uetkx"), "export FLinearColor FarTint = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  fs.writeFileSync(path.join(sDir, "Source", "Sub", "NearThing.uetkx"), "export FLinearColor NearTint = { 0.2f, 0.2f, 0.2f, 1.0f };\n");
+  const sImpPath = path.join(sDir, "Source", "Sub", "SpecUser.uetkx").replace(/\\/g, "/");
+  const sImpUri = "file:///" + sImpPath;
+  const sText = 'import { NearTint } from "./"\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: sImpUri, languageId: "uetkx", version: 1, text: sText } });
+  const sRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
+    position: { line: 0, character: sText.split("\n")[0].indexOf('"./') + 3 } });
+  const sItems = (sRes.result && (sRes.result.items || sRes.result)) || [];
+  if (sItems.length < 2) fail("specifier completion must offer workspace files: " + sItems.length);
+  const sorted = [...sItems].sort((a, b) => (a.sortText || a.label).localeCompare(b.sortText || b.label));
+  if (sorted[0].label !== "./NearThing")
+    fail("NEAREST specifier must sort first (got '" + sorted[0].label + "')");
+  const near = sItems.find((it) => it.label === "./NearThing");
+  if (!near.textEdit || near.textEdit.range.start.character !== sText.split("\n")[0].indexOf('"./') + 1)
+    fail("specifier completion must REPLACE from just after the quote (no ././ append): " + JSON.stringify(near.textEdit));
+  // single-quote trigger parity
+  const sqText = "import { NearTint } from './'\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n";
+  notify("textDocument/didChange", { textDocument: { uri: sImpUri, version: 2 }, contentChanges: [{ text: sqText }] });
+  const sqRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
+    position: { line: 0, character: sqText.split("\n")[0].indexOf("'./") + 3 } });
+  const sqItems = (sqRes.result && (sqRes.result.items || sqRes.result)) || [];
+  if (sqItems.length < 2) fail("single-quoted specifier must complete too: " + sqItems.length);
+  fs.rmSync(sDir, { recursive: true, force: true });
+  console.log("specifier completion OK (nearest-first, replace-not-append, single-quote trigger)");
+
   // R15: sinceUE parity in TAG completion (5.6 fixture workspace)
   const tgDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tagver-"));
   fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');

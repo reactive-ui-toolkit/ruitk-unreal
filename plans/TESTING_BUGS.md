@@ -575,3 +575,38 @@ tail; unknown tag → 2307; importing clears).
 
 **Status:** FIXED (LSP 92/92 + smoke; battery 131/132 — the one failure is the Acceptance
 45-file pin correctly counting the owner's in-flight test files).
+
+## TB-25 — import-specifier DX: single quotes uncolored/untooled, unordered completions, ././ append
+
+**Found:** 2026-07-25, owner during the 10-series: (a) `from './X'` renders white and gets no
+tooling (the C++ AND TS scanners both ACCEPT single quotes — C_QUOTE/C_APOS — and the formatter
+canonicalizes to `"` on save; only the TextMate grammar and the cursor classifier were
+double-quote-only); (b) specifier completions arrive in workspace-walk order — the nearest
+file should lead; (c) accepting a suggestion APPENDED to the typed text (`./` + accept
+`./Foo` → `././Foo`).
+
+**Fixes (extension + LSP, bundle rebuilt; grammar copies byte-identical):** (a) all four
+grammar specifier patterns (3 import forms + host include) accept `'…'`, and `importCursorAt`
+classifies a cursor inside a single-quoted specifier — coloring, completion, and every
+downstream feature now work in both quote styles, with the formatter still canonicalizing to
+the family's double-quote form on save; (b) items carry hops-based `sortText` — same-folder
+first, then by distance, then alphabetical; (c) items carry a `textEdit` replacing from just
+after the opening quote through the closing quote (the R14 whole-token rule) — never an
+append. Smoke-pinned (nearest-first order, replace range, single-quote trigger).
+
+**Status:** FIXED (LSP 92/92 + smoke; reload the dev host).
+
+## TB-26 — rapid HMR patches stacked fading toasts (the "blurry" notification)
+
+**Found:** 2026-07-25, owner: several quick saves made the editor's corner notification turn
+into a blurry smear — the controller spawned ONE toast PER patch-complete, and the overlapping
+fade-outs render as mush.
+
+**Fix (editor controller):** one toast, coalesced — the live notification's text updates in
+place (`SetText` + restarted expire countdown via `bFireAndForget = false` +
+`ExpireAndFadeout()`); a new toast spawns only after the previous fully faded. Bonus: the text
+now carries the running patch total.
+
+**Status:** FIXED in source; C++ build pending the owner's editor closing (Live Coding holds
+the build mutex) — verify visually on the next session: hammer 4-5 quick saves, expect ONE
+crisp toast updating its text.

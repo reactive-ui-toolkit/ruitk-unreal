@@ -37,7 +37,7 @@
     },
     "import-decl": {
       "comment": "Imported names color as WHAT THEY ARE at the use site (sibling behavior): Use-hooks get the hook-call scope, everything else the component-tag scope (modules read as types — same color). ES-modules (G-05): the `as` rename keyword colors as a keyword; both sides of a rename keep their kind scopes.",
-      "match": "\\b(import)\\s*(\\{)([^}]*)(\\})\\s*(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s*(\\{)([^}]*)(\\})\\s*(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "punctuation.definition.block.begin.uetkx" },
@@ -55,7 +55,7 @@
     },
     "import-namespace-decl": {
       "comment": "ES-modules (G-05): `import * as X from \"./x\"` — the namespace alias reads as a type (a `X::Member` qual looks like a C++ namespace at use sites).",
-      "match": "\\b(import)\\s*(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s*(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "keyword.operator.uetkx" },
@@ -67,7 +67,7 @@
     },
     "import-default-decl": {
       "comment": "ES-modules (G-05): `import X from \"./x\"` — a default import binds the target's `export default` symbol (usually a component) — plus the ES COMBINED forms `import X, { a as b } from` and `import X, * as NS from` (one declaration carrying the default binding and the named/star surface). Listed AFTER import-decl/import-host-include so the braced/quoted heads win.",
-      "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?:,\\s*(?:(\\{)([^}]*)(\\})|(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)))?\\s+(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?:,\\s*(?:(\\{)([^}]*)(\\})|(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)))?\\s+(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "support.class.component.uetkx" },
@@ -89,7 +89,7 @@
     },
     "import-host-include": {
       "comment": "`import \"@Header.h\"` (INCLUDE_RETIREMENT_PLAN.md §B) — a nameless host include; same scopes as import-decl so it colors identically to a file import.",
-      "match": "\\b(import)\\b\\s*(\"@[^\"]*\")",
+      "match": "\\b(import)\\b\\s*(\"@[^\"]*\"|'@[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "string.quoted.double.uetkx" }
