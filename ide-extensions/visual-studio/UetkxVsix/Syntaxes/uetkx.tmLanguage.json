@@ -20,6 +20,7 @@
     { "include": "#new-component-decl" },
     { "include": "#control-flow-with-expression" },
     { "include": "#control-flow-keyword" },
+    { "include": "#tag-fragment" },
     { "include": "#tag-element" },
     { "include": "#tag-close" },
     { "include": "#code-block-body" }
@@ -172,6 +173,33 @@
         "2": { "name": "keyword.control.directive.uetkx" }
       }
     },
+    "tag-fragment": {
+      "comment": "One region per FRAGMENT — `<>` through `</>`, the TSX fragment shape, so its delimiters color as tag punctuation like every element's (owner-reported: they fell to the C++ operator rule). The begin keeps tag-element's C++ lookbehind guard (kills `Foo<>` empty template args); adjacent `<>` only — there is no attr form.",
+      "name": "meta.tag.fragment.uetkx",
+      "begin": "(?<![A-Za-z0-9_)\\]])(<)(>)",
+      "end": "(</)\\s*(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.uetkx" },
+        "2": { "name": "punctuation.definition.tag.end.uetkx" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.uetkx" },
+        "2": { "name": "punctuation.definition.tag.end.uetkx" }
+      },
+      "patterns": [
+        { "include": "#markup-comment" },
+        { "include": "#control-flow-with-expression" },
+        { "include": "#control-flow-keyword" },
+        { "include": "#tag-fragment" },
+        { "include": "#tag-element" },
+        { "include": "#markup-brace" },
+        {
+          "comment": "Raw-text children — meta scope only, the tag-element treatment (TB-3).",
+          "match": "[^<{@]+",
+          "name": "meta.text.children.uetkx"
+        }
+      ]
+    },
     "tag-element": {
       "comment": "One region per ELEMENT — `<Name attrs>` through `</Name>` (or `/>`), the TSX jsx-element shape, so raw-text children get a home (TB-3). The begin is triple-guarded against C++ (TB-1b): no identifier/)/] immediately before `<` (kills `UseMemo<T>` generics), tag name REQUIRED (kills bare `i < 3`), and the name must be followed by tag-ish continuation — attr, `>`, `/>`, or end-of-line (kills `A < B` comparisons).",
       "name": "meta.tag.element.uetkx",
@@ -214,6 +242,7 @@
         { "include": "#markup-comment" },
         { "include": "#control-flow-with-expression" },
         { "include": "#control-flow-keyword" },
+        { "include": "#tag-fragment" },
         { "include": "#tag-element" },
         { "include": "#markup-brace" },
         {
@@ -287,6 +316,7 @@
         { "include": "#control-flow-with-expression" },
         { "include": "#control-flow-keyword" },
         { "include": "#markup-comment" },
+        { "include": "#tag-fragment" },
         { "include": "#tag-element" },
         { "include": "#tag-close" },
         { "include": "#markup-brace" },
