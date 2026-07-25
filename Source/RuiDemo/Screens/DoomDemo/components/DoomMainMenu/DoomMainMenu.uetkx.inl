@@ -32,7 +32,7 @@ inline FRuiNode DoomMainMenu(FDoomMainMenuUetkxProps InProps = FDoomMainMenuUetk
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 {
-static FRuiNodeArray DoomMainMenu_UetkxImpl_F6778A6A(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray DoomMainMenu_UetkxBody_F6778A6A(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Level = Props.Level;
 	const auto& Diff = Props.Diff;
@@ -296,11 +296,15 @@ static FRuiNodeArray DoomMainMenu_UetkxImpl_F6778A6A(FRuiContext& Ctx, const FDo
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomMainMenuUetkxId = RUI::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl_F6778A6A, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
+static FRuiNodeArray DoomMainMenu_UetkxImpl(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomMainMenu_UetkxBody_F6778A6A(Ctx, Props, children);
+}
+static const FName GDoomMainMenuUetkxId = RUI::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
 static constexpr uint32 DoomMainMenu_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode DoomMainMenu(FDoomMainMenuUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&DoomMainMenu_UetkxImpl_F6778A6A, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&DoomMainMenu_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GDoomMainMenuUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")), []() { return DoomMainMenu(); });
 

@@ -21,7 +21,7 @@ inline FRuiNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps = FSimpleUseE
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
 {
-static FRuiNodeArray SimpleUseEffect_UetkxImpl_2E73F0B0(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray SimpleUseEffect_UetkxBody_2E73F0B0(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/SimpleUseEffect/SimpleUseEffect.uetkx"
 	auto [Message, SetMessage] = Ctx.UseState<FString>(FString(TEXT("Waiting...")));
@@ -42,11 +42,15 @@ static FRuiNodeArray SimpleUseEffect_UetkxImpl_2E73F0B0(FRuiContext& Ctx, const 
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GSimpleUseEffectUetkxId = RUI::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl_2E73F0B0, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
+static FRuiNodeArray SimpleUseEffect_UetkxImpl(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SimpleUseEffect_UetkxBody_2E73F0B0(Ctx, Props, children);
+}
+static const FName GSimpleUseEffectUetkxId = RUI::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
 static constexpr uint32 SimpleUseEffect_RUI_HOOK_SIG = 0x7B306E79u;
 inline FRuiNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&SimpleUseEffect_UetkxImpl_2E73F0B0, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&SimpleUseEffect_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GSimpleUseEffectUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")), []() { return SimpleUseEffect(); });
 

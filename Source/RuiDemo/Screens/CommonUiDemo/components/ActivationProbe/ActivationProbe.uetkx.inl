@@ -21,7 +21,7 @@ inline FRuiNode ActivationProbe(FActivationProbeUetkxProps InProps = FActivation
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 {
-static FRuiNodeArray ActivationProbe_UetkxImpl_8B4CBBB7(FRuiContext& Ctx, const FActivationProbeUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ActivationProbe_UetkxBody_8B4CBBB7(FRuiContext& Ctx, const FActivationProbeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/CommonUiDemo/components/ActivationProbe/ActivationProbe.uetkx"
 	const bool bActive = RUI::CommonUI::UseIsActive(Ctx);
@@ -38,11 +38,15 @@ static FRuiNodeArray ActivationProbe_UetkxImpl_8B4CBBB7(FRuiContext& Ctx, const 
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GActivationProbeUetkxId = RUI::RegisterComponentId((void*)&ActivationProbe_UetkxImpl_8B4CBBB7, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
+static FRuiNodeArray ActivationProbe_UetkxImpl(FRuiContext& Ctx, const FActivationProbeUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return ActivationProbe_UetkxBody_8B4CBBB7(Ctx, Props, children);
+}
+static const FName GActivationProbeUetkxId = RUI::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
 static constexpr uint32 ActivationProbe_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ActivationProbe(FActivationProbeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ActivationProbe_UetkxImpl_8B4CBBB7, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ActivationProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GActivationProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")), []() { return ActivationProbe(); });
 

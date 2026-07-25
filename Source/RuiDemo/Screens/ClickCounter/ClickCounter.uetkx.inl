@@ -21,7 +21,7 @@ inline FRuiNode ClickCounter(FClickCounterUetkxProps InProps = FClickCounterUetk
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
 {
-static FRuiNodeArray ClickCounter_UetkxImpl_7278E8E3(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ClickCounter_UetkxBody_7278E8E3(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/ClickCounter/ClickCounter.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
@@ -90,11 +90,15 @@ static FRuiNodeArray ClickCounter_UetkxImpl_7278E8E3(FRuiContext& Ctx, const FCl
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GClickCounterUetkxId = RUI::RegisterComponentId((void*)&ClickCounter_UetkxImpl_7278E8E3, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
+static FRuiNodeArray ClickCounter_UetkxImpl(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return ClickCounter_UetkxBody_7278E8E3(Ctx, Props, children);
+}
+static const FName GClickCounterUetkxId = RUI::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
 static constexpr uint32 ClickCounter_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode ClickCounter(FClickCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ClickCounter_UetkxImpl_7278E8E3, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ClickCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GClickCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")), []() { return ClickCounter(); });
 

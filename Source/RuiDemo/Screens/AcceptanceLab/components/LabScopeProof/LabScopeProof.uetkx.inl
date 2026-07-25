@@ -21,7 +21,7 @@ inline FRuiNode LabScopeProof(FLabScopeProofUetkxProps InProps = FLabScopeProofU
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 {
-static FRuiNodeArray LabScopeProof_UetkxImpl_62E89A38(FRuiContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray LabScopeProof_UetkxBody_62E89A38(FRuiContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
@@ -66,11 +66,15 @@ static FRuiNodeArray LabScopeProof_UetkxImpl_62E89A38(FRuiContext& Ctx, const FL
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GLabScopeProofUetkxId = RUI::RegisterComponentId((void*)&LabScopeProof_UetkxImpl_62E89A38, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
+static FRuiNodeArray LabScopeProof_UetkxImpl(FRuiContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return LabScopeProof_UetkxBody_62E89A38(Ctx, Props, children);
+}
+static const FName GLabScopeProofUetkxId = RUI::RegisterComponentId((void*)&LabScopeProof_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
 static constexpr uint32 LabScopeProof_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode LabScopeProof(FLabScopeProofUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&LabScopeProof_UetkxImpl_62E89A38, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&LabScopeProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GLabScopeProofUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")), []() { return LabScopeProof(); });
 

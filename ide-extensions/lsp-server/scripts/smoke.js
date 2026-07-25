@@ -517,6 +517,33 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.rmSync(wDir, { recursive: true, force: true });
   console.log("watched-files OK (disk delete re-flags open importers, recreate clears — no keystroke)");
 
+  // TB-24 (owner 10a): an UNIMPORTED component TAG must flag LIVE — 2305 with the add-import
+  // fix when a file exports it, 2307 when nothing does. Was sidecar-only (nothing as-you-type,
+  // and the sidecar copy flickered with the hash gate).
+  const tDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tag-"));
+  fs.writeFileSync(path.join(tDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(tDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(tDir, "Source", "YComp.uetkx"),
+    "export FRuiNode YComp() {\n\treturn ( <Spacer /> );\n}\n");
+  const tImpPath = path.join(tDir, "Source", "TagScreen.uetkx").replace(/\\/g, "/");
+  const tImpUri = "file:///" + tImpPath;
+  notify("textDocument/didOpen", { textDocument: { uri: tImpUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> <NoSuchComp /> </VerticalBox> );\n}\n' } });
+  await settle();
+  const tDiags = diagnostics[tImpUri] || [];
+  if (!tDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YComp } from "./YComp"')))
+    fail("unimported component TAG must 2305 live with the add-import tail: " + JSON.stringify(tDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  if (!tDiags.some((d) => String(d.code) === "UETKX2307" && /NoSuchComp/.test(d.message)))
+    fail("a tag no file exports must 2307 live: " + JSON.stringify(tDiags.map((d) => d.code)));
+  // import it — both usage diags for YComp must clear
+  notify("textDocument/didChange", { textDocument: { uri: tImpUri, version: 2 },
+    contentChanges: [{ text: 'import { YComp } from "./YComp"\nexport FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> </VerticalBox> );\n}\n' }] });
+  await settle();
+  if ((diagnostics[tImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("importing the component must clear the tag diags: " + JSON.stringify((diagnostics[tImpUri] || []).map((d) => d.code)));
+  fs.rmSync(tDir, { recursive: true, force: true });
+  console.log("tag policing live OK (unimported tag 2305 with fix, unknown tag 2307, import clears)");
+
   // R15: sinceUE parity in TAG completion (5.6 fixture workspace)
   const tgDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tagver-"));
   fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');

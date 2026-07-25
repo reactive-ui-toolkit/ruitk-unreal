@@ -21,7 +21,7 @@ inline FRuiNode KeyedDiff(FKeyedDiffUetkxProps InProps = FKeyedDiffUetkxProps(),
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
 {
-static FRuiNodeArray KeyedDiff_UetkxImpl_A51DA7A5(FRuiContext& Ctx, const FKeyedDiffUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray KeyedDiff_UetkxBody_A51DA7A5(FRuiContext& Ctx, const FKeyedDiffUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/KeyedDiff/KeyedDiff.uetkx"
 	static const TCHAR* Seed[] = {TEXT("Alpha"), TEXT("Bravo"), TEXT("Charlie"), TEXT("Delta"),
@@ -242,11 +242,15 @@ static FRuiNodeArray KeyedDiff_UetkxImpl_A51DA7A5(FRuiContext& Ctx, const FKeyed
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GKeyedDiffUetkxId = RUI::RegisterComponentId((void*)&KeyedDiff_UetkxImpl_A51DA7A5, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
+static FRuiNodeArray KeyedDiff_UetkxImpl(FRuiContext& Ctx, const FKeyedDiffUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return KeyedDiff_UetkxBody_A51DA7A5(Ctx, Props, children);
+}
+static const FName GKeyedDiffUetkxId = RUI::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
 static constexpr uint32 KeyedDiff_RUI_HOOK_SIG = 0xDDEFCD0Cu;
 inline FRuiNode KeyedDiff(FKeyedDiffUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&KeyedDiff_UetkxImpl_A51DA7A5, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&KeyedDiff_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GKeyedDiffUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")), []() { return KeyedDiff(); });
 

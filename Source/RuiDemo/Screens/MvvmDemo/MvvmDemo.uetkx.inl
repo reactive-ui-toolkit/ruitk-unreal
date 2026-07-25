@@ -21,7 +21,7 @@ inline FRuiNode MvvmDemo(FMvvmDemoUetkxProps InProps = FMvvmDemoUetkxProps(), TA
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo
 {
-static FRuiNodeArray MvvmDemo_UetkxImpl_212F4A7E(FRuiContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray MvvmDemo_UetkxBody_212F4A7E(FRuiContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/MvvmDemo/MvvmDemo.uetkx"
 	// A viewmodel we own: created once (UseMemo, empty deps), GC-rooted by the strong ptr, released on unmount.
@@ -98,11 +98,15 @@ static FRuiNodeArray MvvmDemo_UetkxImpl_212F4A7E(FRuiContext& Ctx, const FMvvmDe
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMvvmDemoUetkxId = RUI::RegisterComponentId((void*)&MvvmDemo_UetkxImpl_212F4A7E, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")));
+static FRuiNodeArray MvvmDemo_UetkxImpl(FRuiContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return MvvmDemo_UetkxBody_212F4A7E(Ctx, Props, children);
+}
+static const FName GMvvmDemoUetkxId = RUI::RegisterComponentId((void*)&MvvmDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")));
 static constexpr uint32 MvvmDemo_RUI_HOOK_SIG = 0x1676516Fu;
 inline FRuiNode MvvmDemo(FMvvmDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&MvvmDemo_UetkxImpl_212F4A7E, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&MvvmDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GMvvmDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")), []() { return MvvmDemo(); });
 

@@ -1041,6 +1041,47 @@ function validate(doc: TextDocument): void {
             `\`${r.name}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${r.name} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
         }
       }
+      // TB-24 — component TAG policing, LIVE (the compiler's UetkxResolve step-2 tag rule,
+      // previously sidecar-only: `<CounterBadge />` with the file on disk but no import showed
+      // NOTHING as-you-type, and the sidecar copy FLICKERED with the hash gate). A PascalCase
+      // non-host tag that is neither a same-file component nor an import binding must resolve
+      // to an exported component (2305, the add-import quick-fix) or no file exports it (2307).
+      {
+        const hostTags = new Set(Object.keys(schemaOf(doc).elements));
+        const seenTags = new Set<string>();
+        for (const r of usageRefs) {
+          if (r.kind !== "tag" || r.closeTag) continue;
+          const tag = r.name;
+          if (seenTags.has(tag)) continue;
+          seenTags.add(tag);
+          if (!/^[A-Z]/.test(tag) || hostTags.has(tag) || usageKnown.has(tag)) continue;
+          const candidates = (otherExports.get(tag) ?? []).filter((c) => c.kind === "component");
+          if (candidates.length > 0) {
+            let hit = candidates[0];
+            let bestHops = hopsOf(suggestSpecifier(fsPathOf(doc), hit.file));
+            for (let i = 1; i < candidates.length; i++) {
+              const hops = hopsOf(suggestSpecifier(fsPathOf(doc), candidates[i].file));
+              if (hops < bestHops) {
+                bestHops = hops;
+                hit = candidates[i];
+              }
+            }
+            const key = `UETKX2305@${r.start}:${r.len}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              push(r.start, r.len, 0, "UETKX2305",
+                `\`${tag}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${tag} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
+            }
+          } else {
+            const key = `UETKX2307@${r.start}:${r.len}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              push(r.start, r.len, 0, "UETKX2307",
+                `\`${tag}\` is used like a uetkx component/hook but no file exports it`);
+            }
+          }
+        }
+      }
       // UETKX2329 live mirror, SAME-FILE case: two exports differing only by case share this
       // file's namespace, so their case-folded FQNs collide (FName runtime identities are
       // case-insensitive). The compiler reports this in sweeps; case-twins in ONE file are the

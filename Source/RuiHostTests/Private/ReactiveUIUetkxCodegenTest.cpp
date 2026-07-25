@@ -127,12 +127,31 @@ export component Counter(StartAt: int32 = 0) {
 				 Out.Inl.Contains(TEXT("struct FCounterUetkxProps final : public FRuiPropsBase")));
 		TestTrue(TEXT("param with default"), Out.Inl.Contains(TEXT("int32 StartAt = 0;")));
 		TestTrue(TEXT("hook auto-prefixed"), Out.Inl.Contains(TEXT("Ctx.UseState(StartAt)")));
-		TestTrue(TEXT("impl signature"),
-				 Out.Inl.Contains(
-					 TEXT("static FRuiNodeArray Counter_UetkxImpl_")));
-		TestTrue(TEXT("registration emitted (FQN runtime identity, FS-04)"),
+		TestTrue(TEXT("hashed BODY holds the markup (TB-23 — unique lambda manglings per generation)"),
+				 Out.Inl.Contains(TEXT("static FRuiNodeArray Counter_UetkxBody_")));
+		TestTrue(TEXT("STABLE impl shim (TB-23 — the registered/redirect anchor must never rename)"),
+				 Out.Inl.Contains(TEXT("static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, "
+									   "const FCounterUetkxProps& Props")));
+		TestTrue(TEXT("registration emitted (FQN runtime identity via the STABLE shim, FS-04)"),
 				 Out.Inl.Contains(TEXT(
-					 "FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
+					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
+		// TB-23 invariant: an EDIT re-hashes the body but the registered pointer symbol stays
+		// stable — Live Coding redirection (HMR's engine) rides the stable name; the first-cut
+		// hashed impl froze HMR (old fibers invoked dead code forever). Pinned both ways.
+		{
+			const FUetkxCompileOutput Edited = FUetkxCodegen::CompileSource(Source + TEXT("\n"), TEXT("Counter"));
+			if (TestTrue(TEXT("edited counter compiles"), Edited.bOk))
+			{
+				TestTrue(TEXT("edited generation still registers the STABLE impl symbol"),
+						 Edited.Inl.Contains(TEXT("RegisterComponentId((void*)&Counter_UetkxImpl,")));
+				auto BodyNameOf = [](const FString& Inl) -> FString {
+					const int32 At = Inl.Find(TEXT("Counter_UetkxBody_"));
+					return At >= 0 ? Inl.Mid(At, 26) : FString();
+				};
+				TestNotEqual(TEXT("edited generation gets a DIFFERENT body name (lambda manglings never collide)"),
+							 BodyNameOf(Out.Inl), BodyNameOf(Edited.Inl));
+			}
+		}
 		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUI_HOOK_SIG = 0x")));
 		TestTrue(TEXT("wrapper for cross-component refs"), Out.Inl.Contains(TEXT("inline FRuiNode Counter(")));
 		TestTrue(TEXT("event lowered with the Value payload"),
@@ -472,7 +491,7 @@ component CardStack(Names: TArray<FString>) {
 					 !Out.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) &&
 						 !Out.Inl.Contains(TEXT("::Row\")), []()")));
 			TestTrue(TEXT("private component id is FILE-QUALIFIED"),
-					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl,")) &&
 						 Out.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_Panel::Row\")))")));
 			// same-file references stay BARE — they share the file namespace.
 			TestTrue(TEXT("same-file component tag stays bare"),
@@ -686,13 +705,13 @@ component CardStack(Names: TArray<FString>) {
 			if (TestTrue(TEXT("PrivPair sources compile"), A.bOk && B.bOk))
 			{
 				TestTrue(TEXT("A's private Row keys RuiUetkx_PrivPairA::Row"),
-						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl,")) &&
 							 A.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairA::Row\")))")));
 				TestTrue(TEXT("B's private Row keys RuiUetkx_PrivPairB::Row"),
-						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl,")) &&
 							 B.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairB::Row\")))")));
 				TestTrue(TEXT("exported components carry the FILE-QUALIFIED runtime id too (FS-04)"),
-						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl_")) &&
+						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl,")) &&
 							 A.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairA::PrivPairA\")))")));
 				TestFalse(TEXT("no bare-name id for a private component"),
 						  A.Inl.Contains(TEXT(", FName(TEXT(\"Row\")))")));

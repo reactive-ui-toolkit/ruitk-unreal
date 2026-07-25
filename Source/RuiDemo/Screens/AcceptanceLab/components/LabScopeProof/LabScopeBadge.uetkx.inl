@@ -21,15 +21,19 @@ inline FRuiNode LabScopeBadge(FLabScopeBadgeUetkxProps InProps = FLabScopeBadgeU
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge
 {
-static FRuiNodeArray LabScopeBadge_UetkxImpl_BC1A283F(FRuiContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray LabScopeBadge_UetkxBody_BC1A283F(FRuiContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { RUI::TextBlock(NSLOCTEXT("Uetkx.LabScopeBadge", "LabScopeBadge_1", "scope-proof"), FRuiKey()) };
 }
-static const FName GLabScopeBadgeUetkxId = RUI::RegisterComponentId((void*)&LabScopeBadge_UetkxImpl_BC1A283F, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge")));
+static FRuiNodeArray LabScopeBadge_UetkxImpl(FRuiContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return LabScopeBadge_UetkxBody_BC1A283F(Ctx, Props, children);
+}
+static const FName GLabScopeBadgeUetkxId = RUI::RegisterComponentId((void*)&LabScopeBadge_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge")));
 static constexpr uint32 LabScopeBadge_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode LabScopeBadge(FLabScopeBadgeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&LabScopeBadge_UetkxImpl_BC1A283F, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&LabScopeBadge_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GLabScopeBadgeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge")), []() { return LabScopeBadge(); });
 

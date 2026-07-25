@@ -24,7 +24,7 @@ inline FRuiNode DemoContextPanel(FDemoContextPanelUetkxProps InProps = FDemoCont
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 {
-static FRuiNodeArray DemoContextPanel_UetkxImpl_5E1E4D68(FRuiContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray DemoContextPanel_UetkxBody_5E1E4D68(FRuiContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Label = Props.Label;
 #line 4 "Source/RuiDemo/Screens/ContextDemo/components/DemoContextPanel/DemoContextPanel.uetkx"
@@ -45,11 +45,15 @@ static FRuiNodeArray DemoContextPanel_UetkxImpl_5E1E4D68(FRuiContext& Ctx, const
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDemoContextPanelUetkxId = RUI::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl_5E1E4D68, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
+static FRuiNodeArray DemoContextPanel_UetkxImpl(FRuiContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DemoContextPanel_UetkxBody_5E1E4D68(Ctx, Props, children);
+}
+static const FName GDemoContextPanelUetkxId = RUI::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
 static constexpr uint32 DemoContextPanel_RUI_HOOK_SIG = 0x3A36D564u;
 inline FRuiNode DemoContextPanel(FDemoContextPanelUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&DemoContextPanel_UetkxImpl_5E1E4D68, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&DemoContextPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GDemoContextPanelUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")), []() { return DemoContextPanel(); });
 

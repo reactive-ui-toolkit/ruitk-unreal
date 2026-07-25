@@ -23,7 +23,7 @@ inline FRuiNode ValueMarkup(FValueMarkupUetkxProps InProps = FValueMarkupUetkxPr
 #else
 namespace RuiUetkx_ValueMarkup
 {
-static FRuiNodeArray ValueMarkup_UetkxImpl_214F8489(FRuiContext& Ctx, const FValueMarkupUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ValueMarkup_UetkxBody_214F8489(FRuiContext& Ctx, const FValueMarkupUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& bShow = Props.bShow;
 #line 2 "ValueMarkup.uetkx"
@@ -50,11 +50,15 @@ static FRuiNodeArray ValueMarkup_UetkxImpl_214F8489(FRuiContext& Ctx, const FVal
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GValueMarkupUetkxId = RUI::RegisterComponentId((void*)&ValueMarkup_UetkxImpl_214F8489, FName(TEXT("RuiUetkx_ValueMarkup::ValueMarkup")));
+static FRuiNodeArray ValueMarkup_UetkxImpl(FRuiContext& Ctx, const FValueMarkupUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return ValueMarkup_UetkxBody_214F8489(Ctx, Props, children);
+}
+static const FName GValueMarkupUetkxId = RUI::RegisterComponentId((void*)&ValueMarkup_UetkxImpl, FName(TEXT("RuiUetkx_ValueMarkup::ValueMarkup")));
 static constexpr uint32 ValueMarkup_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode ValueMarkup(FValueMarkupUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ValueMarkup_UetkxImpl_214F8489, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ValueMarkup_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GValueMarkupUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ValueMarkup::ValueMarkup")), []() { return ValueMarkup(); });
 

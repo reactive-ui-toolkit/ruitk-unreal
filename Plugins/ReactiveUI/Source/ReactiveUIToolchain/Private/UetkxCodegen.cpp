@@ -2313,19 +2313,25 @@ namespace
 		// + hook-signature registrations, the default-free wrapper definition, and (exported only)
 		// the named-factory self-registration.
 		//
-		// TB-23 — the impl symbol carries a CONTENT HASH (`_UetkxImpl_<hash>`): Live Coding
-		// redirects functions BY MANGLED NAME across patches, and anonymous lambdas mangle by
-		// ORDINAL under their enclosing function — an edit that inserts/removes a markup child
-		// shifts every later lambda's ordinal, so an OLD stored closure's destructor got
-		// redirected to a DIFFERENT lambda's code with a different capture layout (AV tearing
-		// down pre-patch trees). A content-hashed enclosing name makes every generation's
-		// lambda manglings globally unique — old objects keep their own still-loaded code. The
-		// wrapper (stable name, recompiled in the same patch) is the only caller.
-		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl_%s"), *Decl.Name, *BodyHash);
+		// TB-23 — TWO symbols, each owning ONE property (they must never be conflated):
+		//
+		// - `<Name>_UetkxBody_<hash>` (content-hashed) holds the ACTUAL markup body — every
+		//   anonymous lambda mangles under it. Live Coding redirects BY MANGLED NAME across
+		//   patches, and lambdas mangle by ORDINAL: inserting a markup child shifts later
+		//   ordinals, so an OLD stored closure's destructor got redirected to a DIFFERENT
+		//   lambda's layout (AV tearing down pre-patch trees). Hashed enclosing name = every
+		//   generation's manglings are globally unique; old objects keep their own code.
+		// - `<Name>_UetkxImpl` (STABLE) is a one-line shim to the body: it is the REGISTERED
+		//   pointer, the FC target, and Live Coding's redirect anchor. It MUST stay stable —
+		//   patch initializers for same-named globals never re-run (TB-15), so a renamed impl
+		//   would never re-register and old fibers would invoke dead code forever (the
+		//   first-cut TB-23 hashed the impl itself and froze HMR exactly that way).
+		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl"), *Decl.Name);
+		const FString BodyName = FString::Printf(TEXT("%s_UetkxBody_%s"), *Decl.Name, *BodyHash);
 		FString Impl = FString::Printf(
 			TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
 				 "children)\n{\n"),
-			*ImplName, *PropsType);
+			*BodyName, *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
 		{
 			Impl += FString::Printf(TEXT("\tconst auto& %s = Props.%s;\n"), *Param.Name, *Param.Name);
@@ -2384,6 +2390,10 @@ namespace
 			}
 			Impl += TEXT("}\n");
 		}
+		// The STABLE impl shim (TB-23): pointer identity + Live Coding's redirect anchor.
+		Impl += FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, "
+									 "const TArray<FRuiNode>& children)\n{\n\treturn %s(Ctx, Props, children);\n}\n"),
+								*ImplName, *PropsType, *BodyName);
 		// FILE_SCOPED_EXPORTS (FS-04, supersedes TD-026's split): runtime identity = the FILE-
 		// QUALIFIED emitted C++ name for EVERY component, exported or private — two files may
 		// export the same name (that is the ES-module point), so the process-global registries

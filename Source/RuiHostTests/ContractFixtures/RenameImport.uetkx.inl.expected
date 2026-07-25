@@ -21,7 +21,7 @@ inline FRuiNode RenameImport(FRenameImportUetkxProps InProps = FRenameImportUetk
 #else
 namespace RuiUetkx_RenameImport
 {
-static FRuiNodeArray RenameImport_UetkxImpl_5F34FD49(FRuiContext& Ctx, const FRenameImportUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray RenameImport_UetkxBody_5F34FD49(FRuiContext& Ctx, const FRenameImportUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
@@ -35,11 +35,15 @@ static FRuiNodeArray RenameImport_UetkxImpl_5F34FD49(FRuiContext& Ctx, const FRe
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GRenameImportUetkxId = RUI::RegisterComponentId((void*)&RenameImport_UetkxImpl_5F34FD49, FName(TEXT("RuiUetkx_RenameImport::RenameImport")));
+static FRuiNodeArray RenameImport_UetkxImpl(FRuiContext& Ctx, const FRenameImportUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return RenameImport_UetkxBody_5F34FD49(Ctx, Props, children);
+}
+static const FName GRenameImportUetkxId = RUI::RegisterComponentId((void*)&RenameImport_UetkxImpl, FName(TEXT("RuiUetkx_RenameImport::RenameImport")));
 static constexpr uint32 RenameImport_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode RenameImport(FRenameImportUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&RenameImport_UetkxImpl_5F34FD49, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&RenameImport_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GRenameImportUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_RenameImport::RenameImport")), []() { return RenameImport(); });
 

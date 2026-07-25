@@ -25,16 +25,20 @@ inline int32 UseLegacyTick(FRuiContext& Ctx, int32 Start);
 #else
 namespace RuiUetkx_LegacyWrappers
 {
-static FRuiNodeArray LegacyWrappers_UetkxImpl_BD48BD3C(FRuiContext& Ctx, const FLegacyWrappersUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray LegacyWrappers_UetkxBody_BD48BD3C(FRuiContext& Ctx, const FLegacyWrappersUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Label = Props.Label;
 	return { RUI::TextBlock((FText::FromString(Label)), FRuiKey()) };
 }
-static const FName GLegacyWrappersUetkxId = RUI::RegisterComponentId((void*)&LegacyWrappers_UetkxImpl_BD48BD3C, FName(TEXT("RuiUetkx_LegacyWrappers::LegacyWrappers")));
+static FRuiNodeArray LegacyWrappers_UetkxImpl(FRuiContext& Ctx, const FLegacyWrappersUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return LegacyWrappers_UetkxBody_BD48BD3C(Ctx, Props, children);
+}
+static const FName GLegacyWrappersUetkxId = RUI::RegisterComponentId((void*)&LegacyWrappers_UetkxImpl, FName(TEXT("RuiUetkx_LegacyWrappers::LegacyWrappers")));
 static constexpr uint32 LegacyWrappers_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode LegacyWrappers(FLegacyWrappersUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&LegacyWrappers_UetkxImpl_BD48BD3C, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&LegacyWrappers_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GLegacyWrappersUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_LegacyWrappers::LegacyWrappers")), []() { return LegacyWrappers(); });
 
@@ -42,7 +46,7 @@ static int32 UseLegacyTick_RuiBody_BD48BD3C(FRuiContext& Ctx, int32 Start)
 {
 #line 10 "LegacyWrappers.uetkx"
 	return Start;
-#line 46 "LegacyWrappers.uetkx.inl"
+#line 50 "LegacyWrappers.uetkx.inl"
 }
 inline int32 UseLegacyTick(FRuiContext& Ctx, int32 Start)
 {

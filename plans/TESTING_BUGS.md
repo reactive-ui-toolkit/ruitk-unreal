@@ -544,3 +544,34 @@ same treatment available if ever observed).
 correctly flagging the owner's two in-flight 10a/10b test files, not a regression; goldens
 re-pinned with hashed symbols). Owner re-test: repeat the exact 10a flow — add a widget,
 patch, keep clicking, stop PIE.
+
+> **TB-23 AMENDMENT (2026-07-25, owner 10a re-test):** the first-cut fix was WRONG and briefly
+> froze HMR entirely — hashing the impl symbol itself broke Live Coding's redirect (patch
+> initializers for same-named globals never re-run, so the renamed impl never re-registered
+> and old fibers invoked dead code forever: "component does not update", with or without HMR).
+> The correct architecture DECOUPLES the two requirements: `<Name>_UetkxImpl` stays STABLE
+> (the registered pointer, the FC target, Live Coding's redirect anchor — a one-line shim)
+> and calls `<Name>_UetkxBody_<hash>` where every lambda actually lives. Hooks/utils already
+> had this shape (stable forwarder + hashed body). Pinned by the codegen invariance test:
+> an edited generation keeps the STABLE registration symbol and gets a DIFFERENT body name.
+
+## TB-24 — unimported component TAGS never flagged live (and the sidecar copy flickered)
+
+**Found:** 2026-07-25, owner: `<CounterBadge />` with the exporter on disk but NO import showed
+no squiggle as-you-type; a red squiggle appeared only after "several changes" and flickered
+between red and clean while editing.
+
+**Root causes:** (a) the TB-19 live strict-usage mirror deliberately covered CODE references
+only — component TAGS were left to the compiler sweep; (b) the sweep's verdict reaches the
+editor through the HASH-GATED sidecar, so the diagnostic appeared only when the buffer matched
+the last compile and vanished on every divergence — the flicker.
+
+**Fix (LSP, bundle rebuilt):** live TAG policing in validate(), the compiler's UetkxResolve
+step-2 tag rule: a PascalCase non-host tag that is neither a same-file component nor an import
+binding → UETKX2305 (importer-nearest exporter, the add-import quick-fix works) or UETKX2307
+when no file exports it. First occurrence per tag, deduped against the existing broken-parse
+2307 producer and the sidecar by shared keys. Smoke-pinned (unimported tag → 2305 with fix
+tail; unknown tag → 2307; importing clears).
+
+**Status:** FIXED (LSP 92/92 + smoke; battery 131/132 — the one failure is the Acceptance
+45-file pin correctly counting the owner's in-flight test files).

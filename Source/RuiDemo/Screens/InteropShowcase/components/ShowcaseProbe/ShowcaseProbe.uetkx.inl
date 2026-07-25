@@ -21,18 +21,22 @@ inline FRuiNode ShowcaseProbe(FShowcaseProbeUetkxProps InProps = FShowcaseProbeU
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe
 {
-static FRuiNodeArray ShowcaseProbe_UetkxImpl_F581F1AD(FRuiContext& Ctx, const FShowcaseProbeUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ShowcaseProbe_UetkxBody_F581F1AD(FRuiContext& Ctx, const FShowcaseProbeUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/InteropShowcase/components/ShowcaseProbe/ShowcaseProbe.uetkx"
 	const bool bActive = RUI::CommonUI::UseIsActive(Ctx);
 #line 29 "ShowcaseProbe.uetkx.inl"
 	return { RUI::TextBlock((RUI::Fmt(TEXT("screen is {}"), bActive ? TEXT("ACTIVE") : TEXT("INACTIVE"))), FRuiKey()) };
 }
-static const FName GShowcaseProbeUetkxId = RUI::RegisterComponentId((void*)&ShowcaseProbe_UetkxImpl_F581F1AD, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe")));
+static FRuiNodeArray ShowcaseProbe_UetkxImpl(FRuiContext& Ctx, const FShowcaseProbeUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return ShowcaseProbe_UetkxBody_F581F1AD(Ctx, Props, children);
+}
+static const FName GShowcaseProbeUetkxId = RUI::RegisterComponentId((void*)&ShowcaseProbe_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe")));
 static constexpr uint32 ShowcaseProbe_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ShowcaseProbe(FShowcaseProbeUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ShowcaseProbe_UetkxImpl_F581F1AD, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ShowcaseProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GShowcaseProbeUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe")), []() { return ShowcaseProbe(); });
 
