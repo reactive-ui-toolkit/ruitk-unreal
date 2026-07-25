@@ -33,17 +33,21 @@ jobs:
       - uses: actions/checkout@v7
 
       # 1. The empty-plugin/editor compile IS Phase 0's engine gate. Development Editor first.
-      - name: Build Development Editor (Linux)
+      #    -DisableUnity -NoPCH (2026-07-25, TB-30): the marketplace/Fab build mode. Unity builds
+      #    let one file's includes leak into the next, masking missing includes — that masking is
+      #    a build-mode property, not a compiler one, so the strict flags catch the TB-29/TB-30
+      #    class here on clang exactly as MSVC -StrictIncludes does at packaging time.
+      - name: Build Development Editor (Linux, strict includes)
         run: |
           "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoEditor Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject"
+            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 2. Dedicated-server compile leg — D-27's server policy is CI-verified, not assumed
       #    (modules stay present on Server targets; behavior is gated at runtime instead).
-      - name: Build DedicatedServer (Linux)
+      - name: Build DedicatedServer (Linux, strict includes)
         run: |
           "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoServer Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject"
+            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 3. Markup drift gate — the RUICompile commandlet + committed *.uetkx.inl / aggregators exist
       #    (Phase 3+), so this is the SOLE guard that the 25 committed generated files match a fresh
