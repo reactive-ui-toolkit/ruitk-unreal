@@ -340,7 +340,7 @@ bool FRuiUmgLifecycleTest::RunTest(const FString&)
 		Host->Remount();
 		TestEqual(TEXT("Remount did not leak a root"), UmgTest::CountLiveReconcilers(), Baseline + 1);
 		TestTrue(TEXT("Remount re-resolved to the new component"),
-				 UmgTest::ContainsText(Host->TakeWidget().Get(), TEXT("Count: 0")));
+				 UmgTest::ContainsText(Host->TakeWidget().Get(), TEXT("Count1: 0")));
 		TestEqual(TEXT("re-TakeWidget still one root"), UmgTest::CountLiveReconcilers(), Baseline + 1);
 
 		Host->ReleaseSlateResources(true);

@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
+{
 struct FSimpleCounterUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,30 +17,37 @@ struct FSimpleCounterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode SimpleCounter(FSimpleCounterUetkxProps InProps = FSimpleCounterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
 #else
-static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
 {
-#line 4 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"
-	auto [Count, Increment] = UseCounter(Ctx, 0);
-#line 24 "SimpleCounter.uetkx.inl"
+static FRuiNodeArray SimpleCounter_UetkxBody_821B1C34(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+#line 5 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"
+	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, RUI::Deps());
+		auto [Count, Increment] = RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks::UseCounter(Ctx, 0);
+		auto [Count2, Increment2] = Ctx.UseState<int32>(0);
+#line 31 "SimpleCounter.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
-		P.SetPadding(FMargin(12));
+		P.SetPadding((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelPadding()));
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
-		P.SetBorderBackgroundColor((FLinearColor(0.02f, 0.02f, 0.03f, 0.85f)));
+		P.SetBorderBackgroundColor((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
 		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
 		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(TEXT("0,10,0,0")));
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelSlotPadding()));
 		if (!__Style->IsEmpty()) { P.Style = __Style; }
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
-		Ch.Add(RUI::TextBlock((RUI::Fmt(TEXT("Count: {}"), Count)), FRuiKey()));
+		Ch.Add(RUI::TextBlock((FText::FromString(TEXT("DOOM COUNTER02"))), FRuiKey()));
+		Ch.Add(RUI::TextBlock((RUI::Fmt(TEXT("Count1: {}"), Count)), FRuiKey()));
+		Ch.Add(RUI::TextBlock((RUI::Fmt(TEXT("Count2: {}"), Count2)), FRuiKey()));
 		Ch.Add([&]() -> FRuiNode {
 		FRuiSpacerProps P;
-		P.SetSize((FVector2D(1.0f, 6.0f)));
+		P.SetSize((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::RowGap()));
 		return RUI::Slate::Spacer(MoveTemp(P), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
@@ -47,14 +56,32 @@ static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCoun
 		Ch.Add([&]() -> FRuiNode {
 		FRuiButtonProps P;
 		P.SetOnClicked(FRuiCallback::Create([=](const FRuiValue& Value) { Increment(); }));
-		P.SetContentPadding(FMargin(12,4));
+		P.SetContentPadding((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
 		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
 		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(TEXT("0,0,6,0")));
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
 		if (!__Style->IsEmpty()) { P.Style = __Style; }
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add(RUI::TextBlock(NSLOCTEXT("Uetkx.SimpleCounter", "SimpleCounter_1", "+")));
+		return RUI::Slate::Button(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+	}());
+		return RUI::Slate::HorizontalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+	}());
+		Ch.Add([&]() -> FRuiNode {
+		FRuiHorizontalBoxProps P;
+		TArray<FRuiNode> Ch;
+		Ch.Add([&]() -> FRuiNode {
+		FRuiButtonProps P;
+		P.SetOnClicked(FRuiCallback::Create([=](const FRuiValue& Value) { Increment2([](const int32& Prev) { return Prev + 1; }); }));
+		P.SetContentPadding((RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
+		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
+		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuiValue(RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
+		if (!__Style->IsEmpty()) { P.Style = __Style; }
+		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
+		TArray<FRuiNode> Ch;
+		Ch.Add(RUI::TextBlock(NSLOCTEXT("Uetkx.SimpleCounter", "SimpleCounter_2", "+")));
 		return RUI::Slate::Button(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::HorizontalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
@@ -64,12 +91,17 @@ static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCoun
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GSimpleCounterUetkxId = RUI::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("SimpleCounter")));
-static constexpr uint32 SimpleCounter_RUI_HOOK_SIG = 0x811C9DC5u;
+static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SimpleCounter_UetkxBody_821B1C34(Ctx, Props, children);
+}
+static const FName GSimpleCounterUetkxId = RUI::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
+static constexpr uint32 SimpleCounter_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode SimpleCounter(FSimpleCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&SimpleCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("SimpleCounter")), []() { return SimpleCounter(); });
+static const bool GSimpleCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")), []() { return SimpleCounter(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
 #endif

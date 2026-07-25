@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+{
 struct FDoomGameUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,8 +17,11 @@ struct FDoomGameUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomGame(FDoomGameUetkxProps InProps = FDoomGameUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
 #else
-static FRuiNodeArray DoomGame_UetkxImpl(FRuiContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+{
+static FRuiNodeArray DoomGame_UetkxBody_8E8CD597(FRuiContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 8 "Source/RuiDemo/Screens/DoomDemo/DoomGame.uetkx"
 	auto [bInGame, SetInGame] = Ctx.UseState<bool>(false);
@@ -32,43 +37,48 @@ static FRuiNodeArray DoomGame_UetkxImpl(FRuiContext& Ctx, const FDoomGameUetkxPr
 		});
 	
 		FRuiCallback OnBackToMenu = Ctx.UseStableAction([SetInGame](const FRuiValue&) { SetInGame(false); });
-#line 36 "DoomGame.uetkx.inl"
+#line 41 "DoomGame.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBoxProps P;
 		TArray<FRuiNode> Ch;
 		if (bInGame)
 		{
 			Ch.Add([&]() -> FRuiNode {
-		FDoomGameScreenUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::FDoomGameScreenUetkxProps P;
 		P.Level = Level;
 		P.Diff = Diff;
 		P.OnBackToMenu = OnBackToMenu;
 		TArray<FRuiNode> Ch;
-		return DoomGameScreen(MoveTemp(P), MoveTemp(Ch), FRuiKey(FName(*FString::Printf(TEXT("play%d"), PlayCount))));
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen(MoveTemp(P), MoveTemp(Ch), FRuiKey(FName(*FString::Printf(TEXT("play%d"), PlayCount))));
 	}());
 		}
 		else
 		{
 			Ch.Add([&]() -> FRuiNode {
-		FDoomMainMenuUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::FDoomMainMenuUetkxProps P;
 		P.Level = Level;
 		P.Diff = Diff;
 		P.OnLevelChange = OnLevelChange;
 		P.OnDifficultyChange = OnDiffChange;
 		P.OnStart = OnStart;
 		TArray<FRuiNode> Ch;
-		return DoomMainMenu(MoveTemp(P), MoveTemp(Ch), FRuiKey(FName(TEXT("menu"))));
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu(MoveTemp(P), MoveTemp(Ch), FRuiKey(FName(TEXT("menu"))));
 	}());
 		}
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomGameUetkxId = RUI::RegisterComponentId((void*)&DoomGame_UetkxImpl, FName(TEXT("DoomGame")));
+static FRuiNodeArray DoomGame_UetkxImpl(FRuiContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomGame_UetkxBody_8E8CD597(Ctx, Props, children);
+}
+static const FName GDoomGameUetkxId = RUI::RegisterComponentId((void*)&DoomGame_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame::DoomGame")));
 static constexpr uint32 DoomGame_RUI_HOOK_SIG = 0x7810B479u;
 inline FRuiNode DoomGame(FDoomGameUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomGame_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomGameUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomGame")), []() { return DoomGame(); });
+static const bool GDoomGameUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame::DoomGame")), []() { return DoomGame(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
 #endif

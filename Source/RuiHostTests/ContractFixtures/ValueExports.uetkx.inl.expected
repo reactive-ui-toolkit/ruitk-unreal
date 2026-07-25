@@ -3,41 +3,60 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-inline const FLinearColor Cool =
+namespace RuiUetkx_ValueExports
+{
+inline FLinearColor Cool()
+{
+	return
 #line 3 "ValueExports.uetkx"
 FLinearColor(0.2f, 0.6f, 0.9f, 1.0f)
-#line 10 "ValueExports.uetkx.inl"
+#line 14 "ValueExports.uetkx.inl"
 ;
+}
 
-inline const auto Accent =
+inline auto Accent()
+{
+	return
 #line 4 "ValueExports.uetkx"
 FLinearColor(0.9f, 0.2f, 0.2f, 1.0f)
-#line 16 "ValueExports.uetkx.inl"
+#line 23 "ValueExports.uetkx.inl"
 ;
+}
 
-namespace RuiPriv_ValueExports
+inline FLinearColor RowTint()
 {
-inline const FLinearColor RowTint =
+	return
 #line 5 "ValueExports.uetkx"
 FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)
-#line 24 "ValueExports.uetkx.inl"
+#line 32 "ValueExports.uetkx.inl"
 ;
-} // namespace RuiPriv_ValueExports
+}
 
-inline const FLinearColor Padded =
+inline FLinearColor Padded()
+{
+	return
 #line 6 "ValueExports.uetkx"
-RuiPriv_ValueExports::RowTint
-#line 31 "ValueExports.uetkx.inl"
+RowTint()
+#line 41 "ValueExports.uetkx.inl"
 ;
+}
 
 inline FString FormatScore(int32 Score);
 
+} // namespace RuiUetkx_ValueExports
 #else
-inline FString FormatScore(int32 Score)
+namespace RuiUetkx_ValueExports
+{
+static FString FormatScore_RuiBody_72A88071(int32 Score)
 {
 #line 8 "ValueExports.uetkx"
 	return FString::FromInt(Score);
-#line 41 "ValueExports.uetkx.inl"
+#line 55 "ValueExports.uetkx.inl"
+}
+inline FString FormatScore(int32 Score)
+{
+	return FormatScore_RuiBody_72A88071(Score);
 }
 
+} // namespace RuiUetkx_ValueExports
 #endif

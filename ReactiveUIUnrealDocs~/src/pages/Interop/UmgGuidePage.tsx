@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const OURS_IN_THEIRS = `// 1) Register a component (compiled .uetkx components self-register by name).
+const OURS_IN_THEIRS = `// 1) Register a component (compiled .uetkx components self-register under a file-qualified id; short names resolve when unambiguous).
 RUI_COMPONENT(InventoryPanel);   // or: RUI::RegisterNamedFactory(TEXT("InventoryPanel"), ...);
 
 // 2) In the UMG Designer: drop a "ReactiveUI Host" (URuiHostWidget) into any

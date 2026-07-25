@@ -56,7 +56,7 @@
 | G-06 | Privacy is real AT RUNTIME too: private registry keys become FILE-QUALIFIED — **the TD-026 fix is folded into THIS plan as its own mandatory milestone (M3)**, not carried forward. |
 | G-07 | Escape hatch stays: host-include `import "@X.h"` (UetkxFileScan.cpp:935 `bHostInclude`; 2317 hint — 2316 is LSP-only, see §3) is untouched. |
 | G-08 | Component references lazy (cycles legal via the two-phase aggregator); value/hook references eager — 2306 TDZ-style cycle error extends to the NEW value exports. |
-| G-09 | Hot-reload identity = (file identity + name) for privates, exported name (2106-unique) for exports. State-preservation semantics must not regress; signature change still resets. |
+| G-09 | ~~Hot-reload identity = (file identity + name) for privates, exported name (2106-unique) for exports.~~ **SUPERSEDED 2026-07-24 (FILE_SCOPED_EXPORTS, owner decision TB-20): identity = (file identity + name) for EVERY decl — exports included; 2106 retired. See plans/FILE_SCOPED_EXPORTS_PLAN.md.** State-preservation semantics must not regress; signature change still resets. |
 | G-10 | Old wrapper syntax parses ONE minor with deprecation diagnostics (2320 block); idempotent codemod ships SAME release; removal later, owner-triggered. |
 | G-11 | Plugin **0.11.0 → 0.12.0** (minor); extensions bump their own lane (0.5.0 → 0.6.0 at release). No 1.0 claims. |
 | G-12 | Full sync surface is part of DONE — §9 checklist below is gating, incl. `family-corpus.hash` lockstep across all three repos. |

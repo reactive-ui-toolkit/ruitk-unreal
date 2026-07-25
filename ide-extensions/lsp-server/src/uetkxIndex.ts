@@ -13,7 +13,7 @@
 // LOUDLY at compile); under-detection is the silent failure mode — patterns err toward
 // precision, with every recognized shape test-pinned.
 
-import { findMatching, keywordAt, skipNoncode, skipNoncodeMarkup } from "./cppScanner";
+import { findMatching, keywordAt, skipNoncode, skipNoncodeMarkup, skipString } from "./cppScanner";
 import { fromCodePoints, toCodePoints } from "./codePoints";
 import { findMarkupRanges } from "./jsxScan";
 import { parseMarkup, UetkxNode } from "./uetkxMarkup";
@@ -216,7 +216,13 @@ export class UetkxScopedLocals {
         // never does; ternary arms are safe — the `?` reset kills type-ish first)
         const colon = p2 < n && cp[p2] === 58 && (p2 + 1 >= n || cp[p2 + 1] !== 58);
         const brace = p2 < n && cp[p2] === 123; /* { */
-        if (!member && !scoped && prevTypeish && (eq || semi || brace || colon)) {
+        // R14: ctor-style declarations — `const FLinearColor PanelBg(0.2f, …);`. Safe: the
+        // branch needs a TYPE-ISH ident directly before, and `TypeIdent Name(…)` juxtaposition
+        // IS a declaration in C++ (the most-vexing-parse rule); plain calls `Foo(x)` reach the
+        // ident with prevTypeish=false (every operator/paren/comma resets it). The DoomFace
+        // field find: these decls were invisible, so butchering them killed the 2310 lint.
+        const paren = p2 < n && cp[p2] === 40; /* ( */
+        if (!member && !scoped && prevTypeish && (eq || semi || brace || colon || paren)) {
           this.decls.push({ name: ident, scope: current, at: s });
           prevTypeish = false;
           continue;
@@ -400,6 +406,58 @@ export function collectCodeRefs(
  *  skipNoncodeMarkup) and hole-aware: a braced expression `{ … }` and a parenthesized directive
  *  header `( … )` are CODE islands — skipped whole via findMatching so a `<` comparison inside
  *  them can never read as a tag (the `@if (a <b)` shape). */
+
+/** Does the `{` at `bracePos` open a DIRECTIVE BODY (`@for (…) {`, `@if (…) {`, `@else {`,
+ *  a `case v:` / `default:` body) rather than an expression hole? Expression holes hang off
+ *  `=` / expr-child positions; directive bodies follow a `)` whose opener is preceded by an
+ *  `@ident` header, the `else` keyword, or a case/default `:`. (R9 field find: treating
+ *  directive bodies as holes hid EVERY tag/attr inside them from the live sweep AND the tag
+ *  index — "markup inside return directives gets no diagnostics".) */
+function isDirectiveBodyBrace(bodyCp: readonly number[], bracePos: number, spanStart: number): boolean {
+  let k = bracePos - 1;
+  while (k >= spanStart && (bodyCp[k] === 32 || bodyCp[k] === 9 || bodyCp[k] === 10 || bodyCp[k] === 13)) k--;
+  if (k < spanStart) return false;
+  const c = bodyCp[k];
+  if (c === 58 /* : */) return true; // case v: { … } / default: { … }
+  if (c === 101 /* e */) {
+    // the else keyword (} @else { / } else {)
+    let s = k;
+    while (s > spanStart && isIdentCp(bodyCp[s - 1])) s--;
+    return fromCodePoints(bodyCp, s, k - s + 1) === "else";
+  }
+  if (c !== 41 /* ) */) return false;
+  // walk back to the matching open paren of this header
+  let depth = 0;
+  let p = k;
+  for (; p >= spanStart; p--) {
+    if (bodyCp[p] === 41) depth++;
+    else if (bodyCp[p] === 40) {
+      depth--;
+      if (depth === 0) break;
+    }
+  }
+  if (p < spanStart || depth !== 0) return false;
+  let q = p - 1;
+  while (q >= spanStart && (bodyCp[q] === 32 || bodyCp[q] === 9)) q--;
+  // the header ident (for/if/while/match) with its @ sigil
+  let s2 = q;
+  while (s2 > spanStart && isIdentCp(bodyCp[s2])) s2--;
+  return bodyCp[s2] === 64 /* @ */;
+}
+
+/** Descend into a directive body's MARKUP: its lead statements are C++ (never tag-swept), the
+ *  markup lives in the `return ( … )` window (or, with no return, the body IS markup — the
+ *  `@if { <T/> }` shape). Returns the sub-ranges (body-relative) a span walker should treat
+ *  as markup. */
+function directiveMarkupRanges(bodyCp: readonly number[], braceOpen: number, braceClose: number): Array<[number, number]> {
+  const inner = bodyCp.slice(braceOpen + 1, braceClose);
+  const split = splitMarkupReturn(inner, false);
+  if (split.ok && split.mStart >= 0 && split.mEnd >= 0) {
+    return [[braceOpen + 1 + split.mStart, braceOpen + 1 + split.mEnd]];
+  }
+  return [[braceOpen + 1, braceClose]]; // direct-markup body
+}
+
 function collectTagRefs(bodyCp: readonly number[], spanStart: number, spanEnd: number, baseAt: number, out: UetkxFileRef[]): void {
   let i = spanStart;
   while (i < spanEnd) {
@@ -414,6 +472,11 @@ function collectTagRefs(bodyCp: readonly number[], spanStart: number, spanEnd: n
       if (close === -1 || close >= spanEnd) {
         i++;
         continue;
+      }
+      if (c === 123 && isDirectiveBodyBrace(bodyCp, i, spanStart)) {
+        for (const [rs, re] of directiveMarkupRanges(bodyCp, i, close)) {
+          collectTagRefs(bodyCp, rs, re, baseAt, out);
+        }
       }
       i = close + 1;
       continue;
@@ -651,5 +714,155 @@ export function collectFileReferences(scan: UetkxFileScanResult, srcText: string
 
   void srcText;
   out.sort((a, b) => a.start - b.start);
+  return out;
+}
+
+// ── live schema sweep (F5 field-test B2): tags + attr names, PARSE-ERROR RESILIENT ──────────
+
+export interface UetkxSweptElement {
+  tag: string;
+  at: number; // code points, span-buffer-relative
+  /** Index (into the SAME returned array) of the enclosing element, or undefined for a
+   *  span-root element (R12: parent-aware lints — sibling key dupes, slot-key consumption).
+   *  Directive bodies inherit the element enclosing the directive. */
+  parent?: number;
+  /** `value`/`valueAt` are present only for STRING-literal values (`Name="…"`) — the R10
+   *  value-validation surface. Expression holes and flag attrs carry no value fields; `form`
+   *  (R11) says which shape the attr took: `str` | `expr` | `flag`. For expr attrs,
+   *  `exprAt`/`exprEnd` (R12) bound the hole CONTENT (between the braces) so consumers can
+   *  lint inside it (event-payload field misuse) without re-lexing. */
+  attrs: Array<{
+    name: string;
+    at: number;
+    value?: string;
+    valueAt?: number;
+    form?: "str" | "expr" | "flag";
+    exprAt?: number;
+    exprEnd?: number;
+  }>;
+}
+
+/** Sweep ONE markup span for OPEN tags and their attribute-name tokens — markup-lexis- and
+ *  hole-aware like collectTagRefs, but purely textual: it works on spans whose TREE parse
+ *  failed (the B2 masking bug — a single mismatched close tag silenced every unknown-tag/attr
+ *  diagnostic). Close tags are skipped (0302 owns mismatches); attr VALUES are skipped whole
+ *  (strings by markup lexis, `{ … }` holes by matching). */
+export function sweepMarkupElements(
+  bodyCp: readonly number[],
+  spanStart: number,
+  spanEnd: number,
+  out: UetkxSweptElement[] = [],
+  seedParent?: number,
+): UetkxSweptElement[] {
+  const isAttrChar = (c: number) => isIdentCp(c) || c === 46; /* . */
+  // R12: open-element stack — indexes into `out` — so every element records its enclosing
+  // element (parent-aware lints). Recursive directive-body calls append into the SAME array
+  // (indices stay valid) seeded with the element enclosing the directive.
+  const stack: number[] = [];
+  let i = spanStart;
+  while (i < spanEnd) {
+    const j = skipNoncodeMarkup(bodyCp, i);
+    if (j !== i) {
+      i = j;
+      continue;
+    }
+    const c = bodyCp[i];
+    if (c === 123 /* { */ || c === 40 /* ( */) {
+      const close = findMatching(bodyCp, i);
+      if (close === -1 || close >= spanEnd) {
+        i++;
+        continue;
+      }
+      if (c === 123 && isDirectiveBodyBrace(bodyCp, i, spanStart)) {
+        for (const [rs, re] of directiveMarkupRanges(bodyCp, i, close)) {
+          sweepMarkupElements(bodyCp, rs, re, out, stack.length ? stack[stack.length - 1] : seedParent);
+        }
+      }
+      i = close + 1;
+      continue;
+    }
+    if (c !== 60 /* < */) {
+      i++;
+      continue;
+    }
+    if (i + 1 < spanEnd && bodyCp[i + 1] === 47 /* / */) {
+      // close tag — pop the enclosing element, skip to `>`
+      if (stack.length) stack.pop();
+      let k = i + 2;
+      while (k < spanEnd && bodyCp[k] !== 62 /* > */) k++;
+      i = k + 1;
+      continue;
+    }
+    if (i + 1 >= spanEnd || !isIdentStartCp(bodyCp[i + 1])) {
+      i++;
+      continue;
+    }
+    const ts = i + 1;
+    let k = ts;
+    while (k < spanEnd && isIdentCp(bodyCp[k])) k++;
+    const el: UetkxSweptElement = {
+      tag: fromCodePoints(bodyCp, ts, k - ts),
+      at: ts,
+      parent: stack.length ? stack[stack.length - 1] : seedParent,
+      attrs: [],
+    };
+    // attr scan until the tag bracket closes
+    let selfClosed = false;
+    while (k < spanEnd) {
+      const nk = skipNoncodeMarkup(bodyCp, k);
+      if (nk !== k) {
+        k = nk;
+        continue;
+      }
+      const ck = bodyCp[k];
+      if (ck === 123 /* { */) {
+        const close = findMatching(bodyCp, k);
+        if (close === -1 || close >= spanEnd) break;
+        k = close + 1;
+        continue;
+      }
+      if (ck === 62 /* > */ || (ck === 47 /* / */ && k + 1 < spanEnd && bodyCp[k + 1] === 62)) {
+        selfClosed = ck === 47;
+        k += ck === 47 ? 2 : 1;
+        break;
+      }
+      if (isIdentStartCp(ck)) {
+        const as = k;
+        while (k < spanEnd && isAttrChar(bodyCp[k])) k++;
+        const attr: UetkxSweptElement["attrs"][number] = { name: fromCodePoints(bodyCp, as, k - as), at: as, form: "flag" };
+        // R10/R11: capture STRING-literal values and the attr FORM so the schema sweep can
+        // type-check values (enum vocabularies + numeric/margin formats) and reject string/
+        // flag forms where an {expr} is required. Holes themselves stay opaque here.
+        let p = k;
+        while (p < spanEnd && (bodyCp[p] === 32 || bodyCp[p] === 9 || bodyCp[p] === 10 || bodyCp[p] === 13)) p++;
+        if (p < spanEnd && bodyCp[p] === 61 /* = */) {
+          p++;
+          while (p < spanEnd && (bodyCp[p] === 32 || bodyCp[p] === 9 || bodyCp[p] === 10 || bodyCp[p] === 13)) p++;
+          if (p < spanEnd && (bodyCp[p] === 34 /* " */ || bodyCp[p] === 39 /* ' */)) {
+            attr.form = "str";
+            const vEnd = skipString(bodyCp, p);
+            if (vEnd <= spanEnd && vEnd > p + 1 && bodyCp[vEnd - 1] === bodyCp[p]) {
+              attr.value = fromCodePoints(bodyCp, p + 1, vEnd - p - 2);
+              attr.valueAt = p + 1;
+              k = vEnd;
+            }
+          } else if (p < spanEnd && bodyCp[p] === 123 /* { */) {
+            attr.form = "expr"; // the main loop's hole-skip consumes it
+            const holeClose = findMatching(bodyCp, p);
+            if (holeClose !== -1 && holeClose < spanEnd) {
+              attr.exprAt = p + 1;
+              attr.exprEnd = holeClose;
+            }
+          }
+        }
+        el.attrs.push(attr);
+        continue;
+      }
+      k++;
+    }
+    out.push(el);
+    if (!selfClosed) stack.push(out.length - 1); // open element — children record it as parent
+    i = k;
+  }
   return out;
 }

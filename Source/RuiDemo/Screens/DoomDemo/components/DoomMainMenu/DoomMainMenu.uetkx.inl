@@ -4,6 +4,8 @@
 #include "Doom/DoomMaps.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+{
 struct FDoomMainMenuUetkxProps final : public FRuiPropsBase
 {
 	int32 Level = 1;
@@ -26,8 +28,11 @@ struct FDoomMainMenuUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomMainMenu(FDoomMainMenuUetkxProps InProps = FDoomMainMenuUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 #else
-static FRuiNodeArray DoomMainMenu_UetkxImpl(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+{
+static FRuiNodeArray DoomMainMenu_UetkxBody_F6778A6A(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Level = Props.Level;
 	const auto& Diff = Props.Diff;
@@ -46,7 +51,7 @@ static FRuiNodeArray DoomMainMenu_UetkxImpl(FRuiContext& Ctx, const FDoomMainMen
 		const FLinearColor HintClr(0.60f, 0.50f, 0.30f, 1.0f);
 	
 		static const TCHAR* DiffLabels[] = {TEXT("I'm too young to die"), TEXT("Hurt me plenty"), TEXT("Ultra-violence")};
-#line 50 "DoomMainMenu.uetkx.inl"
+#line 55 "DoomMainMenu.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
@@ -291,12 +296,17 @@ static FRuiNodeArray DoomMainMenu_UetkxImpl(FRuiContext& Ctx, const FDoomMainMen
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomMainMenuUetkxId = RUI::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("DoomMainMenu")));
+static FRuiNodeArray DoomMainMenu_UetkxImpl(FRuiContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomMainMenu_UetkxBody_F6778A6A(Ctx, Props, children);
+}
+static const FName GDoomMainMenuUetkxId = RUI::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
 static constexpr uint32 DoomMainMenu_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode DoomMainMenu(FDoomMainMenuUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomMainMenu_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomMainMenuUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomMainMenu")), []() { return DoomMainMenu(); });
+static const bool GDoomMainMenuUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")), []() { return DoomMainMenu(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 #endif

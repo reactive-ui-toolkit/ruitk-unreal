@@ -650,6 +650,13 @@ referenced from plans/PRs.
   in ONE `CompileAll` (the A/B verdict-poisoning test now asserts single-sweep). battery 55/55,
   -check 0 drift; plan M8 test row updated.
 
+> **TD-026 AMENDMENT (FILE_SCOPED_EXPORTS, 2026-07-24):** the resolution note below — "exported
+> components keep the short name (2106 ledger guarantees uniqueness)" — is SUPERSEDED. Exports
+> are now file-scoped exactly like privates (owner decision, TB-20): every decl emits inside its
+> file's flat namespace, EVERY component's runtime identity is the FQN, the 2106 ledger is
+> retired, and short names resolve by suffix at the designer edges (`RUI::ResolveNamed`).
+> See plans/archive/FILE_SCOPED_EXPORTS_PLAN.md.
+
 ## TD-026 — Accepted v1 divergences: interp global-name scoping + private-FName last-swap-wins
 - **Where:** `RuiNode.cpp` (process-global name/factory registries), `RuiHmr.cpp`, `UetkxInterpComponent.cpp`
 - **What/why deferred:** privacy (A5e) is a COMPILE-TIME scoping (per-file detail namespace +
@@ -906,3 +913,30 @@ referenced from plans/PRs.
   the same oracle, so setup locals used in markup are never phantom refs a rename would edit.
   Remaining residual: multi-declarator second declarators, and locals visible AFTER a lambda
   whose parameter shadowed them (over-suppression, silent by design).
+
+## TD-035 — return-null family reconciliation (TB-28)
+- **Where:** `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` (5 cases,
+  `fileScanLeg` per-leg tier) + `uetkx-formatter-cases.json` (3 goldens, not family-hashed).
+- **What/why deferred:** TB-28 implemented `return null;` / `return ( null );` render-nothing.
+  Family ground truth READ FROM THE SIBLING REPOS 2026-07-25: **Unity** — `return null` is
+  naturally legal C# everywhere (HmrCSharpEmitter rewrites it to `continue;` when inlining
+  loop bodies; shipped samples use it). **Godot** — `return null` is "the sanctioned
+  CONDITIONAL guard (top-level or nested)" (guitkx.gd `_split_return`, ~L2395) but a null
+  return can never be the CHOSEN render return, so a null-ONLY component ERRORS there.
+  **Unreal** now allows BOTH (React semantics: a component may always render nothing). The
+  cases were therefore placed in the PER-LEG corpus tier (their `export FRuiNode` heads are
+  per-leg grammar anyway) so the byte-identical familyCore hash is untouched — the 2026-07-25
+  drift was resolved by the tier move, not a re-pin. Also open: Unity's `return null` →
+  `continue;` INSIDE `@for` directive bodies — our directive bodies are real C++ loops
+  (authors write `continue;` directly), intentionally not implemented.
+- **Production-grade resolution:** a family decision on null-ONLY components (Godot adopts
+  React's allow, or Unreal pins `.pending`); guard-form cases promoted to familyCore with
+  legacy `component` heads once all three legs agree; directive-body rewrite decision
+  recorded.
+- **Status:** PARTIALLY RESOLVED 2026-07-25 (same day) — the family DECIDED React semantics:
+  Godot landed null-only components (their 3ae0d84) and the five cases were PROMOTED to
+  familyCore here with family-shared legacy heads (hash re-pinned 71a37c75; C++ 13/13 + TS
+  corpus replay green). REMAINING: Unity's scanner fix (their TryFindTopLevelReturn still
+  2102s null-only) + both siblings adopt the mirrored cases — paste-ready JSON generated
+  (scratchpad return-null-cases-{godot,unity}.json). Cross-repo hash alignment stays TD-009
+  (the corpora already diverged before this).

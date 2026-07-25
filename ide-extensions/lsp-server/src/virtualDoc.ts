@@ -34,18 +34,6 @@ const guarded = (h: string): string => `#if __has_include("${h}")\n#include "${h
 const PRELUDE = [
   "// GENERATED virtual C++ for .uetkx embedded-code intelligence (TD-020). Do not edit.",
   '#include "CoreMinimal.h"',
-  // HEADERLESS fallback (N6): without a compile database CoreMinimal.h does not resolve and
-  // UE's numeric typedefs are unknown types — clang's recovery then DROPS whole statements
-  // from the AST, so clangd's rename returns partial edit sets (bughunt: `int32 X` renamed
-  // only its declaration). Native typedefs keep those statements parsing; deliberately NO
-  // class stubs (a fake FString would poison overload resolution the moment real headers
-  // appear) — statements over unresolved class types stay broken and the rename guard
-  // refuses them instead.
-  '#if !__has_include("CoreMinimal.h")',
-  "typedef signed char int8; typedef short int16; typedef int int32; typedef long long int64;",
-  "typedef unsigned char uint8; typedef unsigned short uint16; typedef unsigned int uint32; typedef unsigned long long uint64;",
-  "typedef wchar_t TCHAR;",
-  "#endif",
   '#include "RuiContext.h"',
   '#include "RuiCoreElements.h"',
   '#include "RuiSignal.h"',
@@ -65,7 +53,21 @@ const PRELUDE = [
   guarded("RuiActivatableScreen.h"),
   guarded("RuiMvvmViewModel.h"),
   '#include "UObject/StrongObjectPtr.h"',
+  guarded("Engine/Texture2D.h"),
   '#include "Engine/World.h"',
+  // HEADERLESS fallback (N6): without a compile database CoreMinimal.h does not resolve and
+  // UE's numeric typedefs are unknown types — clang's recovery then DROPS whole statements
+  // from the AST, so clangd's rename returns partial edit sets (bughunt: `int32 X` renamed
+  // only its declaration). Native typedefs keep those statements parsing; deliberately NO
+  // class stubs (a fake FString would poison overload resolution the moment real headers
+  // appear). This block MUST sit BELOW every #include (F5 field test B7b): clang's preamble
+  // ends at the first non-directive token, so typedefs BETWEEN the includes destroyed
+  // preamble caching — every keystroke re-parsed the whole engine include set (~5-10s).
+  '#if !__has_include("CoreMinimal.h")',
+  "typedef signed char int8; typedef short int16; typedef int int32; typedef long long int64;",
+  "typedef unsigned char uint8; typedef unsigned short uint16; typedef unsigned int uint32; typedef unsigned long long uint64;",
+  "typedef wchar_t TCHAR;",
+  "#endif",
   "using namespace RUI;",
   "",
 ].join("\n");
@@ -145,6 +147,46 @@ function scanQualifiedHookCalls(source: string): Array<{ namespaces: string[]; n
   return [...out.values()];
 }
 
+/** Every BARE `UseX(`/`UseX<` call name in the source (member/scope-prefixed excluded) — the
+ *  hand-written-header hook shape (`UseNavigate()` against RuiRouter.h's
+ *  `UseNavigate(FRuiContext&)`). Codegen injects Ctx into these at emit; the virtual doc
+ *  mirrors it with the SAME variadic decltype adapter the qualified calls get (F5 field
+ *  test: RouterHome's bare router hooks read as "no matching function" without one). The
+ *  CALLER excludes built-ins, same-file hooks, and imported-hook shims. */
+function scanBareHookCalls(source: string): string[] {
+  const cp = toCodePoints(source);
+  const n = cp.length;
+  const isIdent = (c: number) => (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c === 95;
+  const out = new Set<string>();
+  let i = 0;
+  while (i < n) {
+    const j = skipNoncode(cp, i);
+    if (j !== i) {
+      i = j;
+      continue;
+    }
+    const wordStart = (i === 0 || !isIdent(cp[i - 1])) && isIdent(cp[i]) && !(cp[i] >= 48 && cp[i] <= 57);
+    if (!wordStart) {
+      i++;
+      continue;
+    }
+    const s = i;
+    while (i < n && isIdent(cp[i])) i++;
+    const name = fromCodePoints(cp, s, i - s);
+    if (!/^Use[A-Z]/.test(name) || i >= n || (cp[i] !== 40 /*(*/ && cp[i] !== 60 /*<*/)) continue;
+    // a member/scope prefix means it is NOT the bare hand-header shape
+    let prefixed = false;
+    for (let k = s - 1; k >= 0; k--) {
+      const p = cp[k];
+      if (p === 32 || p === 9) continue;
+      prefixed = p === 46 /* . */ || (p === 62 /* > */ && k > 0 && cp[k - 1] === 45 /* - */) || (p === 58 /* : */ && k > 0 && cp[k - 1] === 58);
+      break;
+    }
+    if (!prefixed) out.add(name);
+  }
+  return [...out];
+}
+
 /** Per-file virtual-doc prefix (TB-10): the fixed PRELUDE, then the file's OWN host includes
  *  (`import "@X.h"` — without them `RuiDemo::…` symbols are undeclared in the virtual TU),
  *  then REAL declarations for the file's cross-file imports (hook signatures + module
@@ -166,6 +208,7 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
   // virtual TU (`auto X = (<VerticalBox>…);` reads `auto X = (__rui_rn);` — X types FRuiNode,
   // exactly what codegen produces). Unmapped glue: it can never squiggle user code.
   lines.push("extern FRuiNode __rui_rn;");
+  const declaredHookShims = new Set<string>();
   if (resolveImport) {
     for (const imp of scan.imports) {
       if (imp.hostInclude) continue;
@@ -204,6 +247,7 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
           if (hook) {
             const ret = hook.ret.trim().length > 0 ? hook.ret.trim() : "void";
             lines.push(`${ret} ${imp.defaultAlias}(${hook.params.trim()});`);
+            declaredHookShims.add(imp.defaultAlias);
           } else if (util) {
             lines.push(`${util.retType.trim()} ${imp.defaultAlias}(${util.params.trim()});`);
           } else if (value) {
@@ -223,6 +267,7 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
         if (local) {
           const ret = h.ret.trim().length > 0 ? h.ret.trim() : "void";
           lines.push(`${ret} ${local}(${h.params.trim()});`);
+          declaredHookShims.add(local);
         }
       }
       for (const m of surface.modules) {
@@ -251,12 +296,29 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
       }
     }
   }
+  lines.push("class FRuiContext;");
+  lines.push("template <typename T> struct __rui_strip { using type = T; };");
+  lines.push("template <typename T> struct __rui_strip<T&> { using type = T; };");
+  lines.push("template <typename T> struct __rui_strip<T&&> { using type = T; };");
+  lines.push("template <typename T> struct __rui_strip<const T> { using type = T; };");
+  lines.push("template <bool B> struct __rui_enable_if {};");
+  lines.push("template <> struct __rui_enable_if<true> { using type = void; };");
+  lines.push("template <typename... T> inline constexpr bool __rui_ctx_first = false;");
+  lines.push("template <typename T0, typename... T> inline constexpr bool __rui_ctx_first<T0, T...> = __is_same(typename __rui_strip<typename __rui_strip<T0>::type>::type, FRuiContext);");
   for (const q of scanQualifiedHookCalls(source)) {
     const open = q.namespaces.map((ns) => `namespace ${ns} { `).join("");
     const close = q.namespaces.map(() => "}").join(" ");
     lines.push(
-      `${open}template <typename... TArgs> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
+      `${open}template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
     );
+  }
+  // Bare hand-header hooks (RuiRouter.h et al: free functions taking Ctx first) — codegen
+  // injects Ctx at emit; mirror with the same variadic decltype adapter the qualified calls
+  // get. Built-ins (#define'd below), same-file hooks, and imported shims keep source arity.
+  const bareExcluded = new Set<string>([...CTX_MEMBER_HOOKS, "UseSignal", "UseSignalKey", ...scan.hooks.map((h) => h.name), ...declaredHookShims]);
+  for (const name of scanBareHookCalls(source)) {
+    if (bareExcluded.has(name)) continue;
+    lines.push(`template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${name}(TArgs&&... Args) -> decltype(${name}(Ctx, static_cast<TArgs&&>(Args)...));`);
   }
   for (const hook of CTX_MEMBER_HOOKS) {
     lines.push(`#define ${hook} Ctx.${hook}`);
@@ -384,9 +446,12 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
       if (stmts.trim().length > 0) {
         flushDeferred(emitCode(stmts, absAt + cursor, "\n", "\n"));
       }
-      const parsed = parseMarkup(cp, span.mStart, span.mEnd);
-      if (!parsed.errorCode) {
-        for (const n of parsed.nodes) liftNode(n, absAt);
+      if (!span.isNull) {
+        // `return null;` spans carry no markup to lift (TB-28)
+        const parsed = parseMarkup(cp, span.mStart, span.mEnd);
+        if (!parsed.errorCode) {
+          for (const n of parsed.nodes) liftNode(n, absAt);
+        }
       }
       cursor = span.afterParen;
     }
@@ -404,7 +469,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
           if (a.kind === "expr" || a.kind === "spread") {
             if (/^On[A-Z]/.test(a.name)) {
               // The event-handler shape codegen emits (verified: SimpleTextField.uetkx.inl).
-              flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)[=](const FRuiValue& Value) {\n", "\n; }; }\n"));
+              flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)[=](const FRuiValue& Value) { (void)(\n", "\n); }; }\n"));
             } else {
               flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)(\n", "\n); }\n"));
             }
@@ -478,7 +543,11 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   for (const comp of scan.components) {
     // The function scaffold is raw'd (not emit-prefixed) so a return-only component with an
     // EMPTY setup still gets a scope for its lifted markup expressions (HelloWorld shape).
-    raw(`\nvoid __rui_setup_${comp.name}(FRuiContext& Ctx${cppParamList(comp)}) {\n`);
+    // Returns FRuiNode (TB-27): early-return windows keep their real `return ( … )` glue with
+    // the markup neutralized to __rui_rn — under a void signature every early return was a
+    // clangd "void function should not return a value". The synthetic tail return keeps the
+    // no-early-return shape free of C4715.
+    raw(`\nFRuiNode __rui_setup_${comp.name}(FRuiContext& Ctx${cppParamList(comp)}) {\n`);
     // §4: setup is jsx-aware — value markup neutralizes to __rui_rn (its attr exprs lift as
     // deferred statements below), early-return windows neutralize whole (their roots lift via
     // comp.returns — excludeSpans stops the double-lift).
@@ -486,7 +555,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
     for (const span of comp.returns ?? []) {
       if (span.root) liftNode(span.root, comp.setupAt);
     }
-    raw("}\n");
+    raw("return __rui_rn;\n}\n");
   }
   for (const hook of scan.hooks as UetkxHookDecl[]) {
     const ret = hook.ret.trim().length > 0 ? hook.ret.trim() : "void";

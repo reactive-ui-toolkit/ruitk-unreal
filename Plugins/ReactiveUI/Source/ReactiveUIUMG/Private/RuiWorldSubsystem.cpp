@@ -2,19 +2,38 @@
 
 #include "RuiWorldSubsystem.h"
 
+#include "Engine/World.h"
 #include "RuiRoot.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiSubsystem, Log, All);
 
 int32 URuiWorldSubsystem::MountNamed(FName ComponentName, int32 ZOrder)
 {
-	if (!RUI::HasNamedFactory(ComponentName))
+	FName Resolved;
+	TArray<FName> Candidates;
+	switch (RUI::ResolveNamed(ComponentName, Resolved, &Candidates))
 	{
+	case RUI::EResolveNamed::Miss:
 		UE_LOG(LogRuiSubsystem, Error, TEXT("MountNamed: '%s' is not a registered component"),
 			   *ComponentName.ToString());
 		return INDEX_NONE;
+	case RUI::EResolveNamed::Ambiguous:
+	{
+		// FILE_SCOPED_EXPORTS (FS-05): several files export this short name — list the
+		// qualified ids so the caller can pick one; never a silent first-wins.
+		FString List;
+		for (const FName& C : Candidates)
+		{
+			List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
+		}
+		UE_LOG(LogRuiSubsystem, Error, TEXT("MountNamed: '%s' is ambiguous — use a qualified id: %s"),
+			   *ComponentName.ToString(), *List);
+		return INDEX_NONE;
 	}
-	return MountNode(RUI::Named(ComponentName), ZOrder);
+	default:
+		break;
+	}
+	return MountNode(RUI::Named(Resolved), ZOrder);
 }
 
 int32 URuiWorldSubsystem::MountNode(FRuiNode Node, int32 ZOrder)

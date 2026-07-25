@@ -31,3 +31,12 @@ around.
      TD-024 sidecar gate, Value.-payload ordering — vscode+vs2022 0.6.0), Lane C
      (DISCORD_CHANGELOG [0.12.0], 1895 chars). -->
 (empty — drained 2026-07-18)
+
+<!-- Drained 2026-07-25 for the field-test-campaign release (plugin 0.14.0, extensions 0.8.0):
+     every staged bullet verified present in Lane A (CHANGELOG.md [0.14.0] — FSE, return null,
+     the 0106/0109-0112/2311-2313/2329 validation wave, TB-13/14/15/21/23/26/29 fixes, DoomHUD),
+     Lane B (changelog.json 2026-07-25 entry, 13 shared bullets — vscode+vs2022 0.8.0), or
+     Lane C (DISCORD_CHANGELOG [0.14.0], 1868 chars). Field-test sessions: UE 5.6 full matrix
+     owner-PASS 2026-07-25; UE 5.7 battery 132/132 same day (matrix pending); 5.8 pending
+     engine repair. -->
+(empty — drained 2026-07-25)

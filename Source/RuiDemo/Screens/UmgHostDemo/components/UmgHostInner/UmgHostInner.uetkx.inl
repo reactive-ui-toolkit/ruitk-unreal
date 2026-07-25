@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+{
 struct FUmgHostInnerUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,12 +17,15 @@ struct FUmgHostInnerUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode UmgHostInner(FUmgHostInnerUetkxProps InProps = FUmgHostInnerUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 #else
-static FRuiNodeArray UmgHostInner_UetkxImpl(FRuiContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+{
+static FRuiNodeArray UmgHostInner_UetkxBody_494743D1(FRuiContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/UmgHostDemo/components/UmgHostInner/UmgHostInner.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
-#line 24 "UmgHostInner.uetkx.inl"
+#line 29 "UmgHostInner.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(8));
@@ -76,12 +81,17 @@ static FRuiNodeArray UmgHostInner_UetkxImpl(FRuiContext& Ctx, const FUmgHostInne
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GUmgHostInnerUetkxId = RUI::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("UmgHostInner")));
+static FRuiNodeArray UmgHostInner_UetkxImpl(FRuiContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return UmgHostInner_UetkxBody_494743D1(Ctx, Props, children);
+}
+static const FName GUmgHostInnerUetkxId = RUI::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
 static constexpr uint32 UmgHostInner_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode UmgHostInner(FUmgHostInnerUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&UmgHostInner_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GUmgHostInnerUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("UmgHostInner")), []() { return UmgHostInner(); });
+static const bool GUmgHostInnerUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")), []() { return UmgHostInner(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 #endif

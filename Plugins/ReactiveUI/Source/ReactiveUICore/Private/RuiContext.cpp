@@ -50,7 +50,9 @@ TWeakPtr<FRuiComponentState> FRuiContext::StateWeak() const
 
 void FRuiContext::Record(ERuiHookKind Kind)
 {
-	if (FRuiConfig::IsHookValidationEnabled())
+	// TB-13: the HMR session needs the flattened hook sequence too — shape-change detection
+	// across a Live Coding patch is what drives the family reset rule.
+	if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
 	{
 		State.HookLog.Add(Kind);
 	}
@@ -81,6 +83,7 @@ void FRuiContext::StubSlot(ERuiHookKind Kind, const TCHAR* HookName, const TCHAR
 {
 	Record(Kind);
 	const int32 i = State.HookIndex++;
+	State.EnsureCellShape(i, FRuiMarkerCell::StaticTypeHash(), Kind); // TB-13
 	if (i >= State.Hooks.Num())
 	{
 		State.Hooks.Emplace(MakeUnique<FRuiMarkerCell>(Kind));

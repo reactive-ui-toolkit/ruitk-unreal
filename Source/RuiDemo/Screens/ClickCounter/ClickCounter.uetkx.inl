@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+{
 struct FClickCounterUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,12 +17,15 @@ struct FClickCounterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode ClickCounter(FClickCounterUetkxProps InProps = FClickCounterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
 #else
-static FRuiNodeArray ClickCounter_UetkxImpl(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+{
+static FRuiNodeArray ClickCounter_UetkxBody_7278E8E3(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/ClickCounter/ClickCounter.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
-#line 24 "ClickCounter.uetkx.inl"
+#line 29 "ClickCounter.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -85,12 +90,17 @@ static FRuiNodeArray ClickCounter_UetkxImpl(FRuiContext& Ctx, const FClickCounte
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GClickCounterUetkxId = RUI::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("ClickCounter")));
+static FRuiNodeArray ClickCounter_UetkxImpl(FRuiContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return ClickCounter_UetkxBody_7278E8E3(Ctx, Props, children);
+}
+static const FName GClickCounterUetkxId = RUI::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
 static constexpr uint32 ClickCounter_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode ClickCounter(FClickCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&ClickCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GClickCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("ClickCounter")), []() { return ClickCounter(); });
+static const bool GClickCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")), []() { return ClickCounter(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
 #endif

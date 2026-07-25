@@ -3,23 +3,38 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-inline const FLinearColor CoolTheme =
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+{
+inline FLinearColor CoolTheme()
+{
+	return
 #line 1 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.23f, 0.65f, 0.95f, 1.0f }
-#line 10 "ContextDemo.style.uetkx.inl"
+#line 14 "ContextDemo.style.uetkx.inl"
 ;
+}
 
-inline const FLinearColor WarmTheme =
+inline FLinearColor WarmTheme()
+{
+	return
 #line 2 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.95f, 0.4f, 0.35f, 1.0f }
-#line 16 "ContextDemo.style.uetkx.inl"
+#line 23 "ContextDemo.style.uetkx.inl"
 ;
+}
 
-inline const FLinearColor PanelBackground =
+inline FLinearColor PanelBackground()
+{
+	return
 #line 3 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.style.uetkx"
 { 0.02f, 0.02f, 0.03f, 0.85f }
-#line 22 "ContextDemo.style.uetkx.inl"
+#line 32 "ContextDemo.style.uetkx.inl"
 ;
+}
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+{
+} // namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
 #endif

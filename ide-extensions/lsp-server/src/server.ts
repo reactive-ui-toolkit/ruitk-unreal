@@ -35,7 +35,9 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "./uri";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { codePointToUtf16, utf16ToCodePoint } from "./codePoints";
+import { codePointToUtf16, toCodePoints, utf16ToCodePoint } from "./codePoints";
+import { findMarkupRanges } from "./jsxScan";
+import { collectFileReferences, paramNamesOf, sweepMarkupElements, UetkxScopedLocals } from "./uetkxIndex";
 import { classifyCursor, DIRECTIVES } from "./context";
 import { enclosingAttrName, fieldForKind, PAYLOAD_FIELDS } from "./eventPayload";
 import { readSidecarDiags } from "./diagsSidecar";
@@ -43,11 +45,12 @@ import { formatUetkx, UetkxFormatOptions, DEFAULT_FORMAT_OPTIONS } from "./forma
 import { scanFile } from "./uetkxFileScan";
 import { declStartCpOf, firstDeclStartCp, unusedImportRemoval, wrapperRewriteAt } from "./uetkxActions";
 import { importBindingTokens, SEMANTIC_TOKEN_TYPES } from "./semanticTokens";
-import { loadFormatterConfig, schemaForFile, UetkxSchema } from "./uetkxSchema";
+import { engineVersionForFile, loadFormatterConfig, schemaForFile, UetkxSchema } from "./uetkxSchema";
 import {
   defaultExportOf,
   findExporter,
   findReferencesTo,
+  declsOfScan,
   getDecls,
   getFileIndex,
   importCursorAt,
@@ -56,8 +59,10 @@ import {
   resolveHostInclude,
   resolveSpecifier,
   resolveSymbolAt,
+  invalidateFileCaches,
   suggestSpecifier,
   sweptUetkxFiles,
+  workspaceRelLabel,
   workspaceRootFor,
 } from "./uetkxWorkspace";
 import { ClangdProxy, findClangd, type ClangdPublishedDiagnostics } from "./clangdProxy";
@@ -156,17 +161,130 @@ connection.onInitialize((params: InitializeParams) => {
 
 // ── semantic tokens: imported bindings colored by the KIND of the export they bind ─────────
 
-connection.languages.semanticTokens.on((params) => {
+/** clangd token-type name → OUR 4-type legend (class/function/variable/namespace). Macros map
+ *  to FUNCTION — our built-in hooks reach clangd as object-like #defines, and they ARE
+ *  functions to the author. Unlisted kinds (keyword/comment/…) stay with the TextMate tint. */
+const CLANGD_TYPE_MAP: Record<string, number> = {
+  namespace: 3,
+  type: 0, class: 0, enum: 0, interface: 0, struct: 0, typeParameter: 0, concept: 0,
+  function: 1, method: 1, macro: 1,
+  parameter: 2, variable: 2, property: 2, enumMember: 2,
+};
+
+/** Callable-typed VARIABLES color as functions (owner rule, R5: `SetPrimary` from UseState is
+ *  a TFunction — "it should always be colored by its type"). clangd calls it a variable (it
+ *  is one), so we hover each distinct variable name once per doc version and re-type the ones
+ *  whose type spells callable. */
+const callableVarCache = new Map<string, { version: number; callable: Set<string>; checked: Set<string> }>();
+const CALLABLE_TYPE_RE = /TRuiSetter<|TFunction<|FRuiCallback|TDelegate<|TUniqueFunction<|\(lambda\)/;
+
+connection.languages.semanticTokens.on(async (params) => {
   const doc = documents.get(params.textDocument.uri);
   if (!doc) return { data: [] };
   const text = doc.getText();
   const fsPath = fsPathOf(doc);
   const scan = scanFile(text, path.basename(fsPath, ".uetkx"), true);
-  const builder = new SemanticTokensBuilder();
-  for (const t of importBindingTokens(scan, fsPath)) {
-    const pos = doc.positionAt(codePointToUtf16(text, t.cpStart));
-    builder.push(pos.line, pos.character, t.length, t.type, 0);
+  const tokens: Array<{ line: number; char: number; len: number; type: number }> = [];
+  for (const tk of importBindingTokens(scan, fsPath)) {
+    const pos = doc.positionAt(codePointToUtf16(text, tk.cpStart));
+    tokens.push({ line: pos.line, char: pos.character, len: tk.length, type: tk.type });
   }
+
+  // Embedded C++ (R5): forward clangd's tokens over the virtual doc, translated back through
+  // the source map. Degrades to import-only tokens whenever clangd/legend/TU is not ready —
+  // the client re-requests after edits, so tokens appear once the TU is parsed.
+  try {
+    const view = buildEmbeddedView(text, fsPath);
+    if (view.regionCount > 0) {
+      const proxy = await embeddedProxy(doc);
+      const legend = proxy?.semanticLegend();
+      if (proxy && legend) {
+        const vuri = virtualUriOf(doc.uri);
+        proxy.didOpen(vuri, view.virtualText);
+        const res = await proxy.semanticTokensFull(vuri);
+        if (res) {
+          // decode the delta stream over the VIRTUAL text
+          const decoded: Array<{ vline: number; vchar: number; len: number; typeName: string }> = [];
+          let vline = 0;
+          let vchar = 0;
+          for (let i = 0; i + 4 < res.data.length + 1; i += 5) {
+            const [dl, dc, len, typeIdx] = [res.data[i], res.data[i + 1], res.data[i + 2], res.data[i + 3]];
+            vline += dl;
+            vchar = dl === 0 ? vchar + dc : dc;
+            const typeName = legend.tokenTypes[typeIdx];
+            if (typeName) decoded.push({ vline, vchar, len, typeName });
+          }
+          // callable-variable overlay cache for this doc version
+          let cache = callableVarCache.get(doc.uri);
+          if (!cache || cache.version !== doc.version) {
+            cache = { version: doc.version, callable: new Set(), checked: new Set() };
+            callableVarCache.set(doc.uri, cache);
+          }
+          const mapped: Array<{ srcStart: number; len: number; type: number; typeName: string; vpos: { line: number; character: number } }> = [];
+          for (const d of decoded) {
+            const ourType = CLANGD_TYPE_MAP[d.typeName];
+            if (ourType === undefined) continue;
+            const startOff = view.sourceOffsetOf({ line: d.vline, character: d.vchar });
+            const endOff = view.sourceOffsetOf({ line: d.vline, character: d.vchar + d.len });
+            if (startOff === null || endOff === null || endOff - startOff !== d.len) continue; // glue
+            mapped.push({ srcStart: startOff, len: d.len, type: ourType, typeName: d.typeName, vpos: { line: d.vline, character: d.vchar } });
+          }
+          // R7 — COMPILER-truth callables via inlay hints (the owner's dig-deeper call): the
+          // AST types structured bindings fine; hover just can't show them. Two exact signals:
+          //   TYPE hints (`: TRuiSetter<bool>`) anchor right after a declared name — match the
+          //   framework's callable vocabulary (family setter/callback/delegate/lambda types);
+          //   PARAMETER hints (`NewValue:`) only appear inside calls the compiler RESOLVED —
+          //   the callee is callable by proof, whatever its type spells.
+          if (!cache.checked.has("__hints__")) {
+            cache.checked.add("__hints__");
+            const vLines = view.virtualText.split("\n");
+            const hints = await proxy.inlayHints(vuri, {
+              start: { line: 0, character: 0 },
+              end: { line: vLines.length - 1, character: 0 },
+            });
+            for (const h of hints ?? []) {
+              const label = Array.isArray(h.label) ? h.label.map((p) => p.value).join("") : h.label;
+              const lineText = vLines[h.position.line] ?? "";
+              if (h.kind === 1 && CALLABLE_TYPE_RE.test(label)) {
+                // type hint: the declared name ends right at the hint position
+                let e = h.position.character;
+                let s = e;
+                while (s > 0 && /[A-Za-z0-9_]/.test(lineText[s - 1])) s--;
+                if (e > s) cache.callable.add(lineText.slice(s, e));
+              } else if (h.kind === 2) {
+                // parameter hint: walk back to the call's `(` and take the callee name
+                let k = h.position.character - 1;
+                while (k >= 0 && /[\s]/.test(lineText[k])) k--;
+                if (k >= 0 && (lineText[k] === "(" || lineText[k] === ",")) {
+                  if (lineText[k] === ",") {
+                    // not the first argument — the callee was already recorded by arg 1
+                    continue;
+                  }
+                  let e2 = k;
+                  while (e2 > 0 && /\s/.test(lineText[e2 - 1])) e2--;
+                  let s2 = e2;
+                  while (s2 > 0 && /[A-Za-z0-9_]/.test(lineText[s2 - 1])) s2--;
+                  if (e2 > s2) cache.callable.add(lineText.slice(s2, e2));
+                }
+              }
+            }
+          }
+          for (const m of mapped) {
+            const name = text.slice(m.srcStart, m.srcStart + m.len);
+            const type = (m.typeName === "variable" || m.typeName === "parameter") && cache.callable.has(name) ? 1 : m.type;
+            const pos = doc.positionAt(m.srcStart);
+            tokens.push({ line: pos.line, char: pos.character, len: m.len, type });
+          }
+        }
+      }
+    }
+  } catch (e) {
+    logServerError("semanticTokens embedded forward", e);
+  }
+
+  tokens.sort((a, b) => a.line - b.line || a.char - b.char);
+  const builder = new SemanticTokensBuilder();
+  for (const tk of tokens) builder.push(tk.line, tk.char, tk.len, tk.type, 0);
   return builder.build();
 });
 
@@ -234,6 +352,7 @@ function publishMerged(uri: string): void {
 function publishEmbeddedDiagnostics(params: ClangdPublishedDiagnostics): void {
   const realUri = realUriOfVirtual(params.uri);
   if (!realUri) return;
+  warmWaiters.get(params.uri)?.();
   // clangd RE-SERIALIZES URIs (drive-letter case, `%3A` vs `:`), so a raw string lookup misses
   // VS Code's own spelling and every diagnostic silently vanishes (the "I mangled the whole
   // body and nothing squiggled" bug, round 2 — bughunt LSP-5's lesson applied here too).
@@ -293,11 +412,23 @@ async function syncEmbeddedDoc(doc: TextDocument): Promise<void> {
   const view = buildEmbeddedView(text, fsPathOf(doc));
   if (view.regionCount === 0) return;
   const proxy = await embeddedProxy(doc);
-  if (proxy) proxy.didOpen(virtualUriOf(doc.uri), view.virtualText);
+  if (proxy) {
+    const vuri = virtualUriOf(doc.uri);
+    if (proxy.didOpen(vuri, view.virtualText) === "deduped") {
+      // a pre-warmed TU — its diagnostics were published while the doc was closed; replay
+      proxy.replayDiagnostics(vuri);
+    }
+    startBackgroundWarm(fsPathOf(doc)); // R8 — first live doc seeds the workspace warm
+  }
 }
 
 function validate(doc: TextDocument): void {
   const text = doc.getText();
+  // TB-18 — cross-file reads must see the OPEN BUFFERS, not stale disk: an exporter being
+  // edited in another tab is resolved through this overlay (the N-04 rename machinery,
+  // now applied to every live diagnostic).
+  const overlay = new Map<string, string>();
+  for (const d of documents.all()) overlay.set(path.resolve(fsPathOf(d)).replace(/\\/g, "/"), d.getText());
   const diags: Diagnostic[] = [];
   const push = (offCp: number, lenCp: number, severity: number, code: string, message: string) => {
     const start = doc.positionAt(codePointToUtf16(text, Math.max(offCp, 0)));
@@ -319,26 +450,771 @@ function validate(doc: TextDocument): void {
     seen.add(`${d.code}@${d.offset}:${d.length}`);
     push(d.offset, d.length, d.severity, d.code, d.message);
   }
+  // B2 (F5 field test): live tag/attr validation against the schema, PARSE-ERROR RESILIENT —
+  // previously unknown tags/attrs only ever surfaced via the hash-gated compiler sidecar, so a
+  // dirty mangled buffer showed nothing but the first parse error. The sweep is textual
+  // (markup-lexis + hole-aware), so a broken tree cannot mask it; `seen` dedupes against the
+  // resolver's 2307 on clean parses.
+  {
+    const schema = schemaOf(doc);
+    const validTags = new Set<string>(Object.keys(schema.elements));
+    for (const c of scan.components) validTags.add(c.name);
+    for (const imp of scan.imports) {
+      if (imp.hostInclude) continue;
+      for (const local of imp.localNames) validTags.add(local);
+      if (imp.isDefault && imp.defaultAlias) validTags.add(imp.defaultAlias);
+    }
+    const universal = new Set<string>(["key", "classes", "Ref", ...schema.styleKeys, ...schema.slotKeys]);
+    // R14 — canonical-casing gate (compiler UETKX0112 mirror): runtime names are FNames
+    // (case-insensitive) and the compiler's slot routing was IgnoreCase, so `slot.fill`
+    // silently worked while every exact-case check silently disarmed for it. Wrong-cased
+    // canon names now get a precise correction instead of a generic unknown-attr.
+    const lowerCanon = new Map<string, string>();
+    for (const c of universal) lowerCanon.set(c.toLowerCase(), c);
+    const miscasedCanonOf = (name: string, elAttrs: Record<string, string> | undefined): string | null => {
+      if (universal.has(name) || (elAttrs && name in elAttrs)) return null; // exact canon
+      if (elAttrs) {
+        const lc = name.toLowerCase();
+        for (const canon of Object.keys(elAttrs)) if (canon.toLowerCase() === lc) return canon;
+      }
+      const canon = lowerCanon.get(name.toLowerCase());
+      return canon && canon !== name ? canon : null;
+    };
+    // R10 — attr VALUE validation (the `Slot.HAlign="cesssssnter"` gap): enum-string attrs are
+    // parsed at RUNTIME with silent fallbacks (ParseHAlign et al), so a typo'd value compiles
+    // clean and quietly becomes the fallback alignment; numeric/margin/bool strings are pasted
+    // VERBATIM into the generated C++ (a malformed one is a guaranteed later compile error).
+    // schema.attrEnums is exported from the same runtime parse tables; FName comparison is
+    // case-insensitive, so the check is too. Kind-format checks mirror codegen's lowering.
+    const attrEnums = schema.attrEnums ?? {};
+    const engineVer = engineVersionForFile(path.dirname(fsPathOf(doc))); // R12: sinceUE gate
+    // R11 — typed style/slot keys: the runtime parses well-formed string literals (SlotValue
+    // readers), malformed ones Atof to 0/false SILENTLY (`RenderOpacity="abc"` → invisible).
+    // Rules mirror the COMPILER's (strict numerics, no f-suffix — these are runtime literals,
+    // not C++ paste); bool is case-insensitive like the runtime's FName-style parse.
+    const attrKinds = schema.attrKinds ?? {};
+    const NUM_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?[fF]?$/;
+    const STRICT_NUM_RE = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+    const styleSlotFormatError = (name: string, value: string): string | null => {
+      const kind = attrKinds[name];
+      if (!kind) return null;
+      if (kind === "color") return `${name} needs an {expr} value (no string form)`;
+      if (kind === "bool") {
+        return /^(true|false)$/i.test(value.trim()) ? null : `invalid value '${value}' for ${name} — write true or false`;
+      }
+      const parts = value.split(",").map((p) => p.trim());
+      const numeric = parts.length > 0 && parts.every((p) => STRICT_NUM_RE.test(p));
+      if (kind === "float" || kind === "int") {
+        return parts.length === 1 && numeric ? null : `invalid value '${value}' for ${name} — expects a number`;
+      }
+      if (kind === "vector2") {
+        return (parts.length === 1 || parts.length === 2) && numeric ? null : `invalid value '${value}' for ${name} — "x,y" (or a uniform number)`;
+      }
+      // margin
+      return (parts.length === 1 || parts.length === 2 || parts.length === 4) && numeric ? null : `invalid value '${value}' for ${name} — 1, 2, or 4 numbers`;
+    };
+    type SweptAttr = { name: string; at: number; value?: string; valueAt?: number; form?: "str" | "expr" | "flag" };
+    const checkAttrValue = (tag: string, a: SweptAttr, baseAt: number, kind: string | undefined): void => {
+      const emit = (off: number, len: number, code: string, msg: string) => {
+        const key = `${code}@${off}:${len}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          push(off, len, 0, code, msg);
+        }
+      };
+      // R11: Ref is a props-level callable — codegen refuses every non-expr form (its exact
+      // 0105 message, surfaced live); the sidecar-only path hid this like the vector2 case.
+      if (a.name === "Ref" && a.form !== "expr") {
+        emit(baseAt + a.at, [...a.name].length, "UETKX0105", `attribute 'Ref' on <${tag}> needs an {expr} value (a ref callable)`);
+        return;
+      }
+      // R11: flag form assigns literal `true` — on a non-bool schema attr that's a guaranteed
+      // downstream C++ error (expr-only kinds get codegen's 0105 wording, the rest 2311); on a
+      // non-bool STYLE/SLOT key the runtime reads the true back as 0/default silently.
+      if (a.form === "flag") {
+        if (kind && kind !== "bool") {
+          if (kind === "vector2" || kind === "color" || kind === "event" || kind === "expr") {
+            emit(baseAt + a.at, [...a.name].length, "UETKX0105", `attribute '${a.name}' on <${tag}> needs an {expr} value (no string form)`);
+          } else {
+            emit(baseAt + a.at, [...a.name].length, "UETKX2311", `flag form assigns true — ${a.name} is a ${kind} attribute`);
+          }
+          return;
+        }
+        const sk = attrKinds[a.name];
+        if (attrEnums[a.name] || (sk && sk !== "bool")) {
+          emit(baseAt + a.at, [...a.name].length, "UETKX2311", `flag form assigns true — ${a.name} takes a ${attrEnums[a.name] ? "value from its vocabulary" : `${sk} value`}`);
+          return;
+        }
+      }
+      if (a.value === undefined || a.valueAt === undefined) return;
+      const vOff = baseAt + a.valueAt;
+      const vLen = Math.max(1, [...a.value].length);
+      const vocab = attrEnums[a.name];
+      if (vocab) {
+        const lc = a.value.toLowerCase();
+        if (!vocab.some((v) => v.toLowerCase() === lc)) {
+          emit(vOff, vLen, "UETKX2311", `invalid value '${a.value}' for ${a.name} — one of: ${vocab.join(" | ")} (typos fall back silently at runtime)`);
+        }
+        return;
+      }
+      if (!kind) {
+        // universal style/slot key — the typed-string format rules (R11)
+        const formatErr = styleSlotFormatError(a.name, a.value);
+        if (formatErr) {
+          if (attrKinds[a.name] === "color") {
+            emit(baseAt + a.at, [...a.name].length, "UETKX0105", `attribute '${a.name}' on <${tag}> needs an {expr} value (no string form)`);
+          } else {
+            emit(vOff, vLen, "UETKX2311", `${formatErr} (malformed values parse as 0/false silently at runtime)`);
+          }
+        }
+        return;
+      }
+      switch (kind) {
+        case "float":
+          if (!NUM_RE.test(a.value.trim())) emit(vOff, vLen, "UETKX2311", `'${a.value}' is not a number — ${a.name} is a float attribute`);
+          break;
+        case "int":
+          if (!/^[+-]?\d+$/.test(a.value.trim())) emit(vOff, vLen, "UETKX2311", `'${a.value}' is not an integer — ${a.name} is an int attribute`);
+          break;
+        case "bool":
+          if (!/^(true|false)$/.test(a.value.trim())) emit(vOff, vLen, "UETKX2311", `'${a.value}' is not a bool — write true or false`);
+          break;
+        case "margin": {
+          const parts = a.value.split(",");
+          const ok = (parts.length === 1 || parts.length === 2 || parts.length === 4) && parts.every((p) => NUM_RE.test(p.trim()));
+          if (!ok) emit(vOff, vLen, "UETKX2311", `'${a.value}' is not a margin — 1, 2, or 4 numbers (uniform | horizontal,vertical | left,top,right,bottom)`);
+          break;
+        }
+        case "vector2":
+        case "color":
+        case "event":
+        case "expr":
+          // codegen refuses the string form outright (UETKX0105) — surface it LIVE, anchored
+          // at the attr name exactly like the compiler does so the sidecar dedupes.
+          emit(baseAt + a.at, [...a.name].length, "UETKX0105", `attribute '${a.name}' on <${tag}> needs an {expr} value (no string form)`);
+          break;
+        case "name": {
+          // R13 — brush names: resolved at runtime EXCLUSIVELY through FCoreStyle (the fixed
+          // engine style set, enumerated into the schema at export time) — a closed set per
+          // engine. Unknown → Slate's "missing resource" brush, silently.
+          if (!schema.brushAttrs?.includes(a.name) || !schema.brushNames?.length) break;
+          const lc = a.value.toLowerCase();
+          if (schema.brushNames.some((b) => b.toLowerCase() === lc)) break;
+          let nearest: string | null = null;
+          for (const b of schema.brushNames) {
+            // cheap did-you-mean: case-folded containment either way, shortest wins
+            const bl = b.toLowerCase();
+            if ((bl.includes(lc) || lc.includes(bl)) && (nearest === null || b.length < nearest.length)) nearest = b;
+          }
+          emit(vOff, vLen, "UETKX2311", `invalid value '${a.value}' for ${a.name} — not a brush registered in FCoreStyle${nearest ? ` (did you mean "${nearest}"?)` : ""}`);
+          break;
+        }
+        default:
+          break; // text / non-brush name: any string is legal (enum-ish names are in attrEnums)
+      }
+    };
+    type CompParam = { name: string; type: string };
+    const compParamsCache = new Map<string, CompParam[] | null>();
+    const componentParamsFor = (tag: string): CompParam[] | null => {
+      if (compParamsCache.has(tag)) return compParamsCache.get(tag)!;
+      let found: CompParam[] | null = null;
+      const own = scan.components.find((c) => c.name === tag);
+      if (own) {
+        found = own.params;
+      } else {
+        for (const imp of scan.imports) {
+          if (imp.hostInclude) continue;
+          let targetName: string | null = null;
+          if (imp.isDefault && imp.defaultAlias === tag) targetName = "__default__";
+          const n = imp.localNames.indexOf(tag);
+          if (n >= 0) targetName = imp.names[n];
+          if (!targetName) continue;
+          const key = resolveSpecifier(fsPathOf(doc), imp.specifier);
+          if (!key) break;
+          const idx = getFileIndex(key, overlay);
+          if (!idx) break;
+          const real = targetName === "__default__" ? idx.scan.defaultExportName : targetName;
+          const comp = idx.scan.components.find((c) => c.name === real);
+          if (comp) found = comp.params;
+          break;
+        }
+      }
+      compParamsCache.set(tag, found);
+      return found;
+    };
+    // R12 — event payload misuse: a handler reads `Value.<Field>` but the event's payload is
+    // a DIFFERENT kind (or void — OnClicked passes a default-constructed FRuiValue), so the
+    // read compiles fine (FRuiValue exposes every field) and is silently empty/0/false at
+    // runtime forever. eventPayloads types each event; PAYLOAD_FIELDS names the members.
+    const eventPayloads = schema.eventPayloads ?? {};
+    const checkEventExpr = (a: SweptAttr & { exprAt?: number; exprEnd?: number }, bodyCp: readonly number[], baseAt: number): void => {
+      if (a.form !== "expr" || a.exprAt === undefined || a.exprEnd === undefined) return;
+      const payloadKind = eventPayloads[a.name];
+      if (payloadKind === undefined) return;
+      const want = fieldForKind(payloadKind);
+      let expr = "";
+      for (let ci = a.exprAt; ci < a.exprEnd; ci++) expr += String.fromCodePoint(bodyCp[ci]);
+      const re = /\bValue\.([A-Za-z_]\w*)/g;
+      for (let m = re.exec(expr); m !== null; m = re.exec(expr)) {
+        // StringValue is a real FRuiValue member but NO event payload kind maps to it —
+        // reading it in any handler is always-empty, same as a mismatched field (R12).
+        const pf = m[1] === "StringValue" ? { field: "StringValue" } : PAYLOAD_FIELDS.find((f) => f.field === m[1]);
+        if (!pf || (want && pf.field === want.field)) continue;
+        const off = baseAt + a.exprAt + [...expr.slice(0, m.index)].length;
+        const len = ("Value." + m[1]).length;
+        const key = `UETKX2312@${off}:${len}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        push(off, len, 0, "UETKX2312", want
+          ? `${a.name}'s payload is ${payloadKind} — read Value.${want.field}; Value.${m[1]} is always default here`
+          : `${a.name} carries no payload — Value.${m[1]} is always default here`);
+      }
+    };
+    const sweepSpans = (bodyCp: readonly number[], baseAt: number, merged: Array<[number, number]>) => {
+      for (const [s, e] of merged) {
+        const els = sweepMarkupElements(bodyCp, s, e);
+        // R12 — duplicate literal keys among siblings: the reconciler is SILENT (the first
+        // claims the old fiber; the duplicate remounts as new every render — state loss).
+        {
+          const keyGroups = new Map<number, Set<string>>();
+          for (const el of els) {
+            const keyAttr = el.attrs.find((a) => a.name === "key" && a.value !== undefined && a.valueAt !== undefined);
+            if (!keyAttr) continue;
+            const group = el.parent ?? -1;
+            let set = keyGroups.get(group);
+            if (!set) keyGroups.set(group, (set = new Set()));
+            if (set.has(keyAttr.value!)) {
+              const off = baseAt + keyAttr.valueAt!;
+              const len = Math.max(1, [...keyAttr.value!].length);
+              const dk = `UETKX0110@${off}:${len}`;
+              if (!seen.has(dk)) {
+                seen.add(dk);
+                push(off, len, 0, "UETKX0110", `duplicate key "${keyAttr.value}" among siblings — the duplicate remounts every render (state loss)`);
+              }
+            } else {
+              set.add(keyAttr.value!);
+            }
+          }
+        }
+        // R12 — a Slot.* key the PARENT's slot-apply never reads is dropped in total silence
+        // at runtime (no slot-side warning exists). Components re-slot their children — only
+        // a known host container arms the check; span roots stay unchecked (their real parent
+        // may be outside the span or the implicit root Overlay).
+        const checkSlotPlacement = (el: (typeof els)[number], a: { name: string; at: number }): void => {
+          if (!a.name.startsWith("Slot.") || el.parent === undefined) return;
+          const parentTag = els[el.parent].tag;
+          const consumed = schema.slotConsumption?.[parentTag];
+          if (!consumed || consumed.includes(a.name)) return;
+          const off = baseAt + a.at;
+          const len = [...a.name].length;
+          const dk = `UETKX0111@${off}:${len}`;
+          if (seen.has(dk)) return;
+          seen.add(dk);
+          push(off, len, 0, "UETKX0111", consumed.length === 0
+            ? `${a.name} is ignored — <${parentTag}> passes no slot properties to its child`
+            : `${a.name} is ignored by <${parentTag}> — it reads: ${consumed.join(" | ")}`);
+        };
+        for (const el of els) {
+          const tagOff = baseAt + el.at;
+          // R12 — duplicate attributes: codegen emits one setter per occurrence (last wins
+          // silently); always an author error, whatever the tag is.
+          // R14 — canonical casing: wrong-cased canon names get the precise 0112 correction
+          // (and skip the downstream checks so they don't double-flag as generic unknowns).
+          const miscased = new Set<string>();
+          {
+            const seenNames = new Set<string>();
+            const elAttrsForCasing = schema.elements[el.tag]?.attrs;
+            for (const a of el.attrs) {
+              if (seenNames.has(a.name)) {
+                const off = baseAt + a.at;
+                const dk = `UETKX0109@${off}:${[...a.name].length}`;
+                if (!seen.has(dk)) {
+                  seen.add(dk);
+                  push(off, [...a.name].length, 0, "UETKX0109", `duplicate attribute '${a.name}' on <${el.tag}> — the last one wins`);
+                }
+              } else {
+                seenNames.add(a.name);
+              }
+              const canon = miscasedCanonOf(a.name, elAttrsForCasing);
+              if (canon) {
+                miscased.add(a.name);
+                const off = baseAt + a.at;
+                const dk = `UETKX0112@${off}:${[...a.name].length}`;
+                if (!seen.has(dk)) {
+                  seen.add(dk);
+                  push(off, [...a.name].length, 0, "UETKX0112", `attribute casing is canonical — write '${canon}', not '${a.name}' (host names are case-sensitive, 1:1 with Slate)`);
+                }
+              }
+            }
+          }
+          if (!validTags.has(el.tag)) {
+            if (!findExporter(el.tag, fsPathOf(doc), overlay)) {
+              const key = `UETKX2307@${tagOff}:${el.tag.length}`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                push(tagOff, el.tag.length, 0, "UETKX2307", `\`${el.tag}\` is used like a uetkx component/hook but no file exports it`);
+              }
+            }
+            continue; // a component tag — its attrs are that component's params, not schema keys
+          }
+          const schemaEl = schema.elements[el.tag];
+          // R12 — sinceUE: on an older engine the element's ADAPTER is compiled out but the
+          // tag/factory still compile — the widget renders a NULL SLOT at mount with only a
+          // runtime log. Warn the moment it's typed, from the .uproject's EngineAssociation.
+          if (schemaEl?.sinceUE && engineVer) {
+            const need = /^(\d+)\.(\d+)/.exec(schemaEl.sinceUE);
+            if (need && (engineVer[0] < Number(need[1]) || (engineVer[0] === Number(need[1]) && engineVer[1] < Number(need[2])))) {
+              const dk = `UETKX2313@${tagOff}:${el.tag.length}`;
+              if (!seen.has(dk)) {
+                seen.add(dk);
+                push(tagOff, el.tag.length, 0, "UETKX2313", `<${el.tag}> needs UE ${schemaEl.sinceUE}+ — this project targets ${engineVer[0]}.${engineVer[1]} (renders a null slot at runtime)`);
+              }
+            }
+          }
+          if (!schemaEl) {
+            // R5-4: a COMPONENT tag — its props are the component's params (same-file or
+            // resolved through the import); style/slot/key/classes/Ref pass through like the
+            // emitter routes them. Unresolvable targets skip validation (never guess).
+            const params = componentParamsFor(el.tag);
+            for (const a of el.attrs) {
+              if (miscased.has(a.name)) continue; // 0112 already said it precisely (R14)
+              if (universal.has(a.name)) {
+                // style/slot pass-through — same runtime parse, same closed vocabularies
+                checkAttrValue(el.tag, a, baseAt, undefined);
+                checkSlotPlacement(el, a);
+                continue;
+              }
+              if (!params) continue; // unresolvable target — never guess at prop names
+              const param = params.find((p) => p.name === a.name);
+              if (param) {
+                // R11 — prop FORM vs the param's C++ TYPE: codegen lowers a string prop as a
+                // raw `P.X = TEXT("…")` and a flag prop as `P.X = true`, so any mismatch is a
+                // guaranteed (and cryptic) downstream C++ error. FString/FName take strings;
+                // bool takes the flag form; everything else needs an {expr}.
+                const ty = param.type.replace(/\bconst\b|&/g, "").trim();
+                if (a.form === "str" && !/^(FString|FName)$/.test(ty)) {
+                  const off = baseAt + a.at;
+                  const key = `UETKX2311@${off}:${[...a.name].length}`;
+                  if (!seen.has(key)) {
+                    seen.add(key);
+                    push(off, [...a.name].length, 0, "UETKX2311", `prop '${a.name}' of <${el.tag}> is ${param.type} — a string value won't compile; use an {expr} value`);
+                  }
+                } else if (a.form === "flag" && !/^bool$/.test(ty)) {
+                  const off = baseAt + a.at;
+                  const key = `UETKX2311@${off}:${[...a.name].length}`;
+                  if (!seen.has(key)) {
+                    seen.add(key);
+                    push(off, [...a.name].length, 0, "UETKX2311", `flag form assigns true — prop '${a.name}' of <${el.tag}> is ${param.type}`);
+                  }
+                }
+                continue;
+              }
+              const attrOff = baseAt + a.at;
+              const key = `UETKX0105@${attrOff}:${a.name.length}`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                push(attrOff, a.name.length, 0, "UETKX0105", `unknown prop '${a.name}' on <${el.tag}> — not a param of the component`);
+              }
+            }
+            continue;
+          }
+          for (const a of el.attrs) {
+            if (miscased.has(a.name)) continue; // 0112 already said it precisely (R14)
+            if (a.name in schemaEl.attrs) {
+              checkAttrValue(el.tag, a, baseAt, schemaEl.attrs[a.name]);
+              if (schemaEl.attrs[a.name] === "event") checkEventExpr(a, bodyCp, baseAt);
+              continue;
+            }
+            if (universal.has(a.name)) {
+              checkAttrValue(el.tag, a, baseAt, undefined);
+              checkSlotPlacement(el, a);
+              continue;
+            }
+            const attrOff = baseAt + a.at;
+            const key = `UETKX0105@${attrOff}:${a.name.length}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              push(attrOff, a.name.length, 0, "UETKX0105", `unknown attribute '${a.name}' on <${el.tag}>`);
+            }
+          }
+        }
+      }
+    };
+    if (scan.components.length === 0 && scan.diags.some((d) => d.severity === 0)) {
+      // a BROKEN parse drops the component records entirely — sweep the whole file's markup
+      // ranges instead, so the typos that broke the parse still surface (the B2 masking bug)
+      const fileCp = toCodePoints(text);
+      const spans: Array<[number, number]> = [];
+      for (const r of findMarkupRanges(fileCp, 0, fileCp.length)) {
+        spans.push([r.start, r.end === -1 ? fileCp.length : r.end]);
+      }
+      sweepSpans(fileCp, 0, spans);
+    }
+    for (const comp of scan.components) {
+      const bodyCp = toCodePoints(comp.body);
+      const spans: Array<[number, number]> = [];
+      for (const sp of comp.returns ?? []) {
+        if (sp.mStart >= 0 && sp.mEnd >= 0) spans.push([sp.mStart, sp.mEnd]);
+      }
+      for (const r of findMarkupRanges(bodyCp, 0, bodyCp.length)) {
+        spans.push([r.start, r.end === -1 ? bodyCp.length : r.end]);
+      }
+      spans.sort((a, b) => a[0] - b[0]);
+      const merged: Array<[number, number]> = [];
+      for (const s of spans) {
+        const last = merged[merged.length - 1];
+        if (last && s[0] <= last[1]) last[1] = Math.max(last[1], s[1]);
+        else merged.push([s[0], s[1]]);
+      }
+      sweepSpans(bodyCp, comp.bodyAt, merged);
+    }
+  }
+  // R6 (+TB-19): the shared usage-resolution sets. `usageLocals` = every in-scope local a body
+  // declares; `usageKnown` = every name this file BINDS (same-file decls, import locals/aliases,
+  // builtin hooks). A CODE ref in neither is unresolvable — fed to the near-miss typo lint
+  // (2310) below and the live strict-usage mirror (2305) in the clean-parse block.
+  const usageRefs = collectFileReferences(scan, text);
+  const usageLocals = new Set<string>();
+  for (const comp of scan.components) {
+    const bodyCp = toCodePoints(comp.body);
+    const ranges = findMarkupRanges(bodyCp, 0, bodyCp.length).map((r) => ({ start: r.start, end: r.end === -1 ? bodyCp.length : r.end }));
+    for (const n of new UetkxScopedLocals(bodyCp, comp.params.map((p) => p.name), ranges).allDeclNames()) usageLocals.add(n);
+  }
+  for (const h of scan.hooks) for (const n of new UetkxScopedLocals(toCodePoints(h.body), paramNamesOf(h.params)).allDeclNames()) usageLocals.add(n);
+  for (const u of scan.utils) for (const n of new UetkxScopedLocals(toCodePoints(u.body), paramNamesOf(u.params)).allDeclNames()) usageLocals.add(n);
+  const usageKnown = new Set<string>();
+  for (const d of [...scan.components, ...scan.hooks, ...scan.modules, ...scan.values, ...scan.utils]) usageKnown.add(d.name);
+  for (const imp of scan.imports) {
+    if (imp.hostInclude) continue;
+    for (const l of imp.localNames) usageKnown.add(l);
+    if (imp.namespaceAlias) usageKnown.add(imp.namespaceAlias);
+    if (imp.defaultAlias) usageKnown.add(imp.defaultAlias);
+  }
+  for (const hk of schemaOf(doc).hooks) usageKnown.add(hk);
+  // R6: local-typo lint (LSP-only UETKX2310). collectFileReferences suppresses true locals,
+  // so every CODE ref here already failed to resolve as one — measure the leftovers against
+  // the candidates and flag near-misses. Guards: >=5 chars, same first char (case matters),
+  // distance <= 1 (<=2 from 7 chars), not an import/decl/builtin, not exported anywhere.
+  // TB-19: candidates are the LOCALS first, then the file's IMPORT names (the owner's case —
+  // usage spelled right, import line misspelled: nothing binds the usage and its nearest
+  // neighbor is the broken import), then same-file decl names.
+  {
+    const localNames = usageLocals;
+    const importCands = new Set<string>();
+    for (const imp of scan.imports) {
+      if (imp.hostInclude) continue;
+      for (const l of imp.localNames) importCands.add(l);
+      if (imp.namespaceAlias) importCands.add(imp.namespaceAlias);
+      if (imp.defaultAlias) importCands.add(imp.defaultAlias);
+    }
+    const declCands = new Set<string>();
+    for (const d of [...scan.components, ...scan.hooks, ...scan.modules, ...scan.values, ...scan.utils]) declCands.add(d.name);
+    if (localNames.size + importCands.size + declCands.size > 0) {
+      const known = usageKnown;
+      const dist = (a: string, b: string, max: number): number => {
+        if (Math.abs(a.length - b.length) > max) return max + 1;
+        const prev = new Array(b.length + 1).fill(0).map((_, i) => i);
+        for (let i = 1; i <= a.length; i++) {
+          let diag = prev[0];
+          prev[0] = i;
+          let rowMin = prev[0];
+          for (let j = 1; j <= b.length; j++) {
+            const tmp = prev[j];
+            prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+            diag = tmp;
+            if (prev[j] < rowMin) rowMin = prev[j];
+          }
+          if (rowMin > max) return max + 1;
+        }
+        return prev[b.length];
+      };
+      const nearest = (name: string, max: number, cands: ReadonlySet<string>): string | null => {
+        for (const c of cands) {
+          if (c[0] !== name[0] || c === name) continue;
+          if (dist(name, c, max) <= max) return c;
+        }
+        return null;
+      };
+      for (const r of usageRefs) {
+        if (r.kind !== "code") continue;
+        const name = r.name;
+        if (name.length < 5 || known.has(name) || localNames.has(name)) continue;
+        // R14: >=7 (was 9) — `PanelBg` vs the butchered `PasnelBsg` is dist 2 at 7 chars; the
+        // name is already UNRESOLVABLE before this fires, so the cost of a loose match is a
+        // wrong hint on broken code, never a false alarm on working code.
+        const max = name.length >= 7 ? 2 : 1;
+        let best = nearest(name, max, localNames);
+        let hint = best ? `the local '${best}'` : "";
+        if (!best) {
+          best = nearest(name, max, importCands);
+          hint = best ? `the import '${best}'` : "";
+        }
+        if (!best) {
+          best = nearest(name, max, declCands);
+          hint = best ? `'${best}' (declared in this file)` : "";
+        }
+        if (!best) continue;
+        if (findExporter(name, fsPathOf(doc), overlay)) continue; // a real workspace symbol — 2305's business
+        const key = `UETKX2310@${r.start}:${r.len}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          push(r.start, r.len, 0, "UETKX2310", `unknown name '${name}' — did you mean ${hint}?`);
+        }
+      }
+    }
+  }
   if (!scan.diags.some((d) => d.severity === 0)) {
     // clean parse: live import resolution (2300/2301/2302/2308) off the workspace, then the
     // compiler's full hash-gated verdict for the rest — de-duped by code+range so a code the live
     // pass already produced does not double when the sidecar is fresh.
-    for (const d of resolveDiagnostics(scan, fsPathOf(doc))) {
+    for (const d of resolveDiagnostics(scan, fsPathOf(doc), overlay)) {
       const key = `${d.code}@${d.off}:${d.len}`;
       if (!seen.has(key)) {
         seen.add(key);
         push(d.off, d.len, d.severity, d.code, d.message);
       }
     }
-    for (const d of readSidecarDiags(fsPathOf(doc), text)) {
-      if (!seen.has(`${d.code}@${d.off}:${d.len}`)) push(d.off, d.len, d.severity, d.code, d.message);
+    // FILE_SCOPED_EXPORTS: the R16/TB-14 UETKX2106 mirror is RETIRED — same-name exports
+    // across files are legal ES-module scoping. The sweep of every other file's export
+    // surface SURVIVES: it feeds the TB-19 live 2305 mirror below, now multi-exporter aware
+    // (FS-08 — the suggestion picks the importer-NEAREST exporter, fewest `../` hops, exactly
+    // like the compiler's FindExporter, so live and sidecar messages stay identical).
+    try {
+      // Only inside a REAL project (a .uproject ancestor): a bare fixture/tmp file has no
+      // sweep universe, and the directory-fallback root would send us walking the OS temp tree.
+      let projDir: string | null = null;
+      for (let d = path.dirname(path.resolve(fsPathOf(doc))), i = 0; i < 40; i++) {
+        try {
+          if (fs.readdirSync(d).some((e) => e.endsWith(".uproject"))) { projDir = d; break; }
+        } catch { break; }
+        const parent = path.dirname(d);
+        if (parent === d) break;
+        d = parent;
+      }
+      const myAbs = path.resolve(fsPathOf(doc));
+      const otherExports = new Map<string, Array<{ file: string; kind: string }>>();
+      for (const file of projDir ? sweptUetkxFiles(fsPathOf(doc)) : []) {
+        if (path.resolve(file) === myAbs) continue;
+        for (const d of getDecls(file, overlay) ?? []) {
+          if (d.exported) {
+            const list = otherExports.get(d.name) ?? [];
+            list.push({ file, kind: d.kind });
+            otherExports.set(d.name, list);
+          }
+        }
+      }
+      const hopsOf = (spec: string): number => (spec.match(/\.\.\//g) ?? []).length;
+      // TB-19 — live UETKX2305 mirror (UetkxResolve strict usage, step 2): a CODE reference
+      // whose name a workspace file EXPORTS (matching kind) but this file never imports is a
+      // strict-imports violation the compiler only reports in full sweeps — live, deleting an
+      // import line while its usages remain showed NOTHING until the next sweep. Same message
+      // as the compiler (the 2305 code action parses the `add: import { X } from "spec"` tail).
+      // A name exported by NO file stays undiagnosed — it may be ambient C++ (engine/hand-
+      // written header); that judgment is clangd's, not ours (compiler rule A4).
+      const cpAll = toCodePoints(text);
+      const refShape = (start: number, len: number, name: string): string => {
+        let p = start + len;
+        while (p < cpAll.length && (cpAll[p] === 32 || cpAll[p] === 9)) p++;
+        if (cpAll[p] === 40 /* ( */) return /^Use[A-Z0-9_]/.test(name) ? "hook" : "util";
+        if (cpAll[p] === 58 && cpAll[p + 1] === 58 /* :: */) return "module";
+        return "value";
+      };
+      for (const r of usageRefs) {
+        if (r.kind !== "code") continue;
+        if (usageKnown.has(r.name) || usageLocals.has(r.name)) continue;
+        const want = refShape(r.start, r.len, r.name);
+        const candidates = (otherExports.get(r.name) ?? []).filter((c) => c.kind === want);
+        if (candidates.length === 0) continue; // ambient / kind mismatch — not this reference
+        let hit = candidates[0];
+        let bestHops = hopsOf(suggestSpecifier(fsPathOf(doc), hit.file));
+        for (let i = 1; i < candidates.length; i++) {
+          const hops = hopsOf(suggestSpecifier(fsPathOf(doc), candidates[i].file));
+          if (hops < bestHops) {
+            bestHops = hops;
+            hit = candidates[i];
+          }
+        }
+        const key = `UETKX2305@${r.start}:${r.len}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          push(r.start, r.len, 0, "UETKX2305",
+            `\`${r.name}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${r.name} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
+        }
+      }
+      // TB-24 — component TAG policing, LIVE (the compiler's UetkxResolve step-2 tag rule,
+      // previously sidecar-only: `<CounterBadge />` with the file on disk but no import showed
+      // NOTHING as-you-type, and the sidecar copy FLICKERED with the hash gate). A PascalCase
+      // non-host tag that is neither a same-file component nor an import binding must resolve
+      // to an exported component (2305, the add-import quick-fix) or no file exports it (2307).
+      {
+        const hostTags = new Set(Object.keys(schemaOf(doc).elements));
+        const seenTags = new Set<string>();
+        for (const r of usageRefs) {
+          if (r.kind !== "tag" || r.closeTag) continue;
+          const tag = r.name;
+          if (seenTags.has(tag)) continue;
+          seenTags.add(tag);
+          if (!/^[A-Z]/.test(tag) || hostTags.has(tag) || usageKnown.has(tag)) continue;
+          const candidates = (otherExports.get(tag) ?? []).filter((c) => c.kind === "component");
+          if (candidates.length > 0) {
+            let hit = candidates[0];
+            let bestHops = hopsOf(suggestSpecifier(fsPathOf(doc), hit.file));
+            for (let i = 1; i < candidates.length; i++) {
+              const hops = hopsOf(suggestSpecifier(fsPathOf(doc), candidates[i].file));
+              if (hops < bestHops) {
+                bestHops = hops;
+                hit = candidates[i];
+              }
+            }
+            const key = `UETKX2305@${r.start}:${r.len}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              push(r.start, r.len, 0, "UETKX2305",
+                `\`${tag}\` is defined in ${workspaceRelLabel(fsPathOf(doc), hit.file)} but not imported — add: import { ${tag} } from "${suggestSpecifier(fsPathOf(doc), hit.file)}"`);
+            }
+          } else {
+            const key = `UETKX2307@${r.start}:${r.len}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              push(r.start, r.len, 0, "UETKX2307",
+                `\`${tag}\` is used like a uetkx component/hook but no file exports it`);
+            }
+          }
+        }
+      }
+      // UETKX2329 live mirror, SAME-FILE case: two exports differing only by case share this
+      // file's namespace, so their case-folded FQNs collide (FName runtime identities are
+      // case-insensitive). The compiler reports this in sweeps; case-twins in ONE file are the
+      // editor-visible repro (cross-file twins need case-folding PATHS — same file on Windows).
+      {
+        const foldedSeen = new Map<string, string>();
+        for (const d of declsOfScan(scan)) {
+          if (!d.exported) continue;
+          const folded = d.name.toLowerCase();
+          const incumbent = foldedSeen.get(folded);
+          if (incumbent === undefined) {
+            foldedSeen.set(folded, d.name);
+            continue;
+          }
+          const key = `UETKX2329@${d.nameAt}:${[...d.name].length}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            push(d.nameAt, [...d.name].length, 0, "UETKX2329",
+              `exported binding \`${d.name}\` case-folds onto \`${incumbent}\` — FName runtime identities are case-insensitive; rename one`);
+          }
+        }
+      }
+    } catch (e) {
+      logServerError("live strict-usage sweep", e); // never let the mirror kill the publish
+    }
+    // TB-16(b): the LIVE checkers mirror most compiler rules with richer output (2311 has
+    // the did-you-mean, full token ranges). When a live diag of the MIRRORED family already
+    // overlaps a sidecar diag's range, the sidecar copy is redundant noise (the owner saw
+    // a full-width 2311 next to a 1-char 0106 for one bad brush) — suppress it.
+    {
+      const MIRROR: Record<string, string[]> = {
+        UETKX0106: ["UETKX2311", "UETKX0105", "UETKX0106"],
+        UETKX0105: ["UETKX0105", "UETKX2311"],
+        UETKX2305: ["UETKX2305"],
+        UETKX0112: ["UETKX0112"],
+        UETKX0109: ["UETKX0109"],
+        UETKX0110: ["UETKX0110"],
+        UETKX0111: ["UETKX0111"],
+      };
+      const liveMarks = [...seen].map((k) => {
+        const m = /^(UETKX\d+)@(\d+):(\d+)$/.exec(k);
+        return m ? { code: m[1], off: Number(m[2]), len: Number(m[3]) } : null;
+      }).filter((x): x is { code: string; off: number; len: number } => x !== null);
+      for (const d of readSidecarDiags(fsPathOf(doc), text)) {
+        if (seen.has(`${d.code}@${d.off}:${d.len}`)) continue;
+        const mirrors = MIRROR[d.code];
+        if (mirrors && liveMarks.some((m) => mirrors.includes(m.code) && d.off < m.off + m.len && m.off < d.off + Math.max(1, d.len))) {
+          continue; // a richer live diag already covers this finding
+        }
+        push(d.off, d.len, d.severity, d.code, d.message);
+      }
     }
   }
   markupDiagsByUri.set(doc.uri, diags);
   publishMerged(doc.uri);
-  // Async clangd pass republishes merged when its diagnostics arrive. The catch is
-  // load-bearing (§1): a floating rejection is a PROCESS KILL in Node.
-  syncEmbeddedDoc(doc).catch((e) => logServerError("syncEmbeddedDoc", e));
+  // Async clangd pass republishes merged when its diagnostics arrive — DEBOUNCED (B7):
+  // per-keystroke didChange forced a TU rebuild per character, so the rebuild queue lagged
+  // seconds behind the buffer. Position requests are unaffected — embeddedPositionRequest
+  // syncs the CURRENT text itself before every query (hash-deduped).
+  scheduleEmbeddedSync(doc);
+}
+
+// ── R8: background TU pre-warm ─────────────────────────────────────────────────────────────
+// The ~10s first-open cost is clangd building a file's engine preamble — per file, per
+// session, paid at first interaction. Nothing says the USER has to pay it: once clangd is
+// up, warm the workspace's .uetkx virtual TUs one at a time (strictly serial — one preamble
+// build in flight, unlike the background indexer that pegged every core), newest-modified
+// first. A warmed file's later real didOpen hash-dedupes into the already-built TU, so its
+// diagnostics arrive in ~300ms like an ordinary edit. Publishes for not-open files are
+// already dropped by the doc-lookup guard, so warming is invisible until it pays off.
+const warmWaiters = new Map<string, () => void>();
+let warmStarted = false;
+function startBackgroundWarm(seedFsPath: string): void {
+  if (warmStarted) return;
+  warmStarted = true;
+  setTimeout(async () => {
+    try {
+      const files = sweptUetkxFiles(seedFsPath)
+        .map((p) => {
+          try {
+            return { p, m: fs.statSync(p).mtimeMs };
+          } catch {
+            return null;
+          }
+        })
+        .filter((x): x is { p: string; m: number } => x !== null)
+        .sort((a, b) => b.m - a.m)
+        .slice(0, 48)
+        .map((x) => x.p);
+      for (const file of files) {
+        if (!clangd?.isAvailable()) return; // clangd died — the lazy respawn owns recovery
+        const already = documents.all().some((d) => path.resolve(fsPathOf(d)) === path.resolve(file));
+        if (already) continue; // open docs sync themselves
+        let source: string;
+        try {
+          source = fs.readFileSync(file, "utf8");
+        } catch {
+          continue;
+        }
+        const view = buildEmbeddedView(source, file);
+        if (view.regionCount === 0) continue;
+        const vuri = virtualUriOf(URI.fromFsPath(file));
+        await new Promise<void>((resolve) => {
+          const timer = setTimeout(() => {
+            warmWaiters.delete(vuri);
+            resolve(); // a stuck TU must not stall the queue
+          }, 60000);
+          warmWaiters.set(vuri, () => {
+            clearTimeout(timer);
+            warmWaiters.delete(vuri);
+            resolve();
+          });
+          clangd!.didOpen(vuri, view.virtualText);
+        });
+      }
+    } catch (e) {
+      logServerError("background warm", e);
+    }
+  }, 3000);
+}
+
+const embedSyncTimers = new Map<string, ReturnType<typeof setTimeout>>();
+function scheduleEmbeddedSync(doc: TextDocument): void {
+  const prior = embedSyncTimers.get(doc.uri);
+  if (prior) clearTimeout(prior);
+  embedSyncTimers.set(
+    doc.uri,
+    setTimeout(() => {
+      embedSyncTimers.delete(doc.uri);
+      // The catch is load-bearing (§1): a floating rejection is a PROCESS KILL in Node.
+      syncEmbeddedDoc(doc).catch((e) => logServerError("syncEmbeddedDoc", e));
+    }, 300),
+  );
 }
 
 documents.onDidChangeContent((change) => {
@@ -347,8 +1223,54 @@ documents.onDidChangeContent((change) => {
   } catch (e) {
     logServerError("validate", e); // markup diagnostics silently missing = this bug class
   }
+  // TB-18 — cross-file re-diagnosis: an edit to THIS file can change the truth of every
+  // other open file (renamed export -> importers must flag 2302; new export -> 2305
+  // resolutions move; deleted component -> 2307). Re-validate the other open docs, debounced —
+  // they are few, validation is textual, and stale "No problems" on an importer while its
+  // exporter was renamed is exactly how the owner lost trust in the diagnostics (TB-18).
+  if (crossRevalidateTimer) clearTimeout(crossRevalidateTimer);
+  crossRevalidateTimer = setTimeout(() => {
+    crossRevalidateTimer = undefined;
+    for (const other of documents.all()) {
+      if (other.uri === change.document.uri) continue;
+      try {
+        validate(other);
+      } catch (e) {
+        logServerError("cross-file revalidate", e);
+      }
+    }
+  }, 150);
+});
+let crossRevalidateTimer: ReturnType<typeof setTimeout> | undefined;
+// TB-22 — a .uetkx created/deleted/renamed ON DISK (no open buffer, so no didChange fires)
+// changes the truth of every open doc: deleting an exporter must re-flag its importers
+// (2300/2302), creating one must clear them / move 2305 resolutions — WITHOUT a keystroke.
+// The client watches `**/*.uetkx` (extension.ts synchronize.fileEvents); here: drop the
+// caches for the changed paths and re-validate every open doc, debounced like TB-18.
+connection.onDidChangeWatchedFiles((params) => {
+  try {
+    invalidateFileCaches(params.changes.map((c) => URI.toFsPath(c.uri)));
+  } catch (e) {
+    logServerError("watched-files invalidate", e);
+  }
+  if (crossRevalidateTimer) clearTimeout(crossRevalidateTimer);
+  crossRevalidateTimer = setTimeout(() => {
+    crossRevalidateTimer = undefined;
+    for (const doc of documents.all()) {
+      try {
+        validate(doc);
+      } catch (e) {
+        logServerError("watched-files revalidate", e);
+      }
+    }
+  }, 150);
 });
 documents.onDidClose((e) => {
+  const timer = embedSyncTimers.get(e.document.uri);
+  if (timer) {
+    clearTimeout(timer);
+    embedSyncTimers.delete(e.document.uri);
+  }
   markupDiagsByUri.delete(e.document.uri);
   embeddedDiagsByUri.delete(e.document.uri);
   embeddedDiagsVersionByUri.delete(e.document.uri);
@@ -385,6 +1307,84 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
     return items;
   }
 
+  // R10/R13: inside a STRING attr value (`HAlign="|"`, `BorderImage="|"`) the closed
+  // vocabulary IS the completion set — the same sets the value validator (UETKX2311)
+  // enforces: enum vocabularies, the engine's FCoreStyle brush names, and true/false for
+  // bool-kind keys. Typos here fall back silently at runtime — never make authors guess.
+  {
+    const tail = text.slice(Math.max(0, offEarly - 160), offEarly);
+    const m = /([A-Za-z_][A-Za-z0-9_.]*)\s*=\s*"([A-Za-z0-9_]*)$/.exec(tail);
+    if (m) {
+      const schemaVal = schemaOf(doc);
+      const vocab = schemaVal.attrEnums?.[m[1]];
+      if (vocab) {
+        return vocab.map((v, i) => ({
+          label: v,
+          kind: CompletionItemKind.EnumMember,
+          detail: `${m[1]} — one of ${vocab.length}`,
+          sortText: "0" + String(i).padStart(2, "0"), // schema order: canonical spellings first
+        }));
+      }
+      if (schemaVal.brushAttrs?.includes(m[1]) && schemaVal.brushNames?.length) {
+        return schemaVal.brushNames.map((b) => ({
+          label: b,
+          kind: CompletionItemKind.Color,
+          detail: "FCoreStyle brush",
+        }));
+      }
+      const kinds = new Set<string>();
+      const sk = schemaVal.attrKinds?.[m[1]];
+      if (sk) kinds.add(sk);
+      for (const el of Object.values(schemaVal.elements)) {
+        const k = (el.attrs as Record<string, string>)[m[1]];
+        if (k) kinds.add(k);
+      }
+      if (kinds.has("bool")) {
+        return [
+          { label: "true", kind: CompletionItemKind.EnumMember, detail: `${m[1]} — bool`, sortText: "0" },
+          { label: "false", kind: CompletionItemKind.EnumMember, detail: `${m[1]} — bool`, sortText: "1" },
+        ];
+      }
+    }
+  }
+
+  // R5-3: inside an ATTR-EXPR HOLE (`Size={ | }`) the attr's SCHEMA TYPE leads the list —
+  // the author is constructing that type ("ctrl+space gives some other stuff, not FVector").
+  // Constructible F-types only; clangd's items still follow via the embedded forward below.
+  const holeTypeItems: CompletionItem[] = [];
+  {
+    // schema attr KINDS → the C++ expression shape the hole expects (the schema speaks in
+    // abstract kinds — "vector2", not "FVector2D")
+    const KIND_SNIPPETS: Record<string, { label: string; insert: string }> = {
+      vector2: { label: "FVector2D(…)", insert: "FVector2D($0)" },
+      color: { label: "FLinearColor(…)", insert: "FLinearColor($0)" },
+      margin: { label: "FMargin(…)", insert: "FMargin($0)" },
+      text: { label: "FText::FromString(…)", insert: "FText::FromString($0)" },
+      name: { label: "FName(…)", insert: 'FName(TEXT("$0"))' },
+    };
+    const holeAttr = enclosingAttrName(text, offEarly);
+    if (holeAttr && !/^On[A-Z]/.test(holeAttr)) {
+      const schemaHole = schemaOf(doc);
+      const kinds = new Set<string>();
+      for (const el of Object.values(schemaHole.elements)) {
+        const ty = (el.attrs as Record<string, string>)[holeAttr];
+        if (ty) kinds.add(ty);
+      }
+      for (const kind of kinds) {
+        const snip = KIND_SNIPPETS[kind];
+        if (!snip) continue;
+        holeTypeItems.push({
+          label: snip.label,
+          kind: CompletionItemKind.Constructor,
+          detail: `${holeAttr} expects ${kind}`,
+          insertText: snip.insert,
+          insertTextFormat: InsertTextFormat.Snippet,
+          sortText: "0" + snip.label,
+        });
+      }
+    }
+  }
+
   // Embedded C++ (the TD-020 tail — hover/definition shipped before completion): inside a
   // setup/hook/module body, clangd's completions (locals, engine symbols, members) beat the
   // markup baseline. textEdit ranges come back in VIRTUAL coordinates and are translated;
@@ -395,9 +1395,19 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
     if (proxy) {
       const result = await embeddedPositionRequest(proxy, "textDocument/completion", doc.uri, text, embeddedOffset);
       const translated = translateEmbeddedCompletion(result, text, fsPathOf(doc));
-      if (translated) return translated as CompletionList;
+      if (translated) {
+        // the hole's expected type leads; clangd's list follows (R5-3)
+        if (holeTypeItems.length > 0) {
+          return { isIncomplete: translated.isIncomplete, items: [...holeTypeItems, ...translated.items] } as CompletionList;
+        }
+        return translated as CompletionList;
+      }
     }
   }
+  // The hole's expected type still leads even when the cursor sits on the hole BOUNDARY
+  // (one char before the lifted span) or clangd had nothing — never fall through to the
+  // generic hook list inside an attr-expr hole (R5-3).
+  if (holeTypeItems.length > 0) return holeTypeItems;
 
   // Import intelligence takes precedence in the preamble: a `import { … } from "…"` cursor
   // completes exported NAMES of the resolved target, or workspace-relative SPECIFIER paths.
@@ -420,17 +1430,36 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
     }
     if (imp.kind === "import-specifier") {
       const importerDir = path.dirname(fsPath);
+      // TB-25c: accepting a suggestion must REPLACE the specifier content already typed, not
+      // append to it (`./` + accept `./Foo` produced `././Foo`). The edit range spans from
+      // just after the opening quote (cursor - partial) to the closing quote when one exists
+      // on the line (whole-string replace, the R14 attr-name rule), else to the cursor.
+      const cursorOff = doc.offsetAt(params.position);
+      const startPos = doc.positionAt(cursorOff - imp.partial.length);
+      let endOff = cursorOff;
+      for (let i = cursorOff; i < text.length && text[i] !== "\n"; i++) {
+        if (text[i] === '"' || text[i] === "'") {
+          endOff = i;
+          break;
+        }
+      }
+      const editRange = { start: startPos, end: doc.positionAt(endOff) };
       const items: CompletionItem[] = [];
       for (const file of sweptUetkxFiles(fsPath)) {
         if (path.resolve(file) === path.resolve(fsPath)) continue; // never import yourself
         const decls = (getDecls(file) ?? []).filter((d) => d.exported);
         if (decls.length === 0) continue;
         const spec = suggestSpecifier(fsPath, file);
+        // TB-25b: NEAREST first — same folder (`./X`, 0 hops) before parents/siblings, then
+        // alphabetical. VS Code sorts by sortText; hops pad keeps the order stable.
+        const hops = (spec.match(/\.\.\//g) ?? []).length;
         items.push({
           label: spec,
           kind: CompletionItemKind.File,
           detail: decls.map((d) => d.name).join(", "),
-          insertText: spec,
+          sortText: `${String(hops).padStart(3, "0")}_${spec}`,
+          filterText: spec,
+          textEdit: { range: editRange, newText: spec },
           documentation: path.relative(importerDir, file).replace(/\\/g, "/"),
         });
       }
@@ -478,11 +1507,21 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
   const cp = utf16ToCodePoint(text, doc.offsetAt(params.position));
   const ctx = classifyCursor(text, cp);
   if (ctx.kind === "tag") {
-    const items: CompletionItem[] = Object.keys(schema.elements).map((tag) => ({
-      label: tag,
-      kind: CompletionItemKind.Class,
-      detail: schema.elements[tag].factory,
-    }));
+    // R15 parity: a sinceUE-gated element on an older EngineAssociation renders a null slot
+    // (2313 on accept) — don't offer it.
+    const tagEngineVer = engineVersionForFile(path.dirname(fsPathOf(doc)));
+    const items: CompletionItem[] = Object.keys(schema.elements)
+      .filter((tag) => {
+        const since = schema.elements[tag].sinceUE;
+        if (!since || !tagEngineVer) return true;
+        const need = /^(\d+)\.(\d+)/.exec(since);
+        return !need || tagEngineVer[0] > Number(need[1]) || (tagEngineVer[0] === Number(need[1]) && tagEngineVer[1] >= Number(need[2]));
+      })
+      .map((tag) => ({
+        label: tag,
+        kind: CompletionItemKind.Class,
+        detail: schema.elements[tag].factory,
+      }));
     // Import intelligence: a component declared in THIS file or imported here is renderable as a
     // `<Tag>` too — fold those in after the host elements (host names win a collision).
     const fsPath = fsPathOf(doc);
@@ -521,18 +1560,63 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
     return items;
   }
   if (ctx.kind === "attr") {
-    const items: CompletionItem[] = [];
-    const el = schema.elements[ctx.tag];
-    if (el) {
-      for (const [attr, type] of Object.entries(el.attrs)) {
-        items.push({ label: attr, kind: CompletionItemKind.Property, detail: type });
-      }
+    // R14 — the `slot.Clipping` accident: items had no textEdit/filterText, so VS Code
+    // filtered and replaced only the word AFTER the dot ("slot.C" → filter word "C" →
+    // "Clipping" matched and replaced just the "C", building a name that exists nowhere).
+    // Each item now edits the WHOLE dotted token; a `Slot.` prefix narrows to slot keys.
+    const off = doc.offsetAt(params.position);
+    let tokStart = off;
+    while (tokStart > 0 && /[A-Za-z0-9_.]/.test(text[tokStart - 1])) tokStart--;
+    const editRange = { start: doc.positionAt(tokStart), end: params.position };
+    const typed = text.slice(tokStart, off);
+    const mk = (label: string, kind: CompletionItemKind, detail: string): CompletionItem => ({
+      label,
+      kind,
+      detail,
+      filterText: label,
+      textEdit: { range: editRange, newText: label },
+    });
+    // R15 — completion/diagnostic PARITY: never offer what the checkers flag on accept.
+    // The parent-tracked sweep (parse-error resilient — the buffer is mid-edit) locates
+    // the element being completed: its existing attrs are out (0109 duplicate), and slot
+    // keys its PARENT never reads are out (0111 — `Slot.Position` under a VerticalBox).
+    const fileCp = toCodePoints(text);
+    const sweptAll: ReturnType<typeof sweepMarkupElements> = [];
+    for (const r of findMarkupRanges(fileCp, 0, fileCp.length)) {
+      sweepMarkupElements(fileCp, r.start, r.end === -1 ? fileCp.length : r.end, sweptAll);
     }
-    for (const key of schema.styleKeys) items.push({ label: key, kind: CompletionItemKind.Color, detail: "style" });
-    for (const key of schema.slotKeys) items.push({ label: key, kind: CompletionItemKind.Unit, detail: "slot" });
-    items.push({ label: "key", kind: CompletionItemKind.Keyword, detail: "reconciler identity" });
-    items.push({ label: "classes", kind: CompletionItemKind.Keyword, detail: "style classes" });
-    items.push({ label: "Ref", kind: CompletionItemKind.Keyword, detail: "host-handle capture (expr)" });
+    let cur: (typeof sweptAll)[number] | undefined;
+    for (const e of sweptAll) {
+      if (e.at > cp) break;
+      if (e.tag === ctx.tag) cur = e;
+    }
+    const present = new Set((cur?.attrs ?? []).map((a) => a.name));
+    present.delete(typed); // the token being typed is not "already present"
+    const parentTag = cur?.parent !== undefined ? sweptAll[cur.parent].tag : undefined;
+    const consumed = parentTag ? schema.slotConsumption?.[parentTag] : undefined;
+    const items: CompletionItem[] = [];
+    const add = (label: string, kind: CompletionItemKind, detail: string): void => {
+      if (!present.has(label)) items.push(mk(label, kind, detail));
+    };
+    const slotOnly = /^slot\./i.test(typed);
+    if (!slotOnly) {
+      const el = schema.elements[ctx.tag];
+      if (el) {
+        for (const [attr, type] of Object.entries(el.attrs)) {
+          add(attr, CompletionItemKind.Property, type);
+        }
+      }
+      for (const key of schema.styleKeys) add(key, CompletionItemKind.Color, "style");
+    }
+    for (const key of schema.slotKeys) {
+      if (consumed && !consumed.includes(key)) continue; // the parent would ignore it (0111)
+      add(key, CompletionItemKind.Unit, parentTag ? `slot — read by <${parentTag}>` : "slot");
+    }
+    if (!slotOnly) {
+      add("key", CompletionItemKind.Keyword, "reconciler identity");
+      add("classes", CompletionItemKind.Keyword, "style classes");
+      add("Ref", CompletionItemKind.Keyword, "host-handle capture (expr)");
+    }
     return items;
   }
   if (ctx.kind === "directive") {

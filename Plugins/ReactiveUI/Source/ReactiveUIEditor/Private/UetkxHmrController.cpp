@@ -8,6 +8,7 @@
 #include "Modules/ModuleManager.h"
 #include "ReactiveUetkxEditorSettings.h"
 #include "RuiReconciler.h"
+#include "RuiNode.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
 #if PLATFORM_WINDOWS
@@ -97,7 +98,8 @@ bool FUetkxHmrController::Start(FString& OutError)
 	PatchCompleteHandle = LC->GetOnPatchCompleteDelegate().AddRaw(this, &FUetkxHmrController::OnPatchComplete);
 	bActive = true;
 	bDirtyAgain = false;
-	StartConsoleHider(); // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
+	RUI::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
+	StartConsoleHider();		   // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
 	return true;
@@ -130,6 +132,7 @@ void FUetkxHmrController::StopInternal(bool bForceDisableSession)
 	PatchCompleteHandle.Reset();
 	StopConsoleHider();
 	bActive = false;
+	RUI::SetHmrHookTracking(false); // TB-13
 	bDirtyAgain = false;
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] stopped%s"),
 		   bForceDisableSession ? TEXT(" (Live Coding session disabled — external builds restored)") : TEXT(""));
@@ -277,19 +280,45 @@ void FUetkxHmrController::OnPieEnded(bool /*bSimulating*/)
 
 void FUetkxHmrController::NotifyCodegen(int32 NumChanged, int32 NumErrors, const FString& Reason)
 {
-	Status.Errors += NumErrors;
+	// R16 (TB-14): CURRENT standing errors, not a lifetime sum — one persistent error used to
+	// inflate the counter on every sweep ("Errors: 47" for a single bug).
+	Status.Errors = NumErrors;
 	if (NumErrors > 0)
 	{
-		// Keep a short, newest-first tail for the window; the "ReactiveUI" Message Log has the detail.
-		RecentErrors.Insert(
-			{FDateTime::Now().ToString(TEXT("%H:%M")), FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
-			0);
-		constexpr int32 MaxRecent = 20;
-		if (RecentErrors.Num() > MaxRecent)
+		// Keep a short, newest-first tail for the window; the "ReactiveUI" Message Log has the
+		// detail. A STANDING error re-reports on every sweep (saves of unrelated files, the
+		// stale-poll, every editor-activation poll — the alt-tab storm, TB-14): identical
+		// consecutive reports bump a ×N on the newest row instead of inserting a new one.
+		if (Reason == LastErrorReason && NumErrors == LastErrorCount && RecentErrors.Num() > 0)
 		{
-			RecentErrors.SetNum(MaxRecent);
+			++ErrorRepeat;
+			RecentErrors[0] = {
+				FDateTime::Now().ToString(TEXT("%H:%M")),
+				FString::Printf(TEXT("%s — %d error(s) (still failing ×%d)"), *Reason, NumErrors, ErrorRepeat)};
+		}
+		else
+		{
+			LastErrorReason = Reason;
+			LastErrorCount = NumErrors;
+			ErrorRepeat = 1;
+			RecentErrors.Insert({FDateTime::Now().ToString(TEXT("%H:%M")),
+								 FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
+								0);
+			constexpr int32 MaxRecent = 20;
+			if (RecentErrors.Num() > MaxRecent)
+			{
+				RecentErrors.SetNum(MaxRecent);
+			}
 		}
 		OnStatusChanged.Broadcast(); // errors surface whether or not the mode is active
+	}
+	else if (LastErrorCount > 0)
+	{
+		// recovered — the next failure starts a fresh row (and the panel sees Errors back at 0)
+		LastErrorReason.Reset();
+		LastErrorCount = 0;
+		ErrorRepeat = 0;
+		OnStatusChanged.Broadcast();
 	}
 	if (!bActive)
 	{
@@ -327,6 +356,7 @@ void FUetkxHmrController::OnPatchComplete()
 	{
 		return;
 	}
+	RUI::BumpHmrGeneration(); // TB-13: the refresh renders compare hook shapes across THIS boundary
 	RefreshLiveRoots();
 	++Status.Swaps;
 	Status.LastMs = (FPlatformTime::Seconds() - CycleStartSeconds) * 1000.0;
@@ -334,11 +364,31 @@ void FUetkxHmrController::OnPatchComplete()
 		   Status.Swaps);
 	if (GetDefault<UReactiveUetkxEditorSettings>()->bShowNotifications)
 	{
-		FNotificationInfo Info(FText::FromString(
-			FString::Printf(TEXT("HMR: patched %s (%.0f ms)"),
-							Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs)));
-		Info.ExpireDuration = 2.5f;
-		FSlateNotificationManager::Get().AddNotification(Info);
+		const FText Message = FText::FromString(FString::Printf(
+			TEXT("HMR: patched %s (%.0f ms), %d total"),
+			Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs, Status.Swaps));
+		// TB-26: COALESCE — rapid saves stacked one fading toast per patch (a blurry smear).
+		// Reuse the live toast: update its text and restart the expire countdown; spawn a new
+		// one only when the previous has fully faded out.
+		TSharedPtr<SNotificationItem> Existing = PatchToast.Pin();
+		if (Existing.IsValid())
+		{
+			Existing->SetText(Message);
+			Existing->SetExpireDuration(2.5f);
+			Existing->ExpireAndFadeout(); // restarts the countdown on an already-expiring item
+		}
+		else
+		{
+			FNotificationInfo Info(Message);
+			Info.bFireAndForget = false; // lifetime is ours — required for in-place updates
+			Info.ExpireDuration = 2.5f;
+			TSharedPtr<SNotificationItem> Item = FSlateNotificationManager::Get().AddNotification(Info);
+			if (Item.IsValid())
+			{
+				Item->ExpireAndFadeout();
+				PatchToast = Item;
+			}
+		}
 	}
 	OnStatusChanged.Broadcast();
 	if (bDirtyAgain) // changes arrived during the compile — land the latest

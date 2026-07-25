@@ -16,6 +16,28 @@ export interface UetkxSchema {
   /** TD-016: event attr name -> payload kind (text|bool|float|int|name|color|vector2|void) — the
    *  FRuiValue field an event handler's `Value` carries. Absent in older shipped schemas. */
   eventPayloads?: Record<string, string>;
+  /** R10: attr/style/slot key -> the CLOSED set of accepted string values, exported from the
+   *  runtime's own parse tables (ParseHAlign et al) — those parses fall back SILENTLY, so a
+   *  typo'd value is invisible at compile AND run time without this. FName comparison is
+   *  case-insensitive; validate accordingly. Absent in older shipped schemas. */
+  attrEnums?: Record<string, string[]>;
+  /** R11: typed style/slot key -> value kind (float|int|bool|vector2|margin|color). The runtime
+   *  parses well-formed string literals through the SLOT-1 hardened readers; malformed ones
+   *  still Atof to 0/false silently — this drives the LSP string-format check. color has no
+   *  string form at all. Absent in older shipped schemas. */
+  attrKinds?: Record<string, string>;
+  /** R12: container tag -> the Slot.* keys its slot-apply actually READS (empty = the parent
+   *  passes no slot props to children at all — SingleContent SetContent path). A slot key the
+   *  parent never reads is dropped in TOTAL silence at runtime. Root elements behave as
+   *  children of the implicit SOverlay root panel. Absent in older shipped schemas. */
+  slotConsumption?: Record<string, string[]>;
+  /** R13: attrs whose string value is a BRUSH NAME (BorderImage) — resolved at runtime
+   *  exclusively through FCoreStyle::Get(), the fixed engine style set. */
+  brushAttrs?: string[];
+  /** R13: the engine's registered FCoreStyle brush names, enumerated by the editor module at
+   *  schema-export time (closed per engine version). Absent when the export ran in a bare
+   *  unit context — validation and completion disarm without it. */
+  brushNames?: string[];
 }
 
 let shipped: UetkxSchema | null = null;
@@ -52,6 +74,32 @@ export function schemaForFile(fileDir: string): UetkxSchema {
     dir = parent;
   }
   return shippedSchema();
+}
+
+/** R12: the project's engine version from the nearest .uproject's EngineAssociation, as
+ *  [major, minor] — null when absent or not a plain "X.Y" (custom-engine GUIDs, source builds).
+ *  Drives the sinceUE check: a too-new element renders a NULL SLOT at runtime (the adapter is
+ *  compiled out; the tag/factory still compile — LogRuiSlate error at mount is the only
+ *  runtime signal). */
+export function engineVersionForFile(fileDir: string): [number, number] | null {
+  let dir = fileDir;
+  for (let depth = 0; depth < 32; depth++) {
+    try {
+      const entries = fs.readdirSync(dir);
+      const up = entries.find((e) => e.endsWith(".uproject"));
+      if (up) {
+        const parsed = JSON.parse(fs.readFileSync(path.join(dir, up), "utf8")) as { EngineAssociation?: string };
+        const m = /^(\d+)\.(\d+)/.exec(parsed.EngineAssociation ?? "");
+        return m ? [Number(m[1]), Number(m[2])] : null;
+      }
+    } catch {
+      return null;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
 }
 
 /** The nearest uetkx.config.json and the directory it lives in (nearest wins, NO merge; malformed

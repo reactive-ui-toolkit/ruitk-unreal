@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Counter
+{
 struct FCounterUetkxProps final : public FRuiPropsBase
 {
 	int32 StartAt = 0;
@@ -17,15 +19,18 @@ struct FCounterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode Counter(FCounterUetkxProps InProps = FCounterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Counter
 #else
-static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Counter
+{
+static FRuiNodeArray Counter_UetkxBody_2F197C91(FRuiContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& StartAt = Props.StartAt;
 #line 2 "Counter.uetkx"
 	auto [Count, SetCount] = Ctx.UseState(StartAt);
 		TFunction<void(int32)> Set = SetCount;
 		const int32 Now = Count;
-#line 29 "Counter.uetkx.inl"
+#line 34 "Counter.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
@@ -48,12 +53,17 @@ static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProp
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCounterUetkxId = RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT("Counter")));
+static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return Counter_UetkxBody_2F197C91(Ctx, Props, children);
+}
+static const FName GCounterUetkxId = RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT("RuiUetkx_Counter::Counter")));
 static constexpr uint32 Counter_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode Counter(FCounterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&Counter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("Counter")), []() { return Counter(); });
+static const bool GCounterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Counter::Counter")), []() { return Counter(); });
 
+} // namespace RuiUetkx_Counter
 #endif

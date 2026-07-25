@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+{
 struct FSimpleUseEffectUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,13 +17,16 @@ struct FSimpleUseEffectUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps = FSimpleUseEffectUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
 #else
-static FRuiNodeArray SimpleUseEffect_UetkxImpl(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+{
+static FRuiNodeArray SimpleUseEffect_UetkxBody_2E73F0B0(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/SimpleUseEffect/SimpleUseEffect.uetkx"
 	auto [Message, SetMessage] = Ctx.UseState<FString>(FString(TEXT("Waiting...")));
 		Ctx.UseEffect([SetMessage]() { SetMessage(FString(TEXT("Effect ran!"))); }, RUI::Deps());
-#line 25 "SimpleUseEffect.uetkx.inl"
+#line 30 "SimpleUseEffect.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -37,12 +42,17 @@ static FRuiNodeArray SimpleUseEffect_UetkxImpl(FRuiContext& Ctx, const FSimpleUs
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GSimpleUseEffectUetkxId = RUI::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("SimpleUseEffect")));
+static FRuiNodeArray SimpleUseEffect_UetkxImpl(FRuiContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SimpleUseEffect_UetkxBody_2E73F0B0(Ctx, Props, children);
+}
+static const FName GSimpleUseEffectUetkxId = RUI::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
 static constexpr uint32 SimpleUseEffect_RUI_HOOK_SIG = 0x7B306E79u;
 inline FRuiNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&SimpleUseEffect_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleUseEffectUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("SimpleUseEffect")), []() { return SimpleUseEffect(); });
+static const bool GSimpleUseEffectUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")), []() { return SimpleUseEffect(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
 #endif

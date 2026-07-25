@@ -20,6 +20,7 @@
     { "include": "#new-component-decl" },
     { "include": "#control-flow-with-expression" },
     { "include": "#control-flow-keyword" },
+    { "include": "#tag-fragment" },
     { "include": "#tag-element" },
     { "include": "#tag-close" },
     { "include": "#code-block-body" }
@@ -37,7 +38,7 @@
     },
     "import-decl": {
       "comment": "Imported names color as WHAT THEY ARE at the use site (sibling behavior): Use-hooks get the hook-call scope, everything else the component-tag scope (modules read as types — same color). ES-modules (G-05): the `as` rename keyword colors as a keyword; both sides of a rename keep their kind scopes.",
-      "match": "\\b(import)\\s*(\\{)([^}]*)(\\})\\s*(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s*(\\{)([^}]*)(\\})\\s*(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "punctuation.definition.block.begin.uetkx" },
@@ -55,7 +56,7 @@
     },
     "import-namespace-decl": {
       "comment": "ES-modules (G-05): `import * as X from \"./x\"` — the namespace alias reads as a type (a `X::Member` qual looks like a C++ namespace at use sites).",
-      "match": "\\b(import)\\s*(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s*(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "keyword.operator.uetkx" },
@@ -67,7 +68,7 @@
     },
     "import-default-decl": {
       "comment": "ES-modules (G-05): `import X from \"./x\"` — a default import binds the target's `export default` symbol (usually a component) — plus the ES COMBINED forms `import X, { a as b } from` and `import X, * as NS from` (one declaration carrying the default binding and the named/star surface). Listed AFTER import-decl/import-host-include so the braced/quoted heads win.",
-      "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?:,\\s*(?:(\\{)([^}]*)(\\})|(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)))?\\s+(from)\\s*(\"[^\"]*\")",
+      "match": "\\b(import)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?:,\\s*(?:(\\{)([^}]*)(\\})|(\\*)\\s*(as)\\s+([A-Za-z_][A-Za-z0-9_]*)))?\\s+(from)\\s*(\"[^\"]*\"|'[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "support.class.component.uetkx" },
@@ -89,7 +90,7 @@
     },
     "import-host-include": {
       "comment": "`import \"@Header.h\"` (INCLUDE_RETIREMENT_PLAN.md §B) — a nameless host include; same scopes as import-decl so it colors identically to a file import.",
-      "match": "\\b(import)\\b\\s*(\"@[^\"]*\")",
+      "match": "\\b(import)\\b\\s*(\"@[^\"]*\"|'@[^']*')",
       "captures": {
         "1": { "name": "keyword.control.import.uetkx" },
         "2": { "name": "string.quoted.double.uetkx" }
@@ -172,6 +173,33 @@
         "2": { "name": "keyword.control.directive.uetkx" }
       }
     },
+    "tag-fragment": {
+      "comment": "One region per FRAGMENT — `<>` through `</>`, the TSX fragment shape, so its delimiters color as tag punctuation like every element's (owner-reported: they fell to the C++ operator rule). The begin keeps tag-element's C++ lookbehind guard (kills `Foo<>` empty template args); adjacent `<>` only — there is no attr form.",
+      "name": "meta.tag.fragment.uetkx",
+      "begin": "(?<![A-Za-z0-9_)\\]])(<)(>)",
+      "end": "(</)\\s*(>)",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.uetkx" },
+        "2": { "name": "punctuation.definition.tag.end.uetkx" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.uetkx" },
+        "2": { "name": "punctuation.definition.tag.end.uetkx" }
+      },
+      "patterns": [
+        { "include": "#markup-comment" },
+        { "include": "#control-flow-with-expression" },
+        { "include": "#control-flow-keyword" },
+        { "include": "#tag-fragment" },
+        { "include": "#tag-element" },
+        { "include": "#markup-brace" },
+        {
+          "comment": "Raw-text children — meta scope only, the tag-element treatment (TB-3).",
+          "match": "[^<{@]+",
+          "name": "meta.text.children.uetkx"
+        }
+      ]
+    },
     "tag-element": {
       "comment": "One region per ELEMENT — `<Name attrs>` through `</Name>` (or `/>`), the TSX jsx-element shape, so raw-text children get a home (TB-3). The begin is triple-guarded against C++ (TB-1b): no identifier/)/] immediately before `<` (kills `UseMemo<T>` generics), tag name REQUIRED (kills bare `i < 3`), and the name must be followed by tag-ish continuation — attr, `>`, `/>`, or end-of-line (kills `A < B` comparisons).",
       "name": "meta.tag.element.uetkx",
@@ -214,6 +242,7 @@
         { "include": "#markup-comment" },
         { "include": "#control-flow-with-expression" },
         { "include": "#control-flow-keyword" },
+        { "include": "#tag-fragment" },
         { "include": "#tag-element" },
         { "include": "#markup-brace" },
         {
@@ -287,6 +316,7 @@
         { "include": "#control-flow-with-expression" },
         { "include": "#control-flow-keyword" },
         { "include": "#markup-comment" },
+        { "include": "#tag-fragment" },
         { "include": "#tag-element" },
         { "include": "#tag-close" },
         { "include": "#markup-brace" },

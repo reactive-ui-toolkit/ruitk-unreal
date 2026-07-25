@@ -11,6 +11,9 @@
 #include "CoreMinimal.h"
 #include "FieldNotificationId.h"
 #include "INotifyFieldValueChanged.h"
+#include "UObject/StrProperty.h" // 5.7 forward-declares FStrProperty through UnrealType.h (TB-30)
+#include "UObject/TextProperty.h"
+#include "UObject/UnrealType.h"
 #include "RuiContext.h"
 #include "UObject/Package.h"
 #include "UObject/StrongObjectPtr.h"

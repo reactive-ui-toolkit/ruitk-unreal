@@ -151,6 +151,514 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.unlinkSync(scFsPath + ".diags.json");
   console.log("compiler sidecar OK (surfaced on hash match, suppressed when stale)");
 
+  // ── F5 round-2 pins (B1/B2): no basename nudge; broken parses still validate markup ──────
+  const mmUri = "file:///tmp/LabCard.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: mmUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode LasCard() {\n\treturn ( <Spacer /> );\n}\n" } });
+  await settle();
+  if ((diagnostics[mmUri] || []).some((d) => String(d.code) === "UETKX0103"))
+    fail("0103 basename nudge must be GONE under ES modules");
+  console.log("no 0103 basename nudge OK");
+
+  // ── F5 round-16 pins (TB-27/TB-28): fragment early returns + `return null` scan clean ────
+  const frUri = "file:///tmp/FragGate.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: frUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode FragGate() {\n\tauto [Count, Inc] = UseState<int32>(0);\n\n\treturn (<></>);\n\n\treturn (\n\t\t<Border>\n\t\t\t<TextBlock Text={FText::AsNumber(Count)} />\n\t\t</Border>\n\t);\n}\n" } });
+  await settle();
+  const frErrors = (diagnostics[frUri] || []).filter((d) => d.severity === 1);
+  if (frErrors.length > 0)
+    fail("fragment early return must scan clean (TB-27): " + JSON.stringify(frErrors.map((d) => d.code)));
+  const rnUri = "file:///tmp/NullGate.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: rnUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode NullGate(bool bHidden = false) {\n\tif (bHidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n" } });
+  await settle();
+  if ((diagnostics[rnUri] || []).length > 0)
+    fail("early `return null;` must be first-class (TB-28): " + JSON.stringify((diagnostics[rnUri] || []).map((d) => d.code)));
+  const rnOnlyUri = "file:///tmp/NullOnly.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: rnOnlyUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode NullOnly() {\n\treturn null;\n}\n" } });
+  await settle();
+  if ((diagnostics[rnOnlyUri] || []).some((d) => String(d.code) === "UETKX2101"))
+    fail("a null-only component must satisfy the markup-return requirement (TB-28)");
+  console.log("fragment + return-null OK (frag early return clean, null spans first-class, no 2101)");
+
+  const brokenUri = "file:///tmp/Broken.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: brokenUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Broken() {\n\treturn ( <Bosrder>\n\t\t<Button ContesntPadding="12,4" />\n\t</Border> );\n}\n' } });
+  await settle();
+  const brokenDiags = diagnostics[brokenUri] || [];
+  if (!brokenDiags.some((d) => String(d.code) === "UETKX2307"))
+    fail("broken parse must still flag the unknown element (B2): " + JSON.stringify(brokenDiags.map((d) => d.code)));
+  if (!brokenDiags.some((d) => String(d.code) === "UETKX0105"))
+    fail("broken parse must still flag the unknown attribute (B2): " + JSON.stringify(brokenDiags.map((d) => d.code)));
+  console.log("parse-error-resilient markup validation OK (2307 + 0105 on a broken tree)");
+
+  // R5-4: component-prop validation — an unknown prop on a USER component 0105s
+  const cpDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-props-"));
+  fs.writeFileSync(path.join(cpDir, "Demo.uproject"), "{}");
+  fs.writeFileSync(path.join(cpDir, "Card.uetkx"), 'export FRuiNode Card(FString Label = FString(), int32 Count = 0) {\n\treturn ( <Spacer /> );\n}\n');
+  const userPath = path.join(cpDir, "User.uetkx").replace(/\\/g, "/");
+  const userUri = "file:///" + userPath;
+  notify("textDocument/didOpen", { textDocument: { uri: userUri, languageId: "uetkx", version: 1,
+    text: 'import { Card } from "./Card"\nexport FRuiNode User() {\n\treturn ( <Card Labsssel="x" Label="ok" Count="5" /> );\n}\n' } });
+  await settle();
+  const propDiags = diagnostics[userUri] || [];
+  if (!propDiags.some((d) => String(d.code) === "UETKX0105" && /Labsssel/.test(d.message)))
+    fail("unknown component prop must 0105: " + JSON.stringify(propDiags.map((d) => d.code)));
+  // R11: prop FORM vs param TYPE — a string on an int32 param is a guaranteed downstream
+  // C++ error (codegen lowers it as P.Count = TEXT("5")); FString params take strings fine
+  if (!propDiags.some((d) => String(d.code) === "UETKX2311" && /Count.*int32/.test(d.message)))
+    fail("string prop on int32 param must 2311: " + JSON.stringify(propDiags.map((d) => d.message)));
+  if (propDiags.some((d) => String(d.code) === "UETKX2311" && /Label'/.test(d.message)))
+    fail("string prop on FString param must NOT flag");
+  console.log("component-prop validation OK (0105 unknown prop, 2311 form-vs-type)");
+
+  // R6: local-typo lint — a near-miss of an in-scope LOCAL flags 2310 even when the
+  // binding initializer is broken (clang suppresses the callee error in that cascade)
+  const typoUri = "file:///tmp/Typo.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: typoUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode Typo() {\n\tauto [bOpen, SetOpen] = UseSstate<bool>(true);\n\treturn ( <Button OnClicked={ SetOpsen(!bOpen) }>x</Button> );\n}\n" } });
+  await settle();
+  const typoDiags = diagnostics[typoUri] || [];
+  if (!typoDiags.some((d) => String(d.code) === "UETKX2310" && /SetOpsen/.test(d.message)))
+    fail("local-typo lint missing 2310: " + JSON.stringify(typoDiags.map((d) => d.code)));
+  console.log("local-typo lint OK (2310 did-you-mean, cascade-proof)");
+
+  // R10: attr VALUE validation — enum vocabularies (runtime parses fall back SILENTLY, so the
+  // LSP is the only place a typo'd value can surface), numeric/margin formats, expr-only kinds.
+  const valUri = "file:///tmp/Vals.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: valUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Vals() {\n\treturn ( <Border HAlign="cesssssnter" VAlign="Top" Padding="1">\n\t\t<TextBlock Text="x" Slot.HAlign="cesssssnter" Justification="centre" />\n\t\t<Box WidthOverride="abc" HAlign Ref="nope" />\n\t\t<Button ContentPadding="1,2,3">y</Button>\n\t\t<Spacer Size="1,2" />\n\t\t<Spacer RenderOpacity="abc" RenderScale Slot.Padding="1,2,3" ColorAndOpacity="red" />\n\t\t<Spacer RenderOpacity="0.5" Enabled />\n\t</Border> );\n}\n' } });
+  await settle();
+  const valDiags = diagnostics[valUri] || [];
+  const has2311 = (re) => valDiags.some((d) => String(d.code) === "UETKX2311" && re.test(d.message));
+  if (!has2311(/cesssssnter.*HAlign/)) fail("enum typo on element attr must 2311: " + JSON.stringify(valDiags.map((d) => d.message)));
+  if (!has2311(/cesssssnter.*Slot\.HAlign/)) fail("enum typo on slot key must 2311: " + JSON.stringify(valDiags.map((d) => d.message)));
+  if (!has2311(/centre.*Justification/)) fail("enum typo on style key must 2311");
+  if (!has2311(/abc.*WidthOverride/)) fail("non-numeric float string must 2311");
+  if (!has2311(/1,2,3.*margin/)) fail("3-component margin must 2311");
+  if (valDiags.some((d) => String(d.code) === "UETKX2311" && /VAlign|'1'/.test(d.message)))
+    fail("valid values must NOT flag (VAlign=Top is case-insensitively valid; Padding=1 is a uniform margin): " + JSON.stringify(valDiags.map((d) => d.message)));
+  if (!valDiags.some((d) => String(d.code) === "UETKX0105" && /Size.*needs an \{expr\} value/.test(d.message)))
+    fail("string form of a vector2 attr must surface codegen's 0105 LIVE: " + JSON.stringify(valDiags.map((d) => d.message)));
+  // R11: typed style/slot strings (runtime parses well-formed literals; malformed → 0/false silently)
+  if (!has2311(/abc.*RenderOpacity/)) fail("malformed float STYLE string must 2311: " + JSON.stringify(valDiags.map((d) => d.message)));
+  if (!has2311(/RenderScale takes a float/)) fail("flag form on a float style key must 2311");
+  if (!has2311(/1,2,3.*Slot\.Padding/)) fail("3-component slot margin must 2311");
+  if (!valDiags.some((d) => String(d.code) === "UETKX0105" && /ColorAndOpacity.*needs an \{expr\}/.test(d.message)))
+    fail("color string form must surface 0105 LIVE (no string form)");
+  if (valDiags.some((d) => /'0\.5'|Enabled/.test(d.message)))
+    fail("valid style strings and bool flags must NOT flag: " + JSON.stringify(valDiags.map((d) => d.message)));
+  console.log("attr value validation OK (2311 enums + formats + style/slot strings, live 0105 expr-only)");
+
+  // R12: parent-aware lints — duplicate attrs (last wins silently), duplicate sibling keys
+  // (silent remount + state loss), slot keys the parent never reads (dropped in silence),
+  // and the schema fix: Slot.Column/Slot.Row are REAL GridPanel keys (were false-flagged)
+  const paUri = "file:///tmp/Parents.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: paUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Parents() {\n\treturn ( <VerticalBox>\n\t\t<Spacer key="a" Slot.Fill="1" />\n\t\t<Spacer key="a" Slot.ZOrder="2" />\n\t\t<Border Padding="1" Padding="2"><TextBlock Text="x" Slot.Padding="4" /></Border>\n\t\t<GridPanel><Spacer Slot.Column="1" Slot.Row="0" /></GridPanel>\n\t</VerticalBox> );\n}\n' } });
+  await settle();
+  const paDiags = diagnostics[paUri] || [];
+  if (!paDiags.some((d) => String(d.code) === "UETKX0109" && /Padding.*Border/.test(d.message)))
+    fail("duplicate attribute must 0109: " + JSON.stringify(paDiags.map((d) => d.message)));
+  if (!paDiags.some((d) => String(d.code) === "UETKX0110" && /"a".*siblings/.test(d.message)))
+    fail("duplicate sibling key must 0110: " + JSON.stringify(paDiags.map((d) => d.message)));
+  if (!paDiags.some((d) => String(d.code) === "UETKX0111" && /Slot\.ZOrder is ignored by <VerticalBox>/.test(d.message)))
+    fail("unconsumed slot key must 0111: " + JSON.stringify(paDiags.map((d) => d.message)));
+  if (!paDiags.some((d) => String(d.code) === "UETKX0111" && /Slot\.Padding is ignored — <Border> passes no slot/.test(d.message)))
+    fail("slot key under a SingleContent parent must 0111");
+  if (paDiags.some((d) => /^(Slot\.Fill|Slot\.Column|Slot\.Row) is ignored/.test(d.message)))
+    fail("consumed slot keys must NOT flag (Fill under VBox; Column/Row under GridPanel): " + JSON.stringify(paDiags.map((d) => d.message)));
+  console.log("parent-aware lints OK (0109 dup attr, 0110 dup key, 0111 ignored slot keys, Column/Row clean)");
+
+  // R12: sinceUE — a too-new element renders a null slot at runtime; warn from EngineAssociation
+  const suDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-since-"));
+  fs.writeFileSync(path.join(suDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');
+  const suPath = path.join(suDir, "Old.uetkx").replace(/\\/g, "/");
+  const suUri = "file:///" + suPath;
+  notify("textDocument/didOpen", { textDocument: { uri: suUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode Old() {\n\treturn ( <SearchableComboBox /> );\n}\n" } });
+  await settle();
+  const suDiags = diagnostics[suUri] || [];
+  if (!suDiags.some((d) => String(d.code) === "UETKX2313" && /needs UE 5\.7\+.*5\.6.*null slot/.test(d.message)))
+    fail("sinceUE element on an older engine must 2313: " + JSON.stringify(suDiags.map((d) => d.message)));
+  fs.rmSync(suDir, { recursive: true, force: true });
+  console.log("sinceUE gate OK (2313 from EngineAssociation)");
+
+  // R12: event payload misuse — reading Value.<Field> that the event never carries compiles
+  // fine (FRuiValue exposes every field) and is silently default at runtime forever
+  const epUri = "file:///tmp/Payload.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: epUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Payload() {\n\treturn ( <VerticalBox>\n\t\t<Button OnClicked={ UseLog(Value.TextValue) }>a</Button>\n\t\t<EditableTextBox OnTextChanged={ UseLog(Value.BoolValue) } />\n\t\t<EditableTextBox OnTextCommitted={ UseLog(Value.TextValue) } />\n\t</VerticalBox> );\n}\n' } });
+  await settle();
+  const epDiags = diagnostics[epUri] || [];
+  if (!epDiags.some((d) => String(d.code) === "UETKX2312" && /OnClicked carries no payload.*TextValue/.test(d.message)))
+    fail("payload read on a void event must 2312: " + JSON.stringify(epDiags.map((d) => d.message)));
+  if (!epDiags.some((d) => String(d.code) === "UETKX2312" && /OnTextChanged.*text.*BoolValue/.test(d.message)))
+    fail("wrong payload field must 2312: " + JSON.stringify(epDiags.map((d) => d.message)));
+  if (epDiags.some((d) => String(d.code) === "UETKX2312" && /OnTextCommitted/.test(d.message)))
+    fail("the RIGHT payload field must NOT flag: " + JSON.stringify(epDiags.map((d) => d.message)));
+  console.log("event payload misuse OK (2312 void + mismatch, correct field clean)");
+
+  // R14a: ctor-style local decls (the DoomFace field find) — `const FLinearColor PanelBg(…)`
+  // was invisible to the scoped-locals tracker, so butchering the DECL left the usages with
+  // no instant diagnostic (only clangd's ~6s-later error). Now the 2310 lint fires at once.
+  const cdUri = "file:///tmp/CtorDecl.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: cdUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode CtorDecl() {\n\tconst FLinearColor PasnelBsg(0.20f, 0.16f, 0.10f, 1.0f);\n\treturn ( <Border BorderBackgroundColor={ PanelBg }><Spacer /></Border> );\n}\n' } });
+  await settle();
+  const cdDiags = diagnostics[cdUri] || [];
+  if (!cdDiags.some((d) => String(d.code) === "UETKX2310" && /PanelBg.*PasnelBsg/.test(d.message)))
+    fail("usage of a butchered ctor-style local must 2310 instantly: " + JSON.stringify(cdDiags.map((d) => d.message)));
+  console.log("ctor-style decl tracking OK (2310 fires on the DoomFace shape)");
+
+  // R14b: canonical casing — `slot.fill` used to silently WORK at compile (IgnoreCase slot
+  // routing) while every exact-case check silently disarmed for it; now a precise 0112.
+  const csUri = "file:///tmp/Casing.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: csUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Casing() {\n\treturn ( <VerticalBox>\n\t\t<Spacer slot.fill="1" renderopacity="0.5" />\n\t\t<Box halign="center"><Spacer /></Box>\n\t\t<Spacer Slot.Fill="1" />\n\t</VerticalBox> );\n}\n' } });
+  await settle();
+  const csDiags = diagnostics[csUri] || [];
+  if (!csDiags.some((d) => String(d.code) === "UETKX0112" && /'Slot\.Fill', not 'slot\.fill'/.test(d.message)))
+    fail("wrong-cased slot key must 0112 with the canon spelling: " + JSON.stringify(csDiags.map((d) => d.message)));
+  if (!csDiags.some((d) => String(d.code) === "UETKX0112" && /'RenderOpacity', not 'renderopacity'/.test(d.message)))
+    fail("wrong-cased style key must 0112");
+  if (!csDiags.some((d) => String(d.code) === "UETKX0112" && /'HAlign', not 'halign'/.test(d.message)))
+    fail("wrong-cased element attr must 0112 (FName lookup silently matched before)");
+  if (csDiags.some((d) => String(d.code) === "UETKX0105" && /slot\.fill|renderopacity|halign/.test(d.message)))
+    fail("miscased names must NOT double-flag as generic unknowns");
+  if (csDiags.some((d) => /'Slot\.Fill'.*not a|unknown.*Slot\.Fill/.test(d.message)))
+    fail("the CANON spelling must stay clean");
+  console.log("canonical-casing gate OK (0112 slot/style/element attr, canon clean, no double-flag)");
+
+  // R14c: attr-name completion — whole-token textEdit + Slot. prefix narrowing (the
+  // `slot.Clipping` accident: VS Code used to filter/replace only the word after the dot)
+  const acUri = "file:///tmp/AttrComp.uetkx";
+  const acText = 'export FRuiNode AttrComp() {\n\treturn ( <Border slot.C ><Spacer /></Border> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: acUri, languageId: "uetkx", version: 1, text: acText } });
+  const acPos = { line: 1, character: acText.split("\n")[1].indexOf("slot.C") + "slot.C".length };
+  const acRes = await request("textDocument/completion", { textDocument: { uri: acUri }, position: acPos });
+  const acItems = (acRes.result && (acRes.result.items || acRes.result)) || [];
+  const acLabels = acItems.map((it) => it.label);
+  if (acLabels.includes("Clipping") || acLabels.includes("ColorAndOpacity"))
+    fail("a Slot. prefix must narrow to slot keys only: " + JSON.stringify(acLabels.slice(0, 8)));
+  if (!acLabels.includes("Slot.Column") || !acLabels.includes("Slot.Fill"))
+    fail("slot keys must be offered after the Slot. prefix: " + JSON.stringify(acLabels.slice(0, 8)));
+  const acCol = acItems.find((it) => it.label === "Slot.Column");
+  if (!acCol.textEdit || acCol.textEdit.range.start.character !== acText.split("\n")[1].indexOf("slot.C"))
+    fail("completion must edit the WHOLE dotted token: " + JSON.stringify(acCol.textEdit));
+  console.log("attr-name completion OK (whole-token textEdit, Slot. prefix narrows)");
+
+  // R15: completion/diagnostic PARITY — never offer what the checkers flag on accept.
+  // The owner's screenshot: `Slot.` on a VerticalBox child offered Slot.Position, and
+  // accepting it tripped the 0111 the validator just learned. Also: attrs already present
+  // (0109 on accept) and sinceUE-gated tags (2313 on accept) must not be offered.
+  const pyUri = "file:///tmp/Parity.uetkx";
+  const pyText = 'export FRuiNode Parity() {\n\treturn ( <VerticalBox>\n\t\t<TextBlock Text="x" Slot.HAlign="center" Slot. />\n\t\t<Border><Spacer S /></Border>\n\t</VerticalBox> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: pyUri, languageId: "uetkx", version: 1, text: pyText } });
+  const pyLine2 = pyText.split("\n")[2];
+  const pyRes = await request("textDocument/completion", { textDocument: { uri: pyUri },
+    position: { line: 2, character: pyLine2.indexOf('Slot.HAlign="center" Slot.') + 'Slot.HAlign="center" Slot.'.length } });
+  const pyLabels = ((pyRes.result && (pyRes.result.items || pyRes.result)) || []).map((it) => it.label);
+  if (pyLabels.includes("Slot.Position") || pyLabels.includes("Slot.ZOrder"))
+    fail("slot keys the parent ignores must NOT be offered (VerticalBox child): " + JSON.stringify(pyLabels));
+  if (!pyLabels.includes("Slot.Fill") || !pyLabels.includes("Slot.Padding"))
+    fail("slot keys the parent READS must be offered: " + JSON.stringify(pyLabels));
+  if (pyLabels.includes("Slot.HAlign"))
+    fail("an attr already on the tag must NOT be re-offered (0109 on accept): " + JSON.stringify(pyLabels));
+  const pyLine3 = pyText.split("\n")[3];
+  const py2Res = await request("textDocument/completion", { textDocument: { uri: pyUri },
+    position: { line: 3, character: pyLine3.indexOf("<Spacer S") + "<Spacer S".length } });
+  const py2Labels = ((py2Res.result && (py2Res.result.items || py2Res.result)) || []).map((it) => it.label);
+  if (py2Labels.some((l) => l.startsWith("Slot.")))
+    fail("NO slot keys under a SingleContent parent (Border passes none): " + JSON.stringify(py2Labels.filter((l) => l.startsWith("Slot."))));
+  console.log("completion/diagnostic parity OK (parent-consumed slot keys only, no dupes, none under Border)");
+
+  // FILE_SCOPED_EXPORTS: same-name exports across files are LEGAL (each file is its own
+  // module — the R16/TB-14 live 2106 mirror is RETIRED with the compiler's ledger). The
+  // exact pair that used to flag must now publish ZERO diagnostics.
+  const dupDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-scoped-"));
+  fs.writeFileSync(path.join(dupDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(dupDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(dupDir, "Source", "A.style.uetkx"), "export FLinearColor PanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const dupPath = path.join(dupDir, "Source", "B.style.uetkx").replace(/\\/g, "/");
+  const dupUri = "file:///" + dupPath;
+  notify("textDocument/didOpen", { textDocument: { uri: dupUri, languageId: "uetkx", version: 1,
+    text: "export FLinearColor PanelBg = { 0.2f, 0.2f, 0.2f, 1.0f };\nexport FLinearColor UniqueBg = { 0.3f, 0.3f, 0.3f, 1.0f };\n" } });
+  await settle();
+  const dupDiags = diagnostics[dupUri] || [];
+  if (dupDiags.some((d) => String(d.code) === "UETKX2106"))
+    fail("2106 is RETIRED — same-name exports across files are legal: " + JSON.stringify(dupDiags.map((d) => d.message)));
+  if (dupDiags.length !== 0)
+    fail("a same-name export pair must publish ZERO diagnostics: " + JSON.stringify(dupDiags.map((d) => d.code + ":" + d.message.slice(0, 60))));
+  // UETKX2329 live (same-file case-twins): two exports differing only by case would alias in
+  // the case-insensitive FName registry — the one surviving collision class.
+  const foldPath = path.join(dupDir, "Source", "Fold.uetkx").replace(/\\/g, "/");
+  const foldUri = "file:///" + foldPath;
+  notify("textDocument/didOpen", { textDocument: { uri: foldUri, languageId: "uetkx", version: 1,
+    text: "export FLinearColor Accent = { 0.1f, 0.1f, 0.1f, 1.0f };\nexport FString accent(int32 S) {\n\treturn FString::FromInt(S);\n}\n" } });
+  await settle();
+  const foldDiags = diagnostics[foldUri] || [];
+  if (!foldDiags.some((d) => String(d.code) === "UETKX2329" && /accent.*case-folds onto.*Accent/.test(d.message)))
+    fail("same-file case-twin exports must 2329 live: " + JSON.stringify(foldDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  fs.rmSync(dupDir, { recursive: true, force: true });
+  console.log("file-scoped exports OK (same-name pair clean, 2106 retired, case-twin 2329 live)");
+
+  // TB-18: CROSS-FILE re-diagnosis — renaming an EXPORT must re-flag every open importer
+  // WITHOUT touching it (the owner's screenshot: importer showed stale "No problems" after
+  // the exporter was renamed in another tab), and the resolution must read the OPEN BUFFER
+  // (dirty overlay), not stale disk.
+  const xDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-cross-"));
+  fs.writeFileSync(path.join(xDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(xDir, "Source"), { recursive: true });
+  const xStylePath = path.join(xDir, "Source", "X.style.uetkx");
+  fs.writeFileSync(xStylePath, "export FLinearColor XPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const xImpPath = path.join(xDir, "Source", "XScreen.uetkx").replace(/\\/g, "/");
+  const xImpUri = "file:///" + xImpPath;
+  const xStyleUri = "file:///" + xStylePath.replace(/\\/g, "/");
+  fs.writeFileSync(path.join(xDir, "Source", "XScreen.uetkx"),
+    'import { XPanelBg } from "./X.style"\nexport FRuiNode XScreen() {\n\treturn ( <Border BorderBackgroundColor={ XPanelBg }><Spacer /></Border> );\n}\n');
+  notify("textDocument/didOpen", { textDocument: { uri: xStyleUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(xStylePath, "utf8") } });
+  notify("textDocument/didOpen", { textDocument: { uri: xImpUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(xDir, "Source", "XScreen.uetkx"), "utf8") } });
+  await settle();
+  if ((diagnostics[xImpUri] || []).some((d) => String(d.code) === "UETKX2302"))
+    fail("clean cross-file fixture must start clean");
+  // rename the EXPORT in the exporter's BUFFER only (didChange — disk stays old)
+  notify("textDocument/didChange", { textDocument: { uri: xStyleUri, version: 2 },
+    contentChanges: [{ text: "export FLinearColor XPanelBgRenamed = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle(); // the cross-file revalidation is debounced (150ms)
+  const xDiags = diagnostics[xImpUri] || [];
+  if (!xDiags.some((d) => String(d.code) === "UETKX2302" && /XPanelBg/.test(d.message)))
+    fail("renaming an export must re-flag the UNTOUCHED importer (2302, from the dirty buffer): " + JSON.stringify(xDiags.map((d) => d.code + ":" + d.message.slice(0, 60))));
+  // rename it back — the importer must clear, again untouched
+  notify("textDocument/didChange", { textDocument: { uri: xStyleUri, version: 3 },
+    contentChanges: [{ text: "export FLinearColor XPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle();
+  if ((diagnostics[xImpUri] || []).some((d) => String(d.code) === "UETKX2302"))
+    fail("restoring the export must clear the importer without touching it");
+  fs.rmSync(xDir, { recursive: true, force: true });
+  console.log("cross-file re-diagnosis OK (exporter edits re-flag/clear open importers, dirty-buffer truth)");
+
+  // TB-19: a USAGE bound by nothing must flag. (a) import MISSPELLED while the usage is
+  // spelled right (the owner's session) -> the usage 2310s naming the broken import as the
+  // near-miss; (b) import line DELETED while the exporter still exports the name -> live
+  // UETKX2305 (compiler strict-usage mirror) with the add-import fix tail the code action
+  // parses. Import intact but exporter renamed stays SINGLE-SOURCE (2302 on the import only).
+  const uDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-usage-"));
+  fs.writeFileSync(path.join(uDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(uDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(uDir, "Source", "Y.style.uetkx"), "export FLinearColor YPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const uImpPath = path.join(uDir, "Source", "YScreen.uetkx").replace(/\\/g, "/");
+  const uImpUri = "file:///" + uImpPath;
+  const uClean = 'import { YPanelBg } from "./Y.style"\nexport FRuiNode YScreen() {\n\treturn ( <Border BorderBackgroundColor={ YPanelBg }><Spacer /></Border> );\n}\n';
+  fs.writeFileSync(path.join(uDir, "Source", "YScreen.uetkx"), uClean);
+  notify("textDocument/didOpen", { textDocument: { uri: uImpUri, languageId: "uetkx", version: 1, text: uClean } });
+  await settle();
+  if ((diagnostics[uImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("clean usage fixture must start clean: " + JSON.stringify((diagnostics[uImpUri] || []).map((d) => d.code)));
+  // (a) misspell the IMPORT, keep the usage — the exporter STILL exports the name, so the
+  // usage gets the precise fix: live 2305 (add-import), and 2310 defers to it.
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 2 },
+    contentChanges: [{ text: uClean.replace('import { YPanelBg }', 'import { YPasnelBsg }') }] });
+  await settle();
+  let uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2302" && /YPasnelBsg/.test(d.message)))
+    fail("misspelled import must 2302: " + JSON.stringify(uDiags.map((d) => d.code)));
+  if (!uDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YPanelBg } from "./Y.style"')))
+    fail("usage still exported elsewhere must 2305 (2310 defers): " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  // (a2) the owner's exact session: exporter ALSO renamed — the usage's name is now exported
+  // by NO file, so 2305 has no owner and the near-miss lint points at the broken import.
+  const uStyleUri = "file:///" + path.join(uDir, "Source", "Y.style.uetkx").replace(/\\/g, "/");
+  notify("textDocument/didOpen", { textDocument: { uri: uStyleUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(uDir, "Source", "Y.style.uetkx"), "utf8") } });
+  notify("textDocument/didChange", { textDocument: { uri: uStyleUri, version: 2 },
+    contentChanges: [{ text: "export FLinearColor ZPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle(); // cross-file revalidation is debounced (150ms)
+  uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2310" && /'YPanelBg'.*the import 'YPasnelBsg'/.test(d.message)))
+    fail("usage exported NOWHERE must 2310 toward the misspelled import: " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  if (uDiags.some((d) => String(d.code) === "UETKX2305"))
+    fail("no 2305 when no file exports the name");
+  // restore the exporter buffer for step (b)
+  notify("textDocument/didChange", { textDocument: { uri: uStyleUri, version: 3 },
+    contentChanges: [{ text: "export FLinearColor YPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n" }] });
+  await settle();
+  await settle();
+  // (b) delete the import line entirely — the usage must 2305 with the add-import fix
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 3 },
+    contentChanges: [{ text: uClean.replace('import { YPanelBg } from "./Y.style"\n', "") }] });
+  await settle();
+  uDiags = diagnostics[uImpUri] || [];
+  if (!uDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YPanelBg } from "./Y.style"')))
+    fail("usage with NO import must 2305 live with the add-import tail: " + JSON.stringify(uDiags.map((d) => d.code + ":" + d.message.slice(0, 80))));
+  // restore — clean again, no residue
+  notify("textDocument/didChange", { textDocument: { uri: uImpUri, version: 4 }, contentChanges: [{ text: uClean }] });
+  await settle();
+  if ((diagnostics[uImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("restoring the import must clear the usage diags");
+  fs.rmSync(uDir, { recursive: true, force: true });
+  console.log("strict-usage live OK (orphaned usage: 2310 toward broken import, 2305 when unimported, clean restore)");
+
+  // TB-22 (owner 10d): DELETING an exporter ON DISK — no open buffer, no keystroke — must
+  // re-flag its open importers via workspace/didChangeWatchedFiles; recreating it must clear.
+  const wDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-watch-"));
+  fs.writeFileSync(path.join(wDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(wDir, "Source"), { recursive: true });
+  const wStylePath = path.join(wDir, "Source", "W.style.uetkx");
+  fs.writeFileSync(wStylePath, "export FLinearColor WPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const wImpPath = path.join(wDir, "Source", "WScreen.uetkx").replace(/\\/g, "/");
+  const wImpUri = "file:///" + wImpPath;
+  const wStyleUri = "file:///" + wStylePath.replace(/\\/g, "/");
+  fs.writeFileSync(path.join(wDir, "Source", "WScreen.uetkx"),
+    'import { WPanelBg } from "./W.style"\nexport FRuiNode WScreen() {\n\treturn ( <Border BorderBackgroundColor={ WPanelBg }><Spacer /></Border> );\n}\n');
+  notify("textDocument/didOpen", { textDocument: { uri: wImpUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(wDir, "Source", "WScreen.uetkx"), "utf8") } });
+  await settle();
+  if ((diagnostics[wImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("watched-files fixture must start clean");
+  // delete the exporter ON DISK + the watcher notification (FileChangeType.Deleted = 3)
+  fs.rmSync(wStylePath);
+  notify("workspace/didChangeWatchedFiles", { changes: [{ uri: wStyleUri, type: 3 }] });
+  await settle();
+  await settle(); // revalidation is debounced (150ms)
+  const wDiags = diagnostics[wImpUri] || [];
+  if (!wDiags.some((d) => String(d.code) === "UETKX2300" || String(d.code) === "UETKX2302"))
+    fail("deleting the exporter ON DISK must re-flag the untouched importer: " + JSON.stringify(wDiags.map((d) => d.code)));
+  // recreate + notify (FileChangeType.Created = 1) — the importer must clear, still untouched
+  fs.writeFileSync(wStylePath, "export FLinearColor WPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  notify("workspace/didChangeWatchedFiles", { changes: [{ uri: wStyleUri, type: 1 }] });
+  await settle();
+  await settle();
+  if ((diagnostics[wImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("recreating the exporter must clear the importer without touching it");
+  fs.rmSync(wDir, { recursive: true, force: true });
+  console.log("watched-files OK (disk delete re-flags open importers, recreate clears — no keystroke)");
+
+  // TB-24 (owner 10a): an UNIMPORTED component TAG must flag LIVE — 2305 with the add-import
+  // fix when a file exports it, 2307 when nothing does. Was sidecar-only (nothing as-you-type,
+  // and the sidecar copy flickered with the hash gate).
+  const tDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tag-"));
+  fs.writeFileSync(path.join(tDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(tDir, "Source"), { recursive: true });
+  fs.writeFileSync(path.join(tDir, "Source", "YComp.uetkx"),
+    "export FRuiNode YComp() {\n\treturn ( <Spacer /> );\n}\n");
+  const tImpPath = path.join(tDir, "Source", "TagScreen.uetkx").replace(/\\/g, "/");
+  const tImpUri = "file:///" + tImpPath;
+  notify("textDocument/didOpen", { textDocument: { uri: tImpUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> <NoSuchComp /> </VerticalBox> );\n}\n' } });
+  await settle();
+  const tDiags = diagnostics[tImpUri] || [];
+  if (!tDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YComp } from "./YComp"')))
+    fail("unimported component TAG must 2305 live with the add-import tail: " + JSON.stringify(tDiags.map((d) => d.code + ":" + d.message.slice(0, 70))));
+  if (!tDiags.some((d) => String(d.code) === "UETKX2307" && /NoSuchComp/.test(d.message)))
+    fail("a tag no file exports must 2307 live: " + JSON.stringify(tDiags.map((d) => d.code)));
+  // import it — both usage diags for YComp must clear
+  notify("textDocument/didChange", { textDocument: { uri: tImpUri, version: 2 },
+    contentChanges: [{ text: 'import { YComp } from "./YComp"\nexport FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> </VerticalBox> );\n}\n' }] });
+  await settle();
+  if ((diagnostics[tImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("importing the component must clear the tag diags: " + JSON.stringify((diagnostics[tImpUri] || []).map((d) => d.code)));
+  fs.rmSync(tDir, { recursive: true, force: true });
+  console.log("tag policing live OK (unimported tag 2305 with fix, unknown tag 2307, import clears)");
+
+  // TB-25: specifier completion — nearest-path ordering, REPLACE-not-append textEdit, and the
+  // single-quote trigger (the scanner accepts both quote kinds; the formatter canonicalizes).
+  const sDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-spec-"));
+  fs.writeFileSync(path.join(sDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(sDir, "Source", "Sub"), { recursive: true });
+  fs.writeFileSync(path.join(sDir, "Source", "FarThing.uetkx"), "export FLinearColor FarTint = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  fs.writeFileSync(path.join(sDir, "Source", "Sub", "NearThing.uetkx"), "export FLinearColor NearTint = { 0.2f, 0.2f, 0.2f, 1.0f };\n");
+  const sImpPath = path.join(sDir, "Source", "Sub", "SpecUser.uetkx").replace(/\\/g, "/");
+  const sImpUri = "file:///" + sImpPath;
+  const sText = 'import { NearTint } from "./"\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: sImpUri, languageId: "uetkx", version: 1, text: sText } });
+  const sRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
+    position: { line: 0, character: sText.split("\n")[0].indexOf('"./') + 3 } });
+  const sItems = (sRes.result && (sRes.result.items || sRes.result)) || [];
+  if (sItems.length < 2) fail("specifier completion must offer workspace files: " + sItems.length);
+  const sorted = [...sItems].sort((a, b) => (a.sortText || a.label).localeCompare(b.sortText || b.label));
+  if (sorted[0].label !== "./NearThing")
+    fail("NEAREST specifier must sort first (got '" + sorted[0].label + "')");
+  const near = sItems.find((it) => it.label === "./NearThing");
+  if (!near.textEdit || near.textEdit.range.start.character !== sText.split("\n")[0].indexOf('"./') + 1)
+    fail("specifier completion must REPLACE from just after the quote (no ././ append): " + JSON.stringify(near.textEdit));
+  // single-quote trigger parity
+  const sqText = "import { NearTint } from './'\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n";
+  notify("textDocument/didChange", { textDocument: { uri: sImpUri, version: 2 }, contentChanges: [{ text: sqText }] });
+  const sqRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
+    position: { line: 0, character: sqText.split("\n")[0].indexOf("'./") + 3 } });
+  const sqItems = (sqRes.result && (sqRes.result.items || sqRes.result)) || [];
+  if (sqItems.length < 2) fail("single-quoted specifier must complete too: " + sqItems.length);
+  fs.rmSync(sDir, { recursive: true, force: true });
+  console.log("specifier completion OK (nearest-first, replace-not-append, single-quote trigger)");
+
+  // R15: sinceUE parity in TAG completion (5.6 fixture workspace)
+  const tgDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tagver-"));
+  fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');
+  const tgPath = path.join(tgDir, "Tags.uetkx").replace(/\\/g, "/");
+  const tgUri = "file:///" + tgPath;
+  const tgText = "export FRuiNode Tags() {\n\treturn ( <S );\n}\n";
+  notify("textDocument/didOpen", { textDocument: { uri: tgUri, languageId: "uetkx", version: 1, text: tgText } });
+  const tgRes = await request("textDocument/completion", { textDocument: { uri: tgUri },
+    position: { line: 1, character: tgText.split("\n")[1].indexOf("<S") + 2 } });
+  const tgLabels = ((tgRes.result && (tgRes.result.items || tgRes.result)) || []).map((it) => it.label);
+  if (tgLabels.includes("SearchableComboBox"))
+    fail("a 5.7-only tag must NOT be offered in a 5.6 project (2313 on accept)");
+  if (!tgLabels.includes("Spacer"))
+    fail("ordinary tags must still be offered: " + JSON.stringify(tgLabels.slice(0, 6)));
+  fs.rmSync(tgDir, { recursive: true, force: true });
+  console.log("sinceUE tag-completion parity OK (gated tag hidden on 5.6)");
+
+  // R13: brush names — closed per engine (the schema carries FCoreStyle's resolvable set);
+  // the owner's exact mangle, plus a did-you-mean and the valid spelling staying clean
+  const brUri = "file:///tmp/Brush.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: brUri, languageId: "uetkx", version: 1,
+    text: 'export FRuiNode Brush() {\n\treturn ( <VerticalBox>\n\t\t<Border BorderImage="WhissssssteBrush"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrus"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrush"><Spacer /></Border>\n\t</VerticalBox> );\n}\n' } });
+  await settle();
+  const brDiags = diagnostics[brUri] || [];
+  if (!brDiags.some((d) => String(d.code) === "UETKX2311" && /WhissssssteBrush.*not a brush registered in FCoreStyle/.test(d.message)))
+    fail("unknown brush must 2311: " + JSON.stringify(brDiags.map((d) => d.message)));
+  if (!brDiags.some((d) => String(d.code) === "UETKX2311" && /WhiteBrus'.*did you mean "WhiteBrush"/.test(d.message)))
+    fail("near-miss brush must suggest the real one: " + JSON.stringify(brDiags.map((d) => d.message)));
+  if (brDiags.some((d) => /'WhiteBrush'/.test(d.message)))
+    fail("the REGISTERED brush must not flag");
+  console.log("brush-name validation OK (2311 + did-you-mean, registered name clean)");
+
+  // R13: brush + bool value completion
+  const bcUri = "file:///tmp/BrushComp.uetkx";
+  const bcText = 'export FRuiNode BrushComp() {\n\treturn ( <Border BorderImage=""><TextBlock Text="t" AutoWrapText="" /></Border> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: bcUri, languageId: "uetkx", version: 1, text: bcText } });
+  const bcLine = bcText.split("\n")[1];
+  const bcRes = await request("textDocument/completion", { textDocument: { uri: bcUri },
+    position: { line: 1, character: bcLine.indexOf('BorderImage=""') + 'BorderImage="'.length } });
+  const bcLabels = ((bcRes.result && (bcRes.result.items || bcRes.result)) || []).map((it) => it.label);
+  if (!bcLabels.includes("WhiteBrush"))
+    fail("brush completion must offer FCoreStyle names: " + JSON.stringify(bcLabels.slice(0, 5)));
+  const boolRes = await request("textDocument/completion", { textDocument: { uri: bcUri },
+    position: { line: 1, character: bcLine.indexOf('AutoWrapText=""') + 'AutoWrapText="'.length } });
+  const boolLabels = ((boolRes.result && (boolRes.result.items || boolRes.result)) || []).map((it) => it.label);
+  if (!boolLabels.includes("true") || !boolLabels.includes("false"))
+    fail("bool value completion must offer true/false: " + JSON.stringify(boolLabels));
+  console.log("brush + bool value completion OK");
+
+  // R10: value completion — ctrl+space inside `HAlign="|"` offers the closed vocabulary
+  const vcUri = "file:///tmp/ValComp.uetkx";
+  const vcText = 'export FRuiNode ValComp() {\n\treturn ( <Border HAlign="" /> );\n}\n';
+  notify("textDocument/didOpen", { textDocument: { uri: vcUri, languageId: "uetkx", version: 1, text: vcText } });
+  const vcPos = { line: 1, character: vcText.split("\n")[1].indexOf('""') + 1 };
+  const vcRes = await request("textDocument/completion", { textDocument: { uri: vcUri }, position: vcPos });
+  const vcItems = (vcRes.result && (vcRes.result.items || vcRes.result)) || [];
+  const vcLabels = vcItems.map((it) => it.label);
+  if (!vcLabels.includes("fill") || !vcLabels.includes("center"))
+    fail("enum value completion must offer the vocabulary: " + JSON.stringify(vcLabels));
+  console.log("enum value completion OK (vocabulary inside the quotes)");
+  fs.rmSync(cpDir, { recursive: true, force: true });
+
   // import intelligence: a real on-disk workspace (.uproject root + exporter B + importer A) —
   // name completion inside `import { | }`, go-to-definition on the name, and a live 2301 diag.
   const ws = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-smoke-ws-"));

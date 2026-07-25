@@ -335,6 +335,16 @@ export class ClangdProxy {
    *  the rename path syncs the doc before its guard; without dedup every rename would bump
    *  the version and force a full clangd re-parse of unchanged text). */
   private readonly openTextHashes = new Map<string, number>();
+  /** Last publishDiagnostics per virtual uri — REPLAYED when a didOpen hash-dedupes (R8:
+   *  a pre-warmed TU already published while the doc was closed; without replay the real
+   *  open would show nothing). */
+  private readonly lastPublish = new Map<string, ClangdPublishedDiagnostics>();
+
+  /** The last ~2KB of clangd's stderr — drained continuously (B5) and surfaced on exit. */
+  private stderrTail = "";
+  /** clangd's semantic-token legend (from its initialize result) — needed to decode
+   *  semanticTokens/full payloads (R5: embedded-C++ coloring). */
+  private tokenLegend: { tokenTypes: string[]; tokenModifiers: string[] } | null = null;
 
   /** TB-10: clangd's publishDiagnostics for a VIRTUAL doc land here (virtual coordinates —
    *  the server maps them back through the source map before publishing). */
@@ -362,7 +372,12 @@ export class ClangdProxy {
     this.starting = new Promise<boolean>((resolve) => {
       let proc: ChildProcessWithoutNullStreams;
       try {
-        const args = ["--log=error"];
+        // --background-index=false is LOAD-BEARING (F5 field test B3): with a UE compile
+        // database present, clangd's default background indexer starts parsing the ENTIRE
+        // project's TUs (thousands of engine-header compiles) and pegs every core for hours —
+        // the whole server "barely moves". We only ever query our per-file virtual docs;
+        // a cross-TU index of the engine buys nothing.
+        const args = ["--log=error", "--background-index=false"];
         const cc = findCompileCommands(this.rootPath);
         if (cc) {
           // clangd only reads the CANONICAL filename from --compile-commands-dir. When the hit
@@ -397,6 +412,28 @@ export class ClangdProxy {
       });
       // Keep stdout as raw Buffers (no setEncoding) so LSP framing can slice by BYTE length (LSP-1).
       proc.stdout.on("data", (chunk: Buffer) => this.onData(chunk));
+      // DRAIN stderr (F5 field test B5 — LOAD-BEARING): clangd logs lines like
+      // "IncludeCleaner: Failed to get an entry …" on EVERY parse of our virtual TUs. Unread,
+      // the OS pipe buffer (64KB) fills after enough edits and clangd BLOCKS mid-write — the
+      // owner-reported arc of "2-5s latency, then features disappear entirely". Keep a small
+      // tail for post-mortems; never let the pipe back up.
+      proc.stderr.on("data", (chunk: Buffer) => {
+        this.stderrTail = (this.stderrTail + chunk.toString("utf8")).slice(-2000);
+      });
+      // A DEAD clangd must not masquerade as a live one (B6): mark unavailable, fail the
+      // in-flight requests, and reset the spawn latch so the NEXT request lazily respawns a
+      // fresh clangd (crash resilience without a supervision loop).
+      proc.on("exit", (code, signal) => {
+        if (this.proc !== proc) return; // an old instance we already replaced
+        this.available = false;
+        this.proc = null;
+        this.starting = null;
+        this.openVersions.clear();
+        this.openTextHashes.clear();
+        for (const [, respond] of this.pending) respond(null);
+        this.pending.clear();
+        this.onError?.("clangd exited", `code=${code} signal=${signal} stderr-tail: ${this.stderrTail.slice(-400)}`);
+      });
       this.proc = proc;
 
       this.request("initialize", {
@@ -407,10 +444,24 @@ export class ClangdProxy {
         capabilities: {
           textDocument: {
             publishDiagnostics: { relatedInformation: false, tagSupport: { valueSet: [1, 2] } },
+            // R5 embedded coloring: without this clangd never enables its token provider.
+            inlayHint: {}, // R7: type/param hints — the compiler's OWN types for auto/bindings
+            semanticTokens: {
+              requests: { full: true },
+              tokenTypes: [
+                "namespace", "type", "class", "enum", "interface", "struct", "typeParameter",
+                "parameter", "variable", "property", "enumMember", "function", "method", "macro",
+                "keyword", "modifier", "comment", "string", "number", "regexp", "operator",
+              ],
+              tokenModifiers: [],
+              formats: ["relative"],
+            },
           },
         },
       })
-        .then(() => {
+        .then((initResult: unknown) => {
+          const caps = (initResult as { capabilities?: { semanticTokensProvider?: { legend?: { tokenTypes: string[]; tokenModifiers: string[] } } } })?.capabilities;
+          this.tokenLegend = caps?.semanticTokensProvider?.legend ?? null;
           this.notify("initialized", {});
           this.available = true;
           resolve(true);
@@ -426,14 +477,14 @@ export class ClangdProxy {
   /** Sync the virtual C++ doc: didOpen on first sight, versioned didChange after (clangd
    *  re-diagnoses per version — the TB-10 diagnostics loop rides this). An UNCHANGED text is
    *  a no-op (see openTextHashes). */
-  didOpen(uri: string, text: string): void {
+  didOpen(uri: string, text: string): "sent" | "deduped" | "unavailable" {
     if (!this.available) {
-      return;
+      return "unavailable";
     }
     const hash = ClangdProxy.textHash(text);
     const prev = this.openVersions.get(uri);
     if (prev !== undefined && this.openTextHashes.get(uri) === hash) {
-      return; // same text clangd already holds — don't force a re-parse
+      return "deduped"; // same text clangd already holds — don't force a re-parse
     }
     this.openTextHashes.set(uri, hash);
     if (prev === undefined) {
@@ -441,7 +492,7 @@ export class ClangdProxy {
       this.notify("textDocument/didOpen", {
         textDocument: { uri, languageId: "cpp", version: 1, text },
       });
-      return;
+      return "sent";
     }
     const version = prev + 1;
     this.openVersions.set(uri, version);
@@ -449,6 +500,15 @@ export class ClangdProxy {
       textDocument: { uri, version },
       contentChanges: [{ text }], // full-sync — the virtual doc is rebuilt per edit anyway
     });
+    return "sent";
+  }
+
+  /** Re-fire the stored diagnostics for a uri (a deduped didOpen publishes nothing new). */
+  replayDiagnostics(uri: string): void {
+    const stored = this.lastPublish.get(uri);
+    if (stored && this.onPublishDiagnostics) {
+      this.onPublishDiagnostics(stored);
+    }
   }
 
   /** The version clangd currently holds for a virtual doc (0 = never opened) — the N6 rename
@@ -490,6 +550,42 @@ export class ClangdProxy {
     }
   }
 
+  /** clangd's semantic-token legend, or null before initialize / when unsupported. */
+  semanticLegend(): { tokenTypes: string[]; tokenModifiers: string[] } | null {
+    return this.tokenLegend;
+  }
+
+  /** textDocument/inlayHint over a virtual-doc range — the compiler's deduced TYPES for
+   *  auto/structured bindings and resolved-call parameter names (R7: type-true coloring). */
+  async inlayHints(
+    uri: string,
+    range: { start: ClangdPosition; end: ClangdPosition },
+  ): Promise<Array<{ position: ClangdPosition; kind?: number; label: string | Array<{ value: string }> }> | null> {
+    if (!this.available) {
+      return null;
+    }
+    try {
+      const res = await this.request("textDocument/inlayHint", { textDocument: { uri }, range });
+      return Array.isArray(res) ? (res as Array<{ position: ClangdPosition; kind?: number; label: string | Array<{ value: string }> }>) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** textDocument/semanticTokens/full for a virtual doc — null on degradation. Long timeout:
+   *  the first request per TU waits behind the initial parse. */
+  async semanticTokensFull(uri: string): Promise<{ data: number[] } | null> {
+    if (!this.available) {
+      return null;
+    }
+    try {
+      const res = (await this.request("textDocument/semanticTokens/full", { textDocument: { uri } })) as { data?: number[] } | null;
+      return res && Array.isArray(res.data) ? { data: res.data } : null;
+    } catch {
+      return null;
+    }
+  }
+
   dispose(): void {
     this.available = false;
     this.pending.clear();
@@ -517,6 +613,7 @@ export class ClangdProxy {
           continue;
         }
         if (m.method === "textDocument/publishDiagnostics" && this.onPublishDiagnostics && m.params) {
+          this.lastPublish.set((m.params as ClangdPublishedDiagnostics).uri, m.params as ClangdPublishedDiagnostics);
           this.onPublishDiagnostics(m.params as ClangdPublishedDiagnostics);
         }
       } catch (e) {

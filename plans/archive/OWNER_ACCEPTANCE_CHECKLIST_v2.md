@@ -1,5 +1,10 @@
 # Owner acceptance checklist v2 — verifying the round-2 bug-hunt fixes
 
+> **Status: SUPERSEDED 2026-07-25 — archived.** §A described the DELETED HMR v1; §G was
+> superseded by FILE_SCOPED_EXPORTS; §0's counts are stale (battery is 132, LSP 94). The
+> still-open interactive items (§B/§C/§D/§E/§F/§H/§I) are consolidated into
+> `plans/REMAINING.md` §3.
+
 > **Scope.** This checklist covers the fixes from [BUGHUNT_2026-07-12_round2.md](archive/BUGHUNT_2026-07-12_round2.md)
 > (commit `4ff1ab8`, branch `feat/uetkx-imports`). It is deliberately SMALL: **most of the 51 fixes are
 > already proven headless** and you do not need to re-verify them. This file is the short list of things
@@ -32,7 +37,13 @@ findings LSP-1..5 + LSW-1..3, and BUILD-1 (corpus hash). The explicit assertions
 
 ---
 
-## §A. HMR — the two dev-loop fixes (~8 min; editor + VS Code, PIE running)
+## §A. HMR — SUPERSEDED: this section describes the DELETED HMR v1 (interp overrides)
+
+> **Do not test against this section.** HMR v2 replaced the interpreter with the
+> Live-Coding-driven controller; the current protocol is [HMR_FIELD_TEST.md](HMR_FIELD_TEST.md).
+
+<details><summary>historical v1 items (architecture no longer exists)</summary>
+
 
 Setup: editor open, PIE running, a gallery `.uetkx` (e.g. `Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx`)
 open in your editor. This is the one place HMR-1/HMR-2 actually execute (the swap + the Live Coding patch
@@ -50,6 +61,8 @@ are runtime events no headless test forces).
       "rebuild for full behavior" actually takes effect. Before the fix, the interp override permanently
       shadowed the rebuild for the rest of the session. (MessageLog "ReactiveUI" is where the HMR status
       lines print.)
+
+</details>
 
 ## §B. CommonUI input-method — CMU-1 (~5 min; PIE with a gamepad, or split-screen)
 
@@ -115,11 +128,10 @@ No headless test forces the GC timing; this is the one to eyeball under stress.
 
 ## §G. The import codemod — MIGRATE-1 (~5 min; terminal, on a scratch copy)
 
-- [ ] On a **throwaway branch/copy**, create two `.uetkx` files that each hold a same-named **private**
-      component (legal today). Run `<Engine>\UnrealEditor-Cmd <proj>.uproject -run=RUIMigrateImports`.
-      ✅ Expect: the codemod **reports `UETKX2106`** (export-everything collided the two names) and exits
-      non-zero — matching what `RUICompile -check` would say. Before the fix it green-lit a tree `-check`
-      then rejected. Discard the scratch copy.
+- [ ] ~~(SUPERSEDED by FILE_SCOPED_EXPORTS, 2026-07-24)~~ On a **throwaway branch/copy**, create two
+      `.uetkx` files that each hold a same-named **private** component, run `-run=RUIMigrateImports`.
+      ✅ Expect NOW: the codemod **succeeds** — export-everything making two files export one name is
+      LEGAL (each file is its own module; UETKX2106 is retired). `RUICompile -check` agrees (0 errors).
 - [ ] Sanity: on a clean tree, `-run=RUIMigrateImports` twice in a row is a **no-op** the second time
       (idempotent), and `-run=RUICompile -check` stays 0.
 

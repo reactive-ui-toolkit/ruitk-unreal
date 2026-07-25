@@ -5,6 +5,8 @@
 #include "DemoUmgWidget.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+{
 struct FInteropShowcaseUetkxProps final : public FRuiPropsBase
 {
 
@@ -17,8 +19,11 @@ struct FInteropShowcaseUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode InteropShowcase(FInteropShowcaseUetkxProps InProps = FInteropShowcaseUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
 #else
-static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+{
+static FRuiNodeArray InteropShowcase_UetkxBody_8217024D(FRuiContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 9 "Source/RuiDemo/Screens/InteropShowcase/InteropShowcase.uetkx"
 	// MVVM pillar — a viewmodel we own; UseField re-renders on its broadcast.
@@ -35,7 +40,7 @@ static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropS
 		State.bActive = bActive;
 		State.InputMethod = ERuiInputMethod::MouseAndKeyboard;
 		Ctx.ProvideContext(RUI::CommonUI::ActivationContext(), State);
-#line 39 "InteropShowcase.uetkx.inl"
+#line 44 "InteropShowcase.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -135,9 +140,9 @@ static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropS
 		return __N;
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FShowcaseProbeUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::FShowcaseProbeUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return ShowcaseProbe(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
 		FRuiButtonProps P;
@@ -152,12 +157,17 @@ static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropS
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GInteropShowcaseUetkxId = RUI::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("InteropShowcase")));
+static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return InteropShowcase_UetkxBody_8217024D(Ctx, Props, children);
+}
+static const FName GInteropShowcaseUetkxId = RUI::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
 static constexpr uint32 InteropShowcase_RUI_HOOK_SIG = 0x4EA045DDu;
 inline FRuiNode InteropShowcase(FInteropShowcaseUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&InteropShowcase_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GInteropShowcaseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("InteropShowcase")), []() { return InteropShowcase(); });
+static const bool GInteropShowcaseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")), []() { return InteropShowcase(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
 #endif

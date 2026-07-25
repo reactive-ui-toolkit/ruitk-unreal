@@ -39,7 +39,7 @@ enum class EUetkxDeclKind : uint8
 	Component,
 	Hook,
 	Module,
-	Value, // ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01): `export <Type> Name = Init;`
+	Value, // ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01): `export <Type> Name = Init;`
 	Util   // `export <Type> Name(params) { body }` — not Use-prefixed, not FRuiNode-returning
 };
 
@@ -84,7 +84,11 @@ struct REACTIVEUIINTERP_API FUetkxImportDecl
 
 /** One markup `return ( ... )` span inside a component body (wave G early returns — the
  *  Unity verbatim-emit model: the body splices verbatim, every markup return lowers in
- *  place). Offsets are into the BODY code points. */
+ *  place). Offsets are into the BODY code points.
+ *
+ *  A `return null;` / `return ( null );` span (bNull, TB-28 family parity — React/Unity
+ *  render-nothing) carries NO markup: MStart..MEnd cover the `null` token (bare form) or the
+ *  paren interior (paren form), Root stays null, and codegen lowers it to `return {};`. */
 struct REACTIVEUIINTERP_API FUetkxReturnSpan
 {
 	int32 ReturnAt = -1; // offset of `return`
@@ -92,6 +96,7 @@ struct REACTIVEUIINTERP_API FUetkxReturnSpan
 	int32 MEnd = -1;	 // index OF the closing `)`
 	int32 AfterParen = -1;
 	bool bTopLevel = false;		 // at brace+paren depth 0 (a statement of the body itself)
+	bool bNull = false;			 // `return null;` — render nothing (no markup window, no Root)
 	TSharedPtr<FUetkxNode> Root; // the span's single render root (filled by the component scan)
 };
 

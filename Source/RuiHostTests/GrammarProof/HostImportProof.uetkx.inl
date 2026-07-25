@@ -4,6 +4,8 @@
 #include "Misc/DateTime.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+{
 struct FHostImportProofUetkxProps final : public FRuiPropsBase
 {
 
@@ -16,8 +18,11 @@ struct FHostImportProofUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode HostImportProof(FHostImportProofUetkxProps InProps = FHostImportProofUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
 #else
-static FRuiNodeArray HostImportProof_UetkxImpl(FRuiContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+{
+static FRuiNodeArray HostImportProof_UetkxBody_9F33ABBB(FRuiContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiHostTests/GrammarProof/HostImportProof.uetkx"
 	// FDateTime lives in Misc/DateTime.h — NOT on the auto-included prelude list
@@ -25,15 +30,20 @@ static FRuiNodeArray HostImportProof_UetkxImpl(FRuiContext& Ctx, const FHostImpo
 		// host include (§B) actually emits the #include the setup code needs.
 		const FDateTime Stamp = FDateTime(2026, 1, 1);
 		const FString Label = FString::Printf(TEXT("year=%d"), Stamp.GetYear());
-#line 29 "HostImportProof.uetkx.inl"
+#line 34 "HostImportProof.uetkx.inl"
 	return { RUI::TextBlock((FString(Label)), FRuiKey()) };
 }
-static const FName GHostImportProofUetkxId = RUI::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("HostImportProof")));
+static FRuiNodeArray HostImportProof_UetkxImpl(FRuiContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return HostImportProof_UetkxBody_9F33ABBB(Ctx, Props, children);
+}
+static const FName GHostImportProofUetkxId = RUI::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof::HostImportProof")));
 static constexpr uint32 HostImportProof_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode HostImportProof(FHostImportProofUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&HostImportProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GHostImportProofUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("HostImportProof")), []() { return HostImportProof(); });
+static const bool GHostImportProofUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof::HostImportProof")), []() { return HostImportProof(); });
 
+} // namespace RuiUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
 #endif

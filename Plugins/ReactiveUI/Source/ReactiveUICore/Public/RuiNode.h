@@ -108,19 +108,55 @@ namespace RUI
 	 *  (Live Coding / HMR). */
 	REACTIVEUICORE_API bool RegisterNamedFactory(FName Name, TFunction<FRuiNode()> Factory);
 
-	/** Instantiate a named component with default props (empty Fragment when unknown). */
+	/** FILE_SCOPED_EXPORTS (FS-05): generated registrations key by the FILE-QUALIFIED id
+	 *  (`RuiUetkx_<path>::<Name>`); the designer edges speak SHORT names. Resolution: an exact
+	 *  key always Hits; a short name Hits when exactly ONE registration's `::<Name>` tail
+	 *  matches, Misses on none, and is AMBIGUOUS on several (the caller must qualify — never a
+	 *  silent first-wins). OutCandidates (optional) collects every tail match for error text. */
+	enum class EResolveNamed : uint8
+	{
+		Hit,
+		Miss,
+		Ambiguous
+	};
+	REACTIVEUICORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey,
+												  TArray<FName>* OutCandidates = nullptr);
+
+	/** Every registered factory id, lexically sorted — the first enumeration surface (dropdown
+	 *  pickers, diagnostics, tests). */
+	REACTIVEUICORE_API void GetRegisteredFactoryNames(TArray<FName>& Out);
+
+	/** Instantiate a named component with default props (empty Fragment when unknown; an
+	 *  AMBIGUOUS short name renders nothing and error-logs the qualified candidates once). */
 	REACTIVEUICORE_API FRuiNode Named(FName Name);
 
+	/** True when Name resolves to exactly one registration (exact or unique short-name tail). */
 	REACTIVEUICORE_API bool HasNamedFactory(FName Name);
 
-	// ── HMR seams (consumed by ReactiveUIInterp; the registries themselves are tiny and
-	//    shipping-safe — Shipping builds simply never register anything) ────────────────────
+	// ── HMR seams (the registries themselves are tiny and shipping-safe — Shipping builds
+	//    simply never register anything) ─────────────────────────────────────────────────────
 
-	/** Hook-signature ledger: generated code self-registers its baked __RUI_HOOK_SIG; the
-	 *  interpreter compares its AST-computed signature against this to decide preserve vs
-	 *  deliberate state reset (the family rule). 0 = unknown. */
+	/** Hook-signature ledger, FName-keyed like every identity map (FILE_SCOPED_EXPORTS: the
+	 *  key is the FQN). Interp-era seam: generated code BAKES `__RUI_HOOK_SIG` constants but
+	 *  nothing self-registers them since the interpreter died (HMR v2) — live preserve-vs-reset
+	 *  is decided by the reconciler's hook-shape snapshot (TB-13), not this map. Retained as a
+	 *  per-identity ledger for tooling/tests (per-FILE key independence is pinned in the Driver
+	 *  suite). 0 = unknown. */
 	REACTIVEUICORE_API void RegisterHookSignature(FName ComponentId, uint32 Signature);
 	REACTIVEUICORE_API uint32 FindHookSignature(FName ComponentId);
+
+	/** TB-13 — HMR hook-shape tracking (the family rule: state preserved on a stable hook
+	 *  shape, RESET on a real shape change). The editor's HMR controller arms tracking for
+	 *  the session (Start/Stop) and bumps the generation on every Live-Coding patch-complete;
+	 *  while armed, every render records the component's FLATTENED hook sequence, and a
+	 *  sequence that changed across a generation boundary resets that component's hook state
+	 *  (v1's interpreter enforced this via its AST signature; v2 detects it at render time).
+	 *  A shape change WITHOUT a generation bump stays what it always was: a rules-of-hooks
+	 *  user error (rui.HookValidation). */
+	REACTIVEUICORE_API void SetHmrHookTracking(bool bActive);
+	REACTIVEUICORE_API bool IsHmrHookTracking();
+	REACTIVEUICORE_API void BumpHmrGeneration();
+	REACTIVEUICORE_API uint32 HmrGeneration();
 
 	/** A live definition override for a ComponentId: the reconciler invokes this INSTEAD of
 	 *  the fiber's compiled Invoke. Each Set bumps the generation; bResetState additionally

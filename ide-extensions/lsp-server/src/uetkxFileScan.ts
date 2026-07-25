@@ -525,7 +525,7 @@ export interface UetkxParam {
 }
 
 /** The five declaration kinds a .uetkx file may hold, in any number/order (mixed-decl v1).
- *  ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): `value`/`util` are the new
+ *  ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): `value`/`util` are the new
  *  plain-declaration kinds — C++-identical (EUetkxDeclKind). */
 export type UetkxDeclKind = "component" | "hook" | "module" | "value" | "util";
 
@@ -569,6 +569,7 @@ export interface UetkxReturnSpan {
   mEnd: number;
   afterParen: number;
   topLevel: boolean; // at brace+paren depth 0 (a statement of the body itself)
+  isNull: boolean; // `return null;` — render nothing (no markup window, no root; TB-28)
   root: UetkxNode | null; // the span's single render root (filled by the component scan)
 }
 
@@ -876,16 +877,30 @@ export function collectMarkupReturns(body: readonly number[]): UetkxReturnSpan[]
         }
         const topLevel = braceDepth === 0;
         const markup = first < n && (body[first] === C_LT || body[first] === C_AT || (body[first] === C_LBRACE && topLevel));
+        // `return ( null );` — the render-nothing span, paren form (TB-28: family parity).
+        // Only `null` + ws inside the parens qualifies. C++-identical (CollectMarkupReturns).
+        const isNull = !markup && first < n && keywordAt(body, first, "null");
         const close = markup ? findMatchingMarkup(body, p) : findMatching(body, p);
         if (close === -1) {
           i++;
           continue;
         }
-        if (markup) {
-          out.push({ returnAt: i, mStart: p + 1, mEnd: close, afterParen: close + 1, topLevel, root: null });
+        if (markup || (isNull && skipWsOnly(body, first + 4) === close)) {
+          out.push({ returnAt: i, mStart: p + 1, mEnd: close, afterParen: close + 1, topLevel, isNull: !markup, root: null });
         }
         i = close + 1;
         continue;
+      }
+      // `return null ;` — the render-nothing span, bare form (TB-28). `null` is not a C++
+      // identifier, so this can ONLY mean the family's render-nothing literal; the `;` is
+      // required so a mid-edit `return null` prefix of a longer identifier stays plain code.
+      if (p < n && keywordAt(body, p, "null")) {
+        const semi = skipWsOnly(body, p + 4);
+        if (semi < n && body[semi] === 59 /*;*/) {
+          out.push({ returnAt: i, mStart: p, mEnd: p + 4, afterParen: p + 4, topLevel: braceDepth === 0, isNull: true, root: null });
+          i = semi + 1;
+          continue;
+        }
       }
       i += 6;
       continue;
@@ -1275,25 +1290,29 @@ function parseImportNameList(src: number[], braceAt: number, imp: UetkxImportDec
   return bclose + 1;
 }
 
-/** Duplicate-import diagnostics (2303) for a parsed name list: a name already imported earlier
- *  in this file, or repeated within this same import's braces; records the names into
- *  importedFrom. Shared by the plain named form and the ES COMBINED form. C++-identical
- *  (RecordNamedImportDups). */
+/** Duplicate-import diagnostics (2303) for a parsed name list: a LOCAL BINDING already bound
+ *  earlier in this file, or repeated within this same import's braces; records the bindings
+ *  into importedFrom. Shared by the plain named form and the ES COMBINED form. C++-identical
+ *  (RecordNamedImportDups). FILE_SCOPED_EXPORTS: keyed by the LOCAL binding name, not the
+ *  target — `import { A } from "./x"; import { A as B } from "./y";` binds two DISTINCT
+ *  locals of same-named exports (legal ES; two files may export the same name); only a
+ *  repeated LOCAL spelling collides. The diag anchors on the local token when aliased. */
 function recordNamedImportDups(imp: UetkxImportDecl, importedFrom: Map<string, string>, out: UetkxFileScanResult): void {
   const thisImport = new Set<string>();
   for (let idx = 0; idx < imp.names.length; idx++) {
-    const name = imp.names[idx];
-    const nameAt = imp.nameAts[idx];
-    const prev = importedFrom.get(name);
+    const aliased = !!imp.localNames[idx] && imp.localNames[idx] !== imp.names[idx];
+    const bound = aliased ? imp.localNames[idx] : imp.names[idx];
+    const boundAt = aliased && imp.localNameAts[idx] !== undefined ? imp.localNameAts[idx] : imp.nameAts[idx];
+    const prev = importedFrom.get(bound);
     if (prev !== undefined) {
-      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${name}\` (already imported from ${prev})`, nameAt, name.length);
-    } else if (thisImport.has(name)) {
-      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${name}\` (already imported from ${imp.specifier})`, nameAt, name.length);
+      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${bound}\` (already imported from ${prev})`, boundAt, bound.length);
+    } else if (thisImport.has(bound)) {
+      pushDiag(out, "UETKX2303", 0, `duplicate import of \`${bound}\` (already imported from ${imp.specifier})`, boundAt, bound.length);
     } else {
-      thisImport.add(name);
+      thisImport.add(bound);
     }
   }
-  for (const name of thisImport) importedFrom.set(name, imp.specifier);
+  for (const bound of thisImport) importedFrom.set(bound, imp.specifier);
 }
 
 function parseImport(src: number[], start: number, out: UetkxFileScanResult, importedFrom: Map<string, string>): number {
@@ -1528,18 +1547,19 @@ function parseComponent(src: number[], ci: number, exported: boolean, out: Uetkx
   const jsxRanges = bodyJsxRanges(body);
   diagnoseBareMarkupReturn(body, jsxRanges, bodyAt, out);
   if (returns.length === 0) {
-    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return", ci, 9);
+    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return (or `return null;`)", ci, 9);
     return -1;
   }
   const final = returns[returns.length - 1];
   if (!final.topLevel) {
-    pushDiag(out, "UETKX3007", 0, "the component's final markup `return ( ... )` must be at the top level of the body", bodyAt + final.returnAt, 6);
+    pushDiag(out, "UETKX3007", 0, "the component's final `return ( ... )` / `return null;` must be at the top level of the body", bodyAt + final.returnAt, 6);
     return -1;
   }
   const setup = fromCodePoints(body, 0, final.returnAt);
   diagnoseUnreachableAfterReturn(body, returns, jsxRanges, bodyAt, out);
   let windowNodes: UetkxNode[] = [];
   for (const span of returns) {
+    if (span.isNull) continue; // render-nothing span — no markup window, root stays null
     const parsed = parseMarkup(body, span.mStart, span.mEnd);
     if (parsed.errorCode) {
       pushDiag(out, parsed.errorCode, 0, parsed.errorMsg, bodyAt + Math.max(0, parsed.errorAt));
@@ -1614,18 +1634,19 @@ function parseNewComponent(
   const jsxRanges = bodyJsxRanges(body);
   diagnoseBareMarkupReturn(body, jsxRanges, bodyAt, out);
   if (returns.length === 0) {
-    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return", declStart, 1);
+    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return (or `return null;`)", declStart, 1);
     return -1;
   }
   const final = returns[returns.length - 1];
   if (!final.topLevel) {
-    pushDiag(out, "UETKX3007", 0, "the component's final markup `return ( ... )` must be at the top level of the body", bodyAt + final.returnAt, 6);
+    pushDiag(out, "UETKX3007", 0, "the component's final `return ( ... )` / `return null;` must be at the top level of the body", bodyAt + final.returnAt, 6);
     return -1;
   }
   const setup = fromCodePoints(body, 0, final.returnAt);
   diagnoseUnreachableAfterReturn(body, returns, jsxRanges, bodyAt, out);
   let windowNodes: UetkxNode[] = [];
   for (const span of returns) {
+    if (span.isNull) continue; // render-nothing span — no markup window, root stays null
     const parsed = parseMarkup(body, span.mStart, span.mEnd);
     if (parsed.errorCode) {
       pushDiag(out, parsed.errorCode, 0, parsed.errorMsg, bodyAt + Math.max(0, parsed.errorAt));
@@ -2273,16 +2294,6 @@ export function scanFile(source: string, basename: string, resyncOnBodyError = f
         const plain = imp.localNames[idx2] === imp.names[idx2];
         checkAlias(imp.localNames[idx2], imp.nameAts[idx2] ?? imp.at, plain);
       }
-    }
-  }
-
-  // component/file-name nudge (0103) — kept for the one-component ergonomic; multi-component
-  // files are flagged by the convention warn (2105) instead.
-  if (out.components.length === 1) {
-    const baseCmp = basename.includes(".") ? basename.slice(0, basename.indexOf(".")) : basename;
-    const only = out.components[0];
-    if (only.name !== baseCmp && baseCmp) {
-      pushDiag(out, "UETKX0103", 1, `component \`${only.name}\` differs from file name \`${baseCmp}\``, only.nameAt, only.name.length);
     }
   }
 

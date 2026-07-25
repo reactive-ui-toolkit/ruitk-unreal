@@ -110,6 +110,7 @@ template <typename TSelected> struct TRuiSignalCell final : IRuiHookCell
 		}
 	}
 	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Signal; }
+	RUI_HOOK_CELL_TYPE()
 };
 
 namespace RUI
@@ -136,7 +137,8 @@ namespace RUI
 				auto ReadAndMaybeNotify = [Weak, SlotIndex, SigCopy, SelCopy]()
 				{
 					TSharedPtr<FRuiComponentState> S = Weak.Pin();
-					if (!S.IsValid() || SlotIndex >= S->Hooks.Num())
+					if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
+						S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
 					{
 						return;
 					}
@@ -150,7 +152,8 @@ namespace RUI
 				};
 
 				TSharedPtr<FRuiComponentState> S = Weak.Pin();
-				if (!S.IsValid() || SlotIndex >= S->Hooks.Num())
+				if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
+					S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
 				{
 					return FRuiEffectCleanup();
 				}
@@ -166,7 +169,8 @@ namespace RUI
 					[Weak, SlotIndex]()
 					{
 						TSharedPtr<FRuiComponentState> S2 = Weak.Pin();
-						if (!S2.IsValid() || SlotIndex >= S2->Hooks.Num())
+						if (!S2.IsValid() || SlotIndex >= S2->Hooks.Num() ||
+							S2->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
 						{
 							return;
 						}

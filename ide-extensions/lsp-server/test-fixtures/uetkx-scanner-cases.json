@@ -402,6 +402,56 @@
       "name": "S5/es-modules 2327: duplicate `export default`",
       "input": "component Foo {\n\treturn ( <Spacer /> );\n}\ncomponent Bar {\n\treturn ( <Spacer /> );\n}\nexport default Foo;\nexport default Bar;\n",
       "expect": { "diags": ["UETKX2105", "UETKX2320", "UETKX2320", "UETKX2327"] }
+    },
+    {
+      "name": "return null: early render-nothing guard, bare form (family React semantics)",
+      "input": "component Gate {\n\tif (Hidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Gate", "exported": false }],
+        "order": ["component:Gate"],
+        "diags": ["UETKX2320"],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: early render-nothing guard, paren form",
+      "input": "component Gate {\n\tif (Hidden) {\n\t\treturn ( null );\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Gate", "exported": false }],
+        "order": ["component:Gate"],
+        "diags": ["UETKX2320"],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: null-only component renders nothing (family decision 2026-07-25)",
+      "input": "component Gone {\n\treturn null;\n}\n",
+      "expect": {
+        "components": [{ "name": "Gone", "exported": false }],
+        "order": ["component:Gone"],
+        "diags": ["UETKX2320"],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: top-level null return makes later returns unreachable (0107)",
+      "input": "component Dead {\n\treturn null;\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Dead", "exported": false }],
+        "order": ["component:Dead"],
+        "diags": ["UETKX2320", "UETKX0107"],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: null-prefixed identifiers stay plain code (no span)",
+      "input": "component Guard {\n\tif (X) {\n\t\treturn nullValue;\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Guard", "exported": false }],
+        "order": ["component:Guard"],
+        "diags": ["UETKX2320"],
+        "noError": true
+      }
     }
   ],
   "fileScanLeg": [
@@ -705,6 +755,16 @@
       "name": "ES combined: junk after the default comma is UETKX0303",
       "input": "import D, x from \"./x\"\nexport FRuiNode Foo() {\n\treturn ( <Spacer /> );\n}\n",
       "expect": { "diags": ["UETKX0303"] }
+    },
+    {
+      "name": "return null: the ES new-form head scans identically (per-leg head, family semantics)",
+      "input": "export FRuiNode Empty() {\n\treturn null;\n}\n",
+      "expect": {
+        "components": [{ "name": "Empty", "exported": true }],
+        "order": ["component:Empty"],
+        "diags": [],
+        "noError": true
+      }
     }
   ]
 }

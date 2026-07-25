@@ -519,6 +519,304 @@ namespace
 		return StyleKeys().Contains(Name);
 	}
 
+	// R14: the D-33 canon slot keys — ONE list feeding the schema export, the casing gate, and
+	// the (case-SENSITIVE, canonical) slot routing. `Slot.` remains an open prefix for keys
+	// beyond this list; the CASING of the canon spellings is enforced (UETKX0112).
+	const TArray<FString>& SlotKeyCanon()
+	{
+		static const TArray<FString> Keys = {TEXT("Slot.Padding"),	 TEXT("Slot.HAlign"),	 TEXT("Slot.VAlign"),
+											 TEXT("Slot.Fill"),		 TEXT("Slot.ZOrder"),	 TEXT("Slot.Position"),
+											 TEXT("Slot.Size"),		 TEXT("Slot.Offset"),	 TEXT("Slot.Anchors"),
+											 TEXT("Slot.Alignment"), TEXT("Slot.AutoSize"),	 TEXT("Slot.Role"),
+											 TEXT("Slot.SizeRule"),	 TEXT("Slot.SizeValue"), TEXT("Slot.MinSize"),
+											 TEXT("Slot.Resizable"), TEXT("Slot.Column"),	 TEXT("Slot.Row")};
+		return Keys;
+	}
+
+	/** R14 — canonical-casing gate: attr/style/slot names are FNames at runtime (case-
+	 *  insensitive), and the slot prefix used to route IgnoreCase — so `slot.fill` silently
+	 *  WORKED while every exact-case vocabulary check silently DISARMED for it. The family
+	 *  rule is the tag rule (host tags are case-sensitive, 1:1 with Slate): canonical casing
+	 *  required, detected case-insensitively, corrected by name. Returns the canon spelling
+	 *  when Name is a WRONG-CASED canon name; empty otherwise. */
+	FString MiscasedCanonName(const FString& Name, const FTagDef* Tag)
+	{
+		if (Name.Equals(TEXT("key"), ESearchCase::CaseSensitive) ||
+			Name.Equals(TEXT("classes"), ESearchCase::CaseSensitive) ||
+			Name.Equals(TEXT("Ref"), ESearchCase::CaseSensitive))
+		{
+			return FString();
+		}
+		auto Check = [&Name](const FString& Canon) -> bool
+		{ return !Canon.Equals(Name, ESearchCase::CaseSensitive) && Canon.Equals(Name, ESearchCase::IgnoreCase); };
+		for (const TCHAR* Universal : {TEXT("key"), TEXT("classes"), TEXT("Ref")})
+		{
+			if (Check(Universal))
+			{
+				return Universal;
+			}
+		}
+		for (const FString& Canon : StyleKeys())
+		{
+			if (Check(Canon))
+			{
+				return Canon;
+			}
+		}
+		for (const FString& Canon : SlotKeyCanon())
+		{
+			if (Check(Canon))
+			{
+				return Canon;
+			}
+		}
+		if (Tag != nullptr)
+		{
+			for (const auto& Pair : Tag->Attrs)
+			{
+				const FString Canon = Pair.Key.ToString();
+				if (Check(Canon))
+				{
+					return Canon;
+				}
+			}
+		}
+		return FString();
+	}
+
+	// R10 — enum-string vocabularies, keyed by attr/style/slot name exactly as written in
+	// markup. The Slate adapters parse these Name-typed values with SILENT fallbacks
+	// (ParseHAlign et al in RuiCoreAdapters/RuiWidgetAdapters*/RuiStyle/RuiListView) — a
+	// typo'd value compiled clean and quietly rendered as the fallback. Exported to the
+	// schema as `attrEnums` (LSP live check, UETKX2311) and enforced here as UETKX0106.
+	// Each set = the adapter's accepted spellings PLUS the fallback's own name (typing the
+	// fallback works by definition; several — fill, left, inherit, visible, belowAnchor,
+	// combined, all, both, none, leftToRight, topLeft, fractionOfParent — are ONLY reachable
+	// as the fallback). FName comparison is case-insensitive, so matching here is too.
+	const TMap<FString, TArray<FString>>& AttrEnums()
+	{
+		static const TMap<FString, TArray<FString>> Enums = {
+			{TEXT("HAlign"), {TEXT("fill"), TEXT("left"), TEXT("center"), TEXT("right")}},
+			{TEXT("VAlign"), {TEXT("fill"), TEXT("top"), TEXT("center"), TEXT("bottom")}},
+			{TEXT("Slot.HAlign"), {TEXT("fill"), TEXT("left"), TEXT("center"), TEXT("right")}},
+			{TEXT("Slot.VAlign"), {TEXT("fill"), TEXT("top"), TEXT("center"), TEXT("bottom")}},
+			{TEXT("Orientation"), {TEXT("horizontal"), TEXT("vertical")}},
+			{TEXT("ScrollOrientation"), {TEXT("horizontal"), TEXT("vertical")}},
+			{TEXT("Justification"), {TEXT("left"), TEXT("center"), TEXT("right")}},
+			{TEXT("OverflowPolicy"), {TEXT("clip"), TEXT("ellipsis")}},
+			{TEXT("Clipping"),
+			 {TEXT("inherit"), TEXT("clipToBounds"), TEXT("clipToBoundsWithoutIntersecting"),
+			  TEXT("clipToBoundsAlways"), TEXT("onDemand")}},
+			{TEXT("Visibility"),
+			 {TEXT("visible"), TEXT("collapsed"), TEXT("hidden"), TEXT("hitTestInvisible"),
+			  TEXT("selfHitTestInvisible")}},
+			{TEXT("Stretch"),
+			 {TEXT("none"), TEXT("fill"), TEXT("scaleToFit"), TEXT("scaleToFitX"), TEXT("scaleToFitY"),
+			  TEXT("scaleToFill"), TEXT("scaleBySafeZone")}},
+			{TEXT("StretchDirection"), {TEXT("both"), TEXT("downOnly"), TEXT("upOnly")}},
+			{TEXT("Animate"),
+			 {TEXT("all"), TEXT("none"), TEXT("vertical"), TEXT("horizontal"), TEXT("opacity"),
+			  TEXT("verticalAndOpacity")}},
+			{TEXT("BarFillType"),
+			 {TEXT("leftToRight"), TEXT("rightToLeft"), TEXT("fillFromCenter"), TEXT("fillFromCenterHorizontal"),
+			  TEXT("fillFromCenterVertical"), TEXT("topToBottom"), TEXT("bottomToTop")}},
+			{TEXT("AlphaDisplayMode"), {TEXT("combined"), TEXT("separate"), TEXT("ignore")}},
+			{TEXT("KeyboardType"), {TEXT("default"), TEXT("number"), TEXT("web"), TEXT("email"), TEXT("password")}},
+			{TEXT("Placement"),
+			 {TEXT("belowAnchor"), TEXT("comboBox"), TEXT("belowRightAnchor"), TEXT("aboveAnchor"),
+			  TEXT("centeredAboveAnchor"), TEXT("centeredBelowAnchor"), TEXT("menuLeft"), TEXT("menuRight"),
+			  TEXT("center")}},
+			{TEXT("SelectionMode"), {TEXT("none"), TEXT("single"), TEXT("singleToggle"), TEXT("multi")}},
+			{TEXT("Slot.SizeRule"), {TEXT("sizeToContent"), TEXT("fractionOfParent")}},
+			{TEXT("Slot.Role"),
+			 {TEXT("body"), TEXT("header"), TEXT("collapsed"), TEXT("expanded"), TEXT("topLeft"), TEXT("topRight"),
+			  TEXT("bottomLeft"), TEXT("bottomRight"), TEXT("menu")}},
+		};
+		return Enums;
+	}
+
+	// R11 — value KINDS for the style/slot keys whose string form carries typed data. The
+	// runtime reads these through the SLOT-1 hardened SlotValue:: readers (String forms parse),
+	// so a well-formed string is fully supported — but a MALFORMED one still parses to 0/false
+	// silently (Atof semantics). color has NO string form (hex parsing is post-v1, D-comment):
+	// its string form is rejected outright like the expr-only element kinds. Enum-vocabulary
+	// keys (Visibility, Justification, …) live in AttrEnums, not here. Exported as `attrKinds`.
+	const TMap<FString, FString>& StyleSlotKinds()
+	{
+		static const TMap<FString, FString> Kinds = {
+			{TEXT("RenderOpacity"), TEXT("float")},
+			{TEXT("RenderScale"), TEXT("float")},
+			{TEXT("RenderTransformAngle"), TEXT("float")},
+			{TEXT("LineHeightPercentage"), TEXT("float")},
+			{TEXT("Font.Size"), TEXT("int")},
+			{TEXT("Enabled"), TEXT("bool")},
+			{TEXT("AutoWrapText"), TEXT("bool")},
+			{TEXT("RenderTranslation"), TEXT("vector2")},
+			{TEXT("RenderTransformPivot"), TEXT("vector2")},
+			{TEXT("ColorAndOpacity"), TEXT("color")},
+			{TEXT("FillColorAndOpacity"), TEXT("color")},
+			{TEXT("Slot.Padding"), TEXT("margin")},
+			{TEXT("Slot.Offset"), TEXT("margin")},
+			{TEXT("Slot.Anchors"), TEXT("margin")},
+			{TEXT("Slot.Position"), TEXT("vector2")},
+			{TEXT("Slot.Size"), TEXT("vector2")},
+			{TEXT("Slot.Alignment"), TEXT("vector2")},
+			{TEXT("Slot.Fill"), TEXT("float")},
+			{TEXT("Slot.ZOrder"), TEXT("float")},
+			{TEXT("Slot.SizeValue"), TEXT("float")},
+			{TEXT("Slot.MinSize"), TEXT("float")},
+			{TEXT("Slot.AutoSize"), TEXT("bool")},
+			{TEXT("Slot.Resizable"), TEXT("bool")},
+			{TEXT("Slot.Column"), TEXT("int")},
+			{TEXT("Slot.Row"), TEXT("int")},
+		};
+		return Kinds;
+	}
+
+	// R12 — which Slot.* keys each container's slot-apply actually READS (audited from the
+	// adapter code; SingleContent parents receive no SlotProps at all, so their sets are
+	// empty). A slot key the parent never reads is dropped in TOTAL SILENCE at runtime —
+	// no warning exists on the slot side. Exported as `slotConsumption`; enforced here as
+	// UETKX0111 for direct children and live by the LSP (root elements behave as children
+	// of the implicit SOverlay root panel).
+	const TMap<FString, TArray<FString>>& SlotConsumption()
+	{
+		static const TMap<FString, TArray<FString>> Map = {
+			{TEXT("VerticalBox"), {TEXT("Slot.Fill"), TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("HorizontalBox"),
+			 {TEXT("Slot.Fill"), TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("Overlay"), {TEXT("Slot.ZOrder"), TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("Canvas"), {TEXT("Slot.Position"), TEXT("Slot.Size"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("ScrollBox"), {TEXT("Slot.Padding")}},
+			{TEXT("WidgetSwitcher"), {TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("WrapBox"), {TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("GridPanel"),
+			 {TEXT("Slot.Column"), TEXT("Slot.Row"), TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("UniformGridPanel"),
+			 {TEXT("Slot.Column"), TEXT("Slot.Row"), TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign")}},
+			{TEXT("ConstraintCanvas"),
+			 {TEXT("Slot.Offset"), TEXT("Slot.Anchors"), TEXT("Slot.Alignment"), TEXT("Slot.AutoSize"),
+			  TEXT("Slot.ZOrder")}},
+			{TEXT("Splitter"),
+			 {TEXT("Slot.SizeRule"), TEXT("Slot.SizeValue"), TEXT("Slot.MinSize"), TEXT("Slot.Resizable")}},
+			{TEXT("Splitter2x2"), {TEXT("Slot.Role")}},
+			{TEXT("MenuAnchor"), {TEXT("Slot.Role")}},
+			{TEXT("ExpandableButton"), {TEXT("Slot.Role")}},
+			{TEXT("RadialBox"), {}},
+			{TEXT("UniformWrapPanel"), {}},
+			// SingleContent containers: SetContent path — SlotProps never reach the parent.
+			{TEXT("Border"), {}},
+			{TEXT("Box"), {}},
+			{TEXT("Button"), {}},
+			{TEXT("CheckBox"), {}},
+			{TEXT("ScaleBox"), {}},
+			{TEXT("SafeZone"), {}},
+			{TEXT("DPIScaler"), {}},
+			{TEXT("EnableBox"), {}},
+			{TEXT("ScissorRectBox"), {}},
+			{TEXT("BackgroundBlur"), {}},
+			{TEXT("InvalidationPanel"), {}},
+			{TEXT("TextScroller"), {}},
+			{TEXT("WindowTitleBarArea"), {}},
+			{TEXT("LinkedBox"), {}},
+		};
+		return Map;
+	}
+
+	bool IsNumericLiteral(const FString& S)
+	{
+		const FString T = S.TrimStartAndEnd();
+		return !T.IsEmpty() && T.IsNumeric();
+	}
+
+	/** Empty when the string form of Key/Value is well-formed (or Key carries no kind); else
+	 *  the failure message. Mirrors the SlotValue:: readers' accepted literal grammars. */
+	FString FailedStyleSlotFormat(const FString& Key, const FString& Value)
+	{
+		const FString* Kind = StyleSlotKinds().Find(Key);
+		if (Kind == nullptr)
+		{
+			return FString();
+		}
+		if (*Kind == TEXT("color"))
+		{
+			return FString::Printf(TEXT("%s needs an {expr} value (no string form)"), *Key);
+		}
+		if (*Kind == TEXT("bool"))
+		{
+			return Value.Equals(TEXT("true"), ESearchCase::IgnoreCase) ||
+						   Value.Equals(TEXT("false"), ESearchCase::IgnoreCase)
+					   ? FString()
+					   : FString::Printf(TEXT("invalid value '%s' for %s — write true or false"), *Value, *Key);
+		}
+		TArray<FString> Parts;
+		Value.ParseIntoArray(Parts, TEXT(","), true);
+		const int32 N = Parts.Num();
+		bool bParts = N > 0;
+		for (const FString& P : Parts)
+		{
+			bParts &= IsNumericLiteral(P);
+		}
+		if (*Kind == TEXT("float") || *Kind == TEXT("int"))
+		{
+			return N == 1 && bParts
+					   ? FString()
+					   : FString::Printf(TEXT("invalid value '%s' for %s — expects a number"), *Value, *Key);
+		}
+		if (*Kind == TEXT("vector2"))
+		{
+			return (N == 1 || N == 2) && bParts ? FString()
+												: FString::Printf(TEXT("invalid value '%s' for %s — \"x,y\" (or a "
+																	   "uniform number)"),
+																  *Value, *Key);
+		}
+		// margin: uniform | horizontal,vertical | left,top,right,bottom
+		return (N == 1 || N == 2 || N == 4) && bParts
+				   ? FString()
+				   : FString::Printf(TEXT("invalid value '%s' for %s — 1, 2, or 4 numbers"), *Value, *Key);
+	}
+
+	// R13 — brush-name attrs resolve at runtime EXCLUSIVELY through FCoreStyle::Get() (the
+	// fixed engine style set; nothing user-registered enters that lookup), so the valid set
+	// is closed PER ENGINE. The editor module enumerates it at startup and injects it here
+	// (see SetEnvironmentBrushNames); un-injected (bare unit contexts) the check disarms.
+	const TSet<FString>& BrushAttrs()
+	{
+		static const TSet<FString> Attrs = {TEXT("BorderImage")};
+		return Attrs;
+	}
+
+	struct FEnvironmentBrushes
+	{
+		TArray<FString> Names;	  // original casing, sorted — the schema export / completion set
+		TSet<FString> LowerNames; // case-folded — validation (FName lookups are case-insensitive)
+	};
+
+	FEnvironmentBrushes& EnvironmentBrushes()
+	{
+		static FEnvironmentBrushes Brushes;
+		return Brushes;
+	}
+
+	/** nullptr when Key has no closed vocabulary; else the vocabulary Value failed (case-
+	 *  insensitive) — the caller formats the diagnostic. */
+	const TArray<FString>* FailedAttrEnum(const FString& Key, const FString& Value)
+	{
+		const TArray<FString>* Vocab = AttrEnums().Find(Key);
+		if (Vocab == nullptr)
+		{
+			return nullptr;
+		}
+		for (const FString& V : *Vocab)
+		{
+			if (V.Equals(Value, ESearchCase::IgnoreCase))
+			{
+				return nullptr;
+			}
+		}
+		return Vocab;
+	}
+
 	FString CppStringLiteral(const FString& S)
 	{
 		FString Out = S;
@@ -530,28 +828,45 @@ namespace
 		return Out;
 	}
 
-	/** ES-modules (U-03): the import-alias substitution plane. Exported symbols keep their real
-	 *  emission home; every ALIASED reference in the importer is rewritten at emit:
-	 *  - Rename: `import { A as B }` — local `B` → target `A` (identifier replacement).
-	 *  - NamespaceStrip: `import * as X` — a `X::` qual is stripped (`X::Member` → `Member`).
-	 *  - Default aliases (`import D from "./x"` → the target's `export default` symbol) join the
-	 *    Rename map once the target's default-export name is known (M4 export tables — the
-	 *    resolver is the only place that knows it; wired there, same plane). */
+	/** FILE_SCOPED_EXPORTS (FS-03): the import-binding substitution plane. Every file's decls now
+	 *  emit inside that file's namespace (FileNamespaceFor), so an IMPORTED reference — aliased or
+	 *  not — is rewritten to the target's fully-qualified spelling at emit:
+	 *  - Bindings: `import { A }` / `import { A as B }` / `import D from "./x"` — the LOCAL
+	 *    binding name → `<TargetFileNs>::A` (a VALUE binding also lowers as a call, TB-15).
+	 *    Keyed by LOCAL name: two files may export the same name (that is the point), so the
+	 *    target spelling alone can no longer address the emission home.
+	 *  - Stars: `import * as X` — a `X::` qual is rewritten to `<TargetFileNs>::` (the member
+	 *    flows through; an exported VALUE member gains its call form).
+	 *  Only RESOLVED imports join the plane — an unresolved import errors in FUetkxResolve::Apply
+	 *  and the .inl is discarded, so under-qualified code never lands. */
+	struct FUetkxImportedBinding
+	{
+		FString TargetName; // exporter-side declaration name (the emitted spelling)
+		FString NsPrefix;	// the target FILE's namespace + "::"
+		bool bValueCall = false;
+	};
+	struct FUetkxStarImport
+	{
+		FString NsPrefix;		  // the target FILE's namespace + "::"
+		TSet<FString> ValueNames; // the target's exported VALUE names (call rewrite through `X::`)
+	};
 	struct FUetkxAliasPlane
 	{
-		TMap<FString, FString> Rename; // local alias -> imported target name
-		TSet<FString> NamespaceStrip;  // `X` of `import * as X` — `X::` quals are stripped
-		bool IsEmpty() const { return Rename.IsEmpty() && NamespaceStrip.IsEmpty(); }
+		TMap<FString, FUetkxImportedBinding> Bindings; // LOCAL binding name -> target
+		TMap<FString, FUetkxStarImport> Stars;		   // `X` of `import * as X`
+		bool IsEmpty() const { return Bindings.IsEmpty() && Stars.IsEmpty(); }
 	};
 
-	/** ES-modules (U-03): the alias PRE-PASS over verbatim C++ — runs before the hook-prefix walk
-	 *  so a renamed hook alias bears its target (Use-prefixed) name by the time Ctx injection
-	 *  looks at it. Word-boundary identifiers only; member access (`.`/`->`) and an existing scope
-	 *  qual (`::`) block the rewrite exactly like the hook walk; strings/comments are opaque
-	 *  (skip-noncode). The `X ::`-lookahead crosses spaces/tabs only — never a newline — so line
-	 *  counts (the `#line` mapping) are always preserved. TD-034 #1 (N4): a local variable
-	 *  shadowing an alias name is NOT rewritten — the scope tracker (FUetkxScopedLocals, the
-	 *  N-07 heuristic) suppresses it; `ParamSeed` = the enclosing decl's parameter names. */
+	/** The import-binding PRE-PASS over verbatim C++ (U-03, reshaped by FILE_SCOPED_EXPORTS) —
+	 *  runs before the hook-prefix walk, so an imported hook reference bears its fully-qualified
+	 *  target (Use-prefixed) spelling by the time Ctx injection looks at it (that branch injects
+	 *  through `NS::UseFoo(` deliberately). Word-boundary identifiers only; member access
+	 *  (`.`/`->`) and an existing scope qual (`::`) block the rewrite exactly like the hook walk;
+	 *  strings/comments are opaque (skip-noncode). Lookaheads cross spaces/tabs only — never a
+	 *  newline — so line counts (the `#line` mapping) are always preserved. TD-034 #1 (N4): a
+	 *  local variable shadowing a binding name is NOT rewritten — the scope tracker
+	 *  (FUetkxScopedLocals, the N-07 heuristic) suppresses it; `ParamSeed` = the enclosing
+	 *  decl's parameter names. */
 	FString RewriteAliases(const FString& Code, const FUetkxAliasPlane& Aliases, const TArray<FString>& ParamSeed)
 	{
 		const TArray<int32> Src = FUetkxLexer::ToCodePoints(Code);
@@ -594,7 +909,7 @@ namespace
 				}
 				if (!bMember && !bScope && !Locals.IsLocal(Ident, i))
 				{
-					if (Aliases.NamespaceStrip.Contains(Ident))
+					if (const FUetkxStarImport* Star = Aliases.Stars.Find(Ident))
 					{
 						int32 p = e;
 						while (p < N && (Src[p] == ' ' || Src[p] == '\t'))
@@ -603,14 +918,58 @@ namespace
 						}
 						if (p + 1 < N && Src[p] == ':' && Src[p + 1] == ':')
 						{
-							i = p + 2; // drop `X ::` entirely — the member name flows through bare
+							// `X ::` → `<TargetFileNs>::` — the member flows through. TB-15 through
+							// the alias: a member naming an exported VALUE of the target lowers as a
+							// call unless one (or a deeper qual) already follows. Same-line lookahead
+							// only — line counts (the #line mapping) are preserved.
+							Out += Star->NsPrefix;
+							i = p + 2;
+							int32 m = i;
+							while (m < N && (Src[m] == ' ' || Src[m] == '\t'))
+							{
+								++m;
+							}
+							int32 me = m;
+							while (me < N && FUetkxLexer::IsIdentCode(Src[me]))
+							{
+								++me;
+							}
+							if (me > m)
+							{
+								const FString Member = FUetkxLexer::FromCodePoints(Src, m, me - m);
+								int32 q = me;
+								while (q < N && (Src[q] == ' ' || Src[q] == '\t'))
+								{
+									++q;
+								}
+								const bool bCallOrQual =
+									q < N && (Src[q] == '(' || (q + 1 < N && Src[q] == ':' && Src[q + 1] == ':'));
+								if (Star->ValueNames.Contains(Member) && !bCallOrQual)
+								{
+									Out += FUetkxLexer::FromCodePoints(Src, i, me - i);
+									Out += TEXT("()");
+									i = me;
+								}
+							}
 							continue;
 						}
 					}
-					if (const FString* Target = Aliases.Rename.Find(Ident))
+					if (const FUetkxImportedBinding* B = Aliases.Bindings.Find(Ident))
 					{
-						Out += *Target;
+						Out += B->NsPrefix + B->TargetName;
 						i = e;
+						if (B->bValueCall)
+						{
+							int32 q = e;
+							while (q < N && (Src[q] == ' ' || Src[q] == '\t'))
+							{
+								++q;
+							}
+							if (!(q < N && Src[q] == '('))
+							{
+								Out += TEXT("()");
+							}
+						}
 						continue;
 					}
 				}
@@ -629,13 +988,15 @@ namespace
 	 *  (`Use<Upper>...` not in the built-in table, incl. `NS::Use...`) get `Ctx` injected as
 	 *  their first argument — user hooks are plain functions taking FRuiContext& first (the
 	 *  documented divergence from Unity's ambient statics). Member access (`.`/`->`) blocks
-	 *  both transforms. `Qualified` (M5) maps a same-file PRIVATE decl name to its detail-namespace
-	 *  prefix (`RuiPriv_<Basename>::`); a private hook call or a private `Module::` qual is rewritten
-	 *  to reach into that namespace. `Aliases` (ES-modules U-03) runs as a pre-pass — see
-	 *  RewriteAliases. `ParamNames` (TD-034 #1, N4) seeds the scope tracker: a LOCAL (param or
-	 *  body declaration) matching an alias/private name is never rewritten/qualified/injected. */
-	FString PrefixHookCalls(const FString& Code, const TMap<FString, FString>& Qualified = {},
-							const FUetkxAliasPlane* Aliases = nullptr, const TArray<FString>* ParamNames = nullptr)
+	 *  both transforms. `Aliases` (the import-binding plane) runs as a pre-pass — see
+	 *  RewriteAliases; same-file references need no qualification at all since every decl of a
+	 *  file shares its file namespace (FILE_SCOPED_EXPORTS — the old `Qualified` private-prefix
+	 *  plane retired with `RuiPriv_`). `ParamNames` (TD-034 #1, N4) seeds the scope tracker: a
+	 *  LOCAL (param or body declaration) matching a binding/value name is never
+	 *  rewritten/injected. `ValueCalls` = SAME-FILE value names (TB-15 — bare refs lower as
+	 *  calls; imported values are already call-lowered by the pre-pass). */
+	FString PrefixHookCalls(const FString& Code, const FUetkxAliasPlane* Aliases = nullptr,
+							const TArray<FString>* ParamNames = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		static const TArray<FString> NoParams;
 		const TArray<FString>& Seed = ParamNames ? *ParamNames : NoParams;
@@ -670,8 +1031,8 @@ namespace
 					}
 					bOutMember = (P == '.') || (P == '>' && k > 0 && Src[k - 1] == '-');
 					// Only a real `::` scope qual blocks — a lone `:` is a ternary/label/case (the
-					// IMPORT-3 rule, applied here in ES-modules M7; a private name in a ternary's
-					// second arm otherwise skipped its RuiPriv_:: qualification).
+					// IMPORT-3 rule, applied here in ES-modules M7; a rewritable name in a
+					// ternary's second arm otherwise skipped its qualification/call rewrite).
 					bOutScope = (P == ':') && k > 0 && Src[k - 1] == ':';
 					break;
 				}
@@ -731,41 +1092,42 @@ namespace
 						++q;
 					}
 					const bool bEmptyArgs = (q < N && Src[q] == ')');
-					if (const FString* Prefix = Qualified.Find(Ident)) // private same-file hook
-					{
-						Out += *Prefix;
-					}
 					Out += Ident;
 					Out += bEmptyArgs ? TEXT("(Ctx") : TEXT("(Ctx, ");
 					i = p + 1;
 					bMatched = true;
 				}
 			}
-			// private same-file reference → RuiPriv_<Basename>:: qualification. Originally (M5)
-			// only `Module::` quals; ES-modules (U-04) generalizes to ANY privately-declared
-			// identifier at a word boundary — a private VALUE is referenced bare and a private
-			// UTIL as a plain call, and both live inside the detail namespace, so every reference
-			// shape needs the prefix (a hook call was already handled by the branch above). Only
-			// fires for names the file declares privately; ambient identifiers are untouched.
-			if (!bMatched && bWordStart && !Qualified.IsEmpty() && FUetkxLexer::IsIdentCode(Src[i]) &&
-				!(Src[i] >= '0' && Src[i] <= '9'))
+			// TB-15: VALUE references lower as CALLS — value exports are inline FUNCTIONS (a Live
+			// Coding patch replaces the CODE that produces the value; a global initializer would
+			// never re-run, which left every style-companion edit invisible to HMR). A local
+			// shadowing the name keeps its bare spelling; an existing call form is left alone.
+			if (!bMatched && bWordStart && ValueCalls != nullptr && !ValueCalls->IsEmpty() &&
+				FUetkxLexer::IsIdentCode(Src[i]) && !(Src[i] >= '0' && Src[i] <= '9'))
 			{
 				int32 e = i;
 				while (e < N && FUetkxLexer::IsIdentCode(Src[e]))
 				{
 					++e;
 				}
-				bool bMember = false, bScope = false;
-				ScanBack(i, bMember, bScope);
 				const FString Ident = FUetkxLexer::FromCodePoints(Src, i, e - i);
-				const FString* Prefix = Qualified.Find(Ident);
-				// TD-034 #1 (N4): a local shadowing a private name keeps its bare spelling.
-				if (Prefix && !bMember && !bScope && !Locals.IsLocal(Ident, i))
+				if (ValueCalls->Contains(Ident))
 				{
-					Out += *Prefix;
-					Out += Ident;
-					i = e;
-					bMatched = true;
+					bool bMember = false, bScope = false;
+					ScanBack(i, bMember, bScope);
+					int32 p = e;
+					while (p < N && (Src[p] == ' ' || Src[p] == '	'))
+					{
+						++p;
+					}
+					const bool bAlreadyCall = p < N && Src[p] == '(';
+					if (!bMember && !bScope && !bAlreadyCall && !Locals.IsLocal(Ident, i))
+					{
+						Out += Ident;
+						Out += TEXT("()");
+						i = e;
+						bMatched = true;
+					}
 				}
 			}
 			if (!bMatched)
@@ -777,12 +1139,45 @@ namespace
 		return Out;
 	}
 
-	/** The per-file detail namespace private declarations live in (A5e): `RuiPriv_<Basename>`, with
-	 *  any non-identifier characters in the basename (companion dots) folded to `_`. Two files' same-
-	 *  named private decls never collide in the aggregator TU (the compile-time half of privacy). */
-	FString PrivNamespaceFor(const FString& Basename)
+	/** One path segment → one C++ namespace segment (FILE_SCOPED_EXPORTS FS-01, the family
+	 *  sanitization rule pinned by the Unity sibling's NamespaceDerivation and mirrored by the
+	 *  LSP): keep identifier chars, fold everything else to `_` (companion dots:
+	 *  `SimpleCounter.style` → `SimpleCounter_style`); a leading digit and an exact C++ keyword
+	 *  get a `_` prefix; an empty segment becomes `_`. Casing is preserved verbatim. */
+	FString SanitizeNsSegment(const FString& In)
 	{
-		FString S = Basename;
+		static const TSet<FString> CppKeywords = {TEXT("alignas"),		 TEXT("alignof"),	  TEXT("and"),
+												  TEXT("and_eq"),		 TEXT("asm"),		  TEXT("auto"),
+												  TEXT("bitand"),		 TEXT("bitor"),		  TEXT("bool"),
+												  TEXT("break"),		 TEXT("case"),		  TEXT("catch"),
+												  TEXT("char"),			 TEXT("char8_t"),	  TEXT("char16_t"),
+												  TEXT("char32_t"),		 TEXT("class"),		  TEXT("compl"),
+												  TEXT("concept"),		 TEXT("const"),		  TEXT("consteval"),
+												  TEXT("constexpr"),	 TEXT("constinit"),	  TEXT("const_cast"),
+												  TEXT("continue"),		 TEXT("co_await"),	  TEXT("co_return"),
+												  TEXT("co_yield"),		 TEXT("decltype"),	  TEXT("default"),
+												  TEXT("delete"),		 TEXT("do"),		  TEXT("double"),
+												  TEXT("dynamic_cast"),	 TEXT("else"),		  TEXT("enum"),
+												  TEXT("explicit"),		 TEXT("export"),	  TEXT("extern"),
+												  TEXT("false"),		 TEXT("float"),		  TEXT("for"),
+												  TEXT("friend"),		 TEXT("goto"),		  TEXT("if"),
+												  TEXT("inline"),		 TEXT("int"),		  TEXT("long"),
+												  TEXT("mutable"),		 TEXT("namespace"),	  TEXT("new"),
+												  TEXT("noexcept"),		 TEXT("not"),		  TEXT("not_eq"),
+												  TEXT("nullptr"),		 TEXT("operator"),	  TEXT("or"),
+												  TEXT("or_eq"),		 TEXT("private"),	  TEXT("protected"),
+												  TEXT("public"),		 TEXT("register"),	  TEXT("reinterpret_cast"),
+												  TEXT("requires"),		 TEXT("return"),	  TEXT("short"),
+												  TEXT("signed"),		 TEXT("sizeof"),	  TEXT("static"),
+												  TEXT("static_assert"), TEXT("static_cast"), TEXT("struct"),
+												  TEXT("switch"),		 TEXT("template"),	  TEXT("this"),
+												  TEXT("thread_local"),	 TEXT("throw"),		  TEXT("true"),
+												  TEXT("try"),			 TEXT("typedef"),	  TEXT("typeid"),
+												  TEXT("typename"),		 TEXT("union"),		  TEXT("unsigned"),
+												  TEXT("using"),		 TEXT("virtual"),	  TEXT("void"),
+												  TEXT("volatile"),		 TEXT("wchar_t"),	  TEXT("while"),
+												  TEXT("xor"),			 TEXT("xor_eq")};
+		FString S = In;
 		for (int32 i = 0; i < S.Len(); ++i)
 		{
 			if (!FUetkxLexer::IsIdentCode(S[i]))
@@ -790,7 +1185,15 @@ namespace
 				S[i] = '_';
 			}
 		}
-		return TEXT("RuiPriv_") + S;
+		if (S.IsEmpty())
+		{
+			return TEXT("_");
+		}
+		if ((S[0] >= '0' && S[0] <= '9') || CppKeywords.Contains(S))
+		{
+			S = TEXT("_") + S;
+		}
+		return S;
 	}
 
 	/** Line-mapping context for the `#line` directives (M7): the file's line-start table, the
@@ -840,21 +1243,6 @@ namespace
 		FString BodyPhase;
 	};
 
-	/** Wrap both phases of a private declaration in the per-file detail namespace (A5e). */
-	void WrapPrivate(FEmittedDecl& E, const FString& PrivNs)
-	{
-		const FString Open = FString::Printf(TEXT("namespace %s\n{\n"), *PrivNs);
-		const FString Close = FString::Printf(TEXT("} // namespace %s\n"), *PrivNs);
-		if (!E.DeclPhase.IsEmpty())
-		{
-			E.DeclPhase = Open + E.DeclPhase + Close;
-		}
-		if (!E.BodyPhase.IsEmpty())
-		{
-			E.BodyPhase = Open + E.BodyPhase + Close;
-		}
-	}
-
 	/** Re-indent a verbatim user region: insert a tab after every newline that is OUTSIDE a
 	 *  string/char/raw-string/comment token, so re-indentation never mutates multi-line string-literal
 	 *  CONTENT (bughunt CG-2 — the old blanket `Replace("\n","\n\t")` injected a tab inside raw strings,
@@ -896,36 +1284,47 @@ namespace
 
 	/** A `hook` declaration → an inline free function taking FRuiContext& first (built-in hook
 	 *  calls in the body Ctx.-prefixed, nested user hooks Ctx-injected). DECL phase = the forward
-	 *  declaration; BODY phase = the definition. A non-exported hook wraps in the detail namespace. */
-	FEmittedDecl EmitHookInl(const FUetkxHookDecl& Hook, const FString& PrivNs, const TMap<FString, FString>& Qualified,
-							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr)
+	 *  declaration; BODY phase = the definition. FILE_SCOPED_EXPORTS: every decl (exported or
+	 *  private) lives in the FILE namespace — the assembly wrap owns it, nothing per-decl.
+	 *  TB-23: the USER BODY lives in a CONTENT-HASHED static (`<Name>_RuiBody_<hash>`) behind a
+	 *  stable forwarder — user closures (effects, callbacks stored in cells/props) mangle under
+	 *  the hashed name, so a Live-Coding patch can never redirect an OLD closure's code to a
+	 *  DIFFERENT lambda's layout (the cross-patch ordinal collision). The forwarder keeps the
+	 *  stable cross-file symbol every importer binds. */
+	FEmittedDecl EmitHookInl(const FUetkxHookDecl& Hook, const FString& BodyHash, const FLineCtx& Line,
+							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Ret = Hook.Ret.IsEmpty() ? FString(TEXT("void")) : Hook.Ret;
 		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuiContext& Ctx%s%s)"), *Ret, *Hook.Name,
 											Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
+		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Hook.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
-		FString Def = Sig + TEXT("\n{\n");
+		FString Def = FString::Printf(TEXT("static %s %s(FRuiContext& Ctx%s%s)\n{\n"), *Ret, *BodyName,
+									  Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
 		const TArray<FString> HookParams = FUetkxScopedLocals::ParamNamesOf(Hook.Params);
-		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Qualified, Aliases, &HookParams);
+		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Aliases, &HookParams, ValueCalls);
 		if (!Body.IsEmpty())
 		{
 			Def += WithLine(TEXT("\t") + IndentRegion(Body) + TEXT("\n"), SrcLineOfRegion(Hook.Body, Hook.BodyAt, Line),
 							Line);
 		}
 		Def += TEXT("}\n");
-		E.BodyPhase = Def;
-		if (!Hook.bExported)
+		FString Args = TEXT("Ctx");
+		for (const FString& P : HookParams)
 		{
-			WrapPrivate(E, PrivNs);
+			Args += TEXT(", ") + P;
 		}
+		Def += FString::Printf(TEXT("%s\n{\n\t%s%s(%s);\n}\n"), *Sig, Ret == TEXT("void") ? TEXT("") : TEXT("return "),
+							   *BodyName, *Args);
+		E.BodyPhase = Def;
 		return E;
 	}
 
 	/** A `module` declaration → a namespace holding its verbatim C++ body, emitted ENTIRELY in the
-	 *  DECL phase (before any struct that might default from its constants). A non-exported module
-	 *  nests inside the per-file detail namespace so same-named private modules never collide. */
-	FEmittedDecl EmitModuleInl(const FUetkxModuleDecl& Module, const FString& PrivNs, const FLineCtx& Line)
+	 *  DECL phase (before any struct that might default from its constants). Nests inside the file
+	 *  namespace via the assembly wrap — same-named modules in two files can never collide. */
+	FEmittedDecl EmitModuleInl(const FUetkxModuleDecl& Module, const FLineCtx& Line)
 	{
 		FString Out = FString::Printf(TEXT("namespace %s\n{\n"), *Module.Name);
 		const FString Body = Module.Body.TrimStartAndEnd();
@@ -937,36 +1336,31 @@ namespace
 		Out += FString::Printf(TEXT("} // namespace %s\n"), *Module.Name);
 		FEmittedDecl E;
 		E.DeclPhase = Out;
-		if (!Module.bExported)
-		{
-			WrapPrivate(E, PrivNs);
-		}
 		return E;
 	}
 
 	/** ES-modules (U-04): a `[export] <Type> Name = <Init>;` VALUE export → DECL-PHASE-ONLY
 	 *  `inline const <T> Name = <Init>;` (typed) or `inline const auto Name = <Init>;` (inferred
 	 *  — U-01). Immutable by construction: there is no BODY phase (module-level mutable state is
-	 *  not a thing). The initializer still runs through the alias-rewrite plane (`PrefixHookCalls`
-	 *  with `Qualified` — U-03: import renames, `X::` namespace quals, private same-file
-	 *  qualification); a value initializer that happens to look like a hook call is not policed
-	 *  here — it surfaces as a normal downstream compile error (no `Ctx` in scope) exactly like
-	 *  any other misuse. A non-exported value nests in the per-file detail namespace. */
-	FEmittedDecl EmitValueInl(const FUetkxValueDecl& Value, const FString& PrivNs,
-							  const TMap<FString, FString>& Qualified, const FLineCtx& Line,
-							  const FUetkxAliasPlane* Aliases = nullptr)
+	 *  not a thing). The initializer still runs through the import-binding plane (`PrefixHookCalls`
+	 *  — U-03/FS-03: renamed/default/star imports rewrite to their qualified targets); a value
+	 *  initializer that happens to look like a hook call is not policed here — it surfaces as a
+	 *  normal downstream compile error (no `Ctx` in scope) exactly like any other misuse. */
+	FEmittedDecl EmitValueInl(const FUetkxValueDecl& Value, const FLineCtx& Line,
+							  const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Type = Value.Type.IsEmpty() ? FString(TEXT("auto")) : Value.Type;
-		const FString Init = PrefixHookCalls(Value.Init.TrimStartAndEnd(), Qualified, Aliases);
-		FString Out = FString::Printf(TEXT("inline const %s %s =\n"), *Type, *Value.Name);
+		const FString Init = PrefixHookCalls(Value.Init.TrimStartAndEnd(), Aliases, nullptr, ValueCalls);
+		// TB-15: a value export is an inline FUNCTION returning by value, not a global — a Live
+		// Coding patch replaces the CODE producing the value (a global initializer never re-runs
+		// on patch, which made every style-companion edit invisible to HMR). References are
+		// rewritten to calls by the walker's ValueCalls branch. Consequence (owned): value
+		// exports are VALUES — `&Name` no longer compiles.
+		FString Out = FString::Printf(TEXT("inline %s %s()\n{\n\treturn\n"), *Type, *Value.Name);
 		Out += WithLine(Init + TEXT("\n"), SrcLineOfRegion(Value.Init, Value.InitAt, Line), Line);
-		Out += TEXT(";\n");
+		Out += TEXT(";\n}\n");
 		FEmittedDecl E;
 		E.DeclPhase = Out;
-		if (!Value.bExported)
-		{
-			WrapPrivate(E, PrivNs);
-		}
 		return E;
 	}
 
@@ -977,26 +1371,32 @@ namespace
 	 *  transform (built-in hook Ctx.-prefixing, user-hook Ctx-injection, alias rewriting) — a util
 	 *  body that happens to call something hook-shaped is not specially policed; it fails to
 	 *  compile downstream (no `Ctx` in scope), the same as any other misuse. */
-	FEmittedDecl EmitUtilInl(const FUetkxUtilDecl& Util, const FString& PrivNs, const TMap<FString, FString>& Qualified,
-							 const FLineCtx& Line, const FUetkxAliasPlane* Aliases = nullptr)
+	FEmittedDecl EmitUtilInl(const FUetkxUtilDecl& Util, const FString& BodyHash, const FLineCtx& Line,
+							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
+		// TB-23: hashed body behind the stable forwarder, exactly like EmitHookInl (a util body
+		// may hand out closures too — e.g. building an FRuiCallback).
 		const FString Sig = FString::Printf(TEXT("inline %s %s(%s)"), *Util.RetType, *Util.Name, *Util.Params);
+		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Util.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
-		FString Def = Sig + TEXT("\n{\n");
+		FString Def = FString::Printf(TEXT("static %s %s(%s)\n{\n"), *Util.RetType, *BodyName, *Util.Params);
 		const TArray<FString> UtilParams = FUetkxScopedLocals::ParamNamesOf(Util.Params);
-		const FString Body = PrefixHookCalls(Util.Body.TrimStartAndEnd(), Qualified, Aliases, &UtilParams);
+		const FString Body = PrefixHookCalls(Util.Body.TrimStartAndEnd(), Aliases, &UtilParams, ValueCalls);
 		if (!Body.IsEmpty())
 		{
 			Def += WithLine(TEXT("\t") + IndentRegion(Body) + TEXT("\n"), SrcLineOfRegion(Util.Body, Util.BodyAt, Line),
 							Line);
 		}
 		Def += TEXT("}\n");
-		E.BodyPhase = Def;
-		if (!Util.bExported)
+		FString Args;
+		for (const FString& P : UtilParams)
 		{
-			WrapPrivate(E, PrivNs);
+			Args += (Args.IsEmpty() ? TEXT("") : TEXT(", ")) + P;
 		}
+		Def += FString::Printf(TEXT("%s\n{\n\t%s%s(%s);\n}\n"), *Sig,
+							   Util.RetType == TEXT("void") ? TEXT("") : TEXT("return "), *BodyName, *Args);
+		E.BodyPhase = Def;
 		return E;
 	}
 
@@ -1004,11 +1404,12 @@ namespace
 	class FEmitter
 	{
 	public:
-		FEmitter(const FString& InBasename, const FUetkxComponentDecl& InDecl, TArray<FUetkxDiag>& InDiags,
-				 TSet<FString>& InUses, TMap<FString, int32>& InUseAts, const TMap<FString, FString>& InQualified,
-				 const FLineCtx& InLine, const FUetkxAliasPlane& InAliases)
-			: Basename(InBasename), Decl(InDecl), Diags(InDiags), Uses(InUses), UseAts(InUseAts),
-			  Qualified(InQualified), Line(InLine), Aliases(InAliases)
+		FEmitter(const FString& InBasename, const FString& InFileNs, const FString& InBodyHash,
+				 const FUetkxComponentDecl& InDecl, TArray<FUetkxDiag>& InDiags, TSet<FString>& InUses,
+				 TMap<FString, int32>& InUseAts, const FLineCtx& InLine, const FUetkxAliasPlane& InAliases,
+				 const TSet<FString>* InValueCalls = nullptr)
+			: Basename(InBasename), FileNs(InFileNs), BodyHash(InBodyHash), Decl(InDecl), Diags(InDiags), Uses(InUses),
+			  UseAts(InUseAts), Line(InLine), Aliases(InAliases), ValueCalls(InValueCalls)
 		{
 			// TD-034 #1 (N4): the component's params seed the scope tracker for every code region.
 			for (const FUetkxParam& Param : Decl.Params)
@@ -1028,13 +1429,16 @@ namespace
 		bool HasError() const { return bError; }
 
 	private:
-		void Fail(const TCHAR* Code, const FString& Msg, int32 At)
+		void Fail(const TCHAR* Code, const FString& Msg, int32 At, int32 Len = 1)
 		{
+			// TB-16(a): Len is the TOKEN length (attr name / value literal) — the editor
+			// renders the sidecar copy of this diag, and a default 1 drew one-char squiggles.
 			FUetkxDiag D;
 			D.Code = Code;
 			D.Severity = 0;
 			D.Message = Msg;
 			D.Offset = At;
+			D.Length = FMath::Max(1, Len);
 			Diags.Add(MoveTemp(D));
 			bError = true;
 		}
@@ -1045,12 +1449,12 @@ namespace
 								   ++TextKeyCounter, *CppStringLiteral(Value));
 		}
 
-		/** Hook auto-prefix (built-in → Ctx.*, user hooks → Ctx first arg), plus same-file PRIVATE
-		 *  reference qualification (private hook calls + `Module::` quals → RuiPriv_<Basename>::…),
-		 *  plus the ES-modules import-alias plane (U-03 — rename / `X::` strip pre-pass).
+		/** Hook auto-prefix (built-in → Ctx.*, user hooks → Ctx first arg), plus the import-binding
+		 *  plane (U-03/FS-03 — imported references rewrite to their target file's qualified
+		 *  spelling in the pre-pass; same-file references stay bare, they share the file namespace).
 		 *  `OriginAbs` = the FILE-absolute offset of Code[0] when known (-1 detached): the region's
 		 *  tracker is seeded with the locals IN SCOPE at that body position (N4 audit), so a setup
-		 *  local shadowing an alias/private name stays itself inside markup expressions and across
+		 *  local shadowing a binding name stays itself inside markup expressions and across
 		 *  value-markup fragmentation — a rewrite there reads the WRONG symbol silently. */
 		static int32 TrimmedOrigin(const FString& Raw, int32 Origin)
 		{
@@ -1072,15 +1476,15 @@ namespace
 			{
 				TArray<FString> Seed = BodyLocals->NamesInScopeAt(OriginAbs - Decl.BodyAt);
 				Seed.Append(DirectiveSeed);
-				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed);
+				return PrefixHookCalls(Code, &Aliases, &Seed, ValueCalls);
 			}
 			if (DirectiveSeed.Num() > 0)
 			{
 				TArray<FString> Seed = ComponentParamNames;
 				Seed.Append(DirectiveSeed);
-				return PrefixHookCalls(Code, Qualified, &Aliases, &Seed);
+				return PrefixHookCalls(Code, &Aliases, &Seed, ValueCalls);
 			}
-			return PrefixHookCalls(Code, Qualified, &Aliases, &ComponentParamNames);
+			return PrefixHookCalls(Code, &Aliases, &ComponentParamNames, ValueCalls);
 		}
 
 		/** An embedded expression: rewrite nested markup ranges (jsx scan) to element exprs.
@@ -1139,9 +1543,11 @@ namespace
 		/** One node as a C++ FRuiNode expression. */
 		FString EmitNodeExpr(const FUetkxNode& Node, int32 AbsAt, int32 TrueBase = -1);
 
-		/** Children statements appending into `Ch`. */
+		/** Children statements appending into `Ch`. `ParentTag` (R12), when it names a known
+		 *  container, arms the direct-child checks: duplicate literal sibling keys (UETKX0110)
+		 *  and slot keys the parent's slot-apply never reads (UETKX0111). */
 		void EmitChildren(FString& Out, const TArray<TSharedPtr<FUetkxNode>>& Children, const FString& Indent,
-						  int32 AbsAt, int32 TrueBase = -1);
+						  int32 AbsAt, int32 TrueBase = -1, const FString& ParentTag = FString());
 
 		/** A directive body: C++ statements ending in `return ( <markup> )` — leading
 		 *  statements splice verbatim, the returned markup lowers to Ch.Add(...). */
@@ -1149,13 +1555,15 @@ namespace
 					  int32 TrueOrigin = -1);
 
 		const FString& Basename;
+		const FString& FileNs;	 // this FILE's namespace (FILE_SCOPED_EXPORTS — runtime id qualifier)
+		const FString& BodyHash; // TB-23: content hash — unique lambda manglings per generation
 		const FUetkxComponentDecl& Decl;
 		TArray<FUetkxDiag>& Diags;
 		TSet<FString>& Uses;					   // component tags this component references (aggregator topo order)
 		TMap<FString, int32>& UseAts;			   // tag -> first reference offset (strict-import diagnostics, M4)
-		const TMap<FString, FString>& Qualified;   // private same-file decl name -> RuiPriv_<Basename>::name
 		const FLineCtx& Line;					   // #line directive context (M7)
-		const FUetkxAliasPlane& Aliases;		   // ES-modules import-alias substitution plane (U-03)
+		const FUetkxAliasPlane& Aliases;		   // the import-binding substitution plane (U-03/FS-03)
+		const TSet<FString>* ValueCalls = nullptr; // TB-15: value names → call rewrite (`Name` → `Name()`)
 		TArray<FString> ComponentParamNames;	   // scope-tracker seed for every code region (N4)
 		TArray<int32> BodyCp;					   // the component body, code points (N4 audit)
 		TArray<FUetkxMarkupRange> BodyRanges;	   // its markup ranges (skipped by BodyLocals)
@@ -1233,19 +1641,54 @@ namespace
 			Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown tag <%s>"), *Node.Tag), AbsAt + Node.At);
 			return FString(TEXT("FRuiNode()"));
 		}
-		// ES-modules (U-03): a component tag spelled with a rename-import alias (`import { A as B }`
-		// + `<B/>`) emits against the TARGET name (its real props struct + wrapper). `Uses` (the
-		// aggregator's topo-order input) records the TARGET — dependency edges are keyed by exported
-		// names; `UseAts` keeps the LOCAL spelling — the resolver's usage accounting (2304) and
+		// ES-modules (U-03) / FILE_SCOPED_EXPORTS (FS-03): a component tag spelled with an import
+		// binding (`import { A }` / `import { A as B }` + `<B/>`) emits against the TARGET name in
+		// the TARGET FILE's namespace (its real props struct + wrapper). `Uses` (the aggregator's
+		// topo-order input) records the TARGET — dependency edges are keyed by exported names;
+		// `UseAts` keeps the LOCAL spelling — the resolver's usage accounting (2304) and
 		// diagnostics anchor on what the author wrote (M4).
-		const FString* AliasTarget = bComponent ? Aliases.Rename.Find(Node.Tag) : nullptr;
-		const FString EmitTag = AliasTarget ? *AliasTarget : Node.Tag;
+		const FUetkxImportedBinding* ImportedTag = bComponent ? Aliases.Bindings.Find(Node.Tag) : nullptr;
+		const FString EmitTag = ImportedTag ? ImportedTag->TargetName : Node.Tag;
 		if (bComponent)
 		{
 			Uses.Add(EmitTag);
 			if (!UseAts.Contains(Node.Tag))
 			{
 				UseAts.Add(Node.Tag, AbsAt + Node.At);
+			}
+		}
+
+		// R12 — duplicate attributes: the parser keeps every occurrence and codegen used to
+		// emit one setter per occurrence (last wins SILENTLY). Always an author error.
+		// R14 — canonical casing: runtime names are FNames (case-insensitive) and the slot
+		// prefix used to route IgnoreCase, so `slot.fill` silently worked while every
+		// exact-case check silently disarmed for it. The tag rule, extended: UETKX0112.
+		{
+			TSet<FString> SeenAttrNames;
+			for (const FUetkxAttr& Attr : Node.Attrs)
+			{
+				if (Attr.Kind == EUetkxAttrKind::Comment)
+				{
+					continue;
+				}
+				bool bDup = false;
+				SeenAttrNames.Add(Attr.Name, &bDup);
+				if (bDup)
+				{
+					Fail(TEXT("UETKX0109"),
+						 FString::Printf(TEXT("duplicate attribute '%s' on <%s> — the last one wins"), *Attr.Name,
+										 *Node.Tag),
+						 AbsAt + Attr.At, Attr.Name.Len());
+				}
+				const FString Canon = MiscasedCanonName(Attr.Name, Tag);
+				if (!Canon.IsEmpty())
+				{
+					Fail(TEXT("UETKX0112"),
+						 FString::Printf(TEXT("attribute casing is canonical — write '%s', not '%s' (host names "
+											  "are case-sensitive, 1:1 with Slate)"),
+										 *Canon, *Attr.Name),
+						 AbsAt + Attr.At, Attr.Name.Len());
+				}
 			}
 		}
 
@@ -1315,18 +1758,52 @@ namespace
 					{
 						Fail(TEXT("UETKX0105"),
 							 TEXT("attribute 'Ref' on <TextBlock> needs an {expr} value (a ref callable)"),
-							 AbsAt + Attr.At);
+							 AbsAt + Attr.At, 3 /* Ref */);
 					}
 				}
-				else if (IsStyleKey(Attr.Name) || Attr.Name.StartsWith(TEXT("Slot.")))
+				else if (IsStyleKey(Attr.Name) || Attr.Name.StartsWith(TEXT("Slot."), ESearchCase::CaseSensitive))
 				{
 					bStyled = true;
-					const bool bSlot = Attr.Name.StartsWith(TEXT("Slot."));
+					const bool bSlot = Attr.Name.StartsWith(TEXT("Slot."), ESearchCase::CaseSensitive);
+					// R10/R11: same value checks as the generic element path (this TextBlock
+					// fast path is a second copy of the style lowering — round-11 field find:
+					// it silently skipped them).
+					if (Attr.Kind != EUetkxAttrKind::Expr && Attr.Kind != EUetkxAttrKind::Bool)
+					{
+						if (const TArray<FString>* Vocab = FailedAttrEnum(Attr.Name, Attr.Value))
+						{
+							Fail(TEXT("UETKX0106"),
+								 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
+												 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
+								 AbsAt + Attr.At, Attr.Name.Len());
+							continue;
+						}
+						const FString FormatErr = FailedStyleSlotFormat(Attr.Name, Attr.Value);
+						if (!FormatErr.IsEmpty())
+						{
+							Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At, Attr.Name.Len());
+							continue;
+						}
+					}
+					else if (Attr.Kind == EUetkxAttrKind::Bool)
+					{
+						const FString* FlagKind = StyleSlotKinds().Find(Attr.Name);
+						if (AttrEnums().Contains(Attr.Name) || (FlagKind != nullptr && *FlagKind != TEXT("bool")))
+						{
+							Fail(TEXT("UETKX0106"),
+								 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
+												 FlagKind != nullptr ? **FlagKind : TEXT("vocabulary")),
+								 AbsAt + Attr.At, Attr.Name.Len());
+							continue;
+						}
+					}
 					const FString Value =
 						Attr.Kind == EUetkxAttrKind::Expr
 							? FString::Printf(TEXT("FRuiValue(%s)"),
 											  *EmitExpr(Attr.Value, AbsAt,
 														TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
+						: Attr.Kind == EUetkxAttrKind::Bool
+							? FString(TEXT("FRuiValue(true)"))
 							: FString::Printf(TEXT("FRuiValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
 					StyleStmts += FString::Printf(TEXT("\t\t__%s->Add(FName(TEXT(\"%s\")), %s);\n"),
 												  bSlot ? TEXT("Slot") : TEXT("Style"), *Attr.Name, *Value);
@@ -1334,7 +1811,7 @@ namespace
 				else
 				{
 					Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown attribute '%s' on <TextBlock>"), *Attr.Name),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 			}
 			if (!bStyled)
@@ -1356,12 +1833,10 @@ namespace
 			return Out;
 		}
 
-		// A same-file PRIVATE component lives in the per-file detail namespace, so its call site
-		// qualifies both the props struct and the wrapper (RuiPriv_<Basename>::…). EmitTag (not
-		// Node.Tag) so a rename-imported component resolves to its real emission home (U-03) — an
-		// import target is never same-file-private, so the two prefixes cannot both apply.
-		const FString* Priv = bComponent ? Qualified.Find(EmitTag) : nullptr;
-		const FString Prefix = Priv ? *Priv : FString();
+		// FILE_SCOPED_EXPORTS (FS-03): an IMPORTED component's call site qualifies both the props
+		// struct and the wrapper with the target FILE's namespace; a same-file component (exported
+		// or private — both live in THIS file's namespace with the call site) stays bare.
+		const FString Prefix = ImportedTag ? ImportedTag->NsPrefix : FString();
 		const FString PropsType =
 			bComponent ? FString::Printf(TEXT("%sF%sUetkxProps"), *Prefix, *EmitTag) : Tag->PropsType;
 		const FString Factory = bComponent ? Prefix + EmitTag : Tag->Factory;
@@ -1430,18 +1905,55 @@ namespace
 					Fail(TEXT("UETKX0105"),
 						 FString::Printf(TEXT("attribute 'Ref' on <%s> needs an {expr} value (a ref callable)"),
 										 *Node.Tag),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 				}
 				continue;
 			}
-			if (IsStyleKey(Attr.Name) || Attr.Name.StartsWith(TEXT("Slot.")))
+			if (IsStyleKey(Attr.Name) || Attr.Name.StartsWith(TEXT("Slot."), ESearchCase::CaseSensitive))
 			{
-				const bool bSlot = Attr.Name.StartsWith(TEXT("Slot."));
+				const bool bSlot = Attr.Name.StartsWith(TEXT("Slot."), ESearchCase::CaseSensitive);
+				if (Attr.Kind != EUetkxAttrKind::Expr && Attr.Kind != EUetkxAttrKind::Bool)
+				{
+					if (const TArray<FString>* Vocab = FailedAttrEnum(Attr.Name, Attr.Value))
+					{
+						Fail(TEXT("UETKX0106"),
+							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value, *Attr.Name,
+											 *FString::Join(*Vocab, TEXT(" | "))),
+							 AbsAt + Attr.At, Attr.Name.Len());
+						continue;
+					}
+					// R11: typed style/slot strings — the runtime parses well-formed literals
+					// (SlotValue readers), but a malformed one still Atof's to 0/false silently.
+					const FString FormatErr = FailedStyleSlotFormat(Attr.Name, Attr.Value);
+					if (!FormatErr.IsEmpty())
+					{
+						Fail(TEXT("UETKX0106"), FormatErr, AbsAt + Attr.At, Attr.Name.Len());
+						continue;
+					}
+				}
+				else if (Attr.Kind == EUetkxAttrKind::Bool)
+				{
+					// R11: the flag form (= true) only fits bool-kind keys; on an enum or typed
+					// key the runtime would read that true back as a 0/default silently.
+					const FString* FlagKind = StyleSlotKinds().Find(Attr.Name);
+					if (AttrEnums().Contains(Attr.Name) || (FlagKind != nullptr && *FlagKind != TEXT("bool")))
+					{
+						Fail(TEXT("UETKX0106"),
+							 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
+											 FlagKind != nullptr ? **FlagKind : TEXT("vocabulary")),
+							 AbsAt + Attr.At, Attr.Name.Len());
+						continue;
+					}
+				}
 				const FString Value =
 					Attr.Kind == EUetkxAttrKind::Expr
 						? FString::Printf(
 							  TEXT("FRuiValue(%s)"),
 							  *EmitExpr(Attr.Value, AbsAt, TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
+					: Attr.Kind == EUetkxAttrKind::Bool
+						// R11: the flag form means TRUE (like element bool attrs) — it used to
+						// lower as FRuiValue(TEXT("")), which the runtime read as false.
+						? FString(TEXT("FRuiValue(true)"))
 						: FString::Printf(TEXT("FRuiValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
 				StyleStmts += FString::Printf(TEXT("\t\t__%s->Add(FName(TEXT(\"%s\")), %s);\n"),
 											  bSlot ? TEXT("Slot") : TEXT("Style"), *Attr.Name, *Value);
@@ -1463,7 +1975,7 @@ namespace
 			if (AttrType == nullptr)
 			{
 				Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown attribute '%s' on <%s>"), *Attr.Name, *Node.Tag),
-					 AbsAt + Attr.At);
+					 AbsAt + Attr.At, Attr.Name.Len());
 				continue;
 			}
 			FString Value;
@@ -1491,6 +2003,25 @@ namespace
 					Value = NsLocText(Attr.Value);
 					break;
 				case EAttrType::Name:
+					if (const TArray<FString>* Vocab = FailedAttrEnum(Attr.Name, Attr.Value))
+					{
+						Fail(TEXT("UETKX0106"),
+							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value, *Attr.Name,
+											 *FString::Join(*Vocab, TEXT(" | "))),
+							 AbsAt + Attr.At, Attr.Name.Len());
+						continue;
+					}
+					// R13: brush names — closed per engine (FCoreStyle only); the injected
+					// environment set is the truth. Unknown → Slate's "missing resource" brush.
+					if (BrushAttrs().Contains(Attr.Name) && EnvironmentBrushes().LowerNames.Num() > 0 &&
+						!EnvironmentBrushes().LowerNames.Contains(Attr.Value.ToLower()))
+					{
+						Fail(TEXT("UETKX0106"),
+							 FString::Printf(TEXT("invalid value '%s' for %s — not a brush registered in FCoreStyle"),
+											 *Attr.Value, *Attr.Name),
+							 AbsAt + Attr.At, Attr.Name.Len());
+						continue;
+					}
 					Value = FString::Printf(TEXT("FName(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
 					break;
 				case EAttrType::Float:
@@ -1507,7 +2038,7 @@ namespace
 					Fail(TEXT("UETKX0105"),
 						 FString::Printf(TEXT("attribute '%s' on <%s> needs an {expr} value (no string form)"),
 										 *Attr.Name, *Node.Tag),
-						 AbsAt + Attr.At);
+						 AbsAt + Attr.At, Attr.Name.Len());
 					continue;
 				}
 			}
@@ -1539,14 +2070,64 @@ namespace
 			return Out;
 		}
 		Out += TEXT("\t\tTArray<FRuiNode> Ch;\n");
-		EmitChildren(Out, Node.Children, TEXT("\t\t"), AbsAt, TrueBase);
+		// R12: components re-slot their children wherever their own markup places them —
+		// only a HOST container's tag arms the direct-child slot/key checks.
+		EmitChildren(Out, Node.Children, TEXT("\t\t"), AbsAt, TrueBase, bComponent ? FString() : Node.Tag);
 		Out += FString::Printf(TEXT("\t\treturn %s(MoveTemp(P), MoveTemp(Ch), %s);\n\t}()"), *Factory, *Key);
 		return Out;
 	}
 
 	void FEmitter::EmitChildren(FString& Out, const TArray<TSharedPtr<FUetkxNode>>& Children, const FString& Indent,
-								int32 AbsAt, int32 TrueBase)
+								int32 AbsAt, int32 TrueBase, const FString& ParentTag)
 	{
+		// R12 pre-pass over DIRECT element children (directive bodies lower without parent
+		// context — the LSP's parent-tracked sweep covers those live):
+		//   0110 — duplicate literal sibling keys: the reconciler is silent (first claims the
+		//   fiber, the duplicate remounts as new — state loss with no diagnostic).
+		//   0111 — slot keys the parent's slot-apply never reads: dropped in total silence.
+		{
+			const TArray<FString>* Consumed = ParentTag.IsEmpty() ? nullptr : SlotConsumption().Find(ParentTag);
+			TSet<FString> SeenKeys;
+			for (const TSharedPtr<FUetkxNode>& ChildPtr : Children)
+			{
+				if (!ChildPtr.IsValid() || ChildPtr->Type != EUetkxNodeType::El)
+				{
+					continue;
+				}
+				for (const FUetkxAttr& Attr : ChildPtr->Attrs)
+				{
+					if (Attr.Kind == EUetkxAttrKind::Comment)
+					{
+						continue;
+					}
+					if (Attr.Name == TEXT("key") && Attr.Kind == EUetkxAttrKind::Str)
+					{
+						bool bDup = false;
+						SeenKeys.Add(Attr.Value, &bDup);
+						if (bDup)
+						{
+							Fail(TEXT("UETKX0110"),
+								 FString::Printf(TEXT("duplicate key \"%s\" among siblings — the duplicate "
+													  "remounts every render (state loss)"),
+												 *Attr.Value),
+								 AbsAt + Attr.At, Attr.Value.Len() + 2 /* key + quotes */);
+						}
+					}
+					else if (Consumed != nullptr && Attr.Name.StartsWith(TEXT("Slot.")) &&
+							 !Consumed->Contains(Attr.Name))
+					{
+						Fail(TEXT("UETKX0111"),
+							 Consumed->IsEmpty()
+								 ? FString::Printf(TEXT("%s is ignored — <%s> passes no slot properties to "
+														"its child"),
+												   *Attr.Name, *ParentTag)
+								 : FString::Printf(TEXT("%s is ignored by <%s> — it reads: %s"), *Attr.Name, *ParentTag,
+												   *FString::Join(*Consumed, TEXT(" | "))),
+							 AbsAt + Attr.At, Attr.Name.Len());
+					}
+				}
+			}
+		}
 		for (const TSharedPtr<FUetkxNode>& ChildPtr : Children)
 		{
 			if (!ChildPtr.IsValid())
@@ -1736,10 +2317,26 @@ namespace
 		// ── BODY phase: the impl (markup lowering — MUST run to populate Uses/UseAts), the identity
 		// + hook-signature registrations, the default-free wrapper definition, and (exported only)
 		// the named-factory self-registration.
-		FString Impl = FString::Printf(
-			TEXT("static FRuiNodeArray %s_UetkxImpl(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
-				 "children)\n{\n"),
-			*Decl.Name, *PropsType);
+		//
+		// TB-23 — TWO symbols, each owning ONE property (they must never be conflated):
+		//
+		// - `<Name>_UetkxBody_<hash>` (content-hashed) holds the ACTUAL markup body — every
+		//   anonymous lambda mangles under it. Live Coding redirects BY MANGLED NAME across
+		//   patches, and lambdas mangle by ORDINAL: inserting a markup child shifts later
+		//   ordinals, so an OLD stored closure's destructor got redirected to a DIFFERENT
+		//   lambda's layout (AV tearing down pre-patch trees). Hashed enclosing name = every
+		//   generation's manglings are globally unique; old objects keep their own code.
+		// - `<Name>_UetkxImpl` (STABLE) is a one-line shim to the body: it is the REGISTERED
+		//   pointer, the FC target, and Live Coding's redirect anchor. It MUST stay stable —
+		//   patch initializers for same-named globals never re-run (TB-15), so a renamed impl
+		//   would never re-register and old fibers would invoke dead code forever (the
+		//   first-cut TB-23 hashed the impl itself and froze HMR exactly that way).
+		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl"), *Decl.Name);
+		const FString BodyName = FString::Printf(TEXT("%s_UetkxBody_%s"), *Decl.Name, *BodyHash);
+		FString Impl =
+			FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
+								 "children)\n{\n"),
+							*BodyName, *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
 		{
 			Impl += FString::Printf(TEXT("\tconst auto& %s = Props.%s;\n"), *Param.Name, *Param.Name);
@@ -1757,7 +2354,10 @@ namespace
 						TEXT("\n"),
 					SrcLineOfRegion(Decl.Setup, Decl.SetupAt, Line), Line);
 			}
-			Impl += FString::Printf(TEXT("\treturn { %s };\n}\n"), *EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
+			// `return null;` (TB-28) — render nothing: an empty node array reconciles to zero children.
+			Impl += Decl.Returns.Last().bNull ? FString(TEXT("\treturn {};\n}\n"))
+											  : FString::Printf(TEXT("\treturn { %s };\n}\n"),
+																*EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
 		}
 		else
 		{
@@ -1775,8 +2375,9 @@ namespace
 					Impl += WithLine(TEXT("\t") + IndentRegion(EmitExpr(Segment, Decl.BodyAt + Cursor)) + TEXT("\n"),
 									 SrcLineOfRegion(Raw, Decl.BodyAt + Cursor, Line), Line);
 				}
-				Impl +=
-					FString::Printf(TEXT("\treturn { %s };\n"), *EmitNodeExpr(*Span.Root, Decl.BodyAt, Decl.BodyAt));
+				Impl += Span.bNull ? FString(TEXT("\treturn {};\n")) // `return null;` — render nothing (TB-28)
+								   : FString::Printf(TEXT("\treturn { %s };\n"),
+													 *EmitNodeExpr(*Span.Root, Decl.BodyAt, Decl.BodyAt));
 				// step past the authored `;` (we emit our own)
 				Cursor = Span.AfterParen;
 				while (Cursor < Body.Num() &&
@@ -1798,36 +2399,36 @@ namespace
 			}
 			Impl += TEXT("}\n");
 		}
-		// TD-026 (ES-modules M3): runtime identity keys. An EXPORTED component registers its short
-		// name (globally unique via the UETKX2106 ledger); a PRIVATE one registers the FILE-QUALIFIED
-		// `RuiPriv_<Basename>::<Name>` — the exact emitted C++ qualified name — so two files' private
-		// same-named components never collide in the process-global registries (HMR maps included).
-		// G-01 documented semantic: renaming a file renames RuiPriv_<Basename> ⇒ private members get
-		// fresh runtime identity ⇒ remount/state-reset on the next sweep.
-		const FString RuntimeId = Decl.bExported ? Decl.Name : PrivNamespaceFor(Basename) + TEXT("::") + Decl.Name;
-		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = RUI::RegisterComponentId((void*)&%s_UetkxImpl, "
+		// The STABLE impl shim (TB-23): pointer identity + Live Coding's redirect anchor.
+		Impl += FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, "
+									 "const TArray<FRuiNode>& children)\n{\n\treturn %s(Ctx, Props, children);\n}\n"),
+								*ImplName, *PropsType, *BodyName);
+		// FILE_SCOPED_EXPORTS (FS-04, supersedes TD-026's split): runtime identity = the FILE-
+		// QUALIFIED emitted C++ name for EVERY component, exported or private — two files may
+		// export the same name (that is the ES-module point), so the process-global registries
+		// (HMR maps included) key on `<FileNs>::<Name>`. The G-01 semantic is now uniform:
+		// renaming/moving a file renames its namespace ⇒ fresh runtime identity ⇒ remount on the
+		// next sweep (React Fast Refresh parity — module path is the key). Short-name lookup at
+		// the designer edges resolves by suffix (RUI::ResolveNamed).
+		const FString RuntimeId = FileNs + TEXT("::") + Decl.Name;
+		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = RUI::RegisterComponentId((void*)&%s, "
 									 "FName(TEXT(\"%s\")));\n"),
-								*Decl.Name, *Decl.Name, *RuntimeId);
+								*Decl.Name, *ImplName, *RuntimeId);
 		Impl += FString::Printf(TEXT("static constexpr uint32 %s_RUI_HOOK_SIG = 0x%08Xu;\n"), *Decl.Name,
 								FUetkxFileScan::HookSignature(Decl.HookCalls));
 		Impl += FString::Printf(TEXT("inline FRuiNode %s(%s InProps, TArray<FRuiNode> InChildren, FRuiKey "
-									 "InKey)\n{\n\treturn RUI::FC(&%s_UetkxImpl, MoveTemp(InProps), "
+									 "InKey)\n{\n\treturn RUI::FC(&%s, MoveTemp(InProps), "
 									 "MoveTemp(InChildren), InKey);\n}\n"),
-								*Decl.Name, *PropsType, *Decl.Name);
+								*Decl.Name, *PropsType, *ImplName);
+		// A PRIVATE component stays TREE-SHAKEN (no named factory); the file namespace comes from
+		// the assembly wrap for every decl alike.
 		if (Decl.bExported)
 		{
 			Impl += FString::Printf(TEXT("static const bool G%sUetkxFactoryReg = "
 										 "RUI::RegisterNamedFactory(FName(TEXT(\"%s\")), []() { return %s(); });\n"),
-									*Decl.Name, *Decl.Name, *Decl.Name);
+									*Decl.Name, *RuntimeId, *Decl.Name);
 		}
 		E.BodyPhase = Impl;
-
-		// A PRIVATE component is TREE-SHAKEN (no named factory, above) and both phases wrap in the
-		// per-file detail namespace (A5e). RegisterComponentId is KEPT either way (HMR identity).
-		if (!Decl.bExported)
-		{
-			WrapPrivate(E, PrivNamespaceFor(Basename));
-		}
 		return E;
 	}
 } // namespace
@@ -1850,6 +2451,39 @@ FString FUetkxCodegen::GeneratedCopyrightLine(const FString& Basename, TOptional
 	}
 	return FString::Printf(
 		TEXT("// Generated by ReactiveUI from %s.uetkx — this generated code belongs to your project.\n"), *Basename);
+}
+
+FString FUetkxCodegen::FileNamespaceFor(const FString& ProjectRelPath, const FString& Basename)
+{
+	// FILE_SCOPED_EXPORTS (FS-01): one namespace per FILE, derived from the same machine-stable
+	// relative path the `#line` mapping uses (driver: project-relative; contract harness + unit
+	// tests: `<Basename>.uetkx`) — so every caller (codegen, driver, preview, tests) derives the
+	// IDENTICAL namespace for one file with zero filesystem access. Segments sanitize per the
+	// family rule (SanitizeNsSegment); the `.uetkx` extension is dropped from the stem, companion
+	// dots fold to `_` (`SimpleCounter.style` → `SimpleCounter_style`).
+	//
+	// ONE FLAT IDENTIFIER, deliberately — NOT nested namespaces: a nested segment named after a
+	// real C++ namespace (`RuiUetkx::Source::RuiDemo::…`) SHADOWS it inside generated code, so a
+	// user expression `RuiDemo::GDemoThemeCtx` would resolve against the enclosing segment
+	// instead of the global namespace (found live: the ContextDemo tree broke exactly there).
+	// A single identifier can shadow nothing. Two different paths that flat-join identically
+	// (`A_B/C` vs `A/B_C`) are DETECTED, not silent — the UETKX2329 folded-FQN ledger keys on
+	// this exact string.
+	const FString Rel = ProjectRelPath.IsEmpty() ? Basename + TEXT(".uetkx") : ProjectRelPath;
+	FString NoExt = Rel;
+	NoExt.ReplaceInline(TEXT("\\"), TEXT("/"));
+	if (NoExt.EndsWith(TEXT(".uetkx")))
+	{
+		NoExt.LeftChopInline(6);
+	}
+	TArray<FString> Segs;
+	NoExt.ParseIntoArray(Segs, TEXT("/"), true);
+	FString Ns = TEXT("RuiUetkx");
+	for (const FString& Seg : Segs)
+	{
+		Ns += TEXT("_") + SanitizeNsSegment(Seg);
+	}
+	return Ns;
 }
 
 FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FString& Basename,
@@ -1886,10 +2520,10 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	Inl += TEXT("\n");
 
 	// ES parity (family 0.9.1 field wave): a DEFAULT-exported declaration is PUBLIC — a default
-	// importer binds the bare symbol (same-name) or rewrites to it (renamed), so it must emit at
-	// file scope and join the 2106 global-name ledger (ExportedNames below), never the detail
-	// namespace it would be unreachable in. It stays NAME-IMPORT-private: the resolver's export
-	// table is a separate preamble scan that never marks it, so `import { X }` still 2301s.
+	// importer rewrites to its qualified target (FS-03), so it must join the export surface
+	// (ExportedNames below; a default-exported COMPONENT also registers its named factory). It
+	// stays NAME-IMPORT-private: the resolver's export table is a separate preamble scan that
+	// never marks it, so `import { X }` still 2301s.
 	if (!Scan.DefaultExportName.IsEmpty())
 	{
 		auto MarkPublic = [&Scan](auto& Decls)
@@ -1909,87 +2543,90 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		MarkPublic(Scan.Utils);
 	}
 
-	// Same-file PRIVATE decls (A5e) get a detail-namespace prefix so their same-file references
-	// reach into the wrapper: name -> `RuiPriv_<Basename>::`. Exported decls stay at file scope.
-	const FString PrivNs = PrivNamespaceFor(Basename);
-	TMap<FString, FString> Qualified;
-	for (const FUetkxComponentDecl& D : Scan.Components)
+	// FILE_SCOPED_EXPORTS (FS-01/FS-03): every decl of this file emits inside ONE file namespace
+	// (the assembly wrap below); same-file references need no qualification at all. The import-
+	// binding plane rewrites every IMPORTED reference to the target file's qualified spelling —
+	// built here from the resolver (the only place that knows targets); no resolver ⇒ the plane
+	// stays empty, references pass through bare, and (when a resolver-less caller compiles a file
+	// with imports) resolution is simply skipped exactly as before.
+	const FString FileNs = FileNamespaceFor(ProjectRelPath, Basename);
+	// TB-23 — the per-generation content hash stamped into every emitted BODY symbol
+	// (`_UetkxImpl_<hash>`, `_RuiBody_<hash>`): any edit re-hashes the file, so anonymous
+	// lambdas never share a mangled name across Live-Coding patches (a redirected destructor
+	// over a different capture layout was an AV tearing down pre-patch trees). Any stable
+	// content hash works — deliberately NOT the SrcHash cross-tool contract; plain FNV-1a
+	// over the source's UTF-16 units keeps codegen self-contained.
+	uint32 BodyHashBits = 2166136261u;
+	for (int32 i = 0; i < Source.Len(); ++i)
 	{
-		if (!D.bExported)
-		{
-			Qualified.Add(D.Name, PrivNs + TEXT("::"));
-		}
+		BodyHashBits = (BodyHashBits ^ static_cast<uint32>(Source[i])) * 16777619u;
 	}
-	for (const FUetkxHookDecl& D : Scan.Hooks)
-	{
-		if (!D.bExported)
-		{
-			Qualified.Add(D.Name, PrivNs + TEXT("::"));
-		}
-	}
-	for (const FUetkxModuleDecl& D : Scan.Modules)
-	{
-		if (!D.bExported)
-		{
-			Qualified.Add(D.Name, PrivNs + TEXT("::"));
-		}
-	}
+	const FString BodyHash = FString::Printf(TEXT("%08X"), BodyHashBits);
+	FUetkxAliasPlane Aliases;
+	// TB-15 — SAME-FILE value names for the call rewrite (`Name` → `Name()`): value exports lower
+	// as inline functions so Live Coding patches carry edited values (a global's initializer
+	// never re-runs on patch). Imported values are call-lowered by the binding pre-pass instead.
+	TSet<FString> ValueCalls;
 	for (const FUetkxValueDecl& D : Scan.Values)
 	{
-		if (!D.bExported)
-		{
-			Qualified.Add(D.Name, PrivNs + TEXT("::"));
-		}
+		ValueCalls.Add(D.Name);
 	}
-	for (const FUetkxUtilDecl& D : Scan.Utils)
+	if (Resolver != nullptr)
 	{
-		if (!D.bExported)
+		const FString ImporterRel = ProjectRelPath.IsEmpty() ? Basename + TEXT(".uetkx") : ProjectRelPath;
+		for (const FUetkxImportDecl& Imp : Scan.Imports)
 		{
-			Qualified.Add(D.Name, PrivNs + TEXT("::"));
-		}
-	}
-
-	// ES-modules (U-03): the import-alias plane, built from the scan's import bindings. Rename
-	// (`{ A as B }`) maps local → target; namespace (`* as X`) strips `X::` quals. A DEFAULT
-	// import's target symbol lives in the TARGET file's export table — only the resolver knows it
-	// (M4 wires that lookup into this same map before emit); no resolver ⇒ the default alias
-	// passes through verbatim and resolution reports it.
-	FUetkxAliasPlane Aliases;
-	for (const FUetkxImportDecl& Imp : Scan.Imports)
-	{
-		if (Imp.bHostInclude)
-		{
-			continue;
-		}
-		// No exclusive branching — an ES COMBINED import (`import Def, { A as B } from` /
-		// `import Def, * as X from`) carries default + named/star parts in one declaration and
-		// EVERY part must land in the alias plane.
-		if (Imp.bNamespace)
-		{
-			Aliases.NamespaceStrip.Add(Imp.NamespaceAlias);
-		}
-		if (Imp.bDefault)
-		{
-			// ES-modules (M4): the default alias binds the TARGET file's `export default` symbol —
-			// only the resolver knows its name. Unresolvable here (no resolver / no file / no
-			// default) ⇒ the alias passes through verbatim and Apply reports 2300/2326 after emit
-			// (an error discards the .inl, so unresolved code never lands).
-			if (Resolver != nullptr)
+			if (Imp.bHostInclude)
 			{
-				const FString ImporterRel = ProjectRelPath.IsEmpty() ? Basename + TEXT(".uetkx") : ProjectRelPath;
-				const FString Key = Resolver->Resolve(Imp.Specifier, ImporterRel);
-				const FString DefName = Key.IsEmpty() ? FString() : Resolver->DefaultExportOf(Key);
-				if (!DefName.IsEmpty() && DefName != Imp.DefaultAlias)
+				continue;
+			}
+			const FString Key = Resolver->Resolve(Imp.Specifier, ImporterRel);
+			if (Key.IsEmpty())
+			{
+				continue; // unresolved — Apply reports 2300 after emit; the .inl is discarded
+			}
+			TMap<FString, FUetkxTargetDecl> TargetDecls;
+			if (!Resolver->GetDecls(Key, TargetDecls))
+			{
+				continue;
+			}
+			const FString TargetLabel = Resolver->LabelForKey(Key);
+			const FString TargetNs = FileNamespaceFor(TargetLabel, FPaths::GetBaseFilename(Key)) + TEXT("::");
+			// No exclusive branching — an ES COMBINED import (`import Def, { A as B } from` /
+			// `import Def, * as X from`) carries default + named/star parts in one declaration and
+			// EVERY part must land in the plane.
+			if (Imp.bNamespace)
+			{
+				FUetkxStarImport Star;
+				Star.NsPrefix = TargetNs;
+				for (const TPair<FString, FUetkxTargetDecl>& Pair : TargetDecls)
 				{
-					Aliases.Rename.Add(Imp.DefaultAlias, DefName);
+					if (Pair.Value.Kind == EUetkxDeclKind::Value && Pair.Value.bExported)
+					{
+						Star.ValueNames.Add(Pair.Key);
+					}
+				}
+				Aliases.Stars.Add(Imp.NamespaceAlias, MoveTemp(Star));
+			}
+			if (Imp.bDefault)
+			{
+				// The default alias binds the TARGET file's `export default` symbol — only the
+				// resolver knows its name. No default ⇒ Apply reports 2326 and discards the .inl.
+				const FString DefName = Resolver->DefaultExportOf(Key);
+				if (!DefName.IsEmpty())
+				{
+					const FUetkxTargetDecl* TD = TargetDecls.Find(DefName);
+					Aliases.Bindings.Add(Imp.DefaultAlias,
+										 {DefName, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
 				}
 			}
-		}
-		for (int32 n = 0; n < Imp.Names.Num(); ++n)
-		{
-			if (Imp.LocalNames.IsValidIndex(n) && Imp.LocalNames[n] != Imp.Names[n])
+			for (int32 n = 0; n < Imp.Names.Num(); ++n)
 			{
-				Aliases.Rename.Add(Imp.LocalNames[n], Imp.Names[n]);
+				const FString& Target = Imp.Names[n];
+				const FString Local =
+					Imp.LocalNames.IsValidIndex(n) && !Imp.LocalNames[n].IsEmpty() ? Imp.LocalNames[n] : Target;
+				const FUetkxTargetDecl* TD = TargetDecls.Find(Target);
+				Aliases.Bindings.Add(Local, {Target, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
 			}
 		}
 	}
@@ -2016,7 +2653,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		case EUetkxDeclKind::Component:
 		{
 			const FUetkxComponentDecl& Decl = Scan.Components[Entry.Value];
-			FEmitter Emitter(Basename, Decl, Out.Diags, Uses, UseAts, Qualified, Line, Aliases);
+			FEmitter Emitter(Basename, FileNs, BodyHash, Decl, Out.Diags, Uses, UseAts, Line, Aliases, &ValueCalls);
 			const FEmittedDecl E = Emitter.Emit();
 			if (Emitter.HasError())
 			{
@@ -2033,29 +2670,28 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 		case EUetkxDeclKind::Hook:
 		{
-			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], PrivNs, Qualified, Line, &Aliases);
+			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], BodyHash, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Hooks[Entry.Value].Name);
 			break;
 		}
 		case EUetkxDeclKind::Module:
-			ModuleDecls += EmitModuleInl(Scan.Modules[Entry.Value], PrivNs, Line).DeclPhase + TEXT("\n");
+			ModuleDecls += EmitModuleInl(Scan.Modules[Entry.Value], Line).DeclPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Modules[Entry.Value].Name);
 			break;
 		// ES-modules (U-04): a VALUE is DECL-PHASE-ONLY, in the same early region as module
 		// bodies (a props-struct default may reference a file value, so values must precede
 		// every props struct exactly as module constants do).
 		case EUetkxDeclKind::Value:
-			ModuleDecls +=
-				EmitValueInl(Scan.Values[Entry.Value], PrivNs, Qualified, Line, &Aliases).DeclPhase + TEXT("\n");
+			ModuleDecls += EmitValueInl(Scan.Values[Entry.Value], Line, &Aliases, &ValueCalls).DeclPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Values[Entry.Value].Name);
 			break;
 		// ES-modules (U-04): a UTIL is hook-shaped (fwd-decl in the DECL phase, definition in
 		// the BODY phase) minus Ctx/HookSig.
 		case EUetkxDeclKind::Util:
 		{
-			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], PrivNs, Qualified, Line, &Aliases);
+			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], BodyHash, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Utils[Entry.Value].Name);
@@ -2063,10 +2699,20 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 		}
 	}
+	// FILE_SCOPED_EXPORTS (FS-01/FS-02): BOTH phases wrap in this file's namespace — exported and
+	// private decls alike (the compile-time half of ES-module scoping; privacy stays resolver-
+	// enforced, 2301). C++17 nested-namespace-definition syntax; reopening across the two phases
+	// is ordinary namespace reopening in the aggregator TU.
+	const FString NsOpen = FString::Printf(TEXT("namespace %s\n{\n"), *FileNs);
+	const FString NsClose = FString::Printf(TEXT("} // namespace %s\n"), *FileNs);
 	Inl += TEXT("#if defined(RUI_UETKX_DECL_PHASE)\n");
+	Inl += NsOpen;
 	Inl += ModuleDecls + OtherDecls;
+	Inl += NsClose;
 	Inl += TEXT("#else\n");
+	Inl += NsOpen;
 	Inl += Bodies;
+	Inl += NsClose;
 	Inl += TEXT("#endif\n");
 
 	// Fix up the `#line` restore placeholders (@@R@@) now the whole .inl is assembled: a restore
@@ -2102,8 +2748,9 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 	}
 
-	// EXPORTED decl names — the cross-file-addressable bindings the 2106 global ledger keys on
-	// (private decls may collide across files by construction, A5e).
+	// EXPORTED decl names — the cross-file-addressable export surface (feeds the driver's
+	// UETKX2329 case-fold ledger and the test pins; same-name exports across files are legal
+	// under FILE_SCOPED_EXPORTS — each file's decls live in their own namespace).
 	for (const FUetkxComponentDecl& D : Scan.Components)
 	{
 		if (D.bExported)
@@ -2152,6 +2799,18 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	Out.bOk = true;
 	Out.Inl = MoveTemp(Inl);
 	return Out;
+}
+
+void FUetkxCodegen::SetEnvironmentBrushNames(TArray<FString> InNames)
+{
+	FEnvironmentBrushes& Brushes = EnvironmentBrushes();
+	Brushes.Names = MoveTemp(InNames);
+	Brushes.Names.Sort();
+	Brushes.LowerNames.Empty(Brushes.Names.Num());
+	for (const FString& Name : Brushes.Names)
+	{
+		Brushes.LowerNames.Add(Name.ToLower());
+	}
 }
 
 FString FUetkxCodegen::ExportSchemaJson()
@@ -2226,11 +2885,7 @@ FString FUetkxCodegen::ExportSchemaJson()
 	// Slot.* is an OPEN prefix (any name routes to the slot dict); these are the D-33 canon.
 	Root->SetStringField(TEXT("slotPrefix"), TEXT("Slot."));
 	TArray<TSharedPtr<FJsonValue>> SlotArray;
-	for (const TCHAR* Key :
-		 {TEXT("Slot.Padding"), TEXT("Slot.HAlign"), TEXT("Slot.VAlign"), TEXT("Slot.Fill"), TEXT("Slot.ZOrder"),
-		  TEXT("Slot.Position"), TEXT("Slot.Size"), TEXT("Slot.Offset"), TEXT("Slot.Anchors"), TEXT("Slot.Alignment"),
-		  TEXT("Slot.AutoSize"), TEXT("Slot.Role"), TEXT("Slot.SizeRule"), TEXT("Slot.SizeValue"), TEXT("Slot.MinSize"),
-		  TEXT("Slot.Resizable")})
+	for (const FString& Key : SlotKeyCanon())
 	{
 		SlotArray.Add(MakeShared<FJsonValueString>(Key));
 	}
@@ -2284,6 +2939,71 @@ FString FUetkxCodegen::ExportSchemaJson()
 		}
 	}
 	Root->SetObjectField(TEXT("eventPayloads"), EventPayloads);
+
+	// R10: closed enum-string vocabularies per attr/style/slot key (see AttrEnums) — the LSP's
+	// value-level type check (UETKX2311 live; UETKX0106 at compile). Sorted keys for stable output.
+	TSharedRef<FJsonObject> AttrEnumsJson = MakeShared<FJsonObject>();
+	TArray<FString> EnumKeys;
+	AttrEnums().GetKeys(EnumKeys);
+	EnumKeys.Sort();
+	for (const FString& EnumKey : EnumKeys)
+	{
+		TArray<TSharedPtr<FJsonValue>> Values;
+		for (const FString& V : AttrEnums()[EnumKey])
+		{
+			Values.Add(MakeShared<FJsonValueString>(V));
+		}
+		AttrEnumsJson->SetArrayField(EnumKey, Values);
+	}
+	Root->SetObjectField(TEXT("attrEnums"), AttrEnumsJson);
+
+	// R11: typed style/slot-key kinds (see StyleSlotKinds) — the LSP's string-format check.
+	TSharedRef<FJsonObject> AttrKindsJson = MakeShared<FJsonObject>();
+	TArray<FString> KindKeys;
+	StyleSlotKinds().GetKeys(KindKeys);
+	KindKeys.Sort();
+	for (const FString& KindKey : KindKeys)
+	{
+		AttrKindsJson->SetStringField(KindKey, StyleSlotKinds()[KindKey]);
+	}
+	Root->SetObjectField(TEXT("attrKinds"), AttrKindsJson);
+
+	// R12: which Slot.* keys each container's slot-apply READS (see SlotConsumption) — the
+	// LSP's silently-ignored-slot-key check. Empty array = passes no slot props to children.
+	TSharedRef<FJsonObject> SlotConsumptionJson = MakeShared<FJsonObject>();
+	TArray<FString> ConsumerTags;
+	SlotConsumption().GetKeys(ConsumerTags);
+	ConsumerTags.Sort();
+	for (const FString& ConsumerTag : ConsumerTags)
+	{
+		TArray<TSharedPtr<FJsonValue>> Keys;
+		for (const FString& K : SlotConsumption()[ConsumerTag])
+		{
+			Keys.Add(MakeShared<FJsonValueString>(K));
+		}
+		SlotConsumptionJson->SetArrayField(ConsumerTag, Keys);
+	}
+	Root->SetObjectField(TEXT("slotConsumption"), SlotConsumptionJson);
+
+	// R13: brush-name attrs + the engine's registered FCoreStyle brush set (injected by the
+	// editor module — absent in bare unit contexts, and the LSP disarms accordingly).
+	TArray<TSharedPtr<FJsonValue>> BrushAttrArray;
+	TArray<FString> SortedBrushAttrs = BrushAttrs().Array();
+	SortedBrushAttrs.Sort();
+	for (const FString& A : SortedBrushAttrs)
+	{
+		BrushAttrArray.Add(MakeShared<FJsonValueString>(A));
+	}
+	Root->SetArrayField(TEXT("brushAttrs"), BrushAttrArray);
+	if (EnvironmentBrushes().Names.Num() > 0)
+	{
+		TArray<TSharedPtr<FJsonValue>> BrushNameArray;
+		for (const FString& Name : EnvironmentBrushes().Names)
+		{
+			BrushNameArray.Add(MakeShared<FJsonValueString>(Name));
+		}
+		Root->SetArrayField(TEXT("brushNames"), BrushNameArray);
+	}
 
 	FString Out;
 	const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Out);

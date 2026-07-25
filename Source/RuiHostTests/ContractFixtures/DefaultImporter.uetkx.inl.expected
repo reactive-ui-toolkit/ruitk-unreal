@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_DefaultImporter
+{
 struct FDefaultImporterUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,26 +17,34 @@ struct FDefaultImporterUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DefaultImporter(FDefaultImporterUetkxProps InProps = FDefaultImporterUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_DefaultImporter
 #else
-static FRuiNodeArray DefaultImporter_UetkxImpl(FRuiContext& Ctx, const FDefaultImporterUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_DefaultImporter
+{
+static FRuiNodeArray DefaultImporter_UetkxBody_470C7E59(FRuiContext& Ctx, const FDefaultImporterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
-		FDefaultExportUetkxProps P;
+		RuiUetkx_DefaultExport::FDefaultExportUetkxProps P;
 		TArray<FRuiNode> Ch;
-		return DefaultExport(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_DefaultExport::DefaultExport(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDefaultImporterUetkxId = RUI::RegisterComponentId((void*)&DefaultImporter_UetkxImpl, FName(TEXT("DefaultImporter")));
+static FRuiNodeArray DefaultImporter_UetkxImpl(FRuiContext& Ctx, const FDefaultImporterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DefaultImporter_UetkxBody_470C7E59(Ctx, Props, children);
+}
+static const FName GDefaultImporterUetkxId = RUI::RegisterComponentId((void*)&DefaultImporter_UetkxImpl, FName(TEXT("RuiUetkx_DefaultImporter::DefaultImporter")));
 static constexpr uint32 DefaultImporter_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode DefaultImporter(FDefaultImporterUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DefaultImporter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDefaultImporterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DefaultImporter")), []() { return DefaultImporter(); });
+static const bool GDefaultImporterUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_DefaultImporter::DefaultImporter")), []() { return DefaultImporter(); });
 
+} // namespace RuiUetkx_DefaultImporter
 #endif

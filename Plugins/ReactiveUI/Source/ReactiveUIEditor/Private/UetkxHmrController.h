@@ -99,8 +99,17 @@ private:
 	double CycleStartSeconds = 0.0;
 	FUetkxHmrStatus Status;
 	TArray<FUetkxHmrError> RecentErrors; // newest-first, capped (see NotifyCodegen)
+	// R16 (TB-14): coalescing state — a STANDING error re-reports on every sweep (saves of
+	// other files, the 10s stale-poll, every activation poll); identical consecutive reports
+	// bump a ×N on the newest row instead of inserting a new one.
+	FString LastErrorReason;
+	int32 LastErrorCount = -1;
+	int32 ErrorRepeat = 0;
 	FDelegateHandle PatchCompleteHandle;
 	FDelegateHandle PiePostStartedHandle;
 	FDelegateHandle PieEndedHandle;
+	// TB-26: rapid saves spawned one toast PER PATCH — the stack of fading notifications
+	// rendered as a blurry smear. One toast, text updated in place, expiry restarted.
+	TWeakPtr<class SNotificationItem> PatchToast;
 	FTSTicker::FDelegateHandle ConsoleHiderHandle; // slow poll: discover the console window + (re)install the hook
 };

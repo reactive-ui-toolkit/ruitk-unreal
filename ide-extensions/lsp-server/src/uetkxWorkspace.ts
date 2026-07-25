@@ -43,10 +43,10 @@ function normAbs(p: string): string {
   return path.resolve(p).replace(/\\/g, "/");
 }
 
-function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
-  // Signature-list mode: keep listing exported decls even if one body is mid-edit / malformed, so the
-  // export list matches the C++ ScanPreamble resolver instead of truncating at the error (bughunt LSP-1).
-  const scan = scanFile(source, path.basename(key, ".uetkx"), /*resyncOnBodyError*/ true);
+/** Every declaration of a scan as flat records (ExportedDecl.exported says which are public).
+ *  Shared by the index cache and the live 2106 duplicate-export check (R16) — one list, one
+ *  notion of "the file's export surface". */
+export function declsOfScan(scan: UetkxFileScanResult): ExportedDecl[] {
   const decls: ExportedDecl[] = [];
   for (const c of scan.components) decls.push({ name: c.name, kind: "component", exported: c.exported, nameAt: c.nameAt });
   for (const h of scan.hooks) decls.push({ name: h.name, kind: "hook", exported: h.exported, nameAt: h.nameAt });
@@ -54,13 +54,32 @@ function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
   // ES-modules (M6): value/util decls join the export index (completions / go-to-def / fix-its).
   for (const v of scan.values) decls.push({ name: v.name, kind: "value", exported: v.exported, nameAt: v.nameAt });
   for (const u of scan.utils) decls.push({ name: u.name, kind: "util", exported: u.exported, nameAt: u.nameAt });
-  return { mtimeMs, decls, defaultExportName: scan.defaultExportName, scan, refs: collectFileReferences(scan, source), text: source };
+  return decls;
+}
+
+function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
+  // Signature-list mode: keep listing exported decls even if one body is mid-edit / malformed, so the
+  // export list matches the C++ ScanPreamble resolver instead of truncating at the error (bughunt LSP-1).
+  const scan = scanFile(source, path.basename(key, ".uetkx"), /*resyncOnBodyError*/ true);
+  return { mtimeMs, decls: declsOfScan(scan), defaultExportName: scan.defaultExportName, scan, refs: collectFileReferences(scan, source), text: source };
 }
 
 /** Live-document overlay (TD-033 N-04): rename/references must never read stale disk text for
  *  an OPEN dirty document — the server passes the current buffer contents here. Overlay entries
  *  are computed fresh (never cached — they change per keystroke). */
 export type TextOverlay = ReadonlyMap<string, string>;
+
+/** TB-22: drop cached state for files changed OUTSIDE any open buffer (created/deleted/renamed
+ *  on disk). The mtime gates already cover in-place edits and the stat-guard covers reads of a
+ *  deleted file — this closes the recreate-with-equal-mtime edge and keeps the caches from
+ *  holding entries for paths that no longer exist. */
+export function invalidateFileCaches(fsPaths: readonly string[]): void {
+  for (const p of fsPaths) {
+    const key = normAbs(p);
+    scanCache.delete(key);
+    surfaceCache.delete(key);
+  }
+}
 
 function cachedScan(fsPath: string, overlay?: TextOverlay): CacheEntry | null {
   const key = normAbs(fsPath);
@@ -98,14 +117,14 @@ export function getFileIndex(
 
 /** All top-level declarations of a .uetkx file (name -> kind/exported/nameAt), mtime-cached.
  *  Returns null when the file is unreadable. */
-export function getDecls(fsPath: string): ExportedDecl[] | null {
-  return cachedScan(fsPath)?.decls ?? null;
+export function getDecls(fsPath: string, overlay?: TextOverlay): ExportedDecl[] | null {
+  return cachedScan(fsPath, overlay)?.decls ?? null;
 }
 
 /** ES-modules (U-08): the file's `export default <Name>` target ("" = none / unreadable) —
  *  mirrors IUetkxImportResolver::DefaultExportOf. */
-export function defaultExportOf(fsPath: string): string {
-  return cachedScan(fsPath)?.defaultExportName ?? "";
+export function defaultExportOf(fsPath: string, overlay?: TextOverlay): string {
+  return cachedScan(fsPath, overlay)?.defaultExportName ?? "";
 }
 
 // ── module + workspace roots ─────────────────────────────────────────────────────────────────
@@ -332,15 +351,26 @@ export function sweptUetkxFiles(importerFsPath: string): string[] {
 
 /** The file that EXPORTS `name` under the importer's sweep universe (first exporter wins,
  *  mirroring FUetkxFsResolver::EnsureIndex / FindExporter). null when no file exports it. */
-export function findExporter(name: string, importerFsPath: string): ExporterHit | null {
+export function findExporter(name: string, importerFsPath: string, overlay?: TextOverlay): ExporterHit | null {
+  // FILE_SCOPED_EXPORTS (FS-08): several files may export one name — return the importer-
+  // NEAREST exporter (fewest `../` hops in the specifier a fix-it would suggest; the sweep's
+  // sorted order breaks ties), matching the compiler's FindExporter so suggestions agree.
+  let best: ExporterHit | null = null;
+  let bestHops = Number.MAX_SAFE_INTEGER;
   for (const file of sweptUetkxFiles(importerFsPath)) {
-    const decls = getDecls(file);
+    const decls = getDecls(file, overlay);
     if (!decls) continue;
     for (const d of decls) {
-      if (d.exported && d.name === name) return { file, kind: d.kind, nameAt: d.nameAt };
+      if (d.exported && d.name === name) {
+        const hops = (suggestSpecifier(importerFsPath, file).match(/\.\.\//g) ?? []).length;
+        if (hops < bestHops) {
+          bestHops = hops;
+          best = { file, kind: d.kind, nameAt: d.nameAt };
+        }
+      }
     }
   }
-  return null;
+  return best;
 }
 
 // ── live resolution diagnostics (FUetkxResolve::Apply, import-name portion) ───────────────────
@@ -349,7 +379,7 @@ export function findExporter(name: string, importerFsPath: string): ExporterHit 
  *  module, 2302 not-declared, 2301 not-exported), computed live from the workspace — instant import
  *  feedback without a recompile. The usage-policing codes (2304 unused / 2305 missing / 2307
  *  unknown) stay with the hash-gated sidecar (they need the emitter's full reference set). */
-export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: string): ResolveDiag[] {
+export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: string, overlay?: TextOverlay): ResolveDiag[] {
   const diags: ResolveDiag[] = [];
   const importerModule = moduleRootFor(importerFsPath);
   for (const imp of scan.imports) {
@@ -405,7 +435,7 @@ export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: st
     // own diagnostics. A namespace part validates its MEMBERS at use sites (the compiler's
     // sidecar carries those — they need the code walk); nothing to name-check at the import line.
     // ES-modules (U-08): a default part needs the target to HAVE a default export — live 2326.
-    if (imp.isDefault && !defaultExportOf(key)) {
+    if (imp.isDefault && !defaultExportOf(key, overlay)) {
       diags.push({
         code: "UETKX2326",
         severity: 0,
@@ -414,7 +444,7 @@ export function resolveDiagnostics(scan: UetkxFileScanResult, importerFsPath: st
         len: Math.max(1, imp.defaultAlias.length),
       });
     }
-    const decls = getDecls(key) ?? [];
+    const decls = getDecls(key, overlay) ?? [];
     const byName = new Map(decls.map((d) => [d.name, d]));
     // Rename imports (`{ A as B }`) validate the TARGET name A — the local alias is the
     // importer's business (2325 is the scanner's, collisions-wise).
@@ -487,9 +517,11 @@ export function importCursorAt(text: string, off: number): ImportCursor | null {
   if (/^\s*import\s*$/.test(before)) {
     return { kind: "import-keyword" };
   }
-  // inside the `from "…"` string? (unterminated quote before the cursor)
-  if (/\bfrom\s*"[^"]*$/.test(before)) {
-    const q = before.lastIndexOf('"');
+  // inside the `from "…"` string? (unterminated quote before the cursor). The scanner accepts
+  // BOTH quote kinds (C_QUOTE/C_APOS — the formatter canonicalizes to double on save), so the
+  // classifier must too, or single-quote authors get no specifier completion at all (TB-25).
+  if (/\bfrom\s*"[^"]*$/.test(before) || /\bfrom\s*'[^']*$/.test(before)) {
+    const q = Math.max(before.lastIndexOf('"'), before.lastIndexOf("'"));
     return { kind: "import-specifier", partial: before.slice(q + 1) };
   }
   // A COMPLETE `from "…"` before the cursor means the import statement is already closed; the cursor is
@@ -720,8 +752,8 @@ export type UetkxRenameResult = { edits: UetkxRenameEdit[] } | { error: string }
 const IDENT_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /** Does `file` already bind `name` at its top level (a declaration or any import binding)?
- *  The N-05 refusal check — never produce an edit the compiler immediately rejects (2325/2106
- *  shapes). */
+ *  The N-05 refusal check — never produce an edit the compiler immediately rejects (the 2325
+ *  shape; cross-file same-name exports are LEGAL under FILE_SCOPED_EXPORTS). */
 function fileBindsName(file: string, name: string, overlay?: TextOverlay): boolean {
   const index = getFileIndex(file, overlay);
   if (!index) return false;
@@ -778,11 +810,9 @@ export function renameSymbolAt(
     }
   }
   if (symbol.type === "global") {
-    // 2106 shape: an EXPORTED name must stay globally unique.
-    const exporter = findExporter(newName, fsPath);
-    if (exporter) {
-      return { error: `\`${newName}\` is already exported by ${path.basename(exporter.file)} (one exported name, one file)` };
-    }
+    // FILE_SCOPED_EXPORTS: renaming an export to a name ANOTHER file exports is LEGAL (each
+    // file is its own module — the retired 2106 refusal lived here); the per-touched-file
+    // fileBindsName sweep above already refuses every real collision (the 2325 shape).
     // a component renamed to a host tag would shadow the vocabulary in tag position
     const declIndex = getFileIndex(symbol.file, overlay);
     const isComponent = declIndex?.scan.components.some((d) => d.name === symbol.name) ?? false;

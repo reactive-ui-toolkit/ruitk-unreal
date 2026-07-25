@@ -21,7 +21,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxCompileOutput
 	FString Inl; // the generated .uetkx.inl text ("" on failure)
 	TArray<FUetkxDiag> Diags;
 	TArray<FString> ComponentNames;	 // ALL decl bindings (component/hook/module names) -> this file; refs
-	TArray<FString> ExportedNames;	 // EXPORTED decl names only — the UETKX2106 global-uniqueness ledger (A5e)
+	TArray<FString> ExportedNames;	 // EXPORTED decl names only — feeds the UETKX2329 case-fold ledger + tests
 	TArray<FString> Uses;			 // component names REFERENCED by markup (aggregator topo order)
 	bool bSupportFile = false;		 // no markup (only hooks/modules) — HMR rebuild, not interp swap
 	uint32 HookSig = 0;				 // first component's hook signature (interp swap key)
@@ -56,7 +56,22 @@ public:
 	static FString GeneratedCopyrightLine(const FString& Basename,
 										  TOptional<bool> bSellerRepoOverride = TOptional<bool>());
 
+	/** FILE_SCOPED_EXPORTS (FS-01): the C++ namespace one .uetkx file's declarations emit into,
+	 *  derived from the SAME machine-stable relative path the `#line` mapping uses (driver:
+	 *  project-relative; fixtures/tests: `<Basename>.uetkx` when ProjectRelPath is empty).
+	 *  `RuiUetkx::<sanitized path segments>::<sanitized stem>` — the single source of truth for
+	 *  codegen, the driver, the editor preview, and the tests; the LSP mirrors the rule. The
+	 *  runtime identity of every component is `<this>::<Name>` (FS-04). */
+	static FString FileNamespaceFor(const FString& ProjectRelPath, const FString& Basename);
+
 	/** The markup vocabulary as JSON — elements/attrs (typed), style keys, slot keys, hooks.
 	 *  RUIExportSchema writes this to Saved/ReactiveUI/schema.json for the LSP (Phase 5). */
 	static FString ExportSchemaJson();
+
+	/** R13 — engine-environment brush names (the FCoreStyle set). The toolchain deliberately
+	 *  has no Slate dependency, so the EDITOR module enumerates the style set at startup and
+	 *  injects it here; brush-name attrs (BorderImage) then validate at compile (UETKX0106)
+	 *  and the set exports to the schema as `brushNames` for the LSP. Empty (never injected —
+	 *  bare unit contexts) disarms the check and omits the export. */
+	static void SetEnvironmentBrushNames(TArray<FString> InNames);
 };

@@ -3,10 +3,15 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+{
 inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuiContext& Ctx, int32 Start);
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 #else
-inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuiContext& Ctx, int32 Start)
+namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+{
+static TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState_RuiBody_9CC78468(FRuiContext& Ctx, int32 Start)
 {
 #line 19 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.hooks.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
@@ -14,7 +19,12 @@ inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuiConte
 		TFunction<void()> Increment = [SetCount, Current]() { SetCount(Current + 1); };
 		TFunction<void()> Reset = [SetCount]() { SetCount(0); };
 		return MakeTuple(Count, Increment, Reset);
-#line 18 "AcceptanceLab.hooks.uetkx.inl"
+#line 23 "AcceptanceLab.hooks.uetkx.inl"
+}
+inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuiContext& Ctx, int32 Start)
+{
+	return UseLabState_RuiBody_9CC78468(Ctx, Start);
 }
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 #endif

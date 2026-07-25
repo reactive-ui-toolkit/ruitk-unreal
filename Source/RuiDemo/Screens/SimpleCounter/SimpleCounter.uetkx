@@ -1,20 +1,40 @@
 import { UseCounter } from "./SimpleCounter.hooks"
+import { PanelBackground, PanelPadding, ButtonPadding, RowGap, PanelSlotPadding, ButtonSlotPadding } from "./SimpleCounter.style"
 
 export FRuiNode SimpleCounter() {
+	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, RUI::Deps());
 	auto [Count, Increment] = UseCounter(0);
+	auto [Count2, Increment2] = UseState<int32>(0);
 
 	return (
 		<Border
-			Padding="12"
+			Padding={ PanelPadding }
 			BorderImage="WhiteBrush"
-			BorderBackgroundColor={ FLinearColor(0.02f, 0.02f, 0.03f, 0.85f) }
-			Slot.Padding="0,10,0,0"
+			BorderBackgroundColor={ PanelBackground }
+			Slot.Padding={ PanelSlotPadding }
 		>
 			<VerticalBox>
-				<TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />
-				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+				<TextBlock Text={ FText::FromString(TEXT("DOOM COUNTER02")) } />
+				<TextBlock Text={ RUI::Fmt(TEXT("Count1: {}"), Count) } />
+				<TextBlock Text={ RUI::Fmt(TEXT("Count2: {}"), Count2) } />
+				<Spacer Size={ RowGap } />
 				<HorizontalBox>
-					<Button OnClicked={ Increment() } ContentPadding="12,4" Slot.Padding="0,0,6,0">+</Button>
+					<Button
+						OnClicked={ Increment() }
+						ContentPadding={ ButtonPadding }
+						Slot.Padding={ ButtonSlotPadding }
+					>
+						+
+					</Button>
+				</HorizontalBox>
+				<HorizontalBox>
+					<Button
+						OnClicked={ Increment2([](const int32& Prev) { return Prev + 1; }) }
+						ContentPadding={ ButtonPadding }
+						Slot.Padding={ ButtonSlotPadding }
+					>
+						+
+					</Button>
 				</HorizontalBox>
 			</VerticalBox>
 		</Border>

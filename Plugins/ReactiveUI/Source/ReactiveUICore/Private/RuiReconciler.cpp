@@ -478,9 +478,20 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 		State->LayoutIndex = 0;
 		State->ContextDeps.Reset();
 		State->bIsRendering = true;
-		if (FRuiConfig::IsHookValidationEnabled())
+		if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
 		{
 			State->HookLog.Reset();
+		}
+		if (RUI::IsHmrHookTracking() && RUI::HmrGeneration() != State->HmrGenerationStamp)
+		{
+			// TB-17 — first render after a Live Coding patch: the code that DERIVES cached
+			// values may have changed, so memo-family caches invalidate (their factories
+			// re-run this render); user state (State/Ref/Reducer) stays untouched. "Preserve
+			// state, recompute derivations" — the TB-15 lesson at the hook level.
+			for (const TUniquePtr<IRuiHookCell>& Cell : State->Hooks)
+			{
+				Cell->HmrInvalidateDerived();
+			}
 		}
 		RUI::SetRendering(true);
 
@@ -492,14 +503,31 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 		// _end
 		RUI::SetRendering(false);
 		State->bIsRendering = false;
-		if (FRuiConfig::IsHookValidationEnabled())
+		if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
 		{
+			const uint32 Gen = RUI::HmrGeneration();
 			if (!State->bHookOrderPrimed)
 			{
 				State->HookSignatures = State->HookLog;
 				State->bHookOrderPrimed = true;
 			}
-			else
+			else if (RUI::IsHmrHookTracking() && State->HmrShapeSnapshot.Num() > 0 &&
+					 State->HmrShapeSnapshot != State->HookLog && Gen != State->HmrGenerationStamp)
+			{
+				// TB-13 — the family rule: state is preserved on a STABLE hook shape and RESET
+				// on a real shape change. The shape moved exactly across a Live-Coding patch
+				// boundary (generation bump), so this is an EDIT to the hook list, not a
+				// rules-of-hooks violation: dispose the cells (effect cleanups included) and
+				// re-render clean instead of letting positional reads serve a neighbor's value.
+				const FString Msg = FString::Printf(
+					TEXT("[ReactiveUI][HMR] %s: hook shape changed by the edit (%d -> %d hooks) — state reset"),
+					*Fiber->ComponentId.ToString(), State->HmrShapeSnapshot.Num(), State->HookLog.Num());
+				FRuiDiagnostics::Emit(Msg);
+				UE_LOG(LogRuiReconciler, Display, TEXT("%s"), *Msg);
+				State->HmrResetHooks();		  // also un-primes — the re-render primes the NEW shape
+				ScheduleUpdateOnFiber(Fiber); // re-render reads clean defaults
+			}
+			else if (FRuiConfig::IsHookValidationEnabled())
 			{
 				const TArray<ERuiHookKind>& Prev = State->HookSignatures;
 				const TArray<ERuiHookKind>& Now = State->HookLog;
@@ -525,6 +553,11 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 					FRuiDiagnostics::Emit(Msg);
 					UE_LOG(LogRuiReconciler, Error, TEXT("%s"), *Msg);
 				}
+			}
+			State->HmrGenerationStamp = Gen;
+			if (RUI::IsHmrHookTracking())
+			{
+				State->HmrShapeSnapshot = State->HookLog; // the NEXT render compares against THIS one
 			}
 		}
 		return Result;

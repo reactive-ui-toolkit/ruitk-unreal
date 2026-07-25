@@ -17,6 +17,11 @@
 
 namespace
 {
+	/** TB-16(c): standing-error files already reported at Error severity — later sweeps over
+	 *  the SAME standing error (other files' saves, stale-polls, activation polls) repeat at
+	 *  Verbose only. A successful compile of the file clears its entry (loud again next time). */
+	TSet<FString> GReportedStandingErrors;
+
 	FString FingerprintPath()
 	{
 		return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("compiler.fp"));
@@ -484,9 +489,10 @@ FUetkxFileResult FUetkxDriver::CompileFile(const FString& UetkxPath, bool bForce
 		Out.bOk = !bStandingError;
 		Out.ComponentNames = ReadSidecarRefs(SidecarPathFor(UetkxPath));
 		// Populate the EXPORTED-name set even on a skip (cheap preamble scan) so the cross-file
-		// UETKX2106 duplicate-export ledger still counts a SKIPPED incumbent's exports — otherwise a
-		// new file exporting the same name collides silently and only surfaces on a full recompile
-		// (bughunt DRV-1). Skips are unchanged, so a fresh scan matches the committed output.
+		// UETKX2329 case-fold ledger still counts a SKIPPED incumbent's exports — otherwise a new
+		// file whose FQN case-folds onto one collides silently and only surfaces on a full
+		// recompile (the DRV-1 logic, carried over from the retired 2106 ledger). Skips are
+		// unchanged, so a fresh scan matches the committed output.
 		FString SkipSource;
 		if (FFileHelper::LoadFileToString(SkipSource, *UetkxPath))
 		{
@@ -841,7 +847,10 @@ FUetkxCheckResult FUetkxDriver::CheckDrift(const TArray<FString>& Roots)
 		All.Append(FindAll(Root));
 	}
 	Out.Total = All.Num();
-	TMap<FString, FString> NameToFile; // duplicate-binding ledger (UETKX2106)
+	// FILE_SCOPED_EXPORTS: the UETKX2106 duplicate-export ledger is RETIRED — exports are
+	// per-file-scoped C++ namespaces, so two files exporting one name is legal ES. The one
+	// remaining cross-file case-fold hazard (FNames compare case-insensitively) is UETKX2329.
+	TMap<FString, FString> FoldedFqnToFile; // case-folded exported FQN -> file (UETKX2329)
 	const FUetkxFsResolver Resolver(FPaths::ProjectDir(), Roots, /*bFixtureMode*/ false); // strict resolution
 	for (const FString& Path : All)
 	{
@@ -854,17 +863,21 @@ FUetkxCheckResult FUetkxDriver::CheckDrift(const TArray<FString>& Roots)
 		}
 		const FUetkxCompileOutput Compiled =
 			FUetkxCodegen::CompileSource(Source, FPaths::GetBaseFilename(Path), ProjectRelPathFor(Path), &Resolver);
+		const FString FileNs = FUetkxCodegen::FileNamespaceFor(ProjectRelPathFor(Path), FPaths::GetBaseFilename(Path));
 		for (const FString& Name : Compiled.ExportedNames)
 		{
-			if (const FString* Incumbent = NameToFile.Find(Name))
+			const FString Folded = (FileNs + TEXT("::") + Name).ToLower();
+			if (const FString* Incumbent = FoldedFqnToFile.Find(Folded))
 			{
 				++Out.Errors;
-				Out.Messages.Add(FString::Printf(TEXT("%s: UETKX2106: exported binding `%s` is already bound by %s"),
-												 *Path, *Name, **Incumbent));
+				Out.Messages.Add(FString::Printf(
+					TEXT("%s: UETKX2329: exported binding `%s` case-folds onto one from %s — FName runtime "
+						 "identities are case-insensitive; rename one"),
+					*Path, *Name, **Incumbent));
 			}
 			else
 			{
-				NameToFile.Add(Name, Path);
+				FoldedFqnToFile.Add(Folded, Path);
 			}
 		}
 		if (!Compiled.bOk)
@@ -984,7 +997,7 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 	// One compile pass over every file. Each file's result is kept in ByPath: a real compile
 	// (non-skip) always overwrites, a skip is kept only when the file was never compiled — so a file
 	// compiled in pass 1 and skipped in pass 2 (up-to-date) still reports as COMPILED with its
-	// ExportedNames intact for the 2106 ledger.
+	// ExportedNames intact for the 2329 case-fold ledger.
 	TMap<FString, FUetkxFileResult> ByPath;
 	auto RunPass = [&](bool bForcePass)
 	{
@@ -1023,24 +1036,29 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 		RunPass(false);
 	}
 
-	// Tally + the UETKX2106 exported-name ledger from the CONVERGED per-file state.
-	TMap<FString, FString> NameToFile;
+	// Tally from the CONVERGED per-file state. FILE_SCOPED_EXPORTS: the UETKX2106 "one exported
+	// name, one file" ledger is RETIRED (same-name exports are legal ES — each file emits into
+	// its own namespace); the surviving cross-file check is UETKX2329, the case-folded-FQN
+	// collision (FName runtime identities compare case-insensitively).
+	TMap<FString, FString> FoldedFqnToFile;
 	for (const FString& Path : All)
 	{
 		const FUetkxFileResult& R = ByPath[Path];
+		const FString FileNs = FUetkxCodegen::FileNamespaceFor(ProjectRelPathFor(Path), FPaths::GetBaseFilename(Path));
 		for (const FString& Name : R.ExportedNames)
 		{
-			if (const FString* Incumbent = NameToFile.Find(Name))
+			const FString Folded = (FileNs + TEXT("::") + Name).ToLower();
+			if (const FString* Incumbent = FoldedFqnToFile.Find(Folded))
 			{
 				++Out.Errors;
-				UE_LOG(
-					LogRuiToolchain, Error,
-					TEXT("%s: UETKX2106: exported binding `%s` is already bound by %s (one exported name, one file)"),
-					*Path, *Name, **Incumbent);
+				UE_LOG(LogRuiToolchain, Error,
+					   TEXT("%s: UETKX2329: exported binding `%s` case-folds onto one from %s — FName runtime "
+							"identities are case-insensitive; rename one"),
+					   *Path, *Name, **Incumbent);
 			}
 			else
 			{
-				NameToFile.Add(Name, Path);
+				FoldedFqnToFile.Add(Folded, Path);
 			}
 		}
 		if (R.bSkipped && R.bOk)
@@ -1050,14 +1068,24 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 		else if (R.bSkipped) // skipped over a STANDING ERROR verdict — the tree is still broken (DRV-3)
 		{
 			++Out.Errors;
-			UE_LOG(LogRuiToolchain, Error,
-				   TEXT("%s: standing compile error (source unchanged since the last failed compile) — fix the "
-						"source, or run -run=RUICompile -full to re-surface the diagnostics"),
-				   *R.UetkxPath);
+			if (!GReportedStandingErrors.Contains(R.UetkxPath))
+			{
+				GReportedStandingErrors.Add(R.UetkxPath);
+				UE_LOG(LogRuiToolchain, Error,
+					   TEXT("%s: standing compile error (source unchanged since the last failed compile) — fix the "
+							"source, or run -run=RUICompile -full to re-surface the diagnostics"),
+					   *R.UetkxPath);
+			}
+			else
+			{
+				UE_LOG(LogRuiToolchain, Verbose, TEXT("%s: standing compile error (unchanged, already reported)"),
+					   *R.UetkxPath);
+			}
 		}
 		else if (R.bOk)
 		{
 			++Out.Compiled;
+			GReportedStandingErrors.Remove(R.UetkxPath); // recovered — the next standing error is loud again
 		}
 		else
 		{

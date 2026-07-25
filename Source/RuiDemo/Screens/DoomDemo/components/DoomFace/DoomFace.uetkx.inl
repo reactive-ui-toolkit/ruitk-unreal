@@ -4,6 +4,8 @@
 #include "Doom/DoomTextures.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+{
 struct FDoomFaceUetkxProps final : public FRuiPropsBase
 {
 	int32 Frame = 0;
@@ -18,8 +20,11 @@ struct FDoomFaceUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomFace(FDoomFaceUetkxProps InProps = FDoomFaceUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 #else
-static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+{
+static FRuiNodeArray DoomFace_UetkxBody_ACE4B2DD(FRuiContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Frame = Props.Frame;
 #line 7 "Source/RuiDemo/Screens/DoomDemo/components/DoomFace/DoomFace.uetkx"
@@ -38,7 +43,7 @@ static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxPr
 		// The mug is 48px (not the siblings' 64): the bar's inner height is HUD_HEIGHT 90 minus
 		// top border + bar/panel padding = ~65px, and label(13) + 48 is what actually FITS —
 		// Slate neither shrinks nor clips overflow, so 64 spilled below the bar (playtest #2).
-#line 42 "DoomFace.uetkx.inl"
+#line 47 "DoomFace.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBoxProps P;
 		P.SetWidthOverride((68.0f));
@@ -98,12 +103,17 @@ static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxPr
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomFaceUetkxId = RUI::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("DoomFace")));
+static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomFace_UetkxBody_ACE4B2DD(Ctx, Props, children);
+}
+static const FName GDoomFaceUetkxId = RUI::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
 static constexpr uint32 DoomFace_RUI_HOOK_SIG = 0x1676516Fu;
 inline FRuiNode DoomFace(FDoomFaceUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomFace_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomFaceUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomFace")), []() { return DoomFace(); });
+static const bool GDoomFaceUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")), []() { return DoomFace(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 #endif

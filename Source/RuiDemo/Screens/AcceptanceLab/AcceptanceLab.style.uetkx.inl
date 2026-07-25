@@ -3,29 +3,47 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
-inline const FLinearColor Accent =
+namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+{
+inline FLinearColor Accent()
+{
+	return
 #line 12 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.style.uetkx"
 { 0.36f, 0.75f, 1.0f, 1.0f }
-#line 10 "AcceptanceLab.style.uetkx.inl"
+#line 14 "AcceptanceLab.style.uetkx.inl"
 ;
+}
 
-inline const FLinearColor Good =
+inline FLinearColor Good()
+{
+	return
 #line 13 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.style.uetkx"
 { 0.45f, 0.90f, 0.50f, 1.0f }
-#line 16 "AcceptanceLab.style.uetkx.inl"
+#line 23 "AcceptanceLab.style.uetkx.inl"
 ;
+}
 
-inline const FLinearColor Warn =
+inline FLinearColor Warn()
+{
+	return
 #line 14 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.style.uetkx"
 { 0.98f, 0.72f, 0.25f, 1.0f }
-#line 22 "AcceptanceLab.style.uetkx.inl"
+#line 32 "AcceptanceLab.style.uetkx.inl"
 ;
+}
 
-inline const FLinearColor Panel =
+inline FLinearColor Panel()
+{
+	return
 #line 15 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.style.uetkx"
 { 0.02f, 0.02f, 0.03f, 0.85f }
-#line 28 "AcceptanceLab.style.uetkx.inl"
+#line 41 "AcceptanceLab.style.uetkx.inl"
 ;
+}
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
 #else
+namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+{
+} // namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
 #endif

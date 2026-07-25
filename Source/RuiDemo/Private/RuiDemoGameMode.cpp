@@ -2,6 +2,7 @@
 
 #include "RuiDemoGameMode.h"
 
+#include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "RuiDemoScreens.h"
 #include "RuiDemoSupport.h"

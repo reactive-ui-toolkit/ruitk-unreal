@@ -12,6 +12,23 @@ first announcement post lives at the BOTTOM of this file.
 
 **Hard limit: ≤ 2000 characters per entry** (Discord message cap).
 
+## [0.14.0] - 2026-07-25
+
+### Files are modules for real, return null lands family-wide, and the compiler stops being polite about silent mistakes
+
+**File-scoped exports (ES semantics).** Two files can export the same name now — a file IS its own module, collisions only exist inside one importer and `as` aliasing solves them there. Runtime identity is file-qualified with short-name lookup at the designer edges (ambiguity is loud, never first-wins). One-time remount on upgrade (generated code fully regenerates).
+
+**`return null;` renders nothing** — as an early guard OR as a component's only return (React semantics, now pinned by the shared family corpus on all three engines' grammars).
+
+**Ten silent surfaces now fail the compile instead of failing at runtime:** enum-string typos (`HAlign="cesnter"`), malformed typed style/slot strings (`RenderOpacity="0.5"` used to render INVISIBLE), duplicate attributes, duplicate sibling keys, slot keys the parent never reads, wrong-cased attributes (`slot.fill` silently disarmed all validation), unresolvable brush names, and more.
+
+**HMR got crash-proof at the root:** generated code is Live-Coding-safe by construction (stable registration shims + content-hashed bodies — old closures can never run wrong-layout code), hook-shape edits reset state cleanly instead of crashing, value/style edits actually apply, and rapid saves coalesce into one crisp toast.
+
+**In the editor:** unimported tags and orphaned usages error as-you-type with add-import quick-fixes, attribute VALUES validate live, single-quoted imports get full tooling, specifier completion is nearest-first and replaces instead of appending, and embedded-C++ intel no longer false-flags early returns.
+
+Update to **ReactiveUI 0.14.0** (Unreal), verified on UE 5.6 + 5.7. **Tooling:** UETKX 0.8.0 (VS Code + VS 2022). Battery 132/132, LSP 94/94.
+
+---
 ## [0.13.0] - 2026-07-18
 
 ### ReactiveUI is staying free — here's the plan that keeps it alive

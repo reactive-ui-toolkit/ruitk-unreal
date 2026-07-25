@@ -203,3 +203,501 @@ AcceptanceLab, CustomDraw, DoomGameScreen, RouterUser; formatter corpus replay g
 implementations; format sweep idempotent over all 56 committed `.uetkx`; battery unaffected
 (formatting is `.inl`-insensitive — proven by `RUICompile -check` = 0 drift after the first
 save-format wave).*
+
+## TB-13 — **CRITICAL**: HMR v2 lost the family reset-on-hook-shape-change rule (silent state corruption)
+
+**Found:** 2026-07-21, owner question during the HMR field-test session ("don't React / the
+siblings reset when hook order changes?") — before hitting it live.
+
+**Repro (any component, HMR active):** drive hook state to non-default values, then save an
+edit that CHANGES THE HOOK LIST (add/remove/reorder a `UseState`/`UseMemo`/… call). After
+the Live Coding patch, cells are read positionally by the NEW hook order: hooks silently
+inherit a NEIGHBOR'S value (plausible-looking wrong state), or read type-punned cells. Only
+signal: `[Hooks][order]` log lines, and only when `rui.HookValidation` is on.
+
+**Root cause:** the family rule — "state preserved on stable hook shape, RESET on a real
+shape change" — is stated in `plans/archive/HMR_V2_PLAN.md` (line ~122) and was implemented
+in HMR v1 by the INTERPRETER: it computed an AST hook signature and drove
+`SetComponentOverride(bResetState)` → `FRuiComponentState::HmrResetHooks()`. HMR v2 deleted
+the interpreter and nothing inherited the job: `RegisterHookSignature`/`FindHookSignature`
+(RuiNode.h) have no production callers left (one driver unit test simulates them), and the
+v2 patch path (`HmrRefreshAll`) only dirties fibers — no signature compare, no reset. A
+regression by omission, violating the v2 plan's own text; the worst failure class (silently
+wrong values that look plausible).
+
+**Fix direction (agreed):** codegen computes each component's hook-shape signature (kinds +
+order of hook calls, which it already parses) and emits `RegisterHookSignature(Id, Hash)` in
+the generated registration; component state stamps the signature it was created under; on
+re-render after a patch, mismatch → `HmrResetHooks()` (exists, orphaned) + a MessageLog
+"hook shape changed — state reset" line. Pins: driver signature test (half-exists at
+`ReactiveUIUetkxDriverTest.cpp:344`), a reconciler reset test, and an HMR_FIELD_TEST.md
+matrix item replacing the "re-enter the screen after hook edits" guidance.
+
+**Status:** FIXED (code complete 2026-07-21, engine build + suite run pending editor close):
+runtime detection — the HMR controller arms `RUI::SetHmrHookTracking` for the session and
+bumps `RUI::BumpHmrGeneration()` on every patch-complete; the reconciler records the
+flattened hook sequence per render and, when it differs ACROSS a generation boundary,
+runs `HmrResetHooks()` (effect cleanups included) + re-renders clean, logging
+`[ReactiveUI][HMR] <Comp>: hook shape changed by the edit (N -> M hooks) — state reset`.
+A shape change without a generation bump stays the rules-of-hooks user error. Pinned by
+`ReactiveUI.Hooks.HmrShapeReset` (preserve-on-stable / reset-on-change / no-reset-without-
+boundary). v2 amendment (2026-07-24): the misaligned render is now MEMORY-SAFE — per-cell TypeHash +
+tail truncation at every accessor (the v1 render-then-detect design crashed the editor:
+a State cell destructed as a Memo cell). See F5_FIELD_TEST_BUGS round 16 for the full
+design; the pre-render (codegen-signature) variant remains the post-v1 refinement. Field note
+(2026-07-24): applying THIS fix via Ctrl+Alt+F11 into a live editor crashed it —
+FRuiComponentState gained a field, and Live-Coded code read the new layout on old-layout
+objects (plus LNK2019 on the new cross-module RUI:: exports). The fix itself is sound;
+it simply requires the full rebuild, like any layout/API change.
+
+## TB-14 — 2106 invisible live + the standing-error toast storm (the style-extraction session)
+
+**Found:** 2026-07-21, owner HMR session: extracting SimpleCounter styles into a
+`.style.uetkx` companion created a second `PanelBackground` export. The LSP validated the
+file CLEAN; the watcher's next sweep hit UETKX2106 ("one exported name, one file" — the
+driver's global NameToFile ledger, the locked ES-modules design) and Live Coding failed
+with no editor-side hint. Meanwhile the "Recent Errors" panel re-rowed `save — 1 error(s)`
+/ `stale-poll — 1 error(s)` on every sweep — every save of ANY file, the 10s stale-poll,
+and every alt-tab (activation poll) — and the Errors counter summed the same standing
+error forever.
+
+**Root causes:** (a) the LSP never implemented the 2106 ledger — it's a full-sweep-only
+check in the driver, so the one rule that spans FILES was invisible exactly where files
+get created; (b) `FUetkxHmrController::NotifyCodegen` inserts a Recent-Errors row and
+broadcasts unconditionally per erroring sweep, and `Status.Errors += N` is a lifetime sum.
+
+**Fixes (code complete 2026-07-21, LSP verified; editor leg builds with TB-13):**
+- LSP live UETKX2106 mirror: the open doc's export surface vs every other swept file's
+  cached decls (project-rooted only; guarded so the mirror can never kill the publish).
+  Smoke-pinned with the exact session shape (duplicate flags as-you-type, unique clean).
+- Controller: identical consecutive error reports coalesce into the newest row as
+  `(still failing ×N)`; `Status.Errors` now means CURRENT standing errors; recovery
+  resets the coalescing state.
+- The demo collision itself: `CounterPanelBackground` (renamed; the session unblocker).
+
+**Status:** LSP half VERIFIED (91/91 + smoke); editor half pending the next engine build.
+
+## TB-15 — value-export edits are invisible to HMR (Live Coding never re-runs global initializers)
+
+**Found:** 2026-07-24, owner HMR session. Editing `SimpleCounter.style.uetkx` values
+(paddings 12→30 etc.) produced clean sweeps, successful Live Coding patches, refreshed
+roots — and ZERO visual change. Control experiment in the same session: a CODE edit (the
+UseMemo title string) patched visibly; the DATA edits never did. Editor restart shows the
+new values (fresh static init) — the classic signature.
+
+**Root cause:** value exports lower as `inline const T Name = Init;` — namespace-scope
+globals whose dynamic initializers run ONCE at module load. Live Coding's documented
+limitation: changes to global/static initializers do not take effect on patch (data
+symbols keep their original storage; only code is redirected). So the entire value-export
+surface — the styling companion pattern we just introduced to the demos — is dead under
+HMR by construction.
+
+**Fix direction (proper, code-not-data):** lower value exports as inline FUNCTIONS
+returning by value (`inline T Name() { return Init; }`) — a patch then replaces the CODE
+that produces the value, which Live Coding handles perfectly; references get `()` appended
+by the emitter's existing identifier-rewrite pass (the PrefixHooks walker already rewrites
+hook identifiers in every emitted code region; BodyLocals oracle prevents shadowed-local
+rewrites). Consequences owned: value exports are VALUES, not lvalue globals (`&Name` stops
+compiling — acceptable, documented); per-reference construction cost is trivial at UI
+scale; committed .inls regenerate tree-wide; the LSP virtual doc mirrors the new decl
+shape so clangd agrees.
+
+**Status:** FIXED in code (2026-07-24; engine regen/build/ladder pending editor close).
+Value exports now lower as `inline <T> Name() { return <Init>; }`; every reference is
+rewritten to a call by the PrefixHookCalls walker (new ValueCalls branch — same-file
+values any visibility + imported names resolving to VALUE decls incl. default and
+namespace-star, shadowed locals suppressed, existing call forms untouched, private names
+compose with RuiPriv_:: qualification). The LSP virtual doc is deliberately UNCHANGED —
+it mirrors SOURCE semantics (values are values to the author; lifted exprs are verbatim
+source). Owned consequences: `&Name` no longer compiles (values are prvalues now);
+legacy `module` bodies (verbatim C++, deprecated 2320) do not get the rewrite. Codegen
+pins updated (inline FUNCTION shapes). Full-battery fallout, all legitimate
+expectation updates (no gate weakened): the private-shadow re-qualify pin gains the call
+suffix; contract goldens regenerated (32/32 — the .expected diffs are exactly the
+function-form lowering); the Acceptance sweep count moves 42→43 (SimpleCounter.style
+joined the tree); Demos/Umg pins follow the two-counter screen text (Count1:); the
+shipped-schema drift pin now excludes `brushNames` (the R13 environment set differs
+between the automation process and the editor that exported the shipped copy — static
+vocabulary still byte-compared, presence of the brush set still asserted).
+
+## TB-16 — diagnostic-surface polish (owner matrix-item-5 observations, 2026-07-24)
+
+Item 5/6 PASSED (all three gates fire live + in the sweep; UI keeps the last good patch;
+recovery costs nothing). Three cosmetic findings while eyeballing it:
+
+- **(a) 1-character squiggles from sidecar diags.** `FUetkxDiag.Length` defaults to 1 and
+  NO `Fail()` site sets it — every compiler diag reaches the editor as a 1-char range,
+  while the live LSP diag for the same problem highlights the full token. Fix: set Length
+  at the Fail sites (attr-name / value token length) — mechanical sweep.
+- **(b) the same finding reports twice with two codes.** The hash-matched sidecar surfaces
+  the compiler's UETKX0106 (no suggestion, 1-char) NEXT TO the live UETKX2311 (full range,
+  did-you-mean). One problem, two rows. Fix: the LSP suppresses a sidecar diag whose
+  offset falls inside a live diag of the mirrored rule family (0106↔2311, 2106, 0112 —
+  the live one is strictly richer).
+- **(c) the "standing compile error" console line repeats on every sweep** while broken
+  (the HMR window coalesces correctly since TB-14; the OUTPUT LOG line doesn't). Fix:
+  first report at Error, repeats at Verbose.
+
+**Status:** FIXED (2026-07-24): (a) `Fail()` carries token lengths — every R10+ compile
+diag now spans the attr name / value literal instead of one char; (b) the LSP suppresses a
+sidecar diag whose range overlaps a live diag of the mirrored family (0106↔2311/0105 etc.
+— the live copy is strictly richer); (c) the standing-error console line reports ONCE per
+file at Error, repeats at Verbose, re-arms on recovery.
+
+## TB-17 — memo caches serve PRE-PATCH values after an HMR refresh (stale derivations)
+
+**Found:** 2026-07-24, owner matrix item 8: editing the STRING inside a
+`UseMemo<FString>(factory, RUI::Deps())` produced a successful patch + refresh and NO
+visual change — the memo cell returned the value cached at mount; empty deps never
+recompute. Not an on/off-cycle bug (reproduces in plain HMR too); React's Fast Refresh
+shares the gotcha, but the family rule should be COHERENT: **preserve state, recompute
+derivations** — a patch changed the code that derives the value, so derived caches must
+follow it (the TB-15 lesson at the hook level).
+
+**Fix direction:** on the HMR refresh path (generation bump), MEMO-family cells
+(`TRuiMemoCell`, `TRuiDeferredCell` deps) invalidate their cached deps (unset → DepsChanged
+→ factory re-runs on the refresh render). `UseState`/`UseRef`/reducer cells stay untouched
+(user data). Headless-testable (same harness as HmrShapeReset).
+
+**Status:** FIXED (2026-07-24): `IRuiHookCell::HmrInvalidateDerived` — at the first
+render after a patch (generation boundary), memo-family cells (Memo/Deferred) unset their
+remembered deps so the freshly patched factory re-runs; State/Ref/Reducer untouched.
+"Preserve state, recompute derivations." Pinned by `ReactiveUI.Hooks.HmrMemoInvalidate`
+(cache holds without a boundary — plain React semantics; recomputes across one; state
+survives the same refresh).
+
+## TB-18 — importers kept stale "No problems" after an exporter edit (cross-file truth, single-file refresh)
+
+**Found:** 2026-07-24, owner matrix 10e: renamed an export in `SimpleCounter.style.uetkx`;
+the open importer's Problems stayed EMPTY (stale — computed before the rename) while the
+compiler sweep correctly errored (2106 + 2302 + 2304 in the log). Touching the importer
+(the misspell) triggered fresh validation and the diagnostics "suddenly" appeared — which
+read as the checker being flaky when it was actually never re-run.
+
+**Root causes:** (a) validation is per-document — nothing re-validated OTHER open docs
+when a file changed, though an exporter edit changes their truth (2302/2307/2106/0105);
+(b) cross-file resolution read DISK (mtime cache) — a dirty exporter buffer was invisible
+even to a fresh validation.
+
+**Fixes (LSP-only, 2026-07-24, bundle rebuilt):** (a) `onDidChangeContent` re-validates
+every other open doc, debounced 150 ms; (b) the N-04 `TextOverlay` (dirty open buffers)
+now threads through `getDecls`/`defaultExportOf`/`findExporter`/`resolveDiagnostics` and
+validate's 2106 sweep + component-param resolution — live truth is the union of open
+buffers over disk. Smoke pin: rename an export via didChange only (disk untouched) → the
+UNTOUCHED importer flags 2302; rename back → it clears, still untouched.
+
+**Status:** FIXED (91/91 + smoke; reload the dev host to pick up the bundle).
+
+## TB-19 — a usage bound by NOTHING stayed silent (misspelled/deleted import, orphaned identifier)
+
+**Found:** 2026-07-24, owner session (post-10e state): with the style export renamed AND the
+import misspelled (`CosunterPanelBackgsround`), the usage
+`BorderBackgroundColor={ CounterPanelBackground }` showed NO error — nothing bound the name,
+only the import line was flagged (2302). "Should also have an error because nothing with this
+name is defined anywhere."
+
+**Root causes:** (a) UETKX2305 (strict usage: exported-elsewhere-but-not-imported,
+UetkxResolve step 2) was sweep-only — the LSP shipped the code ACTION for it (the quick-fix
+parses the `add: import { X } from "spec"` tail) but no live producer ever existed, so
+deleting or misspelling an import left every usage undiagnosed until the next compile;
+(b) the 2310 near-miss lint measured unresolvable references against LOCALS only — import
+names (the nearest neighbor in this session) and same-file decl names were never candidates.
+
+**Fixes (LSP-only, 2026-07-24, bundle rebuilt):** (a) live UETKX2305 mirror sharing the
+TB-14 2106 sweep's export map — kind-matched like the compiler (a call-shaped ref never
+2305s against a value export), compiler-identical message (the quick-fix lights up), sidecar
+copy suppressed via the TB-16 MIRROR map; a name exported by NO file stays undiagnosed (may
+be ambient C++ — clangd's judgment, compiler rule A4). (b) 2310 candidates now: locals, then
+the file's import names, then same-file decls — "did you mean the import
+'CosunterPanelBackgsround'?" lands directly on the orphaned usage. Import intact but exporter
+renamed stays SINGLE-SOURCE (2302 on the import line only — the import binds the name; same
+as TypeScript).
+
+**Status:** FIXED (91/91 + smoke incl. the three-scenario pin: import misspelled while still
+exported → 2305 with add-import tail, 2310 defers; exporter also renamed (the owner's exact
+session) → 2310 toward the broken import, no false 2305; import line deleted → 2305; restore
+→ clean. Reload the dev host to pick up the bundle).
+
+## TB-20 — OPEN (design): exports are GLOBALLY scoped — "one exported name, one file" contradicts the ES-module design
+
+**Found:** 2026-07-24, owner: renaming SimpleCounter.style's export to `PanelBackground`
+errored UETKX2106 against ContextDemo.style.uetkx. Owner: "this is not how it was designed —
+every file is its own module, exactly like React." In ES modules, same-named exports in
+different files are NORMAL; importers disambiguate (and `as` aliasing exists for the one file
+that wants both).
+
+**What the code actually does:** the ES-modules campaign gave PRIVATE decls per-file scoping
+(`RuiPriv_<Basename>` namespace, file-qualified runtime identity — TD-026). EXPORTS were left
+as global-scope C++ symbols: each module's `.inl`s compile into one aggregated TU (C2084 on
+same-name), and same-name across modules is an ODR hazard (global-scope inline definitions),
+hence the driver's project-wide NameToFile ledger. UETKX2106 is the guardrail that surfaces
+the collision early — honest about the implementation, but the implementation contradicts the
+module semantics. The shortcut is RECORDED: TD-026's resolution ("exported components keep the
+short name — 2106 ledger guarantees uniqueness") and ES_MODULES_EXECUTION_PLAN G-09 baked it
+into HMR identity.
+
+**Proper fix (campaign-sized):** per-file namespaces for EXPORTS too — emit every file's
+exports inside a file-derived namespace (derived from the project-relative path, not the bare
+basename: `RuiPriv_<Basename>` already carries a latent same-basename-two-dirs collision);
+importers lower to using-declarations/alias rewrites per their import lists (the alias plane
+exists); runtime registry keys become file-qualified for exports as they already are for
+privates. Ripples: CodegenVersion bump, 32 contract goldens, HMR identity (G-09),
+RegisterNamedFactory/`RUI::Named` consumers, 2106 retired or reduced to real collisions, LSP
+mirror, docs, migration codemod.
+
+**Status: PLANNED (2026-07-24)** — owner directive: "exactly like react, es modules … scale
+doesn't matter, this must be right." Full investigation done (this repo's codegen/driver/
+runtime/LSP + the Unity sibling's shipping mechanics as family precedent) and written up as
+**[plans/archive/FILE_SCOPED_EXPORTS_PLAN.md](archive/FILE_SCOPED_EXPORTS_PLAN.md)** — per-file C++ namespaces
+for ALL decls, FQN runtime identity, suffix resolution at the designer edges (short names keep
+working; ambiguity is loud), 2106 retired-not-reused, 2303 becomes the load-bearing collision
+diagnostic. The earlier a/b/c question dissolved: the family answer (React + Unity sibling) is
+file-qualified identity everywhere with short-name convenience only at human edges.
+
+> **TB-20 EXECUTED (2026-07-24):** the FILE_SCOPED_EXPORTS campaign shipped on this branch —
+> per-file flat namespaces for every decl (`RuiUetkx_<path>_<stem>`), FQN runtime identity with
+> short-name suffix resolution at the designer edges, UETKX2106 retired (UETKX2329 case-fold
+> check is the one survivor), UETKX2303 re-keyed to local bindings, CodegenVersion 4. Evidence:
+> full battery 132/0, LSP 91/91 + smoke, `-check` 0 drift, the demo tree carries the owner's
+> original `PanelBackground` rename as the living same-name proof. Owner-side remainder:
+> HMR_FIELD_TEST items 5b + 10b (same-name live) and the M6 legs.
+
+## TB-21 — Live-Coding-patched Core split the registries (PIE-stop AV + fresh-boot gallery assert)
+
+**Found:** 2026-07-25, owner running field-test 10c/10d WITHOUT HMR: (a) EXCEPTION_ACCESS_VIOLATION
+at PIE-stop (ReleaseFiberTree destroying a pre-patch tree), (b) after an editor restart,
+Ctrl+Alt+F11 then Play asserted `IsValid()` in the gallery's `WithSlot` at first render. Both
+stacks show `ReactiveUICore_patch_0` — Core got Live-Coding-patched with ZERO Core source
+changes (the strict-includes experiment's `-DisableUnity -NoPCH` run left UBT action state that
+made the in-editor compile rebuild Core).
+
+**Root cause (product-level, latent since D-05):** every runtime registry was a FUNCTION-LOCAL
+static (`static FRuiComponentRegistry Instance;`). A Live-Coding patch that recompiles the
+holder gets its OWN fresh copy (guard + storage are function-internal), so patched lookups read
+an EMPTY registry while the base one holds every registration → `RUI::Named` returned the empty
+Fragment (null Props) → `WithSlot`'s `ToSharedRef()` assert. The PIE-stop AV is the same
+Frankenstein session (base + patched Core tearing down a mixed-generation tree). Users WILL
+live-code Core themselves — this was a real product landmine, not just tooling fallout.
+
+**Fixes:** (a) all four registries (Component/ElementType/NamedFactory/Hmr) now use the
+ZERO-INITIALIZED namespace-scope POINTER + first-touch allocation idiom — patch-stable
+(namespace-scope data keeps BASE storage across patches, the TB-15-proven behavior) AND
+static-init-order-safe (zero-init precedes all dynamic init; a plain namespace-scope INSTANCE
+AV'd at module load — cross-TU init order — caught by the battery on the first attempt and is
+now warned against in the code comment). (b) demo hardening: `WithSlot` passes a props-less
+node through instead of asserting. (c) the UBT state that triggered the accidental Core patch
+was re-synced by a normal rebuild.
+
+**Status:** FIXED (battery 132/0 incl. Boot; the owner's crash pair needs a live re-test —
+fresh editor, Ctrl+Alt+F11 with no changes should now compile NOTHING, and even a patched Core
+keeps its registrations).
+
+## TB-22 — deleting a .uetkx ON DISK left open importers clean until a keystroke
+
+**Found:** 2026-07-25, owner running 10d: deleting an imported file produced NO squiggle in the
+open importer until any edit was made — TB-18's cross-file re-validation only fires on
+`didChange` of OPEN docs; a disk deletion of a non-open file has no trigger.
+
+**Fixes (LSP + client, bundle rebuilt):** the client watches `**/*.uetkx`
+(`synchronize.fileEvents`) and the server's `onDidChangeWatchedFiles` drops the scan/surface
+caches for the changed paths and re-validates every open doc (debounced 150 ms, the TB-18
+pattern). The resolution layer was already deletion-aware (stat-guarded reads); only the
+trigger was missing. Smoke pin models 10d exactly: delete the exporter on disk → the untouched
+importer flags 2300/2302; recreate → clears.
+
+**Status:** FIXED (LSP 92/92 + smoke incl. the watched-files pin; reload the dev host).
+
+> **TB-21 AMENDMENT (2026-07-25, second owner session):** the "re-synced by a normal rebuild"
+> claim above was WRONG — incremental builds after the `-DisableUnity -NoPCH` experiment left
+> MIXED unity/non-unity intermediates, so Live Coding kept finding "work" on every fresh boot
+> (patched Core again → the same Frankenstein: a fresh-boot f11+Play AV'd in the BASE Slate
+> adapter over patched-Core-built props, and plain Play served stale UI from incoherent
+> outputs). Cure applied: full clean (`Intermediate/Build`, `Binaries`, plugin
+> `Intermediate`+`Binaries`) + from-scratch rebuild — battery 132/0 on the pristine outputs.
+> **Ops rule (CLAUDE.md):** any `-DisableUnity`/`-NoPCH` experiment MUST be followed by that
+> clean, or in-editor Live Coding compiles stay permanently confused.
+
+## TB-23 — cross-patch lambda identity: destroying pre-patch closures ran the WRONG code (AV)
+
+**Found:** 2026-07-25, owner running 10a/10b WITH HMR: after adding `<CounterBadge />` and
+patching, the post-patch refresh AV'd tearing down the old tree — twice, reproducibly, both
+stacks dying in `TFunction_OwnedObject<…SimpleCounter_UetkxImpl…lambda_3/4>` destructors that
+live in EARLIER patch DLLs (`patch_12`, `patch_4`), called from
+`OnPatchComplete → HmrRefreshAll → ReconcileFiber → ~FRuiButtonProps`.
+
+**Root cause (the last layer of the TB-13 class):** anonymous lambdas mangle by ORDINAL under
+their enclosing function (`…SimpleCounter_UetkxImpl…<lambda_3>`), and Live Coding redirects
+functions BY MANGLED NAME across every loaded generation. Inserting/removing a markup child
+shifts every later lambda's ordinal, so the OLD stored closure's destructor thunk got
+redirected to a DIFFERENT lambda's code with a different capture layout — an AV the moment the
+old tree was torn down (post-patch reconcile, PIE stop, unmount).
+
+**Fix (codegen, root):** every emitted BODY symbol carries a per-generation CONTENT HASH —
+`<Name>_UetkxImpl_<hash>` for component impls, and `<Name>_RuiBody_<hash>` behind a STABLE
+forwarder for hooks and utils (importers keep binding the stable cross-file symbol; the
+forwarder recompiles in the same patch and calls the new body). Different content can never
+share a mangled name across patches, so old objects keep their own still-loaded code
+generation for destruction. Values noted as residual (initializer closures are theoretical;
+same treatment available if ever observed).
+
+**Status:** FIXED (battery 131/132 — the one failure is the Acceptance 45-file sweep pin
+correctly flagging the owner's two in-flight 10a/10b test files, not a regression; goldens
+re-pinned with hashed symbols). Owner re-test: repeat the exact 10a flow — add a widget,
+patch, keep clicking, stop PIE.
+
+> **TB-23 AMENDMENT (2026-07-25, owner 10a re-test):** the first-cut fix was WRONG and briefly
+> froze HMR entirely — hashing the impl symbol itself broke Live Coding's redirect (patch
+> initializers for same-named globals never re-run, so the renamed impl never re-registered
+> and old fibers invoked dead code forever: "component does not update", with or without HMR).
+> The correct architecture DECOUPLES the two requirements: `<Name>_UetkxImpl` stays STABLE
+> (the registered pointer, the FC target, Live Coding's redirect anchor — a one-line shim)
+> and calls `<Name>_UetkxBody_<hash>` where every lambda actually lives. Hooks/utils already
+> had this shape (stable forwarder + hashed body). Pinned by the codegen invariance test:
+> an edited generation keeps the STABLE registration symbol and gets a DIFFERENT body name.
+
+## TB-24 — unimported component TAGS never flagged live (and the sidecar copy flickered)
+
+**Found:** 2026-07-25, owner: `<CounterBadge />` with the exporter on disk but NO import showed
+no squiggle as-you-type; a red squiggle appeared only after "several changes" and flickered
+between red and clean while editing.
+
+**Root causes:** (a) the TB-19 live strict-usage mirror deliberately covered CODE references
+only — component TAGS were left to the compiler sweep; (b) the sweep's verdict reaches the
+editor through the HASH-GATED sidecar, so the diagnostic appeared only when the buffer matched
+the last compile and vanished on every divergence — the flicker.
+
+**Fix (LSP, bundle rebuilt):** live TAG policing in validate(), the compiler's UetkxResolve
+step-2 tag rule: a PascalCase non-host tag that is neither a same-file component nor an import
+binding → UETKX2305 (importer-nearest exporter, the add-import quick-fix works) or UETKX2307
+when no file exports it. First occurrence per tag, deduped against the existing broken-parse
+2307 producer and the sidecar by shared keys. Smoke-pinned (unimported tag → 2305 with fix
+tail; unknown tag → 2307; importing clears).
+
+**Status:** FIXED (LSP 92/92 + smoke; battery 131/132 — the one failure is the Acceptance
+45-file pin correctly counting the owner's in-flight test files).
+
+## TB-25 — import-specifier DX: single quotes uncolored/untooled, unordered completions, ././ append
+
+**Found:** 2026-07-25, owner during the 10-series: (a) `from './X'` renders white and gets no
+tooling (the C++ AND TS scanners both ACCEPT single quotes — C_QUOTE/C_APOS — and the formatter
+canonicalizes to `"` on save; only the TextMate grammar and the cursor classifier were
+double-quote-only); (b) specifier completions arrive in workspace-walk order — the nearest
+file should lead; (c) accepting a suggestion APPENDED to the typed text (`./` + accept
+`./Foo` → `././Foo`).
+
+**Fixes (extension + LSP, bundle rebuilt; grammar copies byte-identical):** (a) all four
+grammar specifier patterns (3 import forms + host include) accept `'…'`, and `importCursorAt`
+classifies a cursor inside a single-quoted specifier — coloring, completion, and every
+downstream feature now work in both quote styles, with the formatter still canonicalizing to
+the family's double-quote form on save; (b) items carry hops-based `sortText` — same-folder
+first, then by distance, then alphabetical; (c) items carry a `textEdit` replacing from just
+after the opening quote through the closing quote (the R14 whole-token rule) — never an
+append. Smoke-pinned (nearest-first order, replace range, single-quote trigger).
+
+**Status:** FIXED (LSP 92/92 + smoke; reload the dev host).
+
+## TB-26 — rapid HMR patches stacked fading toasts (the "blurry" notification)
+
+**Found:** 2026-07-25, owner: several quick saves made the editor's corner notification turn
+into a blurry smear — the controller spawned ONE toast PER patch-complete, and the overlapping
+fade-outs render as mush.
+
+**Fix (editor controller):** one toast, coalesced — the live notification's text updates in
+place (`SetText` + restarted expire countdown via `bFireAndForget = false` +
+`ExpireAndFadeout()`); a new toast spawns only after the previous fully faded. Bonus: the text
+now carries the running patch total.
+
+**Status:** FIXED in source; C++ build pending the owner's editor closing (Live Coding holds
+the build mutex) — verify visually on the next session: hammer 4-5 quick saves, expect ONE
+crisp toast updating its text.
+
+## TB-27 — clangd "void function should not return a value" on EVERY early return
+
+**Found:** 2026-07-25, owner: `return (<></>);` before the main return in SimpleCounter showed
+"Void function '__rui_setup_SimpleCounter' should not return a value". Investigation: NOT a
+fragment bug — the vdoc lifted setup into a `void __rui_setup_<Name>` scaffold while early-
+return windows keep their real `return ( … )` glue with the markup neutralized to `__rui_rn`,
+so EVERY early return (element, fragment, and the excludeSpans directive fallback) was illegal
+C++ inside it. The compiler pipeline was proven clean (the same shape lowers to
+`RUI::Fragment` via codegen); the second message the owner saw (0114 "must be parenthesized")
+was transient keystroke state, not reproducible from the committed scanners.
+
+**Fix (vdoc):** the scaffold returns `FRuiNode` (the prelude's `__rui_rn` type) and closes
+with a synthetic `return __rui_rn;` tail so the no-early-return shape has no C4715. Early
+returns are now legal in place. Pinned: embeddedCpp tests (fragment early return + tail;
+no `void __rui_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
+
+**Status:** FIXED (LSP 94/94 + smoke; bundle rebuilt — reload the dev host).
+
+## TB-28 — `return null;` render-nothing was missing (family parity gap)
+
+**Found:** 2026-07-25, owner (same report): "IIRC we allow or should allow return null."
+Confirmed against the Unity sibling: `return null;` IS first-class render-nothing there
+(HmrCSharpEmitter rewrites it to `continue;` when inlining loop bodies; shipped samples use
+it) — C# gets component-level `return null` for free (null VisualElement). Our C++ side had
+no support: the scanners ignored it (2101 if it was the only return) and codegen would have
+spliced uncompilable `return null;` verbatim.
+
+**Fix (both scanners + codegen + both formatters + vdoc):** `CollectMarkupReturns` /
+`collectMarkupReturns` recognize `return null ;` (bare) and `return ( null );` (paren) at
+paren-depth 0 as null spans (`bNull`/`isNull` — no markup window, no Root; the `;` is required
+so a mid-edit `null…` identifier prefix stays plain code; `null` is not a C++ identifier, so
+there are no false positives). They satisfy 2101, anchor the setup split, terminate 0107
+reachability, and codegen lowers them to `return {};` — an empty node array, the exact state
+the error-boundary path already feeds the reconciler. Formatters canonicalize the final form
+to bare `return null;`; the vdoc neutralizes the token to `__rui_rn` (typed by the TB-27
+FRuiNode scaffold). NOT implemented (follow-up if the corpus ever exercises it): Unity's
+`return null` → `continue` rewrite INSIDE @for directive bodies — our directive bodies are
+real C++ loops where authors write `continue;` directly.
+
+**Coverage:** 5 fileScan corpus cases + 3 formatter goldens (replayed by BOTH sides), codegen
+unit pins (`return {};` on all three shapes), ContractFixtures/ReturnNull.uetkx (golden dumped
+with the next engine run), vdoc unit + smoke pins.
+
+**Status:** FIXED (LSP 94/94 + smoke; C++ battery pending the TB-26 build).
+
+## TB-29 — 5.7 link failure: SearchableComboBox's ToolWidgets dependency was never declared
+
+**Found:** 2026-07-25, first 5.7 build of the field-test campaign (also the FIRST 5.7 build
+since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of ReactiveUISlate.
+
+**Root cause:** `SSearchableComboBox` lives in `Developer/ToolWidgets` (verified identical in
+5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but ReactiveUISlate.Build.cs
+never listed the module. It "worked" everywhere until now because the adapter is
+version-gated `#if !UE_VERSION_OLDER_THAN(5, 7, 0)` — on 5.6 (every build since the widget
+shipped 2026-07-16) the adapter compiled out, and the last 5.7 battery (2026-07-14) predates
+the widget. The include resolved via a transitive public include path; the .lib was never on
+the link line.
+
+**Fix:** `ToolWidgets` added to PrivateDependencyModuleNames, gated to engine ≥ 5.7 —
+exactly mirroring the adapter's compile gate.
+
+**⚠ Open verification (packaging step, REMAINING §2):** ToolWidgets is a DEVELOPER module —
+confirm a 5.7+ SHIPPING packaging run links it on installed engines (bBuildDeveloperTools is
+false in Shipping). If it does not, the adapter needs a Shipping compile-out + a schema/
+diagnostic surface for shipping-absent widgets — an owner design decision, taken with that
+evidence, not preempted here.
+
+**Also discovered:** the UE 5.8 install is PARTIAL (Engine/Binaries present, Engine/Source
+absent) — the 5.8 field-test leg needs a launcher repair/reinstall first (the engine-catchup
+skill's "engine installs can be partial" scar, live again).
+
+**Status:** FIXED in Build.cs; 5.7 build re-running. Battery + matrix follow.
+
+## TB-30 — 5.7 strict-includes: FStrProperty only forward-declared through UnrealType.h
+
+**Found:** 2026-07-25, first `-StrictIncludes` (`-DisableUnity -NoPCH`) packaging run on 5.7
+(the exact marketplace build mode): `C2027 use of undefined type 'FStrProperty'` in
+RuiMarshal.cpp — UE 5.7's header diet leaves FStrProperty forward-declared via UnrealType.h;
+5.6 (and every unity build) provided the definition transitively.
+
+**Fix:** direct `#include "UObject/StrProperty.h"` in the two users (RuiMarshal.cpp +
+RuiFieldHooks.h — the header sweep found the second before it could fail a user's build).
+The header exists identically on 5.6; no version gate needed.
+
+**Also closed here — TB-29's open verification:** the same packaging run compiles the
+Win64 SHIPPING game config, and 5.7 Shipping built green with the SearchableComboBox
+adapter (ToolWidgets) compiled in — no Developer-module restriction fired on the installed
+engine. Both per-engine zips exist: `dist/ReactiveUI-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
+
+**Status:** FIXED; 5.6 zip rebuilt from the fixed source (identical source in both zips).

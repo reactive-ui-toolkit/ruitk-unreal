@@ -4,6 +4,8 @@
 #include "RuiDemoSupport.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+{
 struct FSignalPanelUetkxProps final : public FRuiPropsBase
 {
 
@@ -16,20 +18,28 @@ struct FSignalPanelUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode SignalPanel(FSignalPanelUetkxProps InProps = FSignalPanelUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 #else
-static FRuiNodeArray SignalPanel_UetkxImpl(FRuiContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+{
+static FRuiNodeArray SignalPanel_UetkxBody_B772CD9A(FRuiContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/SignalCounter/components/SignalPanel/SignalPanel.uetkx"
 	const int32 Count = RUI::UseSignalKey<int32>(Ctx, RuiDemo::GDemoCounterSignal, 0);
-#line 25 "SignalPanel.uetkx.inl"
+#line 30 "SignalPanel.uetkx.inl"
 	return { RUI::TextBlock((RUI::Fmt(TEXT("Count: {}"), Count)), FRuiKey()) };
 }
-static const FName GSignalPanelUetkxId = RUI::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("SignalPanel")));
+static FRuiNodeArray SignalPanel_UetkxImpl(FRuiContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SignalPanel_UetkxBody_B772CD9A(Ctx, Props, children);
+}
+static const FName GSignalPanelUetkxId = RUI::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")));
 static constexpr uint32 SignalPanel_RUI_HOOK_SIG = 0xD50F149Cu;
 inline FRuiNode SignalPanel(FSignalPanelUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&SignalPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSignalPanelUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("SignalPanel")), []() { return SignalPanel(); });
+static const bool GSignalPanelUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")), []() { return SignalPanel(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 #endif

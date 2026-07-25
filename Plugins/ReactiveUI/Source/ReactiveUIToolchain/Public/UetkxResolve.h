@@ -50,8 +50,12 @@ public:
 	 *  importer (M8 / bughunt DRV-2 / IMPORT-1). "" for a forbidden or anchorless specifier. */
 	virtual FString WouldBeLabel(const FString& Spec, const FString& ImporterPath) const = 0;
 
-	/** GLOBAL: the key of ANY file that EXPORTS Name (2305 vs 2307). "" if none exports it. */
-	virtual FString FindExporter(const FString& Name, EUetkxDeclKind& OutKind) const = 0;
+	/** GLOBAL: the key of a file that EXPORTS Name (2305 vs 2307). "" if none exports it.
+	 *  FILE_SCOPED_EXPORTS (FS-08): several files may export Name — implementations return the
+	 *  DETERMINISTIC nearest exporter to ImporterPath (fewest `../` hops in the suggested
+	 *  specifier; ties break lexicographically), so 2305's fix-it and the codemod pick the same
+	 *  file on every machine. */
+	virtual FString FindExporter(const FString& Name, const FString& ImporterPath, EUetkxDeclKind& OutKind) const = 0;
 
 	/** A POSIX import specifier suggestion from ImporterPath to Key (the 2305 fix-it + codemod). */
 	virtual FString SuggestSpecifier(const FString& ImporterPath, const FString& Key) const = 0;
@@ -73,7 +77,8 @@ public:
 	virtual uint32 ExportHashOf(const FString& Key) const override;
 	virtual FString LabelForKey(const FString& Key) const override;
 	virtual FString WouldBeLabel(const FString& Spec, const FString& ImporterPath) const override;
-	virtual FString FindExporter(const FString& Name, EUetkxDeclKind& OutKind) const override;
+	virtual FString FindExporter(const FString& Name, const FString& ImporterPath,
+								 EUetkxDeclKind& OutKind) const override;
 	virtual FString SuggestSpecifier(const FString& ImporterPath, const FString& Key) const override;
 
 private:
@@ -93,9 +98,15 @@ private:
 		uint32 Hash = 0;
 		FUetkxPreambleScan Scan;
 	};
-	mutable TMap<FString, FCacheEntry> Cache;		   // abs key -> parsed
-	mutable TMap<FString, EUetkxDeclKind> ExportIndex; // exported name -> kind (first exporter wins)
-	mutable TMap<FString, FString> ExporterOf;		   // exported name -> key
+	mutable TMap<FString, FCacheEntry> Cache; // abs key -> parsed
+	struct FExporterEntry
+	{
+		FString Key; // abs path of the exporting file
+		EUetkxDeclKind Kind = EUetkxDeclKind::Component;
+	};
+	// FILE_SCOPED_EXPORTS (FS-08): exported name -> EVERY exporter (stable-sorted); FindExporter
+	// picks the importer-nearest entry deterministically.
+	mutable TMap<FString, TArray<FExporterEntry>> ExportersOf;
 	mutable bool bIndexBuilt = false;
 };
 

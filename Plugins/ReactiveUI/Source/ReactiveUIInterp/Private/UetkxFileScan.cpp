@@ -360,7 +360,7 @@ namespace
 		return Out;
 	}
 
-	/** ES-modules (plans/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): split NEW-form params
+	/** ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01, "S5"): split NEW-form params
 	 *  `Type Name = Default, ...` (type-first — the mirror image of legacy ParseParams'
 	 *  `Name: Type = Default`). Reuses the exact same comma-splitting depth walk
 	 *  (SplitTopLevelCommaPieces); per piece, NAME is the LAST top-level identifier before that
@@ -1255,38 +1255,45 @@ namespace
 		return Bclose + 1;
 	}
 
-	/** Duplicate-import diagnostics (2303) for a parsed name list: a name already imported earlier
-	 *  in this file, or repeated within this same import's braces; records the names into
-	 *  ImportedFrom. Shared by the plain named form and the ES COMBINED form. */
+	/** Duplicate-import diagnostics (2303) for a parsed name list: a LOCAL BINDING already bound
+	 *  earlier in this file, or repeated within this same import's braces; records the bindings
+	 *  into ImportedFrom. Shared by the plain named form and the ES COMBINED form.
+	 *  FILE_SCOPED_EXPORTS (M0 audit): keyed by the LOCAL binding name, not the target —
+	 *  `import { A } from "./x"; import { A as B } from "./y";` binds two DISTINCT locals of
+	 *  same-named exports (legal ES; two files may export the same name); only a repeated LOCAL
+	 *  spelling collides. The diag anchors on the local token when the import is aliased. */
 	void RecordNamedImportDups(const FUetkxImportDecl& Imp, TMap<FString, FString>& ImportedFrom,
 							   FUetkxFileScanResult& Out)
 	{
 		TSet<FString> ThisImport;
 		for (int32 idx = 0; idx < Imp.Names.Num(); ++idx)
 		{
-			const FString& Name = Imp.Names[idx];
-			const int32 NameAt = Imp.NameAts[idx];
-			if (const FString* Prev = ImportedFrom.Find(Name))
+			const bool bAliased = Imp.LocalNames.IsValidIndex(idx) && !Imp.LocalNames[idx].IsEmpty() &&
+								  Imp.LocalNames[idx] != Imp.Names[idx];
+			const FString& Bound = bAliased ? Imp.LocalNames[idx] : Imp.Names[idx];
+			const int32 BoundAt =
+				bAliased && Imp.LocalNameAts.IsValidIndex(idx) ? Imp.LocalNameAts[idx] : Imp.NameAts[idx];
+			if (const FString* Prev = ImportedFrom.Find(Bound))
 			{
 				AddDiag(Out.Diags, TEXT("UETKX2303"), 0,
-						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Name, **Prev),
-						NameAt, Name.Len());
+						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound, **Prev),
+						BoundAt, Bound.Len());
 			}
-			else if (ThisImport.Contains(Name))
+			else if (ThisImport.Contains(Bound))
 			{
-				AddDiag(
-					Out.Diags, TEXT("UETKX2303"), 0,
-					FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Name, *Imp.Specifier),
-					NameAt, Name.Len());
+				AddDiag(Out.Diags, TEXT("UETKX2303"), 0,
+						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound,
+										*Imp.Specifier),
+						BoundAt, Bound.Len());
 			}
 			else
 			{
-				ThisImport.Add(Name);
+				ThisImport.Add(Bound);
 			}
 		}
-		for (const FString& Name : ThisImport)
+		for (const FString& Bound : ThisImport)
 		{
-			ImportedFrom.Add(Name, Imp.Specifier);
+			ImportedFrom.Add(Bound, Imp.Specifier);
 		}
 	}
 
@@ -1565,14 +1572,16 @@ namespace
 		DiagnoseBareMarkupReturn(Body, JsxRanges, BodyAt, Out.Diags);
 		if (Decl.Returns.IsEmpty())
 		{
-			AddDiag(Out.Diags, TEXT("UETKX2101"), 0, TEXT("component has no `return ( ... )` markup return"), Ci, 9);
+			AddDiag(Out.Diags, TEXT("UETKX2101"), 0,
+					TEXT("component has no `return ( ... )` markup return (or `return null;`)"), Ci, 9);
 			return -1;
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
-			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final markup `return ( ... )` must be at the top level of the body"),
-					BodyAt + Decl.Returns.Last().ReturnAt, 6);
+			AddDiag(
+				Out.Diags, TEXT("UETKX3007"), 0,
+				TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
+				BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
 		const FUetkxReturnSpan& Final = Decl.Returns.Last();
@@ -1583,6 +1592,10 @@ namespace
 
 		for (FUetkxReturnSpan& Span : Decl.Returns)
 		{
+			if (Span.bNull)
+			{
+				continue; // render-nothing span — no markup window, Root stays null
+			}
 			FUetkxMarkup Parser;
 			FUetkxParseResult Pr = Parser.Parse(Body, Span.MStart, Span.MEnd);
 			if (!Pr.IsOk())
@@ -1678,15 +1691,16 @@ namespace
 		DiagnoseBareMarkupReturn(Body, JsxRanges, BodyAt, Out.Diags);
 		if (Decl.Returns.IsEmpty())
 		{
-			AddDiag(Out.Diags, TEXT("UETKX2101"), 0, TEXT("component has no `return ( ... )` markup return"), DeclStart,
-					1);
+			AddDiag(Out.Diags, TEXT("UETKX2101"), 0,
+					TEXT("component has no `return ( ... )` markup return (or `return null;`)"), DeclStart, 1);
 			return -1;
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
-			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final markup `return ( ... )` must be at the top level of the body"),
-					BodyAt + Decl.Returns.Last().ReturnAt, 6);
+			AddDiag(
+				Out.Diags, TEXT("UETKX3007"), 0,
+				TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
+				BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
 		const FUetkxReturnSpan& Final = Decl.Returns.Last();
@@ -1697,6 +1711,10 @@ namespace
 
 		for (FUetkxReturnSpan& Span : Decl.Returns)
 		{
+			if (Span.bNull)
+			{
+				continue; // render-nothing span — no markup window, Root stays null
+			}
 			FUetkxMarkup Parser;
 			FUetkxParseResult Pr = Parser.Parse(Body, Span.MStart, Span.MEnd);
 			if (!Pr.IsOk())
@@ -2350,6 +2368,10 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 				const bool bTopLevel = BraceDepth == 0;
 				const bool bMarkup =
 					First < N && (Body[First] == C_LT || Body[First] == C_AT || (Body[First] == C_LBRACE && bTopLevel));
+				// `return ( null );` — the render-nothing span, paren form (TB-28: family parity;
+				// the C# siblings accept it as a plain parenthesized literal, so byte-compatible
+				// markup must too). Only `null` + ws inside the parens qualifies.
+				const bool bNull = !bMarkup && First < N && FUetkxLexer::KeywordAt(Body, First, TEXT("null"));
 				const int32 Close =
 					bMarkup ? FUetkxLexer::FindMatchingMarkup(Body, P) : FUetkxLexer::FindMatching(Body, P);
 				if (Close == -1)
@@ -2357,7 +2379,7 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 					++i;
 					continue;
 				}
-				if (bMarkup)
+				if (bMarkup || (bNull && SkipWsOnly(Body, First + 4) == Close))
 				{
 					FUetkxReturnSpan Span;
 					Span.ReturnAt = i;
@@ -2365,10 +2387,31 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 					Span.MEnd = Close;
 					Span.AfterParen = Close + 1;
 					Span.bTopLevel = bTopLevel;
+					Span.bNull = !bMarkup;
 					Out.Add(MoveTemp(Span));
 				}
 				i = Close + 1;
 				continue;
+			}
+			// `return null ;` — the render-nothing span, bare form (TB-28). `null` is not a C++
+			// identifier, so this can ONLY mean the family's render-nothing literal; the `;` is
+			// required so a mid-edit `return null` prefix of a longer identifier stays plain code.
+			if (P < N && FUetkxLexer::KeywordAt(Body, P, TEXT("null")))
+			{
+				const int32 Semi = SkipWsOnly(Body, P + 4);
+				if (Semi < N && Body[Semi] == ';')
+				{
+					FUetkxReturnSpan Span;
+					Span.ReturnAt = i;
+					Span.MStart = P;
+					Span.MEnd = P + 4;
+					Span.AfterParen = P + 4; // consumers' ws+`;` skip lands past the statement
+					Span.bTopLevel = BraceDepth == 0;
+					Span.bNull = true;
+					Out.Add(MoveTemp(Span));
+					i = Semi + 1;
+					continue;
+				}
 			}
 			i += 6;
 			continue;
@@ -2757,26 +2800,6 @@ FUetkxFileScanResult FUetkxFileScan::Scan(const FString& Source, const FString& 
 				const bool bPlain = Imp.LocalNames[n] == Imp.Names[n];
 				CheckAlias(Imp.LocalNames[n], Imp.NameAts.IsValidIndex(n) ? Imp.NameAts[n] : Imp.At, bPlain);
 			}
-		}
-	}
-
-	// Component/file-name nudge (0103) — kept for the one-component ergonomic. Companion suffixes
-	// (`X.style.uetkx`) compare against the first dot-segment; multi-component files are flagged by
-	// the convention warn (2105) instead, not by name churn.
-	if (Out.Components.Num() == 1)
-	{
-		FString BaseCmp = Basename;
-		int32 DotAt = -1;
-		if (BaseCmp.FindChar(TEXT('.'), DotAt))
-		{
-			BaseCmp = BaseCmp.Left(DotAt);
-		}
-		const FUetkxComponentDecl& Only = Out.Components[0];
-		if (Only.Name != BaseCmp && !BaseCmp.IsEmpty())
-		{
-			AddDiag(Out.Diags, TEXT("UETKX0103"), 1,
-					FString::Printf(TEXT("component `%s` differs from file name `%s`"), *Only.Name, *BaseCmp),
-					Only.NameAt, Only.Name.Len());
 		}
 	}
 

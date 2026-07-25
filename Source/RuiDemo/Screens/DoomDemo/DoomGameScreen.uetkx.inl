@@ -6,6 +6,8 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+{
 struct FDoomGameScreenUetkxProps final : public FRuiPropsBase
 {
 	int32 Level = 1;
@@ -24,8 +26,11 @@ struct FDoomGameScreenUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps = FDoomGameScreenUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
 #else
-static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+{
+static FRuiNodeArray DoomGameScreen_UetkxBody_BDBFD227(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Level = Props.Level;
 	const auto& Diff = Props.Diff;
@@ -47,7 +52,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		// ScaleToFit letterboxes the fixed-res game into WHATEVER the demo area gives us — the
 		// siblings' windows ARE 800×590, so scaled-to-fit is the same feel. VAlign=bottom pins
 		// the HUD to the window's bottom edge whenever width is the constraining axis.
-#line 51 "DoomGameScreen.uetkx.inl"
+#line 56 "DoomGameScreen.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiScaleBoxProps P;
 		P.SetStretch(FName(TEXT("scaleToFit")));
@@ -260,11 +265,11 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
-		FDoomMinimapUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::FDoomMinimapUetkxProps P;
 		P.State = St;
 		P.Version = View.Version;
 		TArray<FRuiNode> Ch;
-		return DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
@@ -328,6 +333,8 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		FRuiBorderProps P;
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
 		P.SetBorderBackgroundColor((FLinearColor(0.10f, 0.0f, 0.0f, 0.55f)));
+		P.SetHAlign(FName(TEXT("center")));
+		P.SetVAlign(FName(TEXT("center")));
 		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
 		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.HAlign")), FRuiValue(TEXT("fill")));
@@ -337,12 +344,6 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
-		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
-		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.HAlign")), FRuiValue(TEXT("center")));
-		__Slot->Add(FName(TEXT("Slot.VAlign")), FRuiValue(TEXT("center")));
-		if (!__Style->IsEmpty()) { P.Style = __Style; }
-		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
 		FRuiNode __N = RUI::TextBlock(NSLOCTEXT("Uetkx.DoomGameScreen", "DoomGameScreen_1", "YOU DIED"), FRuiKey());
@@ -404,6 +405,8 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		FRuiBorderProps P;
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
 		P.SetBorderBackgroundColor((FLinearColor(0.0f, 0.06f, 0.0f, 0.55f)));
+		P.SetHAlign(FName(TEXT("center")));
+		P.SetVAlign(FName(TEXT("center")));
 		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
 		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.HAlign")), FRuiValue(TEXT("fill")));
@@ -413,12 +416,6 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
-		TSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();
-		TSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.HAlign")), FRuiValue(TEXT("center")));
-		__Slot->Add(FName(TEXT("Slot.VAlign")), FRuiValue(TEXT("center")));
-		if (!__Style->IsEmpty()) { P.Style = __Style; }
-		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuiNode> Ch;
 		Ch.Add([&]() -> FRuiNode {
 		FRuiNode __N = RUI::TextBlock(NSLOCTEXT("Uetkx.DoomGameScreen", "DoomGameScreen_4", "LEVEL COMPLETE"), FRuiKey());
@@ -492,7 +489,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		return RUI::Slate::Overlay(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		Ch.Add([&]() -> FRuiNode {
-		FDoomHUDUetkxProps P;
+		RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::FDoomHUDUetkxProps P;
 		P.Health = St->Player.Health;
 		P.Armor = St->Player.Armor;
 		P.ArmorClass = St->Player.ArmorClass;
@@ -506,7 +503,7 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		P.MapName = RuiDoom::LevelName(ActiveLevel);
 		P.FaceState = St->Player.FaceState;
 		TArray<FRuiNode> Ch;
-		return DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuiKey());
+		return RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}());
@@ -515,12 +512,17 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		return RUI::Slate::ScaleBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("DoomGameScreen")));
+static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomGameScreen_UetkxBody_BDBFD227(Ctx, Props, children);
+}
+static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
 static constexpr uint32 DoomGameScreen_RUI_HOOK_SIG = 0x72A626EBu;
 inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomGameScreen_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomGameScreenUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomGameScreen")), []() { return DoomGameScreen(); });
+static const bool GDoomGameScreenUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")), []() { return DoomGameScreen(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
 #endif

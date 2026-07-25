@@ -153,7 +153,10 @@ MASTER_PLAN §1; module table: D-27.
   runbook, `scripts/engine-api-diff.ps1` the discovery tool. When switching engines on one
   working copy, a stale-UHT clean may be needed (`rm -rf Intermediate/Build
   Plugins/ReactiveUI/Intermediate Binaries Plugins/ReactiveUI/Binaries`) — a newer engine's
-  UHT output does not compile on an older one.
+  UHT output does not compile on an older one. The SAME clean is MANDATORY after any
+  `-DisableUnity`/`-NoPCH` build experiment: mixed unity/non-unity intermediates make
+  in-editor Live Coding recompile untouched modules on every fresh boot (TB-21 amendment —
+  patched-Core Frankenstein sessions, crashes at Play/PIE-stop).
 - VS2022 Community with the C++ workload; MSVC toolchain **14.44.35223** — UE 5.6 warns it
   "is not a preferred version (prefers 14.38)" but accepts it. If strict toolchain matching is
   ever needed (e.g. chasing a compiler-specific bug), install the 14.38 toolset via the VS

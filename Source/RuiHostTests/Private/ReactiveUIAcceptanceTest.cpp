@@ -8,6 +8,10 @@
 #include "Misc/AutomationTest.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "RuiContext.h"
 #include "RuiCoreElements.h"
 #include "RuiDemoScreens.h"
@@ -75,8 +79,10 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 		// SimpleCounter.hooks, AcceptanceLab.style, AcceptanceLab.hooks) + 2 CycleProof (CycleA/CycleB)
 		// + 2 ChildrenProof (ChildHost/ChildParent) + 2 GrammarProof (MultiReturnProof wave G,
 		// HostImportProof INCLUDE_RETIREMENT_PLAN.md §B).
-		TestEqual(TEXT("1. all 42 swept .uetkx files (gallery + interop + cycle + children + grammar proof)"),
-				  Drift.Total, 42);
+		TestEqual(TEXT("1. all 45 swept .uetkx files (gallery + interop + cycle + children + grammar proof + "
+					   "SimpleCounter.style — the HMR value-companion, R16 — and the LabScopeProof pair: "
+					   "the compiled default-import + ~/ + dual same-name-export proof, FILE_SCOPED_EXPORTS)"),
+				  Drift.Total, 45);
 	}
 
 	// 2. The contract goldens hold (codegen shape is what the fixtures pinned).
@@ -149,7 +155,10 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 	{
 		const FString Schema = FUetkxCodegen::ExportSchemaJson();
 		TestTrue(TEXT("6. schema exports"), Schema.Contains(TEXT("\"elements\"")) && Schema.Contains(TEXT("Button")));
-		// the SHIPPED copy in the LSP must not drift from the live export
+		// the SHIPPED copy in the LSP must not drift from the live export. `brushNames` is the
+		// ENVIRONMENT'S enumerated FCoreStyle set (R13) — the automation process registers a
+		// different style universe than the editor that ran RUIExportSchema, so that one field
+		// is compared for PRESENCE, not content; everything static must match byte-for-byte.
 		FString Shipped;
 		if (FFileHelper::LoadFileToString(
 				Shipped, *(FPaths::ProjectDir() / TEXT("ide-extensions/lsp-server/src/uetkx-schema.json"))))
@@ -158,9 +167,21 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 			{
 				S.ReplaceInline(TEXT("\r\n"), TEXT("\n"));
 				S.TrimStartAndEndInline();
+				TSharedPtr<FJsonObject> Obj;
+				if (FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(S), Obj) && Obj.IsValid())
+				{
+					Obj->RemoveField(TEXT("brushNames"));
+					FString Out;
+					const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&Out);
+					FJsonSerializer::Serialize(Obj.ToSharedRef(), Writer);
+					return Out;
+				}
 				return S;
 			};
-			TestEqual(TEXT("6. shipped LSP schema matches the compiler export"), Normalize(Shipped), Normalize(Schema));
+			TestTrue(TEXT("6. shipped schema carries the environment brush set"),
+					 Shipped.Contains(TEXT("\"brushNames\"")));
+			TestEqual(TEXT("6. shipped LSP schema matches the compiler export (brushNames excluded)"),
+					  Normalize(Shipped), Normalize(Schema));
 		}
 	}
 	return true;

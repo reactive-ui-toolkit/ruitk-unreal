@@ -18,8 +18,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
-class UTexture2D;
+#include "Engine/Texture2D.h"
 
 namespace RuiDoom
 {

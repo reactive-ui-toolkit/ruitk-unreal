@@ -9,6 +9,8 @@
 #include "RuiRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogRuiActivatable, Log, All);
+
 namespace
 {
 	ERuiInputMethod MapInputType(ECommonInputType InType)
@@ -37,9 +39,30 @@ URuiActivatableScreen::URuiActivatableScreen(const FObjectInitializer& ObjectIni
 FRuiNode URuiActivatableScreen::BuildTree() const
 {
 	TArray<FRuiNode> Children;
-	if (!ComponentName.IsNone() && RUI::HasNamedFactory(ComponentName))
+	FName Resolved;
+	TArray<FName> Candidates;
+	if (!ComponentName.IsNone())
 	{
-		Children.Add(RUI::Named(ComponentName));
+		switch (RUI::ResolveNamed(ComponentName, Resolved, &Candidates))
+		{
+		case RUI::EResolveNamed::Hit:
+			Children.Add(RUI::Named(Resolved));
+			break;
+		case RUI::EResolveNamed::Ambiguous:
+		{
+			// FILE_SCOPED_EXPORTS (FS-05): never a silent first-wins — name the qualified ids.
+			FString List;
+			for (const FName& C : Candidates)
+			{
+				List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
+			}
+			UE_LOG(LogRuiActivatable, Error, TEXT("ActivatableScreen: '%s' is ambiguous — use a qualified id: %s"),
+				   *ComponentName.ToString(), *List);
+			break;
+		}
+		default:
+			break;
+		}
 	}
 	// Activation state outside, focus registry inside — components read both from context.
 	return RUI::CommonUI::ActivationProvider(State,

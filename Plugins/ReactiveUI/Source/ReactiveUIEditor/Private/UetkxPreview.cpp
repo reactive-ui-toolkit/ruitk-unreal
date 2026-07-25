@@ -7,6 +7,7 @@
 #include "RuiCoreElements.h"
 #include "RuiNode.h"
 #include "RuiRoot.h"
+#include "UetkxCodegen.h"
 #include "UetkxFileScan.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -16,7 +17,7 @@
 // an approximation; its effects run as they would in PIE.
 
 TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const FString& Basename,
-													FName InComponentName)
+													FName InComponentName, const FString& ProjectRelPath)
 {
 	TSharedRef<FUetkxPreview> Preview = MakeShared<FUetkxPreview>();
 
@@ -52,7 +53,19 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const
 		return Preview;
 	}
 
-	const FName ComponentId(*Wanted);
+	// FILE_SCOPED_EXPORTS (FS-05): registrations key by the FILE-QUALIFIED id. With a known
+	// path, address THIS file's registration exactly (two files may export the same name);
+	// otherwise the short name resolves when unique.
+	FName ComponentId(*Wanted);
+	if (!ProjectRelPath.IsEmpty())
+	{
+		const FName Exact(*(FUetkxCodegen::FileNamespaceFor(ProjectRelPath, Basename) + TEXT("::") + Wanted));
+		FName ResolvedExact;
+		if (RUI::ResolveNamed(Exact, ResolvedExact) == RUI::EResolveNamed::Hit)
+		{
+			ComponentId = Exact;
+		}
+	}
 	if (!RUI::HasNamedFactory(ComponentId))
 	{
 		// TD-026 (ES-modules M3): a PRIVATE component never registers a named factory (tree-shaken
@@ -90,7 +103,10 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromFile(const FString& FilePath, FName
 		Preview->Messages.Add(FString::Printf(TEXT("[preview] could not read '%s'."), *FilePath));
 		return Preview;
 	}
-	return FromSource(Source, FPaths::GetBaseFilename(FilePath), InComponentName);
+	FString ProjRel = FilePath;
+	FPaths::MakePathRelativeTo(ProjRel, *FPaths::ProjectDir());
+	ProjRel.ReplaceInline(TEXT("\\"), TEXT("/"));
+	return FromSource(Source, FPaths::GetBaseFilename(FilePath), InComponentName, ProjRel);
 }
 
 FUetkxPreview::~FUetkxPreview()

@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+{
 struct FSimpleTextFieldUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,12 +17,15 @@ struct FSimpleTextFieldUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode SimpleTextField(FSimpleTextFieldUetkxProps InProps = FSimpleTextFieldUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
 #else
-static FRuiNodeArray SimpleTextField_UetkxImpl(FRuiContext& Ctx, const FSimpleTextFieldUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+{
+static FRuiNodeArray SimpleTextField_UetkxBody_337F2464(FRuiContext& Ctx, const FSimpleTextFieldUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/SimpleTextField/SimpleTextField.uetkx"
 	auto [Text, SetText] = Ctx.UseState<FString>(FString());
-#line 24 "SimpleTextField.uetkx.inl"
+#line 29 "SimpleTextField.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
 		P.SetPadding(FMargin(12));
@@ -53,12 +58,17 @@ static FRuiNodeArray SimpleTextField_UetkxImpl(FRuiContext& Ctx, const FSimpleTe
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GSimpleTextFieldUetkxId = RUI::RegisterComponentId((void*)&SimpleTextField_UetkxImpl, FName(TEXT("SimpleTextField")));
+static FRuiNodeArray SimpleTextField_UetkxImpl(FRuiContext& Ctx, const FSimpleTextFieldUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SimpleTextField_UetkxBody_337F2464(Ctx, Props, children);
+}
+static const FName GSimpleTextFieldUetkxId = RUI::RegisterComponentId((void*)&SimpleTextField_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")));
 static constexpr uint32 SimpleTextField_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode SimpleTextField(FSimpleTextFieldUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&SimpleTextField_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleTextFieldUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("SimpleTextField")), []() { return SimpleTextField(); });
+static const bool GSimpleTextFieldUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")), []() { return SimpleTextField(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
 #endif

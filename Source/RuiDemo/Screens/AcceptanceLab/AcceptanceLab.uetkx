@@ -15,6 +15,7 @@
 import { UseLabState } from "./AcceptanceLab.hooks"
 import * as LabStyle from "./AcceptanceLab.style"
 import { LabCard } from "./components/LabCard/LabCard"
+import { LabScopeProof } from "./components/LabScopeProof/LabScopeProof"
 
 export FRuiNode AcceptanceLab() {
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
@@ -257,6 +258,10 @@ export FRuiNode AcceptanceLab() {
 								<LabCard Label="Live count" Count={ Count } />
 								<LabCard Label="Always zero" Count={ 0 } />
 							</HorizontalBox>
+							<!-- 8b · FILE-SCOPED EXPORTS — a default import, the ~/ root alias, and BOTH
+							     same-named PanelBackground exports (SimpleCounter.style + ContextDemo.style)
+							     bound in ONE importer via `as` — each renders its own file's color. -->
+							<LabScopeProof />
 						</VerticalBox>
 					</Border>
 					<Spacer Size={ FVector2D(1.0f, 6.0f) } />

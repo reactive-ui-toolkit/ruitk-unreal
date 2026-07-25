@@ -3,16 +3,27 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks
+{
 inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start);
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks
 #else
-inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start)
+namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks
+{
+static TTuple<int32, TFunction<void()>> UseCounter_RuiBody_5BFBD626(FRuiContext& Ctx, int32 Start)
 {
 #line 2 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.hooks.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
 		TFunction<void()> Increment = [SetCount, Count]() { SetCount(Count + 1); };
+	
 		return MakeTuple(Count, Increment);
-#line 16 "SimpleCounter.hooks.uetkx.inl"
+#line 22 "SimpleCounter.hooks.uetkx.inl"
+}
+inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start)
+{
+	return UseCounter_RuiBody_5BFBD626(Ctx, Start);
 }
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks
 #endif

@@ -4,6 +4,8 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+{
 struct FDoomMinimapUetkxProps final : public FRuiPropsBase
 {
 	const RuiDoom::FGameState* State = nullptr;
@@ -20,8 +22,11 @@ struct FDoomMinimapUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode DoomMinimap(FDoomMinimapUetkxProps InProps = FDoomMinimapUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 #else
-static FRuiNodeArray DoomMinimap_UetkxImpl(FRuiContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+{
+static FRuiNodeArray DoomMinimap_UetkxBody_72C99BCC(FRuiContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& State = Props.State;
 	const auto& Version = Props.Version;
@@ -144,7 +149,7 @@ static FRuiNodeArray DoomMinimap_UetkxImpl(FRuiContext& Ctx, const FDoomMinimapU
 		const float PxX = State != nullptr ? State->Player.X * Scale : 0.0f;
 		const float PxY = State != nullptr ? (Mh - State->Player.Y) * Scale : 0.0f;
 		const float PAngle = State != nullptr ? State->Player.Angle : 0.0f;
-#line 148 "DoomMinimap.uetkx.inl"
+#line 153 "DoomMinimap.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiBoxProps P;
 		P.SetWidthOverride((static_cast<float>(InnerW + 6)));
@@ -240,12 +245,17 @@ static FRuiNodeArray DoomMinimap_UetkxImpl(FRuiContext& Ctx, const FDoomMinimapU
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomMinimapUetkxId = RUI::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("DoomMinimap")));
+static FRuiNodeArray DoomMinimap_UetkxImpl(FRuiContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return DoomMinimap_UetkxBody_72C99BCC(Ctx, Props, children);
+}
+static const FName GDoomMinimapUetkxId = RUI::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")));
 static constexpr uint32 DoomMinimap_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode DoomMinimap(FDoomMinimapUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&DoomMinimap_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomMinimapUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("DoomMinimap")), []() { return DoomMinimap(); });
+static const bool GDoomMinimapUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")), []() { return DoomMinimap(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 #endif

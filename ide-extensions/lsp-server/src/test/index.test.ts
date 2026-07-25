@@ -273,8 +273,13 @@ test("rename refusals: invalid ident, collision in an edited file, exported else
     assert.ok("error" in renameSymbolAt(chip, at, "not an ident", new Set()), "invalid identifier refused");
     // `Cool` is bound in Chip.uetkx AND PlainUser.uetkx — collision in an edited file
     assert.ok("error" in renameSymbolAt(chip, at, "Cool", new Set()), "collision refused");
-    // `PlainUser` is exported by another file — the 2106 shape
-    assert.ok("error" in renameSymbolAt(chip, at, "PlainUser", new Set()), "cross-file export collision refused");
+    // `PlainUser` refuses for the RIGHT reason now: PlainUser.uetkx imports Chip, so the
+    // rename would rewrite its import into a binding that collides with its own declaration
+    // (the touched-file 2325 shape) — NOT because exports are globally unique.
+    assert.ok("error" in renameSymbolAt(chip, at, "PlainUser", new Set()), "touched-file collision still refused");
+    // `NsUser` is exported by a file the rename NEVER touches — LEGAL under
+    // FILE_SCOPED_EXPORTS (each file is its own module; the 2106 refusal is retired).
+    assert.ok("edits" in renameSymbolAt(chip, at, "NsUser", new Set()), "cross-file same-name export is legal now");
     // a host element name
     assert.ok("error" in renameSymbolAt(chip, at, "Border", new Set(["Border"])), "host-tag shadowing refused");
     void plain;
@@ -387,4 +392,98 @@ test("audit: a plain-binding rename validates only the IMPORTER it edits (no glo
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("R9: tags + attrs INSIDE directive bodies are swept and indexed (the @for blind spot)", () => {
+  const src = [
+    'import { Chip } from "./Chip"',
+    "export FRuiNode Hud() {",
+    "\treturn (",
+    "\t\t<VerticalBox>",
+    "\t\t\t@for (int32 i = 0; i < 4; ++i) {",
+    "\t\t\t\tconst bool bOn = i > 1;",
+    "\t\t\t\treturn (",
+    "\t\t\t\t\t<HorizontalBox key={ i }>",
+    "\t\t\t\t\t\t<Chip />",
+    "\t\t\t\t\t\t@if (bOn) {",
+    "\t\t\t\t\t\t\treturn ( <Spacer /> )",
+    "\t\t\t\t\t\t}",
+    "\t\t\t\t\t</HorizontalBox>",
+    "\t\t\t\t);",
+    "\t\t\t}",
+    "\t\t</VerticalBox>",
+    "\t);",
+    "}",
+    "",
+  ].join("\n");
+  const refs = refsOf(src, "Hud");
+  const tags = refs.filter((r) => r.kind === "tag").map((r) => `${r.name}${r.closeTag ? "/c" : ""}`).sort();
+  assert.ok(tags.includes("HorizontalBox") && tags.includes("HorizontalBox/c"), "directive-body open+close tags indexed");
+  assert.ok(tags.includes("Chip"), "component tag inside the @for body indexed (rename completeness)");
+  assert.ok(tags.includes("Spacer"), "NESTED directive body (@if inside @for) tags indexed");
+  // and the live-sweep primitive sees them too
+  const { sweepMarkupElements } = require("../uetkxIndex") as typeof import("../uetkxIndex");
+  const scan = scanFile(src, "Hud", true);
+  const comp = scan.components[0];
+  const bodyCp = [...comp.body].map((ch) => ch.codePointAt(0)!);
+  const sp = comp.returns[comp.returns.length - 1];
+  const sweptEls = sweepMarkupElements(bodyCp, sp.mStart, sp.mEnd);
+  const swept = sweptEls.map((e) => e.tag);
+  assert.ok(swept.includes("HorizontalBox") && swept.includes("Spacer"), "sweep descends directive bodies: " + swept.join(","));
+  // R12: parent links survive the directive descent — the @if's Spacer belongs to the
+  // HorizontalBox that encloses the directive, which belongs to the VerticalBox.
+  const spacer = sweptEls.find((e) => e.tag === "Spacer")!;
+  assert.equal(sweptEls[spacer.parent!]?.tag, "HorizontalBox", "directive-body element inherits the enclosing element as parent");
+  const hbox = sweptEls.find((e) => e.tag === "HorizontalBox")!;
+  assert.equal(sweptEls[hbox.parent!]?.tag, "VerticalBox", "nesting chain intact across the @for body");
+  assert.equal(sweptEls.find((e) => e.tag === "VerticalBox")!.parent, undefined, "span root has no parent");
+});
+
+test("R14: ctor-style declarations are tracked locals (the DoomFace blind spot)", () => {
+  const { UetkxScopedLocals } = require("../uetkxIndex") as typeof import("../uetkxIndex");
+  const body = [
+    "",
+    "\tconst int32 Idx = FMath::Clamp(Frame, 0, 7);",
+    "\tconst FLinearColor PanelBg(0.20f, 0.16f, 0.10f, 1.0f);",
+    "\tFVector2D Pivot{0.5f, 0.5f};",
+    "\tUseLog(Compute(PanelBg));", // calls must NOT declare: Compute reached with typeish=false
+    "",
+  ].join("\n");
+  const cp = [...body].map((ch) => ch.codePointAt(0)!);
+  const tracker = new UetkxScopedLocals(cp, ["Frame"], []);
+  const names = tracker.allDeclNames();
+  assert.ok(names.includes("PanelBg"), "ctor-style paren decl tracked: " + names.join(","));
+  assert.ok(names.includes("Pivot"), "braced-init decl tracked");
+  assert.ok(names.includes("Idx"), "classic = decl still tracked");
+  assert.ok(!names.includes("Compute") && !names.includes("UseLog"), "plain calls not misdeclared");
+});
+
+test("R10: sweep captures STRING attr values; holes and flag attrs stay valueless", () => {
+  const src = [
+    "export FRuiNode Vals() {",
+    "\treturn (",
+    '\t\t<Border HAlign="cesssssnter" Padding={ FMargin(2) } AutoWrapText>',
+    '\t\t\t<TextBlock Text="a \\"quoted\\" bit" />',
+    "\t\t</Border>",
+    "\t);",
+    "}",
+    "",
+  ].join("\n");
+  const { sweepMarkupElements } = require("../uetkxIndex") as typeof import("../uetkxIndex");
+  const scan = scanFile(src, "Vals", true);
+  const comp = scan.components[0];
+  const bodyCp = [...comp.body].map((ch) => ch.codePointAt(0)!);
+  const sp = comp.returns[comp.returns.length - 1];
+  const els = sweepMarkupElements(bodyCp, sp.mStart, sp.mEnd);
+  const border = els.find((e) => e.tag === "Border")!;
+  const byName = new Map(border.attrs.map((a) => [a.name, a]));
+  assert.equal(byName.get("HAlign")?.value, "cesssssnter", "string value captured");
+  assert.ok(byName.get("HAlign")!.valueAt! > byName.get("HAlign")!.at, "valueAt points into the literal");
+  assert.equal(byName.get("HAlign")?.form, "str", "string form recorded (R11)");
+  assert.equal(byName.get("Padding")?.value, undefined, "expression holes carry no value");
+  assert.equal(byName.get("Padding")?.form, "expr", "expr form recorded (R11)");
+  assert.equal(byName.get("AutoWrapText")?.value, undefined, "flag attrs carry no value");
+  assert.equal(byName.get("AutoWrapText")?.form, "flag", "flag form recorded (R11)");
+  const text = els.find((e) => e.tag === "TextBlock")!.attrs.find((a) => a.name === "Text");
+  assert.equal(text?.value, 'a \\"quoted\\" bit', "escaped quotes stay inside one captured value");
 });

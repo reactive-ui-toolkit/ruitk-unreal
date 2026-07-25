@@ -1,5 +1,19 @@
 # ReactiveUI-Unreal — Overview & Roadmap
 
+> **STATUS UPDATE — 2026-07-25 (plans consolidation, `fix/lsp-field-test-false-positives`).**
+> Phase 8 marked COMPLETE: docs site has 34 built-out page sections (guides + generated
+> per-widget/per-hook references, 9 docs-drift checks green), gallery 17 screens, bench
+> baselines committed, Doom demo built + owner-playtested (2026-07-16) — the demo VIDEO moved
+> to Phase 9's release runway. Finished campaign docs archived
+> (`FILE_SCOPED_EXPORTS_PLAN` — executed 2026-07-24, code-verified; `F5_FIELD_TEST_BUGS` —
+> closed ledger, live ledger is `TESTING_BUGS.md`; both `OWNER_ACCEPTANCE_CHECKLIST`s —
+> superseded; `HMR_FIELD_TEST` — matrix consolidated). **`plans/REMAINING.md` is now THE
+> single open-work file** (field-test matrix §1 → release runway §2 → interactive
+> verification debt §3 → tails §4 → post-v1 §5). Field test so far: items 8/9/5b owner-PASSED
+> 2026-07-25; the 10-series + a 1–7 formal sitting remain. Baseline this day: battery 129/132
+> (3 failures = owner's in-flight test files, not regressions), LSP 94/94 + smoke, contract
+> 36/36, gates green.
+>
 > **STATUS UPDATE — 2026-07-16 (`feat/include-retirement`).** Include retirement SHIPPED
 > (plugin 0.10.0, extensions 0.4.0; `plans/archive/INCLUDE_RETIREMENT_PLAN.md`): `.uetkx`
 > preambles are imports-only — generated files auto-include the library's own headers
@@ -45,10 +59,12 @@
 > the 80/80 headless automation battery. **All work sits on `feat/uetkx-imports`, not yet merged.**
 >
 > **Status:** IN PROGRESS — the product is built end to end (reconciler → Slate host → `.uetkx`
-> compiler → live hot reload → IDE tooling → Epic interop → production gaps); Phase 7's
-> localization gap + Phase 8 docs + the Phase 9 release remain. One owner setup item still open:
-> re-add the branch ruleset with THIS repo's check names (the imported one carried the Godot
-> repo's and was deleted).
+> compiler → live hot reload → IDE tooling → Epic interop → production gaps);
+> ~~Phase 7's localization gap + Phase 8 docs +~~ — **SUPERSEDED 2026-07-25** (loc shipped
+> 07-15, Phase 8 complete 07-25) — only the Phase 9 release remains, gated on the field-test
+> matrix in `plans/REMAINING.md` §1. One owner setup item still open: re-add the branch
+> ruleset with THIS repo's check names (the imported one carried the Godot repo's and was
+> deleted).
 > **This document:** the plain-English picture of what we are building and where we stand.
 > It is the **living status source of truth**: every time a phase in the master plan finishes,
 > the matching row in the table at the bottom of this file is updated (see the `plan-progress` skill).
@@ -258,8 +274,8 @@ reconciler core, and anything touching a CI gate always stay on the strongest mo
 | 5 | IDE extensions (LSP, VS Code, VS2022) | COMPLETE | uetkx-language-server (schema completions/hover, sidecar diags, formatting) + VS Code + VS2022 extensions; embedded-C++ clangd proxy + VS2022 polish added (feat/uetkx-*) |
 | 6 | UMG / CommonUI / MVVM interop | COMPLETE | Phase-6 core (URuiHostWidget, RUI::Umg::UserWidget, URuiWorldSubsystem, UseField) + TD-021 CommonUI activatables, MVVM global collection, UMG prop-map bridge (feat/uetkx-*) |
 | 7 | Production gaps (lists, loc, focus, animation, portals, widget batch 2) | COMPLETE 2026-07-15 | Lists (virtualized ListView/TileView), focus, animation + SFX hooks (~~media~~ — only `UseSfx` exists, audit 2026-07-14), portals, widget batch-2 + specials, drag-and-drop, exit animations — all shipped. ~~Localization (FText gathering) DEFERRED~~ — **SHIPPED 2026-07-15** (gather from `*.uetkx.inl` + culture-change re-render; suite `ReactiveUI.Loc`; 0.4.0) |
-| 8 | Demos, docs site, benchmarks | IN PROGRESS | Gallery ✅ (17 screens on the compiled path, incl. RouterDemo), Bench baselines ✅ (re-run 2026-07-15); docs site: guides + reference + Integration (four-pillar) + Localization pages ✅; generated per-widget catalog ✅; generated per-hook references ✅ (23 core + 17 router, drift-gated 2026-07-15). Doom demo ✅ BUILT 2026-07-15 (playable, 182-check suite, ~197 µs/frame — feat/doom-demo; owner playtest + demo video remain) |
-| 9 | Release & publishing | NOT STARTED | Owner-gated — needs the ship gate (§3) + the `feat/uetkx-imports` → `dev` → `master` merge + Fab/Discord |
+| 8 | Demos, docs site, benchmarks | COMPLETE 2026-07-25 | Gallery ✅ (17 screens on the compiled path, incl. RouterDemo), Bench baselines ✅ (re-run 2026-07-15); docs site ✅ (34 built-out page sections: guides + reference + Integration + Localization + generated per-widget catalog + per-hook references, 9 docs-drift checks green). Doom demo ✅ BUILT 2026-07-15 + owner-playtested 2026-07-16 (3 rounds). The demo VIDEO is a Phase-9 release asset (REMAINING §2); v1.x demo-scope decisions tracked (REMAINING §4) |
+| 9 | Release & publishing | IN PROGRESS | GitHub releases live through plugin 0.13.0 / extensions 0.7.0 (publish.yml, tag-gated); license settled (ReactiveUI Community License). Remaining, in order (**the runway lives in [REMAINING.md](REMAINING.md) §1–§2**): finish the field-test matrix (8/9/5b owner-PASSED 2026-07-25; 10-series + a formal 1–7 sitting open) → drain `PENDING_CHANGELOG.md` (rounds 10–16 + FSE staged) via release-process → per-engine zips + packaged-fidelity test (UE 5.7 reinstall needed for its leg) → Fab listing/upload + demo video + Discord (owner-gated) |
 
 *Rows are updated by the `plan-progress` skill whenever a phase in
 [MASTER_PLAN.md](MASTER_PLAN.md) is marked done. Phases 1–7 were delivered across earlier branches

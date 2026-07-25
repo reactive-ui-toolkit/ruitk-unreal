@@ -3,6 +3,8 @@
 
 
 #if defined(RUI_UETKX_DECL_PHASE)
+namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser
+{
 struct FRouterUserUetkxProps final : public FRuiPropsBase
 {
 
@@ -15,13 +17,16 @@ struct FRouterUserUetkxProps final : public FRuiPropsBase
 };
 inline FRuiNode RouterUser(FRouterUserUetkxProps InProps = FRouterUserUetkxProps(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey InKey = FRuiKey());
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser
 #else
-static FRuiNodeArray RouterUser_UetkxImpl(FRuiContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuiNode>& children)
+namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser
+{
+static FRuiNodeArray RouterUser_UetkxBody_84C60909(FRuiContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/RouterDemo/components/RouterUser/RouterUser.uetkx"
 	const TMap<FString, FString>& Params = UseParams(Ctx);
 		auto Navigate = UseNavigate(Ctx);
-#line 25 "RouterUser.uetkx.inl"
+#line 30 "RouterUser.uetkx.inl"
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
@@ -42,12 +47,17 @@ static FRuiNodeArray RouterUser_UetkxImpl(FRuiContext& Ctx, const FRouterUserUet
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GRouterUserUetkxId = RUI::RegisterComponentId((void*)&RouterUser_UetkxImpl, FName(TEXT("RouterUser")));
+static FRuiNodeArray RouterUser_UetkxImpl(FRuiContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return RouterUser_UetkxBody_84C60909(Ctx, Props, children);
+}
+static const FName GRouterUserUetkxId = RUI::RegisterComponentId((void*)&RouterUser_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")));
 static constexpr uint32 RouterUser_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode RouterUser(FRouterUserUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
 	return RUI::FC(&RouterUser_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GRouterUserUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RouterUser")), []() { return RouterUser(); });
+static const bool GRouterUserUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")), []() { return RouterUser(); });
 
+} // namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser
 #endif
