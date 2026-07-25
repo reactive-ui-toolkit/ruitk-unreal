@@ -75,6 +75,9 @@ Verified green on UE 5.6 and 5.7 (full battery 132/132 on both).
   version-gated exactly like the adapter.
 - **DoomHUD overlay centering**: silently uncentered via ignored slot keys — caught by the
   new UETKX0111 sweep.
+- **5.7 strict-includes compile** (TB-30): `FStrProperty` is only forward-declared through
+  `UnrealType.h` on UE 5.7 — the two users now include `UObject/StrProperty.h` directly
+  (caught by the `-StrictIncludes` packaging rail, the marketplace build mode).
 
 ## [0.13.0] — 2026-07-18
 

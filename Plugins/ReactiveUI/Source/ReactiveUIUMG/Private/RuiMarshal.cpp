@@ -6,6 +6,7 @@
 
 #include "RuiMarshal.h"
 
+#include "UObject/StrProperty.h" // 5.7 forward-declares FStrProperty through UnrealType.h (TB-30)
 #include "UObject/TextProperty.h"
 #include "UObject/UnrealType.h"
 

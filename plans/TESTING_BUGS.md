@@ -683,3 +683,21 @@ absent) — the 5.8 field-test leg needs a launcher repair/reinstall first (the 
 skill's "engine installs can be partial" scar, live again).
 
 **Status:** FIXED in Build.cs; 5.7 build re-running. Battery + matrix follow.
+
+## TB-30 — 5.7 strict-includes: FStrProperty only forward-declared through UnrealType.h
+
+**Found:** 2026-07-25, first `-StrictIncludes` (`-DisableUnity -NoPCH`) packaging run on 5.7
+(the exact marketplace build mode): `C2027 use of undefined type 'FStrProperty'` in
+RuiMarshal.cpp — UE 5.7's header diet leaves FStrProperty forward-declared via UnrealType.h;
+5.6 (and every unity build) provided the definition transitively.
+
+**Fix:** direct `#include "UObject/StrProperty.h"` in the two users (RuiMarshal.cpp +
+RuiFieldHooks.h — the header sweep found the second before it could fail a user's build).
+The header exists identically on 5.6; no version gate needed.
+
+**Also closed here — TB-29's open verification:** the same packaging run compiles the
+Win64 SHIPPING game config, and 5.7 Shipping built green with the SearchableComboBox
+adapter (ToolWidgets) compiled in — no Developer-module restriction fired on the installed
+engine. Both per-engine zips exist: `dist/ReactiveUI-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
+
+**Status:** FIXED; 5.6 zip rebuilt from the fixed source (identical source in both zips).
