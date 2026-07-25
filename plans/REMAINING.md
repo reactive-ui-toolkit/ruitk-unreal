@@ -33,14 +33,14 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       are ledgered as TB-19..TB-28 (all FIXED, pinned, built).
 - [ ] **UE 5.7 — repeat the matrix.** Engine payload needs REINSTALL first (folder shell
       only). Then: stale-UHT clean (CLAUDE.md environment facts), build, battery, walk the
-      matrix. The owner's SimpleCounter/CounterBadge test files are KEPT in the working tree
-      for exactly this (they also explain the 3 known battery failures — Acceptance counts
-      46, Demos/Umg see the render-nothing early fragment return).
+      matrix (recreate the transient test vehicles per the items — the 5.6 ones were cleaned
+      2026-07-25 and the battery re-verified green on the clean tree + rebuilt binary).
+      ⚠ Lesson from the 5.6 wrap-up: after reverting/editing `.inl` files, REBUILD before
+      trusting suite results — the suites run the compiled binary, not the files.
 - [ ] **UE 5.8 — repeat the matrix** (payload intact; same sequence).
 
-**All three engines done ⇒** revert/finish the transient test files (battery back to
-132/132), note the sessions (dates, engine versions) in `PENDING_CHANGELOG.md`'s next
-drain, and proceed to §2.
+**All three engines done ⇒** note the sessions (dates, engine versions) in
+`PENDING_CHANGELOG.md`'s next drain, and proceed to §2.
 
 ## 2. Release runway (Phase 9 — in order, after §1)
 
