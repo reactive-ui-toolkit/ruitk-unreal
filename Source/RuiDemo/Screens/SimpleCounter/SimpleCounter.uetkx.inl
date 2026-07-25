@@ -42,7 +42,7 @@ static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCoun
 		Ch.Add([&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
 		TArray<FRuiNode> Ch;
-		Ch.Add(RUI::TextBlock((FText::FromString(TEXT("DOOM COUNTERaaaaaaaaaaaa"))), FRuiKey()));
+		Ch.Add(RUI::TextBlock((FText::FromString(TEXT("DOOM COUNTER02"))), FRuiKey()));
 		Ch.Add(RUI::TextBlock((RUI::Fmt(TEXT("Count1: {}"), Count)), FRuiKey()));
 		Ch.Add(RUI::TextBlock((RUI::Fmt(TEXT("Count2: {}"), Count2)), FRuiKey()));
 		Ch.Add([&]() -> FRuiNode {

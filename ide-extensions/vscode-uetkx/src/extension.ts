@@ -17,6 +17,9 @@ function buildAndStartClient(module: string): LanguageClient {
   };
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: "file", language: "uetkx" }],
+    // TB-22: forward create/delete/rename of ANY .uetkx (open or not) to the server —
+    // deleting an exporter on disk must re-flag its open importers without a keystroke.
+    synchronize: { fileEvents: workspace.createFileSystemWatcher("**/*.uetkx") },
     // TB-10: hand the server the clangd override for embedded-C++ intelligence (empty = discover).
     initializationOptions: {
       clangdPath: workspace.getConfiguration("uetkx").get<string>("clangd.path", ""),

@@ -69,6 +69,18 @@ function buildEntry(source: string, key: string, mtimeMs: number): CacheEntry {
  *  are computed fresh (never cached — they change per keystroke). */
 export type TextOverlay = ReadonlyMap<string, string>;
 
+/** TB-22: drop cached state for files changed OUTSIDE any open buffer (created/deleted/renamed
+ *  on disk). The mtime gates already cover in-place edits and the stat-guard covers reads of a
+ *  deleted file — this closes the recreate-with-equal-mtime edge and keeps the caches from
+ *  holding entries for paths that no longer exist. */
+export function invalidateFileCaches(fsPaths: readonly string[]): void {
+  for (const p of fsPaths) {
+    const key = normAbs(p);
+    scanCache.delete(key);
+    surfaceCache.delete(key);
+  }
+}
+
 function cachedScan(fsPath: string, overlay?: TextOverlay): CacheEntry | null {
   const key = normAbs(fsPath);
   const live = overlay?.get(key);

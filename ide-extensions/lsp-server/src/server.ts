@@ -59,6 +59,7 @@ import {
   resolveHostInclude,
   resolveSpecifier,
   resolveSymbolAt,
+  invalidateFileCaches,
   suggestSpecifier,
   sweptUetkxFiles,
   workspaceRelLabel,
@@ -1200,6 +1201,29 @@ documents.onDidChangeContent((change) => {
   }, 150);
 });
 let crossRevalidateTimer: ReturnType<typeof setTimeout> | undefined;
+// TB-22 — a .uetkx created/deleted/renamed ON DISK (no open buffer, so no didChange fires)
+// changes the truth of every open doc: deleting an exporter must re-flag its importers
+// (2300/2302), creating one must clear them / move 2305 resolutions — WITHOUT a keystroke.
+// The client watches `**/*.uetkx` (extension.ts synchronize.fileEvents); here: drop the
+// caches for the changed paths and re-validate every open doc, debounced like TB-18.
+connection.onDidChangeWatchedFiles((params) => {
+  try {
+    invalidateFileCaches(params.changes.map((c) => URI.toFsPath(c.uri)));
+  } catch (e) {
+    logServerError("watched-files invalidate", e);
+  }
+  if (crossRevalidateTimer) clearTimeout(crossRevalidateTimer);
+  crossRevalidateTimer = setTimeout(() => {
+    crossRevalidateTimer = undefined;
+    for (const doc of documents.all()) {
+      try {
+        validate(doc);
+      } catch (e) {
+        logServerError("watched-files revalidate", e);
+      }
+    }
+  }, 150);
+});
 documents.onDidClose((e) => {
   const timer = embedSyncTimers.get(e.document.uri);
   if (timer) {

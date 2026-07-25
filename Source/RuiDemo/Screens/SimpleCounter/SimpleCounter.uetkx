@@ -14,7 +14,7 @@ export FRuiNode SimpleCounter() {
 			Slot.Padding={ PanelSlotPadding }
 		>
 			<VerticalBox>
-				<TextBlock Text={ FText::FromString(TEXT("DOOM COUNTERaaaaaaaaaaaa")) } />
+				<TextBlock Text={ FText::FromString(TEXT("DOOM COUNTER02")) } />
 				<TextBlock Text={ RUI::Fmt(TEXT("Count1: {}"), Count) } />
 				<TextBlock Text={ RUI::Fmt(TEXT("Count2: {}"), Count2) } />
 				<Spacer Size={ RowGap } />

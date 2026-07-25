@@ -461,3 +461,48 @@ file-qualified identity everywhere with short-name convenience only at human edg
 > full battery 132/0, LSP 91/91 + smoke, `-check` 0 drift, the demo tree carries the owner's
 > original `PanelBackground` rename as the living same-name proof. Owner-side remainder:
 > HMR_FIELD_TEST items 5b + 10b (same-name live) and the M6 legs.
+
+## TB-21 — Live-Coding-patched Core split the registries (PIE-stop AV + fresh-boot gallery assert)
+
+**Found:** 2026-07-25, owner running field-test 10c/10d WITHOUT HMR: (a) EXCEPTION_ACCESS_VIOLATION
+at PIE-stop (ReleaseFiberTree destroying a pre-patch tree), (b) after an editor restart,
+Ctrl+Alt+F11 then Play asserted `IsValid()` in the gallery's `WithSlot` at first render. Both
+stacks show `ReactiveUICore_patch_0` — Core got Live-Coding-patched with ZERO Core source
+changes (the strict-includes experiment's `-DisableUnity -NoPCH` run left UBT action state that
+made the in-editor compile rebuild Core).
+
+**Root cause (product-level, latent since D-05):** every runtime registry was a FUNCTION-LOCAL
+static (`static FRuiComponentRegistry Instance;`). A Live-Coding patch that recompiles the
+holder gets its OWN fresh copy (guard + storage are function-internal), so patched lookups read
+an EMPTY registry while the base one holds every registration → `RUI::Named` returned the empty
+Fragment (null Props) → `WithSlot`'s `ToSharedRef()` assert. The PIE-stop AV is the same
+Frankenstein session (base + patched Core tearing down a mixed-generation tree). Users WILL
+live-code Core themselves — this was a real product landmine, not just tooling fallout.
+
+**Fixes:** (a) all four registries (Component/ElementType/NamedFactory/Hmr) now use the
+ZERO-INITIALIZED namespace-scope POINTER + first-touch allocation idiom — patch-stable
+(namespace-scope data keeps BASE storage across patches, the TB-15-proven behavior) AND
+static-init-order-safe (zero-init precedes all dynamic init; a plain namespace-scope INSTANCE
+AV'd at module load — cross-TU init order — caught by the battery on the first attempt and is
+now warned against in the code comment). (b) demo hardening: `WithSlot` passes a props-less
+node through instead of asserting. (c) the UBT state that triggered the accidental Core patch
+was re-synced by a normal rebuild.
+
+**Status:** FIXED (battery 132/0 incl. Boot; the owner's crash pair needs a live re-test —
+fresh editor, Ctrl+Alt+F11 with no changes should now compile NOTHING, and even a patched Core
+keeps its registrations).
+
+## TB-22 — deleting a .uetkx ON DISK left open importers clean until a keystroke
+
+**Found:** 2026-07-25, owner running 10d: deleting an imported file produced NO squiggle in the
+open importer until any edit was made — TB-18's cross-file re-validation only fires on
+`didChange` of OPEN docs; a disk deletion of a non-open file has no trigger.
+
+**Fixes (LSP + client, bundle rebuilt):** the client watches `**/*.uetkx`
+(`synchronize.fileEvents`) and the server's `onDidChangeWatchedFiles` drops the scan/surface
+caches for the changed paths and re-validates every open doc (debounced 150 ms, the TB-18
+pattern). The resolution layer was already deletion-aware (stat-guarded reads); only the
+trigger was missing. Smoke pin models 10d exactly: delete the exporter on disk → the untouched
+importer flags 2300/2302; recreate → clears.
+
+**Status:** FIXED (LSP 92/92 + smoke incl. the watched-files pin; reload the dev host).

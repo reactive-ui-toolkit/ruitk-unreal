@@ -482,6 +482,41 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.rmSync(uDir, { recursive: true, force: true });
   console.log("strict-usage live OK (orphaned usage: 2310 toward broken import, 2305 when unimported, clean restore)");
 
+  // TB-22 (owner 10d): DELETING an exporter ON DISK — no open buffer, no keystroke — must
+  // re-flag its open importers via workspace/didChangeWatchedFiles; recreating it must clear.
+  const wDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-watch-"));
+  fs.writeFileSync(path.join(wDir, "Demo.uproject"), "{}");
+  fs.mkdirSync(path.join(wDir, "Source"), { recursive: true });
+  const wStylePath = path.join(wDir, "Source", "W.style.uetkx");
+  fs.writeFileSync(wStylePath, "export FLinearColor WPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  const wImpPath = path.join(wDir, "Source", "WScreen.uetkx").replace(/\\/g, "/");
+  const wImpUri = "file:///" + wImpPath;
+  const wStyleUri = "file:///" + wStylePath.replace(/\\/g, "/");
+  fs.writeFileSync(path.join(wDir, "Source", "WScreen.uetkx"),
+    'import { WPanelBg } from "./W.style"\nexport FRuiNode WScreen() {\n\treturn ( <Border BorderBackgroundColor={ WPanelBg }><Spacer /></Border> );\n}\n');
+  notify("textDocument/didOpen", { textDocument: { uri: wImpUri, languageId: "uetkx", version: 1,
+    text: fs.readFileSync(path.join(wDir, "Source", "WScreen.uetkx"), "utf8") } });
+  await settle();
+  if ((diagnostics[wImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("watched-files fixture must start clean");
+  // delete the exporter ON DISK + the watcher notification (FileChangeType.Deleted = 3)
+  fs.rmSync(wStylePath);
+  notify("workspace/didChangeWatchedFiles", { changes: [{ uri: wStyleUri, type: 3 }] });
+  await settle();
+  await settle(); // revalidation is debounced (150ms)
+  const wDiags = diagnostics[wImpUri] || [];
+  if (!wDiags.some((d) => String(d.code) === "UETKX2300" || String(d.code) === "UETKX2302"))
+    fail("deleting the exporter ON DISK must re-flag the untouched importer: " + JSON.stringify(wDiags.map((d) => d.code)));
+  // recreate + notify (FileChangeType.Created = 1) — the importer must clear, still untouched
+  fs.writeFileSync(wStylePath, "export FLinearColor WPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
+  notify("workspace/didChangeWatchedFiles", { changes: [{ uri: wStyleUri, type: 1 }] });
+  await settle();
+  await settle();
+  if ((diagnostics[wImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
+    fail("recreating the exporter must clear the importer without touching it");
+  fs.rmSync(wDir, { recursive: true, force: true });
+  console.log("watched-files OK (disk delete re-flags open importers, recreate clears — no keystroke)");
+
   // R15: sinceUE parity in TAG completion (5.6 fixture workspace)
   const tgDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-tagver-"));
   fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');

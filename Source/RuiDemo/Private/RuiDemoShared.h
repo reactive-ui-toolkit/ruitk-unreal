@@ -64,6 +64,13 @@ namespace RuiDemo
 	/** Attach Slot.* props to any node (per-node copy; demo authoring sugar). */
 	inline FRuiNode WithSlot(FRuiNode Node, const FName Key, FRuiValue Value)
 	{
+		if (!Node.Props.IsValid())
+		{
+			// A props-less node (e.g. the empty Fragment RUI::Named returns on a miss) cannot
+			// carry slot props — pass it through instead of asserting (TB-21: this assert was
+			// the visible face of a split registry; the node renders nothing either way).
+			return Node;
+		}
 		TSharedRef<FRuiPropsBase> Props = ConstCastSharedRef<FRuiPropsBase>(Node.Props.ToSharedRef());
 		if (!Props->SlotProps.IsValid())
 		{
