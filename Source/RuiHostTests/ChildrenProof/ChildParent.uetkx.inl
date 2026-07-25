@@ -21,7 +21,7 @@ inline FRuiNode ChildParent(FChildParentUetkxProps InProps = FChildParentUetkxPr
 #else
 namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
 {
-static FRuiNodeArray ChildParent_UetkxImpl(FRuiContext& Ctx, const FChildParentUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ChildParent_UetkxImpl_89D33BE0(FRuiContext& Ctx, const FChildParentUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::FChildHostUetkxProps P;
@@ -31,11 +31,11 @@ static FRuiNodeArray ChildParent_UetkxImpl(FRuiContext& Ctx, const FChildParentU
 		return RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GChildParentUetkxId = RUI::RegisterComponentId((void*)&ChildParent_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")));
+static const FName GChildParentUetkxId = RUI::RegisterComponentId((void*)&ChildParent_UetkxImpl_89D33BE0, FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")));
 static constexpr uint32 ChildParent_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ChildParent(FChildParentUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ChildParent_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ChildParent_UetkxImpl_89D33BE0, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GChildParentUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")), []() { return ChildParent(); });
 

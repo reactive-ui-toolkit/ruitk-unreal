@@ -23,7 +23,7 @@ inline FRuiNode MultiReturn(FMultiReturnUetkxProps InProps = FMultiReturnUetkxPr
 #else
 namespace RuiUetkx_MultiReturn
 {
-static FRuiNodeArray MultiReturn_UetkxImpl(FRuiContext& Ctx, const FMultiReturnUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray MultiReturn_UetkxImpl_D3CE34C2(FRuiContext& Ctx, const FMultiReturnUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Mode = Props.Mode;
 #line 2 "MultiReturn.uetkx"
@@ -56,11 +56,11 @@ static FRuiNodeArray MultiReturn_UetkxImpl(FRuiContext& Ctx, const FMultiReturnU
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GMultiReturnUetkxId = RUI::RegisterComponentId((void*)&MultiReturn_UetkxImpl, FName(TEXT("RuiUetkx_MultiReturn::MultiReturn")));
+static const FName GMultiReturnUetkxId = RUI::RegisterComponentId((void*)&MultiReturn_UetkxImpl_D3CE34C2, FName(TEXT("RuiUetkx_MultiReturn::MultiReturn")));
 static constexpr uint32 MultiReturn_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode MultiReturn(FMultiReturnUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&MultiReturn_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&MultiReturn_UetkxImpl_D3CE34C2, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GMultiReturnUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_MultiReturn::MultiReturn")), []() { return MultiReturn(); });
 

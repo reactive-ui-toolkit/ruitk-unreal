@@ -23,7 +23,7 @@ inline FRuiNode InteropShowcase(FInteropShowcaseUetkxProps InProps = FInteropSho
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
 {
-static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray InteropShowcase_UetkxImpl_8217024D(FRuiContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 9 "Source/RuiDemo/Screens/InteropShowcase/InteropShowcase.uetkx"
 	// MVVM pillar — a viewmodel we own; UseField re-renders on its broadcast.
@@ -157,11 +157,11 @@ static FRuiNodeArray InteropShowcase_UetkxImpl(FRuiContext& Ctx, const FInteropS
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GInteropShowcaseUetkxId = RUI::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
+static const FName GInteropShowcaseUetkxId = RUI::RegisterComponentId((void*)&InteropShowcase_UetkxImpl_8217024D, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
 static constexpr uint32 InteropShowcase_RUI_HOOK_SIG = 0x4EA045DDu;
 inline FRuiNode InteropShowcase(FInteropShowcaseUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&InteropShowcase_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&InteropShowcase_UetkxImpl_8217024D, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GInteropShowcaseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")), []() { return InteropShowcase(); });
 

@@ -21,7 +21,7 @@ inline FRuiNode HelloWorld(FHelloWorldUetkxProps InProps = FHelloWorldUetkxProps
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld
 {
-static FRuiNodeArray HelloWorld_UetkxImpl(FRuiContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray HelloWorld_UetkxImpl_6146BE1F(FRuiContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiBorderProps P;
@@ -38,11 +38,11 @@ static FRuiNodeArray HelloWorld_UetkxImpl(FRuiContext& Ctx, const FHelloWorldUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GHelloWorldUetkxId = RUI::RegisterComponentId((void*)&HelloWorld_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
+static const FName GHelloWorldUetkxId = RUI::RegisterComponentId((void*)&HelloWorld_UetkxImpl_6146BE1F, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
 static constexpr uint32 HelloWorld_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode HelloWorld(FHelloWorldUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&HelloWorld_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&HelloWorld_UetkxImpl_6146BE1F, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GHelloWorldUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")), []() { return HelloWorld(); });
 

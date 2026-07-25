@@ -24,7 +24,7 @@ inline FRuiNode DoomFace(FDoomFaceUetkxProps InProps = FDoomFaceUetkxProps(), TA
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 {
-static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray DoomFace_UetkxImpl_ACE4B2DD(FRuiContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Frame = Props.Frame;
 #line 7 "Source/RuiDemo/Screens/DoomDemo/components/DoomFace/DoomFace.uetkx"
@@ -103,11 +103,11 @@ static FRuiNodeArray DoomFace_UetkxImpl(FRuiContext& Ctx, const FDoomFaceUetkxPr
 		return RUI::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomFaceUetkxId = RUI::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
+static const FName GDoomFaceUetkxId = RUI::RegisterComponentId((void*)&DoomFace_UetkxImpl_ACE4B2DD, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
 static constexpr uint32 DoomFace_RUI_HOOK_SIG = 0x1676516Fu;
 inline FRuiNode DoomFace(FDoomFaceUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&DoomFace_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&DoomFace_UetkxImpl_ACE4B2DD, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GDoomFaceUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")), []() { return DoomFace(); });
 

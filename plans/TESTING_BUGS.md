@@ -516,3 +516,31 @@ importer flags 2300/2302; recreate → clears.
 > `Intermediate`+`Binaries`) + from-scratch rebuild — battery 132/0 on the pristine outputs.
 > **Ops rule (CLAUDE.md):** any `-DisableUnity`/`-NoPCH` experiment MUST be followed by that
 > clean, or in-editor Live Coding compiles stay permanently confused.
+
+## TB-23 — cross-patch lambda identity: destroying pre-patch closures ran the WRONG code (AV)
+
+**Found:** 2026-07-25, owner running 10a/10b WITH HMR: after adding `<CounterBadge />` and
+patching, the post-patch refresh AV'd tearing down the old tree — twice, reproducibly, both
+stacks dying in `TFunction_OwnedObject<…SimpleCounter_UetkxImpl…lambda_3/4>` destructors that
+live in EARLIER patch DLLs (`patch_12`, `patch_4`), called from
+`OnPatchComplete → HmrRefreshAll → ReconcileFiber → ~FRuiButtonProps`.
+
+**Root cause (the last layer of the TB-13 class):** anonymous lambdas mangle by ORDINAL under
+their enclosing function (`…SimpleCounter_UetkxImpl…<lambda_3>`), and Live Coding redirects
+functions BY MANGLED NAME across every loaded generation. Inserting/removing a markup child
+shifts every later lambda's ordinal, so the OLD stored closure's destructor thunk got
+redirected to a DIFFERENT lambda's code with a different capture layout — an AV the moment the
+old tree was torn down (post-patch reconcile, PIE stop, unmount).
+
+**Fix (codegen, root):** every emitted BODY symbol carries a per-generation CONTENT HASH —
+`<Name>_UetkxImpl_<hash>` for component impls, and `<Name>_RuiBody_<hash>` behind a STABLE
+forwarder for hooks and utils (importers keep binding the stable cross-file symbol; the
+forwarder recompiles in the same patch and calls the new body). Different content can never
+share a mangled name across patches, so old objects keep their own still-loaded code
+generation for destruction. Values noted as residual (initializer closures are theoretical;
+same treatment available if ever observed).
+
+**Status:** FIXED (battery 131/132 — the one failure is the Acceptance 45-file sweep pin
+correctly flagging the owner's two in-flight 10a/10b test files, not a regression; goldens
+re-pinned with hashed symbols). Owner re-test: repeat the exact 10a flow — add a widget,
+patch, keep clicking, stop PIE.

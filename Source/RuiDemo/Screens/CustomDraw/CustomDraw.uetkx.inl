@@ -22,7 +22,7 @@ inline FRuiNode CustomDraw(FCustomDrawUetkxProps InProps = FCustomDrawUetkxProps
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
 {
-static FRuiNodeArray CustomDraw_UetkxImpl(FRuiContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray CustomDraw_UetkxImpl_4DE9552F(FRuiContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/CustomDraw/CustomDraw.uetkx"
 	auto [Sides, SetSides] = Ctx.UseState<int32>(3);
@@ -201,11 +201,11 @@ static FRuiNodeArray CustomDraw_UetkxImpl(FRuiContext& Ctx, const FCustomDrawUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCustomDrawUetkxId = RUI::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
+static const FName GCustomDrawUetkxId = RUI::RegisterComponentId((void*)&CustomDraw_UetkxImpl_4DE9552F, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
 static constexpr uint32 CustomDraw_RUI_HOOK_SIG = 0x01D624F6u;
 inline FRuiNode CustomDraw(FCustomDrawUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&CustomDraw_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&CustomDraw_UetkxImpl_4DE9552F, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GCustomDrawUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")), []() { return CustomDraw(); });
 

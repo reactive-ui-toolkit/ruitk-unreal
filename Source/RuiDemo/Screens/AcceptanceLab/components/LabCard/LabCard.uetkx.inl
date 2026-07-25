@@ -25,7 +25,7 @@ inline FRuiNode LabCard(FLabCardUetkxProps InProps = FLabCardUetkxProps(), TArra
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 {
-static FRuiNodeArray LabCard_UetkxImpl(FRuiContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray LabCard_UetkxImpl_0A2A00D8(FRuiContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Label = Props.Label;
 	const auto& Count = Props.Count;
@@ -75,11 +75,11 @@ static FRuiNodeArray LabCard_UetkxImpl(FRuiContext& Ctx, const FLabCardUetkxProp
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GLabCardUetkxId = RUI::RegisterComponentId((void*)&LabCard_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
+static const FName GLabCardUetkxId = RUI::RegisterComponentId((void*)&LabCard_UetkxImpl_0A2A00D8, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
 static constexpr uint32 LabCard_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode LabCard(FLabCardUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&LabCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&LabCard_UetkxImpl_0A2A00D8, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GLabCardUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")), []() { return LabCard(); });
 

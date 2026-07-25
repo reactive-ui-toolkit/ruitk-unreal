@@ -21,7 +21,7 @@ inline FRuiNode UmgHostInner(FUmgHostInnerUetkxProps InProps = FUmgHostInnerUetk
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 {
-static FRuiNodeArray UmgHostInner_UetkxImpl(FRuiContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray UmgHostInner_UetkxImpl_494743D1(FRuiContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/UmgHostDemo/components/UmgHostInner/UmgHostInner.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
@@ -81,11 +81,11 @@ static FRuiNodeArray UmgHostInner_UetkxImpl(FRuiContext& Ctx, const FUmgHostInne
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GUmgHostInnerUetkxId = RUI::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
+static const FName GUmgHostInnerUetkxId = RUI::RegisterComponentId((void*)&UmgHostInner_UetkxImpl_494743D1, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
 static constexpr uint32 UmgHostInner_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode UmgHostInner(FUmgHostInnerUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&UmgHostInner_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&UmgHostInner_UetkxImpl_494743D1, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GUmgHostInnerUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")), []() { return UmgHostInner(); });
 

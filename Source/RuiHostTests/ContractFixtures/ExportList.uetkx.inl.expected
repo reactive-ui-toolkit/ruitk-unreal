@@ -30,18 +30,18 @@ inline FRuiNode ListedCard(FListedCardUetkxProps InProps = FListedCardUetkxProps
 #else
 namespace RuiUetkx_ExportList
 {
-static FRuiNodeArray ListedCard_UetkxImpl(FRuiContext& Ctx, const FListedCardUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ListedCard_UetkxImpl_4258A54F(FRuiContext& Ctx, const FListedCardUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiSpacerProps P;
 		return RUI::Slate::Spacer(MoveTemp(P), FRuiKey());
 	}() };
 }
-static const FName GListedCardUetkxId = RUI::RegisterComponentId((void*)&ListedCard_UetkxImpl, FName(TEXT("RuiUetkx_ExportList::ListedCard")));
+static const FName GListedCardUetkxId = RUI::RegisterComponentId((void*)&ListedCard_UetkxImpl_4258A54F, FName(TEXT("RuiUetkx_ExportList::ListedCard")));
 static constexpr uint32 ListedCard_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ListedCard(FListedCardUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ListedCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ListedCard_UetkxImpl_4258A54F, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GListedCardUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_ExportList::ListedCard")), []() { return ListedCard(); });
 

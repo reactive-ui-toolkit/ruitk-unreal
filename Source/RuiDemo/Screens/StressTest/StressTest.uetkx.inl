@@ -22,7 +22,7 @@ inline FRuiNode StressTest(FStressTestUetkxProps InProps = FStressTestUetkxProps
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest
 {
-static FRuiNodeArray StressTest_UetkxImpl(FRuiContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray StressTest_UetkxImpl_59AC27E6(FRuiContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Source/RuiDemo/Screens/StressTest/StressTest.uetkx"
 	auto [CountText, SetCountText] = Ctx.UseState<FString>(FString(TEXT("300")));
@@ -249,11 +249,11 @@ static FRuiNodeArray StressTest_UetkxImpl(FRuiContext& Ctx, const FStressTestUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GStressTestUetkxId = RUI::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")));
+static const FName GStressTestUetkxId = RUI::RegisterComponentId((void*)&StressTest_UetkxImpl_59AC27E6, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")));
 static constexpr uint32 StressTest_RUI_HOOK_SIG = 0x00ED6E73u;
 inline FRuiNode StressTest(FStressTestUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&StressTest_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&StressTest_UetkxImpl_59AC27E6, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GStressTestUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")), []() { return StressTest(); });
 

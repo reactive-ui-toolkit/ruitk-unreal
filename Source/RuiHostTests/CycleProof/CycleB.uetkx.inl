@@ -23,7 +23,7 @@ inline FRuiNode CycleB(FCycleBUetkxProps InProps = FCycleBUetkxProps(), TArray<F
 #else
 namespace RuiUetkx_Source_RuiHostTests_CycleProof_CycleB
 {
-static FRuiNodeArray CycleB_UetkxImpl(FRuiContext& Ctx, const FCycleBUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray CycleB_UetkxImpl_E880605E(FRuiContext& Ctx, const FCycleBUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Depth = Props.Depth;
 	return { [&]() -> FRuiNode {
@@ -42,11 +42,11 @@ static FRuiNodeArray CycleB_UetkxImpl(FRuiContext& Ctx, const FCycleBUetkxProps&
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GCycleBUetkxId = RUI::RegisterComponentId((void*)&CycleB_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB")));
+static const FName GCycleBUetkxId = RUI::RegisterComponentId((void*)&CycleB_UetkxImpl_E880605E, FName(TEXT("RuiUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB")));
 static constexpr uint32 CycleB_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode CycleB(FCycleBUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&CycleB_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&CycleB_UetkxImpl_E880605E, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GCycleBUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB")), []() { return CycleB(); });
 

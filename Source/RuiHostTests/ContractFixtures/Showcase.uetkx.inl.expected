@@ -21,7 +21,7 @@ inline FRuiNode Showcase(FShowcaseUetkxProps InProps = FShowcaseUetkxProps(), TA
 #else
 namespace RuiUetkx_Showcase
 {
-static FRuiNodeArray Showcase_UetkxImpl(FRuiContext& Ctx, const FShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray Showcase_UetkxImpl_F59D400F(FRuiContext& Ctx, const FShowcaseUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "Showcase.uetkx"
 	auto [Mode, SetMode] = Ctx.UseState<int32>(0);
@@ -114,11 +114,11 @@ static FRuiNodeArray Showcase_UetkxImpl(FRuiContext& Ctx, const FShowcaseUetkxPr
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GShowcaseUetkxId = RUI::RegisterComponentId((void*)&Showcase_UetkxImpl, FName(TEXT("RuiUetkx_Showcase::Showcase")));
+static const FName GShowcaseUetkxId = RUI::RegisterComponentId((void*)&Showcase_UetkxImpl_F59D400F, FName(TEXT("RuiUetkx_Showcase::Showcase")));
 static constexpr uint32 Showcase_RUI_HOOK_SIG = 0x986DF5F6u;
 inline FRuiNode Showcase(FShowcaseUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&Showcase_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&Showcase_UetkxImpl_F59D400F, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GShowcaseUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Showcase::Showcase")), []() { return Showcase(); });
 

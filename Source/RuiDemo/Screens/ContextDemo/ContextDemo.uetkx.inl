@@ -22,7 +22,7 @@ inline FRuiNode ContextDemo(FContextDemoUetkxProps InProps = FContextDemoUetkxPr
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo
 {
-static FRuiNodeArray ContextDemo_UetkxImpl(FRuiContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ContextDemo_UetkxImpl_73D2053D(FRuiContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 6 "Source/RuiDemo/Screens/ContextDemo/ContextDemo.uetkx"
 	auto [bPrimary, SetPrimary] = Ctx.UseState<bool>(true);
@@ -83,11 +83,11 @@ static FRuiNodeArray ContextDemo_UetkxImpl(FRuiContext& Ctx, const FContextDemoU
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GContextDemoUetkxId = RUI::RegisterComponentId((void*)&ContextDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
+static const FName GContextDemoUetkxId = RUI::RegisterComponentId((void*)&ContextDemo_UetkxImpl_73D2053D, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
 static constexpr uint32 ContextDemo_RUI_HOOK_SIG = 0xF574B6D3u;
 inline FRuiNode ContextDemo(FContextDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ContextDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ContextDemo_UetkxImpl_73D2053D, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GContextDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")), []() { return ContextDemo(); });
 

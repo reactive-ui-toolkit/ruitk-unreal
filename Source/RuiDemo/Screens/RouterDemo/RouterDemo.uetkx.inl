@@ -21,7 +21,7 @@ inline FRuiNode RouterDemo(FRouterDemoUetkxProps InProps = FRouterDemoUetkxProps
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo
 {
-static FRuiNodeArray RouterDemo_UetkxImpl(FRuiContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray RouterDemo_UetkxImpl_2AE4B677(FRuiContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 8 "Source/RuiDemo/Screens/RouterDemo/RouterDemo.uetkx"
 	TArray<RUI::FRuiRoute> RouteList;
@@ -76,11 +76,11 @@ static FRuiNodeArray RouterDemo_UetkxImpl(FRuiContext& Ctx, const FRouterDemoUet
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GRouterDemoUetkxId = RUI::RegisterComponentId((void*)&RouterDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo::RouterDemo")));
+static const FName GRouterDemoUetkxId = RUI::RegisterComponentId((void*)&RouterDemo_UetkxImpl_2AE4B677, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo::RouterDemo")));
 static constexpr uint32 RouterDemo_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode RouterDemo(FRouterDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&RouterDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&RouterDemo_UetkxImpl_2AE4B677, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GRouterDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo::RouterDemo")), []() { return RouterDemo(); });
 

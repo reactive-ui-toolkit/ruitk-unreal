@@ -21,7 +21,7 @@ inline FRuiNode ChildHost(FChildHostUetkxProps InProps = FChildHostUetkxProps(),
 #else
 namespace RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost
 {
-static FRuiNodeArray ChildHost_UetkxImpl(FRuiContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray ChildHost_UetkxImpl_82FA7DEF(FRuiContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	return { [&]() -> FRuiNode {
 		FRuiVerticalBoxProps P;
@@ -32,11 +32,11 @@ static FRuiNodeArray ChildHost_UetkxImpl(FRuiContext& Ctx, const FChildHostUetkx
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GChildHostUetkxId = RUI::RegisterComponentId((void*)&ChildHost_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")));
+static const FName GChildHostUetkxId = RUI::RegisterComponentId((void*)&ChildHost_UetkxImpl_82FA7DEF, FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")));
 static constexpr uint32 ChildHost_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode ChildHost(FChildHostUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&ChildHost_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&ChildHost_UetkxImpl_82FA7DEF, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GChildHostUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")), []() { return ChildHost(); });
 

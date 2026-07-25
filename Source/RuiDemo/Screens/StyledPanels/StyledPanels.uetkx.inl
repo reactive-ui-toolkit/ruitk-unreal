@@ -21,7 +21,7 @@ inline FRuiNode StyledPanels(FStyledPanelsUetkxProps InProps = FStyledPanelsUetk
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
 {
-static FRuiNodeArray StyledPanels_UetkxImpl(FRuiContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray StyledPanels_UetkxImpl_017C6E5E(FRuiContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 2 "Source/RuiDemo/Screens/StyledPanels/StyledPanels.uetkx"
 	auto [bDim, SetDim] = Ctx.UseState<bool>(false);
@@ -105,11 +105,11 @@ static FRuiNodeArray StyledPanels_UetkxImpl(FRuiContext& Ctx, const FStyledPanel
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GStyledPanelsUetkxId = RUI::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
+static const FName GStyledPanelsUetkxId = RUI::RegisterComponentId((void*)&StyledPanels_UetkxImpl_017C6E5E, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
 static constexpr uint32 StyledPanels_RUI_HOOK_SIG = 0x72A626EBu;
 inline FRuiNode StyledPanels(FStyledPanelsUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&StyledPanels_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&StyledPanels_UetkxImpl_017C6E5E, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GStyledPanelsUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")), []() { return StyledPanels(); });
 

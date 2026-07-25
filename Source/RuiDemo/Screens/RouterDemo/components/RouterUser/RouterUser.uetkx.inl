@@ -21,7 +21,7 @@ inline FRuiNode RouterUser(FRouterUserUetkxProps InProps = FRouterUserUetkxProps
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser
 {
-static FRuiNodeArray RouterUser_UetkxImpl(FRuiContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray RouterUser_UetkxImpl_84C60909(FRuiContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 3 "Source/RuiDemo/Screens/RouterDemo/components/RouterUser/RouterUser.uetkx"
 	const TMap<FString, FString>& Params = UseParams(Ctx);
@@ -47,11 +47,11 @@ static FRuiNodeArray RouterUser_UetkxImpl(FRuiContext& Ctx, const FRouterUserUet
 		return RUI::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GRouterUserUetkxId = RUI::RegisterComponentId((void*)&RouterUser_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")));
+static const FName GRouterUserUetkxId = RUI::RegisterComponentId((void*)&RouterUser_UetkxImpl_84C60909, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")));
 static constexpr uint32 RouterUser_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode RouterUser(FRouterUserUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&RouterUser_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&RouterUser_UetkxImpl_84C60909, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GRouterUserUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")), []() { return RouterUser(); });
 

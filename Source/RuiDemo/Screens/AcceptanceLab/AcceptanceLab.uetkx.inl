@@ -21,7 +21,7 @@ inline FRuiNode AcceptanceLab(FAcceptanceLabUetkxProps InProps = FAcceptanceLabU
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
 {
-static FRuiNodeArray AcceptanceLab_UetkxImpl(FRuiContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray AcceptanceLab_UetkxImpl_24CDEE20(FRuiContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 21 "Source/RuiDemo/Screens/AcceptanceLab/AcceptanceLab.uetkx"
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
@@ -561,11 +561,11 @@ static FRuiNodeArray AcceptanceLab_UetkxImpl(FRuiContext& Ctx, const FAcceptance
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GAcceptanceLabUetkxId = RUI::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
+static const FName GAcceptanceLabUetkxId = RUI::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl_24CDEE20, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
 static constexpr uint32 AcceptanceLab_RUI_HOOK_SIG = 0x49531E04u;
 inline FRuiNode AcceptanceLab(FAcceptanceLabUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&AcceptanceLab_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&AcceptanceLab_UetkxImpl_24CDEE20, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GAcceptanceLabUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")), []() { return AcceptanceLab(); });
 

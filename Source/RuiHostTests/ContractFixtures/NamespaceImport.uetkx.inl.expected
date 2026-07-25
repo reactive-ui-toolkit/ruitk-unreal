@@ -21,7 +21,7 @@ inline FRuiNode NamespaceImport(FNamespaceImportUetkxProps InProps = FNamespaceI
 #else
 namespace RuiUetkx_NamespaceImport
 {
-static FRuiNodeArray NamespaceImport_UetkxImpl(FRuiContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray NamespaceImport_UetkxImpl_B9CB109A(FRuiContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 4 "NamespaceImport.uetkx"
 	const FLinearColor Tint = RuiUetkx_ValueExports::Cool();
@@ -38,11 +38,11 @@ static FRuiNodeArray NamespaceImport_UetkxImpl(FRuiContext& Ctx, const FNamespac
 		return __N;
 	}() };
 }
-static const FName GNamespaceImportUetkxId = RUI::RegisterComponentId((void*)&NamespaceImport_UetkxImpl, FName(TEXT("RuiUetkx_NamespaceImport::NamespaceImport")));
+static const FName GNamespaceImportUetkxId = RUI::RegisterComponentId((void*)&NamespaceImport_UetkxImpl_B9CB109A, FName(TEXT("RuiUetkx_NamespaceImport::NamespaceImport")));
 static constexpr uint32 NamespaceImport_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode NamespaceImport(FNamespaceImportUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&NamespaceImport_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&NamespaceImport_UetkxImpl_B9CB109A, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GNamespaceImportUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_NamespaceImport::NamespaceImport")), []() { return NamespaceImport(); });
 

@@ -129,10 +129,10 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("hook auto-prefixed"), Out.Inl.Contains(TEXT("Ctx.UseState(StartAt)")));
 		TestTrue(TEXT("impl signature"),
 				 Out.Inl.Contains(
-					 TEXT("static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, const FCounterUetkxProps& Props")));
+					 TEXT("static FRuiNodeArray Counter_UetkxImpl_")));
 		TestTrue(TEXT("registration emitted (FQN runtime identity, FS-04)"),
 				 Out.Inl.Contains(TEXT(
-					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
+					 "FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
 		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUI_HOOK_SIG = 0x")));
 		TestTrue(TEXT("wrapper for cross-component refs"), Out.Inl.Contains(TEXT("inline FRuiNode Counter(")));
 		TestTrue(TEXT("event lowered with the Value payload"),
@@ -472,8 +472,8 @@ component CardStack(Names: TArray<FString>) {
 					 !Out.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) &&
 						 !Out.Inl.Contains(TEXT("::Row\")), []()")));
 			TestTrue(TEXT("private component id is FILE-QUALIFIED"),
-					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-										   "FName(TEXT(\"RuiUetkx_Panel::Row\")))")));
+					 Out.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+						 Out.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_Panel::Row\")))")));
 			// same-file references stay BARE — they share the file namespace.
 			TestTrue(TEXT("same-file component tag stays bare"),
 					 Out.Inl.Contains(TEXT("FRowUetkxProps P;")) && Out.Inl.Contains(TEXT("return Row(MoveTemp(P)")));
@@ -686,16 +686,16 @@ component CardStack(Names: TArray<FString>) {
 			if (TestTrue(TEXT("PrivPair sources compile"), A.bOk && B.bOk))
 			{
 				TestTrue(TEXT("A's private Row keys RuiUetkx_PrivPairA::Row"),
-						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx_PrivPairA::Row\")))")));
+						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+							 A.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairA::Row\")))")));
 				TestTrue(TEXT("B's private Row keys RuiUetkx_PrivPairB::Row"),
-						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx_PrivPairB::Row\")))")));
+						 B.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl_")) &&
+							 B.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairB::Row\")))")));
 				TestTrue(TEXT("exported components carry the FILE-QUALIFIED runtime id too (FS-04)"),
-						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl, "
-											 "FName(TEXT(\"RuiUetkx_PrivPairA::PrivPairA\")))")));
+						 A.Inl.Contains(TEXT("RegisterComponentId((void*)&PrivPairA_UetkxImpl_")) &&
+							 A.Inl.Contains(TEXT("FName(TEXT(\"RuiUetkx_PrivPairA::PrivPairA\")))")));
 				TestFalse(TEXT("no bare-name id for a private component"),
-						  A.Inl.Contains(TEXT("RegisterComponentId((void*)&Row_UetkxImpl, FName(TEXT(\"Row\")))")));
+						  A.Inl.Contains(TEXT(", FName(TEXT(\"Row\")))")));
 				TestFalse(TEXT("neither private registers a named factory"),
 						  A.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) ||
 							  B.Inl.Contains(TEXT("RegisterNamedFactory(FName(TEXT(\"Row\"))")) ||

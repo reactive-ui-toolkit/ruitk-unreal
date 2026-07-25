@@ -11,7 +11,7 @@ inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks
 {
-inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start)
+static TTuple<int32, TFunction<void()>> UseCounter_RuiBody_5BFBD626(FRuiContext& Ctx, int32 Start)
 {
 #line 2 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.hooks.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
@@ -19,6 +19,10 @@ inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start
 	
 		return MakeTuple(Count, Increment);
 #line 22 "SimpleCounter.hooks.uetkx.inl"
+}
+inline TTuple<int32, TFunction<void()>> UseCounter(FRuiContext& Ctx, int32 Start)
+{
+	return UseCounter_RuiBody_5BFBD626(Ctx, Start);
 }
 
 } // namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks

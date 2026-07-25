@@ -47,11 +47,15 @@ inline FString FormatScore(int32 Score);
 #else
 namespace RuiUetkx_ValueExports
 {
-inline FString FormatScore(int32 Score)
+static FString FormatScore_RuiBody_72A88071(int32 Score)
 {
 #line 8 "ValueExports.uetkx"
 	return FString::FromInt(Score);
 #line 55 "ValueExports.uetkx.inl"
+}
+inline FString FormatScore(int32 Score)
+{
+	return FormatScore_RuiBody_72A88071(Score);
 }
 
 } // namespace RuiUetkx_ValueExports

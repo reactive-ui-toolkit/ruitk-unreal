@@ -30,7 +30,7 @@ inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps = FDoomGameScre
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
 {
-static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray DoomGameScreen_UetkxImpl_BDBFD227(FRuiContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 	const auto& Level = Props.Level;
 	const auto& Diff = Props.Diff;
@@ -512,11 +512,11 @@ static FRuiNodeArray DoomGameScreen_UetkxImpl(FRuiContext& Ctx, const FDoomGameS
 		return RUI::Slate::ScaleBox(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
+static const FName GDoomGameScreenUetkxId = RUI::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl_BDBFD227, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
 static constexpr uint32 DoomGameScreen_RUI_HOOK_SIG = 0x72A626EBu;
 inline FRuiNode DoomGameScreen(FDoomGameScreenUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&DoomGameScreen_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&DoomGameScreen_UetkxImpl_BDBFD227, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GDoomGameScreenUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")), []() { return DoomGameScreen(); });
 

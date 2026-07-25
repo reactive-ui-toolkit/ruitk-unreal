@@ -23,7 +23,7 @@ inline FRuiNode UmgHostDemo(FUmgHostDemoUetkxProps InProps = FUmgHostDemoUetkxPr
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_UmgHostDemo
 {
-static FRuiNodeArray UmgHostDemo_UetkxImpl(FRuiContext& Ctx, const FUmgHostDemoUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray UmgHostDemo_UetkxImpl_08102C9D(FRuiContext& Ctx, const FUmgHostDemoUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 10 "Source/RuiDemo/Screens/UmgHostDemo/UmgHostDemo.uetkx"
 	UWorld* World = RuiDemo::GetDemoWorld();
@@ -115,11 +115,11 @@ static FRuiNodeArray UmgHostDemo_UetkxImpl(FRuiContext& Ctx, const FUmgHostDemoU
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
 }
-static const FName GUmgHostDemoUetkxId = RUI::RegisterComponentId((void*)&UmgHostDemo_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_UmgHostDemo::UmgHostDemo")));
+static const FName GUmgHostDemoUetkxId = RUI::RegisterComponentId((void*)&UmgHostDemo_UetkxImpl_08102C9D, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_UmgHostDemo::UmgHostDemo")));
 static constexpr uint32 UmgHostDemo_RUI_HOOK_SIG = 0x811C9DC5u;
 inline FRuiNode UmgHostDemo(FUmgHostDemoUetkxProps InProps, TArray<FRuiNode> InChildren, FRuiKey InKey)
 {
-	return RUI::FC(&UmgHostDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
+	return RUI::FC(&UmgHostDemo_UetkxImpl_08102C9D, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
 static const bool GUmgHostDemoUetkxFactoryReg = RUI::RegisterNamedFactory(FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_UmgHostDemo_UmgHostDemo::UmgHostDemo")), []() { return UmgHostDemo(); });
 

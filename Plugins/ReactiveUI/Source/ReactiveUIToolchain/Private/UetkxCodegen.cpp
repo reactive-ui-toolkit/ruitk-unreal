@@ -1276,16 +1276,23 @@ namespace
 	/** A `hook` declaration → an inline free function taking FRuiContext& first (built-in hook
 	 *  calls in the body Ctx.-prefixed, nested user hooks Ctx-injected). DECL phase = the forward
 	 *  declaration; BODY phase = the definition. FILE_SCOPED_EXPORTS: every decl (exported or
-	 *  private) lives in the FILE namespace — the assembly wrap owns it, nothing per-decl. */
-	FEmittedDecl EmitHookInl(const FUetkxHookDecl& Hook, const FLineCtx& Line,
+	 *  private) lives in the FILE namespace — the assembly wrap owns it, nothing per-decl.
+	 *  TB-23: the USER BODY lives in a CONTENT-HASHED static (`<Name>_RuiBody_<hash>`) behind a
+	 *  stable forwarder — user closures (effects, callbacks stored in cells/props) mangle under
+	 *  the hashed name, so a Live-Coding patch can never redirect an OLD closure's code to a
+	 *  DIFFERENT lambda's layout (the cross-patch ordinal collision). The forwarder keeps the
+	 *  stable cross-file symbol every importer binds. */
+	FEmittedDecl EmitHookInl(const FUetkxHookDecl& Hook, const FString& BodyHash, const FLineCtx& Line,
 							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Ret = Hook.Ret.IsEmpty() ? FString(TEXT("void")) : Hook.Ret;
 		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuiContext& Ctx%s%s)"), *Ret, *Hook.Name,
 											Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
+		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Hook.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
-		FString Def = Sig + TEXT("\n{\n");
+		FString Def = FString::Printf(TEXT("static %s %s(FRuiContext& Ctx%s%s)\n{\n"), *Ret, *BodyName,
+									  Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
 		const TArray<FString> HookParams = FUetkxScopedLocals::ParamNamesOf(Hook.Params);
 		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Aliases, &HookParams, ValueCalls);
 		if (!Body.IsEmpty())
@@ -1294,6 +1301,13 @@ namespace
 							Line);
 		}
 		Def += TEXT("}\n");
+		FString Args = TEXT("Ctx");
+		for (const FString& P : HookParams)
+		{
+			Args += TEXT(", ") + P;
+		}
+		Def += FString::Printf(TEXT("%s\n{\n\t%s%s(%s);\n}\n"), *Sig, Ret == TEXT("void") ? TEXT("") : TEXT("return "),
+							   *BodyName, *Args);
 		E.BodyPhase = Def;
 		return E;
 	}
@@ -1348,13 +1362,16 @@ namespace
 	 *  transform (built-in hook Ctx.-prefixing, user-hook Ctx-injection, alias rewriting) — a util
 	 *  body that happens to call something hook-shaped is not specially policed; it fails to
 	 *  compile downstream (no `Ctx` in scope), the same as any other misuse. */
-	FEmittedDecl EmitUtilInl(const FUetkxUtilDecl& Util, const FLineCtx& Line,
+	FEmittedDecl EmitUtilInl(const FUetkxUtilDecl& Util, const FString& BodyHash, const FLineCtx& Line,
 							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
+		// TB-23: hashed body behind the stable forwarder, exactly like EmitHookInl (a util body
+		// may hand out closures too — e.g. building an FRuiCallback).
 		const FString Sig = FString::Printf(TEXT("inline %s %s(%s)"), *Util.RetType, *Util.Name, *Util.Params);
+		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Util.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
-		FString Def = Sig + TEXT("\n{\n");
+		FString Def = FString::Printf(TEXT("static %s %s(%s)\n{\n"), *Util.RetType, *BodyName, *Util.Params);
 		const TArray<FString> UtilParams = FUetkxScopedLocals::ParamNamesOf(Util.Params);
 		const FString Body = PrefixHookCalls(Util.Body.TrimStartAndEnd(), Aliases, &UtilParams, ValueCalls);
 		if (!Body.IsEmpty())
@@ -1363,6 +1380,13 @@ namespace
 							Line);
 		}
 		Def += TEXT("}\n");
+		FString Args;
+		for (const FString& P : UtilParams)
+		{
+			Args += (Args.IsEmpty() ? TEXT("") : TEXT(", ")) + P;
+		}
+		Def += FString::Printf(TEXT("%s\n{\n\t%s%s(%s);\n}\n"), *Sig,
+							   Util.RetType == TEXT("void") ? TEXT("") : TEXT("return "), *BodyName, *Args);
 		E.BodyPhase = Def;
 		return E;
 	}
@@ -1371,12 +1395,12 @@ namespace
 	class FEmitter
 	{
 	public:
-		FEmitter(const FString& InBasename, const FString& InFileNs, const FUetkxComponentDecl& InDecl,
-				 TArray<FUetkxDiag>& InDiags, TSet<FString>& InUses, TMap<FString, int32>& InUseAts,
-				 const FLineCtx& InLine, const FUetkxAliasPlane& InAliases,
+		FEmitter(const FString& InBasename, const FString& InFileNs, const FString& InBodyHash,
+				 const FUetkxComponentDecl& InDecl, TArray<FUetkxDiag>& InDiags, TSet<FString>& InUses,
+				 TMap<FString, int32>& InUseAts, const FLineCtx& InLine, const FUetkxAliasPlane& InAliases,
 				 const TSet<FString>* InValueCalls = nullptr)
-			: Basename(InBasename), FileNs(InFileNs), Decl(InDecl), Diags(InDiags), Uses(InUses), UseAts(InUseAts),
-			  Line(InLine), Aliases(InAliases), ValueCalls(InValueCalls)
+			: Basename(InBasename), FileNs(InFileNs), BodyHash(InBodyHash), Decl(InDecl), Diags(InDiags), Uses(InUses),
+			  UseAts(InUseAts), Line(InLine), Aliases(InAliases), ValueCalls(InValueCalls)
 		{
 			// TD-034 #1 (N4): the component's params seed the scope tracker for every code region.
 			for (const FUetkxParam& Param : Decl.Params)
@@ -1523,6 +1547,7 @@ namespace
 
 		const FString& Basename;
 		const FString& FileNs;					   // this FILE's namespace (FILE_SCOPED_EXPORTS — runtime id qualifier)
+		const FString& BodyHash;				   // TB-23: content hash — unique lambda manglings per generation
 		const FUetkxComponentDecl& Decl;
 		TArray<FUetkxDiag>& Diags;
 		TSet<FString>& Uses;					   // component tags this component references (aggregator topo order)
@@ -2287,10 +2312,20 @@ namespace
 		// ── BODY phase: the impl (markup lowering — MUST run to populate Uses/UseAts), the identity
 		// + hook-signature registrations, the default-free wrapper definition, and (exported only)
 		// the named-factory self-registration.
+		//
+		// TB-23 — the impl symbol carries a CONTENT HASH (`_UetkxImpl_<hash>`): Live Coding
+		// redirects functions BY MANGLED NAME across patches, and anonymous lambdas mangle by
+		// ORDINAL under their enclosing function — an edit that inserts/removes a markup child
+		// shifts every later lambda's ordinal, so an OLD stored closure's destructor got
+		// redirected to a DIFFERENT lambda's code with a different capture layout (AV tearing
+		// down pre-patch trees). A content-hashed enclosing name makes every generation's
+		// lambda manglings globally unique — old objects keep their own still-loaded code. The
+		// wrapper (stable name, recompiled in the same patch) is the only caller.
+		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl_%s"), *Decl.Name, *BodyHash);
 		FString Impl = FString::Printf(
-			TEXT("static FRuiNodeArray %s_UetkxImpl(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
+			TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
 				 "children)\n{\n"),
-			*Decl.Name, *PropsType);
+			*ImplName, *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
 		{
 			Impl += FString::Printf(TEXT("\tconst auto& %s = Props.%s;\n"), *Param.Name, *Param.Name);
@@ -2357,15 +2392,15 @@ namespace
 		// next sweep (React Fast Refresh parity — module path is the key). Short-name lookup at
 		// the designer edges resolves by suffix (RUI::ResolveNamed).
 		const FString RuntimeId = FileNs + TEXT("::") + Decl.Name;
-		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = RUI::RegisterComponentId((void*)&%s_UetkxImpl, "
+		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = RUI::RegisterComponentId((void*)&%s, "
 									 "FName(TEXT(\"%s\")));\n"),
-								*Decl.Name, *Decl.Name, *RuntimeId);
+								*Decl.Name, *ImplName, *RuntimeId);
 		Impl += FString::Printf(TEXT("static constexpr uint32 %s_RUI_HOOK_SIG = 0x%08Xu;\n"), *Decl.Name,
 								FUetkxFileScan::HookSignature(Decl.HookCalls));
 		Impl += FString::Printf(TEXT("inline FRuiNode %s(%s InProps, TArray<FRuiNode> InChildren, FRuiKey "
-									 "InKey)\n{\n\treturn RUI::FC(&%s_UetkxImpl, MoveTemp(InProps), "
+									 "InKey)\n{\n\treturn RUI::FC(&%s, MoveTemp(InProps), "
 									 "MoveTemp(InChildren), InKey);\n}\n"),
-								*Decl.Name, *PropsType, *Decl.Name);
+								*Decl.Name, *PropsType, *ImplName);
 		// A PRIVATE component stays TREE-SHAKEN (no named factory); the file namespace comes from
 		// the assembly wrap for every decl alike.
 		if (Decl.bExported)
@@ -2496,6 +2531,18 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	// stays empty, references pass through bare, and (when a resolver-less caller compiles a file
 	// with imports) resolution is simply skipped exactly as before.
 	const FString FileNs = FileNamespaceFor(ProjectRelPath, Basename);
+	// TB-23 — the per-generation content hash stamped into every emitted BODY symbol
+	// (`_UetkxImpl_<hash>`, `_RuiBody_<hash>`): any edit re-hashes the file, so anonymous
+	// lambdas never share a mangled name across Live-Coding patches (a redirected destructor
+	// over a different capture layout was an AV tearing down pre-patch trees). Any stable
+	// content hash works — deliberately NOT the SrcHash cross-tool contract; plain FNV-1a
+	// over the source's UTF-16 units keeps codegen self-contained.
+	uint32 BodyHashBits = 2166136261u;
+	for (int32 i = 0; i < Source.Len(); ++i)
+	{
+		BodyHashBits = (BodyHashBits ^ static_cast<uint32>(Source[i])) * 16777619u;
+	}
+	const FString BodyHash = FString::Printf(TEXT("%08X"), BodyHashBits);
 	FUetkxAliasPlane Aliases;
 	// TB-15 — SAME-FILE value names for the call rewrite (`Name` → `Name()`): value exports lower
 	// as inline functions so Live Coding patches carry edited values (a global's initializer
@@ -2590,7 +2637,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		case EUetkxDeclKind::Component:
 		{
 			const FUetkxComponentDecl& Decl = Scan.Components[Entry.Value];
-			FEmitter Emitter(Basename, FileNs, Decl, Out.Diags, Uses, UseAts, Line, Aliases, &ValueCalls);
+			FEmitter Emitter(Basename, FileNs, BodyHash, Decl, Out.Diags, Uses, UseAts, Line, Aliases, &ValueCalls);
 			const FEmittedDecl E = Emitter.Emit();
 			if (Emitter.HasError())
 			{
@@ -2607,7 +2654,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		}
 		case EUetkxDeclKind::Hook:
 		{
-			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], Line, &Aliases, &ValueCalls);
+			const FEmittedDecl E = EmitHookInl(Scan.Hooks[Entry.Value], BodyHash, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Hooks[Entry.Value].Name);
@@ -2628,7 +2675,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 		// the BODY phase) minus Ctx/HookSig.
 		case EUetkxDeclKind::Util:
 		{
-			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], Line, &Aliases, &ValueCalls);
+			const FEmittedDecl E = EmitUtilInl(Scan.Utils[Entry.Value], BodyHash, Line, &Aliases, &ValueCalls);
 			OtherDecls += E.DeclPhase + TEXT("\n");
 			Bodies += E.BodyPhase + TEXT("\n");
 			Out.ComponentNames.Add(Scan.Utils[Entry.Value].Name);
