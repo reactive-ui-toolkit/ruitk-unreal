@@ -506,3 +506,13 @@ trigger was missing. Smoke pin models 10d exactly: delete the exporter on disk �
 importer flags 2300/2302; recreate → clears.
 
 **Status:** FIXED (LSP 92/92 + smoke incl. the watched-files pin; reload the dev host).
+
+> **TB-21 AMENDMENT (2026-07-25, second owner session):** the "re-synced by a normal rebuild"
+> claim above was WRONG — incremental builds after the `-DisableUnity -NoPCH` experiment left
+> MIXED unity/non-unity intermediates, so Live Coding kept finding "work" on every fresh boot
+> (patched Core again → the same Frankenstein: a fresh-boot f11+Play AV'd in the BASE Slate
+> adapter over patched-Core-built props, and plain Play served stale UI from incoherent
+> outputs). Cure applied: full clean (`Intermediate/Build`, `Binaries`, plugin
+> `Intermediate`+`Binaries`) + from-scratch rebuild — battery 132/0 on the pristine outputs.
+> **Ops rule (CLAUDE.md):** any `-DisableUnity`/`-NoPCH` experiment MUST be followed by that
+> clean, or in-editor Live Coding compiles stay permanently confused.
