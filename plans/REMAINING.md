@@ -31,22 +31,26 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       build → restart), 9 (PIE cycle under HMR), and the 10-series file-manipulation legs
       (create/copy/rename/delete/export-rename/born-outside-the-mode). Bugs found on the way
       are ledgered as TB-19..TB-28 (all FIXED, pinned, built).
-- [ ] **UE 5.7 — repeat the matrix.** Engine payload needs REINSTALL first (folder shell
-      only). Then: stale-UHT clean (CLAUDE.md environment facts), build, battery, walk the
-      matrix (recreate the transient test vehicles per the items — the 5.6 ones were cleaned
-      2026-07-25 and the battery re-verified green on the clean tree + rebuilt binary).
+- [ ] **UE 5.7 — walk the matrix** (owner deferred 2026-07-25; publish proceeds without it).
+      Engine reinstalled + verified same day: TB-29 fixed on first build, then
+      `RUICompile -check` 45/0/0 + battery 132/132 on 5.7. Working copy is association-
+      switched (machine-local GUID in the .uproject — NEVER commit that line). Recreate the
+      transient test vehicles per the items.
       ⚠ Lesson from the 5.6 wrap-up: after reverting/editing `.inl` files, REBUILD before
       trusting suite results — the suites run the compiled binary, not the files.
-- [ ] **UE 5.8 — repeat the matrix** (payload intact; same sequence).
+- [ ] **UE 5.8 — repair install, then build + battery + matrix** (owner deferred
+      2026-07-25). The install is PARTIAL (Engine/Binaries present, Engine/Source absent —
+      TB-29 ledger): launcher repair/reinstall first; its per-engine zip is blocked until
+      then.
 
-**All three engines done ⇒** note the sessions (dates, engine versions) in
-`PENDING_CHANGELOG.md`'s next drain, and proceed to §2.
+**Engine legs done ⇒** note the sessions (dates, engine versions) in
+`PENDING_CHANGELOG.md`'s next drain.
 
 ## 2. Release runway (Phase 9 — in order, after §1)
 
-1. **Drain `PENDING_CHANGELOG.md`** (rounds 10–16 + FSE staged) via the `release-process`
-   skill §0 → Lane A/B/C entries + version bumps (any lsp-server change bumps BOTH
-   extensions).
+1. ~~**Drain `PENDING_CHANGELOG.md`**~~ — ✅ DONE 2026-07-25: Lane A `[0.14.0]` + mirror,
+   Lane B 13 shared bullets (extensions 0.8.0, extract+verify green), Lane C Discord entry
+   (1868 chars); `bump.mjs` plugin 0.14.0 + vscode/vs2022/lsp-server 0.8.0.
 2. **Per-engine zips** (`scripts/package-plugin.ps1` per engine, `-StrictIncludes`) +
    the **packaged-fidelity test** (fresh project, packaged plugin, banner + gallery
    renders). Needs UE 5.7 reinstalled for its leg (owner removed the payload — see memory).

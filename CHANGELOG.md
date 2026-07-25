@@ -7,6 +7,75 @@ resync with `cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md` (CI byte-compares 
 `scripts/verify-mirror.mjs`). The IDE extensions are NOT covered here — they use
 `ide-extensions/changelog.json` (Lane B; see the release-process skill).
 
+## [0.14.0] — 2026-07-25
+
+The F5 field-test campaign release: two weeks of owner-driven in-editor testing (rounds
+10–16, ledger `plans/TESTING_BUGS.md`) hardened the compiler's silent surfaces, made the
+generated code Live-Coding-safe by construction, and landed ES-module file-scoped exports.
+Verified green on UE 5.6 and 5.7 (full battery 132/132 on both).
+
+### Added
+
+- **File-scoped exports (ES semantics)**: every `.uetkx` file is its own module — two files
+  may export the same name; `as` aliasing resolves collisions at the importer. Every
+  declaration emits inside a per-file flat namespace; runtime/HMR identity is the
+  file-qualified name, with short-name suffix resolution at the designer edges
+  (`ComponentName` fields, `MountNamed`, preview) via the new `RUI::ResolveNamed` /
+  `RUI::GetRegisteredFactoryNames` APIs — ambiguity is loud, never first-wins. UETKX2106
+  ("one exported name, one file") is retired (number reserved), UETKX2303 re-keys to local
+  binding names, and the new UETKX2329 rejects case-folded FQN twins.
+- **`return null;` renders nothing** (family React semantics, decided family-wide
+  2026-07-25): both `return null;` and `return ( null );` are first-class component
+  returns — as early guards and as the only return of a render-nothing component. Codegen
+  lowers them to an empty node array; the formatter canonicalizes to the bare form; the
+  family corpus pins the behavior on both scanner implementations.
+- **Compile-time validation for the silent attribute surfaces** (each was previously
+  accepted and silently wrong at runtime): UETKX0106 enum-string values (20 closed
+  vocabularies exported from the runtime's own parse tables) and malformed typed
+  style/slot strings; UETKX0109 duplicate attributes; UETKX0110 duplicate sibling keys;
+  UETKX0111 slot keys the parent panel never reads (full per-panel consumption map);
+  UETKX0112 canonical attribute casing (slot routing was case-insensitive — `slot.fill`
+  silently worked while every exact-case check disarmed); BorderImage brush names validated
+  against the engine's actually-resolvable style set.
+- **`Slot.Column` / `Slot.Row`** joined the slot-key canon with `RUI::Slot()` builders
+  (GridPanel consumed them but they were unpublished).
+
+### Changed
+
+- **CodegenVersion 4**: generated files fully regenerate on first sweep after upgrading
+  (one-time remount — file-scoped identity changes every component's runtime key).
+- **String-literal style keys now PARSE like slot keys**: `RenderOpacity="0.5"` no longer
+  renders invisible, `Enabled="true"` no longer disables the widget; flag forms lower as
+  true; malformed strings fail the compile (UETKX0106) instead of silently defaulting.
+- UETKX2101/UETKX3007 messages now name the `return null;` form alongside the markup
+  return.
+
+### Fixed
+
+- **Live Coding could run stale or wrong-layout generated code (crash-class, TB-21/TB-23)**:
+  process-global registries are now zero-initialized namespace-scope pointers with
+  first-touch allocation (function-local statics DUPLICATE across patches — post-patch
+  registrations landed in a dead copy, and PIE-stop dereferenced freed trees), and every
+  component emits a STABLE `<Name>_UetkxImpl` shim calling a content-hashed
+  `<Name>_UetkxBody_<hash>` that owns all lambdas (lambdas mangle by ordinal; an edit
+  shifted later ordinals and old closures ran wrong-layout destructors). Hooks and utils
+  get the same forwarder + hashed-body shape.
+- **Hook-shape edits under HMR now reset state cleanly** (the family rule, TB-13): adding
+  or removing a hook call resets that component to defaults with a MessageLog notice —
+  previously a crash risk; per-cell type identity makes any shape mismatch memory-safe.
+- **Value exports lower as inline functions** (TB-15): style/value edits actually apply
+  under HMR — global initializers never re-run on a Live Coding patch.
+- **Rapid HMR saves stacked fading toasts into a blurry smear** (TB-26): one notification,
+  text updated in place with a restarted expiry, carrying the running patch total.
+- **HMR error rows coalesce** (`×N` on the standing row) and the window's error counter
+  reads CURRENT errors, dropping to zero on recovery (TB-14).
+- **The SearchableComboBox wrapper (sinceUE 5.7) never declared its ToolWidgets module
+  dependency** (TB-29): LNK2019 on every real 5.7 build — the adapter compiles out on 5.6,
+  so it was invisible until the first post-widget 5.7 build. The dependency is now
+  version-gated exactly like the adapter.
+- **DoomHUD overlay centering**: silently uncentered via ignored slot keys — caught by the
+  new UETKX0111 sweep.
+
 ## [0.13.0] — 2026-07-18
 
 ### Changed — License: PolyForm Shield 1.0.0 → ReactiveUI Community License 1.0

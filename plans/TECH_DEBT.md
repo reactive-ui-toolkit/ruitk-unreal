@@ -933,4 +933,10 @@ referenced from plans/PRs.
   React's allow, or Unreal pins `.pending`); guard-form cases promoted to familyCore with
   legacy `component` heads once all three legs agree; directive-body rewrite decision
   recorded.
-- **Status:** OPEN (2026-07-25) — no release blocker (per-leg tier; family hash matches).
+- **Status:** PARTIALLY RESOLVED 2026-07-25 (same day) — the family DECIDED React semantics:
+  Godot landed null-only components (their 3ae0d84) and the five cases were PROMOTED to
+  familyCore here with family-shared legacy heads (hash re-pinned 71a37c75; C++ 13/13 + TS
+  corpus replay green). REMAINING: Unity's scanner fix (their TryFindTopLevelReturn still
+  2102s null-only) + both siblings adopt the mirrored cases — paste-ready JSON generated
+  (scratchpad return-null-cases-{godot,unity}.json). Cross-repo hash alignment stays TD-009
+  (the corpora already diverged before this).
