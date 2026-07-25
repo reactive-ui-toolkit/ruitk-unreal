@@ -57,7 +57,7 @@
       see 5b.
       ⚠ Known: the watcher deletes the `.uetkx.inl` on a failed markup compile — the next
       GOOD save regenerates it (never commit in that window).
-- [ ] **5b. Same-name export across files (FILE_SCOPED_EXPORTS M6a).** Rename an export so it
+- [x] **5b. Same-name export across files (FILE_SCOPED_EXPORTS M6a).** (owner PASS 2026-07-25 — independent per-file edits confirmed) Rename an export so it
       matches one in ANOTHER file (e.g. SimpleCounter.style's `PanelBackground`, which now
       deliberately matches ContextDemo.style's). ✅ NO diagnostic anywhere (VS Code clean,
       sweep clean, Live Coding patch lands); both screens keep their own value. Edit EACH
