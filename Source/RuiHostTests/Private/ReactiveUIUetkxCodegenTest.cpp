@@ -166,6 +166,38 @@ export component Counter(StartAt: int32 = 0) {
 		TestEqual(TEXT("hook sig from one UseState"), Out.HookSig, FUetkxFileScan::HookSignature({TEXT("UseState")}));
 	}
 
+	// ── `return null;` — render-nothing (TB-28: React/Unity family parity) ────────────────
+	{
+		const FString Source = TEXT(R"UETKX(
+export FRuiNode Gate(bool bHidden = false) {
+	if (bHidden) {
+		return null;
+	}
+	return ( <Spacer /> );
+}
+)UETKX");
+		FUetkxCompileOutput Out = FUetkxCodegen::CompileSource(Source, TEXT("Gate"));
+		for (const FUetkxDiag& Diag : Out.Diags)
+		{
+			AddInfo(FString::Printf(TEXT("diag %s: %s @%d"), *Diag.Code, *Diag.Message, Diag.Offset));
+		}
+		if (TestTrue(TEXT("early `return null;` compiles"), Out.bOk))
+		{
+			TestTrue(TEXT("null span lowers to an EMPTY node array (renders nothing)"),
+					 Out.Inl.Contains(TEXT("return {};")));
+			TestTrue(TEXT("the verbatim if-guard splices around it"), Out.Inl.Contains(TEXT("if (bHidden)")));
+		}
+		const FUetkxCompileOutput Empty =
+			FUetkxCodegen::CompileSource(TEXT("export FRuiNode Empty() {\n\treturn null;\n}\n"), TEXT("Empty"));
+		if (TestTrue(TEXT("null-only component compiles (single-return emitter path)"), Empty.bOk))
+		{
+			TestTrue(TEXT("null-only lowers to an empty array return"), Empty.Inl.Contains(TEXT("return {};")));
+		}
+		const FUetkxCompileOutput Paren =
+			FUetkxCodegen::CompileSource(TEXT("export FRuiNode Empty2() {\n\treturn ( null );\n}\n"), TEXT("Empty2"));
+		TestTrue(TEXT("paren form `return ( null );` compiles"), Paren.bOk);
+	}
+
 	// ── keyed @for + style keys + Slot.* + cross-component reference ──────────────────────
 	{
 		const FString Source = TEXT(R"UETKX(

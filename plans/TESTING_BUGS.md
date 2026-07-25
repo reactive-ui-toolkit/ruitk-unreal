@@ -610,3 +610,48 @@ now carries the running patch total.
 **Status:** FIXED in source; C++ build pending the owner's editor closing (Live Coding holds
 the build mutex) — verify visually on the next session: hammer 4-5 quick saves, expect ONE
 crisp toast updating its text.
+
+## TB-27 — clangd "void function should not return a value" on EVERY early return
+
+**Found:** 2026-07-25, owner: `return (<></>);` before the main return in SimpleCounter showed
+"Void function '__rui_setup_SimpleCounter' should not return a value". Investigation: NOT a
+fragment bug — the vdoc lifted setup into a `void __rui_setup_<Name>` scaffold while early-
+return windows keep their real `return ( … )` glue with the markup neutralized to `__rui_rn`,
+so EVERY early return (element, fragment, and the excludeSpans directive fallback) was illegal
+C++ inside it. The compiler pipeline was proven clean (the same shape lowers to
+`RUI::Fragment` via codegen); the second message the owner saw (0114 "must be parenthesized")
+was transient keystroke state, not reproducible from the committed scanners.
+
+**Fix (vdoc):** the scaffold returns `FRuiNode` (the prelude's `__rui_rn` type) and closes
+with a synthetic `return __rui_rn;` tail so the no-early-return shape has no C4715. Early
+returns are now legal in place. Pinned: embeddedCpp tests (fragment early return + tail;
+no `void __rui_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
+
+**Status:** FIXED (LSP 94/94 + smoke; bundle rebuilt — reload the dev host).
+
+## TB-28 — `return null;` render-nothing was missing (family parity gap)
+
+**Found:** 2026-07-25, owner (same report): "IIRC we allow or should allow return null."
+Confirmed against the Unity sibling: `return null;` IS first-class render-nothing there
+(HmrCSharpEmitter rewrites it to `continue;` when inlining loop bodies; shipped samples use
+it) — C# gets component-level `return null` for free (null VisualElement). Our C++ side had
+no support: the scanners ignored it (2101 if it was the only return) and codegen would have
+spliced uncompilable `return null;` verbatim.
+
+**Fix (both scanners + codegen + both formatters + vdoc):** `CollectMarkupReturns` /
+`collectMarkupReturns` recognize `return null ;` (bare) and `return ( null );` (paren) at
+paren-depth 0 as null spans (`bNull`/`isNull` — no markup window, no Root; the `;` is required
+so a mid-edit `null…` identifier prefix stays plain code; `null` is not a C++ identifier, so
+there are no false positives). They satisfy 2101, anchor the setup split, terminate 0107
+reachability, and codegen lowers them to `return {};` — an empty node array, the exact state
+the error-boundary path already feeds the reconciler. Formatters canonicalize the final form
+to bare `return null;`; the vdoc neutralizes the token to `__rui_rn` (typed by the TB-27
+FRuiNode scaffold). NOT implemented (follow-up if the corpus ever exercises it): Unity's
+`return null` → `continue` rewrite INSIDE @for directive bodies — our directive bodies are
+real C++ loops where authors write `continue;` directly.
+
+**Coverage:** 5 fileScan corpus cases + 3 formatter goldens (replayed by BOTH sides), codegen
+unit pins (`return {};` on all three shapes), ContractFixtures/ReturnNull.uetkx (golden dumped
+with the next engine run), vdoc unit + smoke pins.
+
+**Status:** FIXED (LSP 94/94 + smoke; C++ battery pending the TB-26 build).

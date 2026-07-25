@@ -913,3 +913,19 @@ referenced from plans/PRs.
   the same oracle, so setup locals used in markup are never phantom refs a rename would edit.
   Remaining residual: multi-declarator second declarators, and locals visible AFTER a lambda
   whose parameter shadowed them (over-suppression, silent by design).
+
+## TD-035 — return-null corpus cases: sibling mirror sync (TB-28)
+- **Where:** `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` (5 fileScan
+  cases) + `uetkx-formatter-cases.json` (3 goldens) — the `fileScan` tier is familyCore
+  (byte-identical family-wide).
+- **What/why deferred:** TB-28 implemented `return null;` / `return ( null );` render-nothing
+  (component level) for family parity — the SEMANTIC came from Unity (HmrCSharpEmitter's
+  loop-inline rewrite + shipped samples), but the corpus CASES pinning it are new here and
+  must mirror per the grammar-contract skill (outbound corpus PR to Godot; flag Unity).
+  Also open: Unity rewrites `return null` → `continue;` INSIDE `@for` directive bodies — our
+  directive bodies are real C++ loops (authors write `continue;` directly), so this leg was
+  intentionally NOT implemented; revisit only if a shared corpus case ever exercises it.
+- **Production-grade resolution:** mirrored corpus PR merged in the Godot repo, Unity repo
+  flagged (their scanner should classify the same five cases), and a decision recorded on the
+  directive-body rewrite (implement or pin as `.pending` divergence).
+- **Status:** OPEN (2026-07-25)

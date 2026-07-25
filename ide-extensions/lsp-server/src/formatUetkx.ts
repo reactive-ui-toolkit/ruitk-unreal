@@ -577,9 +577,16 @@ function fmtComponent(decl: UetkxComponentDecl, state: FmtState): string {
     out += setup;
     if (hasTrailingBlank(decl.setup)) out += "\n";
   }
-  out += pad(1, state.o) + "return (\n";
-  out += fmtChildren(decl.windowNodes, 2, state);
-  out += pad(1, state.o) + ");\n";
+  const returns = decl.returns ?? [];
+  if (returns.length > 0 && returns[returns.length - 1].isNull) {
+    // `return null;` final (TB-28) — render-nothing has no window to format; the bare form
+    // is the canonical spelling (paren form canonicalizes to it). Mirrors FmtComponent.
+    out += pad(1, state.o) + "return null;\n";
+  } else {
+    out += pad(1, state.o) + "return (\n";
+    out += fmtChildren(decl.windowNodes, 2, state);
+    out += pad(1, state.o) + ");\n";
+  }
   out += "}\n";
   return out;
 }

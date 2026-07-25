@@ -1572,13 +1572,14 @@ namespace
 		DiagnoseBareMarkupReturn(Body, JsxRanges, BodyAt, Out.Diags);
 		if (Decl.Returns.IsEmpty())
 		{
-			AddDiag(Out.Diags, TEXT("UETKX2101"), 0, TEXT("component has no `return ( ... )` markup return"), Ci, 9);
+			AddDiag(Out.Diags, TEXT("UETKX2101"), 0,
+					TEXT("component has no `return ( ... )` markup return (or `return null;`)"), Ci, 9);
 			return -1;
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
 			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final markup `return ( ... )` must be at the top level of the body"),
+					TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
 					BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
@@ -1590,6 +1591,10 @@ namespace
 
 		for (FUetkxReturnSpan& Span : Decl.Returns)
 		{
+			if (Span.bNull)
+			{
+				continue; // render-nothing span — no markup window, Root stays null
+			}
 			FUetkxMarkup Parser;
 			FUetkxParseResult Pr = Parser.Parse(Body, Span.MStart, Span.MEnd);
 			if (!Pr.IsOk())
@@ -1685,14 +1690,14 @@ namespace
 		DiagnoseBareMarkupReturn(Body, JsxRanges, BodyAt, Out.Diags);
 		if (Decl.Returns.IsEmpty())
 		{
-			AddDiag(Out.Diags, TEXT("UETKX2101"), 0, TEXT("component has no `return ( ... )` markup return"), DeclStart,
-					1);
+			AddDiag(Out.Diags, TEXT("UETKX2101"), 0,
+					TEXT("component has no `return ( ... )` markup return (or `return null;`)"), DeclStart, 1);
 			return -1;
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
 			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final markup `return ( ... )` must be at the top level of the body"),
+					TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
 					BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
@@ -1704,6 +1709,10 @@ namespace
 
 		for (FUetkxReturnSpan& Span : Decl.Returns)
 		{
+			if (Span.bNull)
+			{
+				continue; // render-nothing span — no markup window, Root stays null
+			}
 			FUetkxMarkup Parser;
 			FUetkxParseResult Pr = Parser.Parse(Body, Span.MStart, Span.MEnd);
 			if (!Pr.IsOk())
@@ -2357,6 +2366,10 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 				const bool bTopLevel = BraceDepth == 0;
 				const bool bMarkup =
 					First < N && (Body[First] == C_LT || Body[First] == C_AT || (Body[First] == C_LBRACE && bTopLevel));
+				// `return ( null );` — the render-nothing span, paren form (TB-28: family parity;
+				// the C# siblings accept it as a plain parenthesized literal, so byte-compatible
+				// markup must too). Only `null` + ws inside the parens qualifies.
+				const bool bNull = !bMarkup && First < N && FUetkxLexer::KeywordAt(Body, First, TEXT("null"));
 				const int32 Close =
 					bMarkup ? FUetkxLexer::FindMatchingMarkup(Body, P) : FUetkxLexer::FindMatching(Body, P);
 				if (Close == -1)
@@ -2364,7 +2377,7 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 					++i;
 					continue;
 				}
-				if (bMarkup)
+				if (bMarkup || (bNull && SkipWsOnly(Body, First + 4) == Close))
 				{
 					FUetkxReturnSpan Span;
 					Span.ReturnAt = i;
@@ -2372,10 +2385,31 @@ TArray<FUetkxReturnSpan> FUetkxFileScan::CollectMarkupReturns(const TArray<int32
 					Span.MEnd = Close;
 					Span.AfterParen = Close + 1;
 					Span.bTopLevel = bTopLevel;
+					Span.bNull = !bMarkup;
 					Out.Add(MoveTemp(Span));
 				}
 				i = Close + 1;
 				continue;
+			}
+			// `return null ;` — the render-nothing span, bare form (TB-28). `null` is not a C++
+			// identifier, so this can ONLY mean the family's render-nothing literal; the `;` is
+			// required so a mid-edit `return null` prefix of a longer identifier stays plain code.
+			if (P < N && FUetkxLexer::KeywordAt(Body, P, TEXT("null")))
+			{
+				const int32 Semi = SkipWsOnly(Body, P + 4);
+				if (Semi < N && Body[Semi] == ';')
+				{
+					FUetkxReturnSpan Span;
+					Span.ReturnAt = i;
+					Span.MStart = P;
+					Span.MEnd = P + 4;
+					Span.AfterParen = P + 4; // consumers' ws+`;` skip lands past the statement
+					Span.bTopLevel = BraceDepth == 0;
+					Span.bNull = true;
+					Out.Add(MoveTemp(Span));
+					i = Semi + 1;
+					continue;
+				}
 			}
 			i += 6;
 			continue;

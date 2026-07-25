@@ -446,9 +446,12 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
       if (stmts.trim().length > 0) {
         flushDeferred(emitCode(stmts, absAt + cursor, "\n", "\n"));
       }
-      const parsed = parseMarkup(cp, span.mStart, span.mEnd);
-      if (!parsed.errorCode) {
-        for (const n of parsed.nodes) liftNode(n, absAt);
+      if (!span.isNull) {
+        // `return null;` spans carry no markup to lift (TB-28)
+        const parsed = parseMarkup(cp, span.mStart, span.mEnd);
+        if (!parsed.errorCode) {
+          for (const n of parsed.nodes) liftNode(n, absAt);
+        }
       }
       cursor = span.afterParen;
     }
@@ -540,7 +543,11 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   for (const comp of scan.components) {
     // The function scaffold is raw'd (not emit-prefixed) so a return-only component with an
     // EMPTY setup still gets a scope for its lifted markup expressions (HelloWorld shape).
-    raw(`\nvoid __rui_setup_${comp.name}(FRuiContext& Ctx${cppParamList(comp)}) {\n`);
+    // Returns FRuiNode (TB-27): early-return windows keep their real `return ( … )` glue with
+    // the markup neutralized to __rui_rn — under a void signature every early return was a
+    // clangd "void function should not return a value". The synthetic tail return keeps the
+    // no-early-return shape free of C4715.
+    raw(`\nFRuiNode __rui_setup_${comp.name}(FRuiContext& Ctx${cppParamList(comp)}) {\n`);
     // §4: setup is jsx-aware — value markup neutralizes to __rui_rn (its attr exprs lift as
     // deferred statements below), early-return windows neutralize whole (their roots lift via
     // comp.returns — excludeSpans stops the double-lift).
@@ -548,7 +555,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
     for (const span of comp.returns ?? []) {
       if (span.root) liftNode(span.root, comp.setupAt);
     }
-    raw("}\n");
+    raw("return __rui_rn;\n}\n");
   }
   for (const hook of scan.hooks as UetkxHookDecl[]) {
     const ret = hook.ret.trim().length > 0 ? hook.ret.trim() : "void";

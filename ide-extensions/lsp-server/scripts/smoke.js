@@ -160,6 +160,28 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     fail("0103 basename nudge must be GONE under ES modules");
   console.log("no 0103 basename nudge OK");
 
+  // ── F5 round-16 pins (TB-27/TB-28): fragment early returns + `return null` scan clean ────
+  const frUri = "file:///tmp/FragGate.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: frUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode FragGate() {\n\tauto [Count, Inc] = UseState<int32>(0);\n\n\treturn (<></>);\n\n\treturn (\n\t\t<Border>\n\t\t\t<TextBlock Text={FText::AsNumber(Count)} />\n\t\t</Border>\n\t);\n}\n" } });
+  await settle();
+  const frErrors = (diagnostics[frUri] || []).filter((d) => d.severity === 1);
+  if (frErrors.length > 0)
+    fail("fragment early return must scan clean (TB-27): " + JSON.stringify(frErrors.map((d) => d.code)));
+  const rnUri = "file:///tmp/NullGate.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: rnUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode NullGate(bool bHidden = false) {\n\tif (bHidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n" } });
+  await settle();
+  if ((diagnostics[rnUri] || []).length > 0)
+    fail("early `return null;` must be first-class (TB-28): " + JSON.stringify((diagnostics[rnUri] || []).map((d) => d.code)));
+  const rnOnlyUri = "file:///tmp/NullOnly.uetkx";
+  notify("textDocument/didOpen", { textDocument: { uri: rnOnlyUri, languageId: "uetkx", version: 1,
+    text: "export FRuiNode NullOnly() {\n\treturn null;\n}\n" } });
+  await settle();
+  if ((diagnostics[rnOnlyUri] || []).some((d) => String(d.code) === "UETKX2101"))
+    fail("a null-only component must satisfy the markup-return requirement (TB-28)");
+  console.log("fragment + return-null OK (frag early return clean, null spans first-class, no 2101)");
+
   const brokenUri = "file:///tmp/Broken.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: brokenUri, languageId: "uetkx", version: 1,
     text: 'export FRuiNode Broken() {\n\treturn ( <Bosrder>\n\t\t<Button ContesntPadding="12,4" />\n\t</Border> );\n}\n' } });

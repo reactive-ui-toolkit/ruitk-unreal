@@ -2349,7 +2349,11 @@ namespace
 						TEXT("\n"),
 					SrcLineOfRegion(Decl.Setup, Decl.SetupAt, Line), Line);
 			}
-			Impl += FString::Printf(TEXT("\treturn { %s };\n}\n"), *EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
+			// `return null;` (TB-28) — render nothing: an empty node array reconciles to zero children.
+			Impl += Decl.Returns.Last().bNull
+						? FString(TEXT("\treturn {};\n}\n"))
+						: FString::Printf(TEXT("\treturn { %s };\n}\n"),
+										  *EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
 		}
 		else
 		{
@@ -2367,8 +2371,9 @@ namespace
 					Impl += WithLine(TEXT("\t") + IndentRegion(EmitExpr(Segment, Decl.BodyAt + Cursor)) + TEXT("\n"),
 									 SrcLineOfRegion(Raw, Decl.BodyAt + Cursor, Line), Line);
 				}
-				Impl +=
-					FString::Printf(TEXT("\treturn { %s };\n"), *EmitNodeExpr(*Span.Root, Decl.BodyAt, Decl.BodyAt));
+				Impl += Span.bNull ? FString(TEXT("\treturn {};\n")) // `return null;` — render nothing (TB-28)
+								   : FString::Printf(TEXT("\treturn { %s };\n"),
+													 *EmitNodeExpr(*Span.Root, Decl.BodyAt, Decl.BodyAt));
 				// step past the authored `;` (we emit our own)
 				Cursor = Span.AfterParen;
 				while (Cursor < Body.Num() &&

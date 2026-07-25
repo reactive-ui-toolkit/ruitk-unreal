@@ -569,6 +569,7 @@ export interface UetkxReturnSpan {
   mEnd: number;
   afterParen: number;
   topLevel: boolean; // at brace+paren depth 0 (a statement of the body itself)
+  isNull: boolean; // `return null;` — render nothing (no markup window, no root; TB-28)
   root: UetkxNode | null; // the span's single render root (filled by the component scan)
 }
 
@@ -876,16 +877,30 @@ export function collectMarkupReturns(body: readonly number[]): UetkxReturnSpan[]
         }
         const topLevel = braceDepth === 0;
         const markup = first < n && (body[first] === C_LT || body[first] === C_AT || (body[first] === C_LBRACE && topLevel));
+        // `return ( null );` — the render-nothing span, paren form (TB-28: family parity).
+        // Only `null` + ws inside the parens qualifies. C++-identical (CollectMarkupReturns).
+        const isNull = !markup && first < n && keywordAt(body, first, "null");
         const close = markup ? findMatchingMarkup(body, p) : findMatching(body, p);
         if (close === -1) {
           i++;
           continue;
         }
-        if (markup) {
-          out.push({ returnAt: i, mStart: p + 1, mEnd: close, afterParen: close + 1, topLevel, root: null });
+        if (markup || (isNull && skipWsOnly(body, first + 4) === close)) {
+          out.push({ returnAt: i, mStart: p + 1, mEnd: close, afterParen: close + 1, topLevel, isNull: !markup, root: null });
         }
         i = close + 1;
         continue;
+      }
+      // `return null ;` — the render-nothing span, bare form (TB-28). `null` is not a C++
+      // identifier, so this can ONLY mean the family's render-nothing literal; the `;` is
+      // required so a mid-edit `return null` prefix of a longer identifier stays plain code.
+      if (p < n && keywordAt(body, p, "null")) {
+        const semi = skipWsOnly(body, p + 4);
+        if (semi < n && body[semi] === 59 /*;*/) {
+          out.push({ returnAt: i, mStart: p, mEnd: p + 4, afterParen: p + 4, topLevel: braceDepth === 0, isNull: true, root: null });
+          i = semi + 1;
+          continue;
+        }
       }
       i += 6;
       continue;
@@ -1532,18 +1547,19 @@ function parseComponent(src: number[], ci: number, exported: boolean, out: Uetkx
   const jsxRanges = bodyJsxRanges(body);
   diagnoseBareMarkupReturn(body, jsxRanges, bodyAt, out);
   if (returns.length === 0) {
-    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return", ci, 9);
+    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return (or `return null;`)", ci, 9);
     return -1;
   }
   const final = returns[returns.length - 1];
   if (!final.topLevel) {
-    pushDiag(out, "UETKX3007", 0, "the component's final markup `return ( ... )` must be at the top level of the body", bodyAt + final.returnAt, 6);
+    pushDiag(out, "UETKX3007", 0, "the component's final `return ( ... )` / `return null;` must be at the top level of the body", bodyAt + final.returnAt, 6);
     return -1;
   }
   const setup = fromCodePoints(body, 0, final.returnAt);
   diagnoseUnreachableAfterReturn(body, returns, jsxRanges, bodyAt, out);
   let windowNodes: UetkxNode[] = [];
   for (const span of returns) {
+    if (span.isNull) continue; // render-nothing span — no markup window, root stays null
     const parsed = parseMarkup(body, span.mStart, span.mEnd);
     if (parsed.errorCode) {
       pushDiag(out, parsed.errorCode, 0, parsed.errorMsg, bodyAt + Math.max(0, parsed.errorAt));
@@ -1618,18 +1634,19 @@ function parseNewComponent(
   const jsxRanges = bodyJsxRanges(body);
   diagnoseBareMarkupReturn(body, jsxRanges, bodyAt, out);
   if (returns.length === 0) {
-    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return", declStart, 1);
+    pushDiag(out, "UETKX2101", 0, "component has no `return ( ... )` markup return (or `return null;`)", declStart, 1);
     return -1;
   }
   const final = returns[returns.length - 1];
   if (!final.topLevel) {
-    pushDiag(out, "UETKX3007", 0, "the component's final markup `return ( ... )` must be at the top level of the body", bodyAt + final.returnAt, 6);
+    pushDiag(out, "UETKX3007", 0, "the component's final `return ( ... )` / `return null;` must be at the top level of the body", bodyAt + final.returnAt, 6);
     return -1;
   }
   const setup = fromCodePoints(body, 0, final.returnAt);
   diagnoseUnreachableAfterReturn(body, returns, jsxRanges, bodyAt, out);
   let windowNodes: UetkxNode[] = [];
   for (const span of returns) {
+    if (span.isNull) continue; // render-nothing span — no markup window, root stays null
     const parsed = parseMarkup(body, span.mStart, span.mEnd);
     if (parsed.errorCode) {
       pushDiag(out, parsed.errorCode, 0, parsed.errorMsg, bodyAt + Math.max(0, parsed.errorAt));

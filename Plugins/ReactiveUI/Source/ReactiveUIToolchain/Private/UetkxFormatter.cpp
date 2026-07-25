@@ -742,10 +742,19 @@ namespace
 				Out += TEXT("\n"); // keep an authored blank line before `return (`
 			}
 		}
-		Out += Pad(1, State.O) + TEXT("return (\n");
-		// every window node in order — the render root plus any sibling comments (T2.1)
-		Out += FmtChildren(Decl.WindowNodes, 2, State);
-		Out += Pad(1, State.O) + TEXT(");\n");
+		if (!Decl.Returns.IsEmpty() && Decl.Returns.Last().bNull)
+		{
+			// `return null;` final (TB-28) — render-nothing has no window to format; the bare
+			// form is the canonical spelling (paren form canonicalizes to it).
+			Out += Pad(1, State.O) + TEXT("return null;\n");
+		}
+		else
+		{
+			Out += Pad(1, State.O) + TEXT("return (\n");
+			// every window node in order — the render root plus any sibling comments (T2.1)
+			Out += FmtChildren(Decl.WindowNodes, 2, State);
+			Out += Pad(1, State.O) + TEXT(");\n");
+		}
 		Out += TEXT("}\n");
 		return Out;
 	}

@@ -108,6 +108,45 @@ test("virtual C++ doc lifts a component setup block", () => {
   assert.ok(vd.text.includes("Doubled = Count * 2"), "setup body present");
 });
 
+test("TB-27: setup scaffold returns FRuiNode so early-return windows are legal C++", () => {
+  // Under a `void` scaffold EVERY early return (`return ( <X/> );`, `return (<></>);`)
+  // neutralized to `return ( __rui_rn );` — clangd's "void function should not return a
+  // value" on perfectly valid markup (owner-reported on the fragment shape, F5 round 16).
+  const source = [
+    "export FRuiNode SimpleCounter() {",
+    "\tauto [Count, Inc] = UseState<int32>(0);",
+    "",
+    "\treturn (<></>);",
+    "",
+    "\treturn (",
+    '\t\t<Border Padding="8">',
+    "\t\t\t<TextBlock Text={FText::AsNumber(Count)} />",
+    "\t\t</Border>",
+    "\t);",
+    "}",
+  ].join("\n");
+  const vd = buildVirtualCpp(source);
+  assert.ok(vd.text.includes("FRuiNode __rui_setup_SimpleCounter"), "scaffold returns FRuiNode, not void");
+  assert.ok(!vd.text.includes("void __rui_setup_"), "no void scaffold remains");
+  assert.ok(vd.text.includes("return (__rui_rn);"), "fragment early return neutralizes IN PLACE (legal now)");
+  assert.ok(/return __rui_rn;\n\}/.test(vd.text), "synthetic tail return closes every control path (no C4715)");
+});
+
+test("TB-28: `return null;` neutralizes to __rui_rn inside the setup scaffold", () => {
+  const source = [
+    "export FRuiNode Gate() {",
+    "\tif (Hidden) {",
+    "\t\treturn null;",
+    "\t}",
+    "\treturn ( <Spacer /> );",
+    "}",
+  ].join("\n");
+  const vd = buildVirtualCpp(source);
+  assert.ok(vd.text.includes("FRuiNode __rui_setup_Gate"), "scaffold returns FRuiNode");
+  assert.ok(vd.text.includes("return __rui_rn;\n\t}"), "the null token neutralizes in place (typed, legal)");
+  assert.ok(!/\breturn null;/.test(vd.text), "raw `null` never reaches clangd");
+});
+
 test("findCompileCommands returns null in an empty temp tree", () => {
   // os.tmpdir() has no compile_commands.json above it in practice; assert it does not throw and
   // returns a string-or-null (walk-up terminates at the filesystem root).
