@@ -402,56 +402,6 @@
       "name": "S5/es-modules 2327: duplicate `export default`",
       "input": "component Foo {\n\treturn ( <Spacer /> );\n}\ncomponent Bar {\n\treturn ( <Spacer /> );\n}\nexport default Foo;\nexport default Bar;\n",
       "expect": { "diags": ["UETKX2105", "UETKX2320", "UETKX2320", "UETKX2327"] }
-    },
-    {
-      "name": "return null: early render-nothing, bare form (TB-28 family parity)",
-      "input": "export FRuiNode Gate() {\n\tif (Hidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n",
-      "expect": {
-        "components": [{ "name": "Gate", "exported": true }],
-        "order": ["component:Gate"],
-        "diags": [],
-        "noError": true
-      }
-    },
-    {
-      "name": "return null: early render-nothing, paren form",
-      "input": "export FRuiNode Gate() {\n\tif (Hidden) {\n\t\treturn ( null );\n\t}\n\treturn ( <Spacer /> );\n}\n",
-      "expect": {
-        "components": [{ "name": "Gate", "exported": true }],
-        "order": ["component:Gate"],
-        "diags": [],
-        "noError": true
-      }
-    },
-    {
-      "name": "return null: null-only component renders nothing",
-      "input": "export FRuiNode Empty() {\n\treturn null;\n}\n",
-      "expect": {
-        "components": [{ "name": "Empty", "exported": true }],
-        "order": ["component:Empty"],
-        "diags": [],
-        "noError": true
-      }
-    },
-    {
-      "name": "return null: top-level null return makes later returns unreachable (0107)",
-      "input": "export FRuiNode Dead() {\n\treturn null;\n\treturn ( <Spacer /> );\n}\n",
-      "expect": {
-        "components": [{ "name": "Dead", "exported": true }],
-        "order": ["component:Dead"],
-        "diags": ["UETKX0107"],
-        "noError": true
-      }
-    },
-    {
-      "name": "return null: null-prefixed identifiers stay plain code (no span)",
-      "input": "export FRuiNode Guard() {\n\tif (X) {\n\t\treturn nullValue;\n\t}\n\treturn ( <Spacer /> );\n}\n",
-      "expect": {
-        "components": [{ "name": "Guard", "exported": true }],
-        "order": ["component:Guard"],
-        "diags": [],
-        "noError": true
-      }
     }
   ],
   "fileScanLeg": [
@@ -755,6 +705,56 @@
       "name": "ES combined: junk after the default comma is UETKX0303",
       "input": "import D, x from \"./x\"\nexport FRuiNode Foo() {\n\treturn ( <Spacer /> );\n}\n",
       "expect": { "diags": ["UETKX0303"] }
+    },
+    {
+      "name": "return null: early render-nothing, bare form (TB-28; per-leg — Unreal allows null-only, Godot guards-only, so the family-core tier waits on reconciliation)",
+      "input": "export FRuiNode Gate() {\n\tif (Hidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Gate", "exported": true }],
+        "order": ["component:Gate"],
+        "diags": [],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: early render-nothing, paren form",
+      "input": "export FRuiNode Gate() {\n\tif (Hidden) {\n\t\treturn ( null );\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Gate", "exported": true }],
+        "order": ["component:Gate"],
+        "diags": [],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: null-only component renders nothing",
+      "input": "export FRuiNode Empty() {\n\treturn null;\n}\n",
+      "expect": {
+        "components": [{ "name": "Empty", "exported": true }],
+        "order": ["component:Empty"],
+        "diags": [],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: top-level null return makes later returns unreachable (0107)",
+      "input": "export FRuiNode Dead() {\n\treturn null;\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Dead", "exported": true }],
+        "order": ["component:Dead"],
+        "diags": ["UETKX0107"],
+        "noError": true
+      }
+    },
+    {
+      "name": "return null: null-prefixed identifiers stay plain code (no span)",
+      "input": "export FRuiNode Guard() {\n\tif (X) {\n\t\treturn nullValue;\n\t}\n\treturn ( <Spacer /> );\n}\n",
+      "expect": {
+        "components": [{ "name": "Guard", "exported": true }],
+        "order": ["component:Guard"],
+        "diags": [],
+        "noError": true
+      }
     }
   ]
 }

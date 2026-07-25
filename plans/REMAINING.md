@@ -18,62 +18,29 @@
 > not regressions · LSP 94/94 + smoke PASSED · contract goldens 36/36 · all node gates green ·
 > TB-26 toast fix BUILT.
 
-## 1. The HMR field test — owner-driven, IN PROGRESS (blocks the release runway)
+## 1. The HMR field test — UE 5.6 COMPLETE; 5.7 + 5.8 legs remain (block the release runway)
 
 *(Protocol history in `archive/HMR_FIELD_TEST.md`. HMR v2 is a Start/Stop MODE:
 Window ▸ ReactiveUetkx Hot Reload, or `ReactiveUetkx.HMR.Start`/`.Stop`; status in
 MessageLog ▸ "ReactiveUI". Owner-only — Live Coding needs a running editor. A failure gets
 ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 
-Passed so far (owner, 2026-07-25): **8** (Stop → external build → restart), **9** (PIE
-stop/start under HMR), **5b** (same-name export across files — independent per-file edits
-confirmed). Verbally exercised across rounds 1–16 but never formally ticked: 1–7 — re-run
-any that feel unproven, in one sitting:
+- [x] **UE 5.6 — the full matrix PASSED** (owner declaration 2026-07-25, after the rounds
+      1–16 fix campaign): items 1–7 (plain/hook-order/hook-shape/cross-file/structural/
+      broken-save/recovery/debounce), 5b (same-name exports per-file), 8 (stop → external
+      build → restart), 9 (PIE cycle under HMR), and the 10-series file-manipulation legs
+      (create/copy/rename/delete/export-rename/born-outside-the-mode). Bugs found on the way
+      are ledgered as TB-19..TB-28 (all FIXED, pinned, built).
+- [ ] **UE 5.7 — repeat the matrix.** Engine payload needs REINSTALL first (folder shell
+      only). Then: stale-UHT clean (CLAUDE.md environment facts), build, battery, walk the
+      matrix. The owner's SimpleCounter/CounterBadge test files are KEPT in the working tree
+      for exactly this (they also explain the 3 known battery failures — Acceptance counts
+      46, Demos/Umg see the render-nothing early fragment return).
+- [ ] **UE 5.8 — repeat the matrix** (payload intact; same sequence).
 
-- [ ] **1. Plain edit, state preserved.** Drive `SimpleCounter` to a non-default count; edit
-      visible text/color, save. ✅ UI updates after the patch; the count SURVIVES.
-- [ ] **2. Hook-order-sensitive state.** `UseMemo`/`UseRef` before two `UseState`s; drive
-      both; cosmetic save. ✅ Both keep their values, no cross-seeding.
-- [ ] **2b. Hook-shape EDIT (TB-13).** Add/remove a hook call and save. ✅ MessageLog
-      `hook shape changed … state reset`; DEFAULT values, never a neighbor's.
-- [ ] **3. Cross-file: edit an IMPORTED component** (`LabCard`/`DemoContextPanel`). ✅ Every
-      user re-renders patched; importers' state survives.
-- [ ] **4. Structural edit** (add/remove a widget). ✅ Changed subtree remounts (its local
-      state resets — React semantics); siblings/ancestors keep state.
-- [ ] **5. Broken save while active** (typo + wrong-cased `slot.fill`). ✅ 0106/0112 live in
-      VS Code + MessageLog on sweep; UI keeps LAST GOOD; ONE Recent-Errors row growing
-      `(still failing ×N)`; counter drops to 0 on recovery.
-      ⚠ Known: the watcher deletes the `.uetkx.inl` on a failed markup compile — the next
-      good save regenerates it (never commit in that window).
-- [ ] **6. Fix the break, save again.** ✅ Patch lands, same state — the round-trip is free.
-- [ ] **7. Rapid saves (debounce).** 3–4 quick saves. ✅ One coherent final patch — and ONE
-      crisp toast updating its text in place (TB-26's fix, built 2026-07-25, needs eyes).
-
-File-manipulation legs (the watcher's Added/Removed/Rename paths; run each once WITH HMR
-active, spot-check 10a/10c with it stopped):
-
-- [ ] **10a. Create a new component file + wire it in** (`CounterBadge.uetkx` export →
-      import + render in SimpleCounter, save both). ✅ HMR on: sweep compiles BOTH, one
-      patch, badge appears live. HMR off: `.inl`s regenerate; nothing patches until
-      Ctrl+Alt+F11 + remount.
-- [ ] **10b. COPY a file (FILE_SCOPED_EXPORTS: now LEGAL).** Copy `SimpleCounter.style.uetkx`
-      → `SimpleCounterCopy.style.uetkx`. ✅ NO diagnostic (2106 retired); both compile clean.
-      Only importing the same name from both into ONE file without `as` errors (2303).
-      Delete the copy → clean sweep, orphan `.inl` removed. Bonus: renaming the copy
-      remounts its components (G-01 — identity is path-derived).
-- [ ] **10c. RENAME a file** without touching the import. ✅ Importer flags the dead
-      specifier live (2300/2302); sweep errors; UI keeps last good; fixing the specifier
-      recovers in one save.
-- [ ] **10d. DELETE an imported file.** ✅ Same failure shape live + sweep; orphan sweep
-      unregisters the dead component; removing import + usage recovers; no ghost tag left
-      in completion.
-- [ ] **10e. Rename an EXPORT (not the file)** without updating the importer. ✅ 2302 live
-      naming the exporter; recovery on either side in one save.
-- [ ] **10f. New file while HMR is STOPPED, then Start.** ✅ First save after Start patches
-      it in.
-
-**Done ⇒** note the session (date, engine version) in `PENDING_CHANGELOG.md`'s next drain
-and proceed to §2.
+**All three engines done ⇒** revert/finish the transient test files (battery back to
+132/132), note the sessions (dates, engine versions) in `PENDING_CHANGELOG.md`'s next
+drain, and proceed to §2.
 
 ## 2. Release runway (Phase 9 — in order, after §1)
 

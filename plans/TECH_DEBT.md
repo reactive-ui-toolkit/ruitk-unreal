@@ -914,18 +914,23 @@ referenced from plans/PRs.
   Remaining residual: multi-declarator second declarators, and locals visible AFTER a lambda
   whose parameter shadowed them (over-suppression, silent by design).
 
-## TD-035 — return-null corpus cases: sibling mirror sync (TB-28)
-- **Where:** `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` (5 fileScan
-  cases) + `uetkx-formatter-cases.json` (3 goldens) — the `fileScan` tier is familyCore
-  (byte-identical family-wide).
-- **What/why deferred:** TB-28 implemented `return null;` / `return ( null );` render-nothing
-  (component level) for family parity — the SEMANTIC came from Unity (HmrCSharpEmitter's
-  loop-inline rewrite + shipped samples), but the corpus CASES pinning it are new here and
-  must mirror per the grammar-contract skill (outbound corpus PR to Godot; flag Unity).
-  Also open: Unity rewrites `return null` → `continue;` INSIDE `@for` directive bodies — our
-  directive bodies are real C++ loops (authors write `continue;` directly), so this leg was
-  intentionally NOT implemented; revisit only if a shared corpus case ever exercises it.
-- **Production-grade resolution:** mirrored corpus PR merged in the Godot repo, Unity repo
-  flagged (their scanner should classify the same five cases), and a decision recorded on the
-  directive-body rewrite (implement or pin as `.pending` divergence).
-- **Status:** OPEN (2026-07-25)
+## TD-035 — return-null family reconciliation (TB-28)
+- **Where:** `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` (5 cases,
+  `fileScanLeg` per-leg tier) + `uetkx-formatter-cases.json` (3 goldens, not family-hashed).
+- **What/why deferred:** TB-28 implemented `return null;` / `return ( null );` render-nothing.
+  Family ground truth READ FROM THE SIBLING REPOS 2026-07-25: **Unity** — `return null` is
+  naturally legal C# everywhere (HmrCSharpEmitter rewrites it to `continue;` when inlining
+  loop bodies; shipped samples use it). **Godot** — `return null` is "the sanctioned
+  CONDITIONAL guard (top-level or nested)" (guitkx.gd `_split_return`, ~L2395) but a null
+  return can never be the CHOSEN render return, so a null-ONLY component ERRORS there.
+  **Unreal** now allows BOTH (React semantics: a component may always render nothing). The
+  cases were therefore placed in the PER-LEG corpus tier (their `export FRuiNode` heads are
+  per-leg grammar anyway) so the byte-identical familyCore hash is untouched — the 2026-07-25
+  drift was resolved by the tier move, not a re-pin. Also open: Unity's `return null` →
+  `continue;` INSIDE `@for` directive bodies — our directive bodies are real C++ loops
+  (authors write `continue;` directly), intentionally not implemented.
+- **Production-grade resolution:** a family decision on null-ONLY components (Godot adopts
+  React's allow, or Unreal pins `.pending`); guard-form cases promoted to familyCore with
+  legacy `component` heads once all three legs agree; directive-body rewrite decision
+  recorded.
+- **Status:** OPEN (2026-07-25) — no release blocker (per-leg tier; family hash matches).
