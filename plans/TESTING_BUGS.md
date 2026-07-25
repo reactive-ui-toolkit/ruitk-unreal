@@ -655,3 +655,31 @@ unit pins (`return {};` on all three shapes), ContractFixtures/ReturnNull.uetkx 
 with the next engine run), vdoc unit + smoke pins.
 
 **Status:** FIXED (LSP 94/94 + smoke; C++ battery pending the TB-26 build).
+
+## TB-29 — 5.7 link failure: SearchableComboBox's ToolWidgets dependency was never declared
+
+**Found:** 2026-07-25, first 5.7 build of the field-test campaign (also the FIRST 5.7 build
+since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of ReactiveUISlate.
+
+**Root cause:** `SSearchableComboBox` lives in `Developer/ToolWidgets` (verified identical in
+5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but ReactiveUISlate.Build.cs
+never listed the module. It "worked" everywhere until now because the adapter is
+version-gated `#if !UE_VERSION_OLDER_THAN(5, 7, 0)` — on 5.6 (every build since the widget
+shipped 2026-07-16) the adapter compiled out, and the last 5.7 battery (2026-07-14) predates
+the widget. The include resolved via a transitive public include path; the .lib was never on
+the link line.
+
+**Fix:** `ToolWidgets` added to PrivateDependencyModuleNames, gated to engine ≥ 5.7 —
+exactly mirroring the adapter's compile gate.
+
+**⚠ Open verification (packaging step, REMAINING §2):** ToolWidgets is a DEVELOPER module —
+confirm a 5.7+ SHIPPING packaging run links it on installed engines (bBuildDeveloperTools is
+false in Shipping). If it does not, the adapter needs a Shipping compile-out + a schema/
+diagnostic surface for shipping-absent widgets — an owner design decision, taken with that
+evidence, not preempted here.
+
+**Also discovered:** the UE 5.8 install is PARTIAL (Engine/Binaries present, Engine/Source
+absent) — the 5.8 field-test leg needs a launcher repair/reinstall first (the engine-catchup
+skill's "engine installs can be partial" scar, live again).
+
+**Status:** FIXED in Build.cs; 5.7 build re-running. Battery + matrix follow.

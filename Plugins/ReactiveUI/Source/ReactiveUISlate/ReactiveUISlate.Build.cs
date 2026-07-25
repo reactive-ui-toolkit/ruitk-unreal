@@ -30,5 +30,14 @@ public class ReactiveUISlate : ModuleRules
 			"AdvancedWidgets", // UE::ColorGrading::SColorGradingWheel (WIDGET_COMPLETION_PLAN wave 2)
 			"Engine",          // the game-viewport mount surface (UGameViewportClient)
 		});
+
+		// SSearchableComboBox (BATCH-3, sinceUE 5.7) lives in Developer/ToolWidgets; the adapter
+		// compiles out below 5.7 (RuiWidgetAdaptersB4.cpp version gate), so the dependency is
+		// gated identically. 5.6 linked WITHOUT this line only because the adapter never compiled
+		// there — the first real 5.7 build surfaced the undeclared dependency (TB-29).
+		if (Target.Version.MajorVersion > 5 || (Target.Version.MajorVersion == 5 && Target.Version.MinorVersion >= 7))
+		{
+			PrivateDependencyModuleNames.Add("ToolWidgets");
+		}
 	}
 }
