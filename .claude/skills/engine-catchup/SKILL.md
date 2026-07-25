@@ -60,10 +60,11 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
    widgets (`sinceUE`), `PAGE_VERSIONS` for new pages. The version dropdown, sidebar
    filtering, and the generated pages' `VersionBadge` all key off this file. Gate:
    docs `npm run build && npm run lint`.
-5. **CI matrix**: `.github/workflows/` engine matrix (`verify-engines` in publish.yml
-   reads `["5.6", "5.7", …]`) + the `test-run`/CLAUDE.md environment facts if the owner's
-   local default engine moves. Gate: armed engine legs green (or the local battery per
-   engine when CI is unarmed).
+5. **CI matrix + zip list**: `.github/workflows/publish.yml` has the version list in TWO
+   places that must move together — `verify-engines`' matrix AND the per-engine stamped-zip
+   loop in `release-plugin` (Route B, 2026-07-25); both carry KEEP-IN-SYNC comments. Also
+   the `test-run`/CLAUDE.md environment facts if the owner's local default engine moves.
+   Gate: armed engine legs green (or the local battery per engine when CI is unarmed).
 6. **Full battery on the NEW engine**: build + `RUICompile -check` + the full
    `ReactiveUI` suite against the new version (the `test-run` skill's ladder, pointing
    `<Engine>` at the new install). Bench re-run per `plans/BENCH_BASELINES.md` rules if

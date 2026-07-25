@@ -51,9 +51,14 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 1. ~~**Drain `PENDING_CHANGELOG.md`**~~ — ✅ DONE 2026-07-25: Lane A `[0.14.0]` + mirror,
    Lane B 13 shared bullets (extensions 0.8.0, extract+verify green), Lane C Discord entry
    (1868 chars); `bump.mjs` plugin 0.14.0 + vscode/vs2022/lsp-server 0.8.0.
-2. **Per-engine zips** (`scripts/package-plugin.ps1` per engine, `-StrictIncludes`) +
-   the **packaged-fidelity test** (fresh project, packaged plugin, banner + gallery
-   renders). Needs UE 5.7 reinstalled for its leg (owner removed the payload — see memory).
+2. ~~**Per-engine zips**~~ — ✅ CI-WIRED 2026-07-25 (Route B): publish.yml now produces
+   EngineVersion-STAMPED per-engine zips on the free Linux runner and attaches them to the
+   release (source-only — no engine needed); the armed engine legs (owner armed same day)
+   build strict (`-DisableUnity -NoPCH`) + run the battery per version in parallel. The
+   0.14.0 zips for 5.6/5.7 were ALSO built locally with full MSVC -StrictIncludes (both
+   green — TB-30 caught + fixed there). Remaining: the **packaged-fidelity test** (fresh
+   project, packaged plugin, banner + gallery renders) on the owner's current engine per
+   release; the residual MSVC-exact slice stays a local habit or a future Windows runner.
 3. **Fab listing + upload** (manual, owner; identity verification has lead time), rendered
    from `templates/fab-listing.template.md`; compliance items per D-29.
 4. **Demo video** (AI storyboards, owner records) + showcase copy — the Doom demo is the
@@ -78,9 +83,10 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       comments, embedded intel with non-ASCII in strings.
 - [ ] **Fresh-clone sanity** (v1 §G): clone → generate → build → battery on a second machine
       (or clean checkout).
-- [ ] **CI engine arming decision** (v2 §H): set `RUI_CI_ENGINE_ARMED=true` + `EPIC_GHCR_PAT`
-      and verify the armed leg, or consciously stay local-battery-only (current documented
-      state: unarmed).
+- [x] **CI engine arming** — ✅ ARMED by owner 2026-07-25 (`RUI_CI_ENGINE_ARMED=true` +
+      `EPIC_GHCR_PAT` set after GitHub↔Epic account link). Remaining: watch the FIRST armed
+      run go green (PR #41 re-run or the first publish) — image pulls are slow (tens of GB),
+      and a "denied" pull means the EpicGames org invite wasn't accepted.
 - [ ] **Owner setup:** re-add the branch ruleset with THIS repo's check names.
 - **Accessibility screen-reader pass** — DEFERRED by owner 2026-07-15 (no screen reader);
   docs stay softened to what is verified; revisit at/after v1.
