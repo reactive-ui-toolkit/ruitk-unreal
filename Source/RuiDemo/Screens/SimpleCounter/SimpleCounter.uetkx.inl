@@ -21,7 +21,7 @@ inline FRuiNode SimpleCounter(FSimpleCounterUetkxProps InProps = FSimpleCounterU
 #else
 namespace RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
 {
-static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+static FRuiNodeArray SimpleCounter_UetkxBody_821B1C34(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
 {
 #line 5 "Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"
 	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, RUI::Deps());
@@ -90,6 +90,10 @@ static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCoun
 	}());
 		return RUI::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuiKey());
 	}() };
+}
+static FRuiNodeArray SimpleCounter_UetkxImpl(FRuiContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuiNode>& children)
+{
+	return SimpleCounter_UetkxBody_821B1C34(Ctx, Props, children);
 }
 static const FName GSimpleCounterUetkxId = RUI::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
 static constexpr uint32 SimpleCounter_RUI_HOOK_SIG = 0x986DF5F6u;
