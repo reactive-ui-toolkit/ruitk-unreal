@@ -61,9 +61,11 @@ jobs:
 
   # The plugin release: tag v<VersionName> + GitHub Release whose body is the top `## [`
   # section of CHANGELOG.md. ALWAYS attaches the Fab-uploadable SOURCE zip (Plugins/ReactiveUI minus
-  # build artifacts — Fab's reviewers build the binaries with Epic's toolchain). Engine-armed runs
-  # additionally attach per-engine validated zips via verify-engines; unarmed runs (the default) note
-  # that engine-validated per-engine zips come from the local rail (scripts/package-plugin.ps1).
+  # build artifacts — Fab's reviewers build the binaries with Epic's toolchain) PLUS one
+  # EngineVersion-STAMPED per-engine zip per supported version (Route B, 2026-07-25: the zips are
+  # source-only, so producing them needs no engine — compile CONFIDENCE comes from the armed
+  # verify-engines legs below; the residual MSVC-exact slice is the local
+  # scripts/package-plugin.ps1 run on the owner's current dev engine).
   release-plugin:
     runs-on: ubuntu-latest
     outputs:
@@ -99,8 +101,8 @@ jobs:
         if: steps.tagcheck.outputs.new_tag == 'true'
         run: |
           awk '/^## \[/{n++} n==1' CHANGELOG.md > /tmp/release-body.md
-          printf '\n---\n_The attached `ReactiveUI-%s.zip` is the plugin **source** — upload it to Fab (Epic builds the binaries). For an engine-VALIDATED per-engine zip, run `scripts/package-plugin.ps1` locally (engine CI unarmed by default)._\n' "${{ steps.ver.outputs.version }}" >> /tmp/release-body.md
-      - name: Package the Fab-uploadable source zip
+          printf '\n---\n_`ReactiveUI-%s.zip` is the plugin **source**; the `-UE<ver>.zip` assets are the same source with the matching `EngineVersion` pre-stamped — upload those to Fab per engine version (Epic builds the binaries). Compile verification per engine runs in this workflow'"'"'s engine legs when armed._\n' "${{ steps.ver.outputs.version }}" >> /tmp/release-body.md
+      - name: Package the Fab-uploadable source zip + per-engine stamped zips
         if: steps.tagcheck.outputs.new_tag == 'true'
         run: |
           mkdir -p dist
@@ -110,7 +112,24 @@ jobs:
           (cd Plugins && zip -r "$GITHUB_WORKSPACE/dist/ReactiveUI-${{ steps.ver.outputs.version }}.zip" ReactiveUI \
              -x 'ReactiveUI/Binaries/*' -x 'ReactiveUI/Intermediate/*' -x '*.uetkx.diags.json' -x '*/.git*')
           echo "Packaged: dist/ReactiveUI-${{ steps.ver.outputs.version }}.zip"
-      - name: Tag + GitHub Release (with the Fab source zip attached)
+          # Route B (2026-07-25): per-engine zips are the SAME source with ONE stamped line —
+          # the dev .uplugin deliberately carries NO EngineVersion (a pin is a hard compat gate,
+          # engine-catchup scar); packaging stamps it per zip, exactly what Fab's per-engine
+          # upload wants. KEEP THIS LIST IN SYNC with verify-engines' matrix below (and
+          # engine-tests users) — the engine-catchup skill's checklist updates both.
+          for ENG in 5.6 5.7 5.8; do
+            STAGE="$(mktemp -d)"
+            cp -r Plugins/ReactiveUI "$STAGE/ReactiveUI"
+            rm -rf "$STAGE/ReactiveUI/Binaries" "$STAGE/ReactiveUI/Intermediate"
+            find "$STAGE/ReactiveUI" -name '*.uetkx.diags.json' -delete
+            jq --arg v "$ENG.0" '.EngineVersion = $v' "$STAGE/ReactiveUI/ReactiveUI.uplugin" \
+              > "$STAGE/ReactiveUI/ReactiveUI.uplugin.tmp"
+            mv "$STAGE/ReactiveUI/ReactiveUI.uplugin.tmp" "$STAGE/ReactiveUI/ReactiveUI.uplugin"
+            (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip" ReactiveUI)
+            rm -rf "$STAGE"
+            echo "Packaged: dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip (EngineVersion $ENG.0)"
+          done
+      - name: Tag + GitHub Release (source zip + per-engine stamped zips attached)
         if: steps.tagcheck.outputs.new_tag == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -122,7 +141,7 @@ jobs:
           git push origin "$TAG"
           gh release create "$TAG" --title "ReactiveUI for Unreal ${{ steps.ver.outputs.version }}" \
             --notes-file /tmp/release-body.md \
-            "dist/ReactiveUI-${{ steps.ver.outputs.version }}.zip"
+            dist/ReactiveUI-*.zip
 
   # Pre-release engine verification + packaged per-engine zips — armed runs only. Reuses the SAME
   # engine workflow test.yml uses (one definition, no drift). Zip packaging on the Windows
@@ -134,6 +153,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # KEEP IN SYNC with the per-engine zip loop in release-plugin above (Route B) —
+        # the engine-catchup skill's checklist updates both when a version is added.
         engine: ["5.6", "5.7", "5.8"]
     uses: ./.github/workflows/engine-tests.yml
     with:

@@ -66,3 +66,6 @@ ReactiveUIUnrealDemo.code-workspace
 
 # vs2022 overview.md is GENERATED at publish time from overview-template.md (see release-process)
 ide-extensions/visual-studio/UetkxVsix/overview.md
+
+# Per-engine packaging output (scripts/package-plugin.ps1 + publish.yml) — zips + staging trees
+/dist/
