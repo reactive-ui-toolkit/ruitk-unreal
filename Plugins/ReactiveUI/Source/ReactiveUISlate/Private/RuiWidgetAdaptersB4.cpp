@@ -212,7 +212,8 @@ namespace
 		Slot.SetSizingRule(bSizeToContent ? SSplitter::SizeToContent : SSplitter::FractionOfParent);
 		Slot.SetSizeValue(Value != nullptr ? RUI::Slate::SlotValue::AsFloat(*Value) : 1.0f);
 		Slot.SetMinSize(MinSize != nullptr ? RUI::Slate::SlotValue::AsFloat(*MinSize) : 20.0f);
-		Slot.SetResizable(Resizable == nullptr || RUI::Slate::SlotValue::AsBool(*Resizable, true)); // R11: parses "false"
+		Slot.SetResizable(Resizable == nullptr ||
+						  RUI::Slate::SlotValue::AsBool(*Resizable, true)); // R11: parses "false"
 	}
 } // namespace
 

@@ -149,13 +149,16 @@ REACTIVEUICORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
 #else
 #define RUI_CELL_SIG __PRETTY_FUNCTION__
 #endif
-#define RUI_HOOK_CELL_TYPE()                                                                     \
-	static uint32 StaticTypeHash()                                                               \
-	{                                                                                            \
-		static const uint32 CellTypeHash = FCrc::StrCrc32(RUI_CELL_SIG);                         \
-		return CellTypeHash;                                                                     \
-	}                                                                                            \
-	virtual uint32 TypeHash() const override { return StaticTypeHash(); }
+#define RUI_HOOK_CELL_TYPE()                                                                                           \
+	static uint32 StaticTypeHash()                                                                                     \
+	{                                                                                                                  \
+		static const uint32 CellTypeHash = FCrc::StrCrc32(RUI_CELL_SIG);                                               \
+		return CellTypeHash;                                                                                           \
+	}                                                                                                                  \
+	virtual uint32 TypeHash() const override                                                                           \
+	{                                                                                                                  \
+		return StaticTypeHash();                                                                                       \
+	}
 
 struct IRuiHookCell
 {

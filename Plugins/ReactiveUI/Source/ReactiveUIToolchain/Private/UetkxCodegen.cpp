@@ -524,12 +524,12 @@ namespace
 	// beyond this list; the CASING of the canon spellings is enforced (UETKX0112).
 	const TArray<FString>& SlotKeyCanon()
 	{
-		static const TArray<FString> Keys = {
-			TEXT("Slot.Padding"),  TEXT("Slot.HAlign"),	  TEXT("Slot.VAlign"),	 TEXT("Slot.Fill"),
-			TEXT("Slot.ZOrder"),   TEXT("Slot.Position"), TEXT("Slot.Size"),	 TEXT("Slot.Offset"),
-			TEXT("Slot.Anchors"),  TEXT("Slot.Alignment"), TEXT("Slot.AutoSize"), TEXT("Slot.Role"),
-			TEXT("Slot.SizeRule"), TEXT("Slot.SizeValue"), TEXT("Slot.MinSize"),  TEXT("Slot.Resizable"),
-			TEXT("Slot.Column"),   TEXT("Slot.Row")};
+		static const TArray<FString> Keys = {TEXT("Slot.Padding"),	 TEXT("Slot.HAlign"),	 TEXT("Slot.VAlign"),
+											 TEXT("Slot.Fill"),		 TEXT("Slot.ZOrder"),	 TEXT("Slot.Position"),
+											 TEXT("Slot.Size"),		 TEXT("Slot.Offset"),	 TEXT("Slot.Anchors"),
+											 TEXT("Slot.Alignment"), TEXT("Slot.AutoSize"),	 TEXT("Slot.Role"),
+											 TEXT("Slot.SizeRule"),	 TEXT("Slot.SizeValue"), TEXT("Slot.MinSize"),
+											 TEXT("Slot.Resizable"), TEXT("Slot.Column"),	 TEXT("Slot.Row")};
 		return Keys;
 	}
 
@@ -621,8 +621,7 @@ namespace
 			 {TEXT("leftToRight"), TEXT("rightToLeft"), TEXT("fillFromCenter"), TEXT("fillFromCenterHorizontal"),
 			  TEXT("fillFromCenterVertical"), TEXT("topToBottom"), TEXT("bottomToTop")}},
 			{TEXT("AlphaDisplayMode"), {TEXT("combined"), TEXT("separate"), TEXT("ignore")}},
-			{TEXT("KeyboardType"),
-			 {TEXT("default"), TEXT("number"), TEXT("web"), TEXT("email"), TEXT("password")}},
+			{TEXT("KeyboardType"), {TEXT("default"), TEXT("number"), TEXT("web"), TEXT("email"), TEXT("password")}},
 			{TEXT("Placement"),
 			 {TEXT("belowAnchor"), TEXT("comboBox"), TEXT("belowRightAnchor"), TEXT("aboveAnchor"),
 			  TEXT("centeredAboveAnchor"), TEXT("centeredBelowAnchor"), TEXT("menuLeft"), TEXT("menuRight"),
@@ -1147,26 +1146,37 @@ namespace
 	 *  get a `_` prefix; an empty segment becomes `_`. Casing is preserved verbatim. */
 	FString SanitizeNsSegment(const FString& In)
 	{
-		static const TSet<FString> CppKeywords = {
-			TEXT("alignas"),	  TEXT("alignof"),	   TEXT("and"),			 TEXT("and_eq"),   TEXT("asm"),
-			TEXT("auto"),		  TEXT("bitand"),	   TEXT("bitor"),		 TEXT("bool"),	   TEXT("break"),
-			TEXT("case"),		  TEXT("catch"),	   TEXT("char"),		 TEXT("char8_t"),  TEXT("char16_t"),
-			TEXT("char32_t"),	  TEXT("class"),	   TEXT("compl"),		 TEXT("concept"),  TEXT("const"),
-			TEXT("consteval"),	  TEXT("constexpr"),   TEXT("constinit"),	 TEXT("const_cast"),
-			TEXT("continue"),	  TEXT("co_await"),	   TEXT("co_return"),	 TEXT("co_yield"), TEXT("decltype"),
-			TEXT("default"),	  TEXT("delete"),	   TEXT("do"),			 TEXT("double"),   TEXT("dynamic_cast"),
-			TEXT("else"),		  TEXT("enum"),		   TEXT("explicit"),	 TEXT("export"),   TEXT("extern"),
-			TEXT("false"),		  TEXT("float"),	   TEXT("for"),			 TEXT("friend"),   TEXT("goto"),
-			TEXT("if"),			  TEXT("inline"),	   TEXT("int"),			 TEXT("long"),	   TEXT("mutable"),
-			TEXT("namespace"),	  TEXT("new"),		   TEXT("noexcept"),	 TEXT("not"),	   TEXT("not_eq"),
-			TEXT("nullptr"),	  TEXT("operator"),	   TEXT("or"),			 TEXT("or_eq"),	   TEXT("private"),
-			TEXT("protected"),	  TEXT("public"),	   TEXT("register"),	 TEXT("reinterpret_cast"),
-			TEXT("requires"),	  TEXT("return"),	   TEXT("short"),		 TEXT("signed"),   TEXT("sizeof"),
-			TEXT("static"),		  TEXT("static_assert"), TEXT("static_cast"), TEXT("struct"),  TEXT("switch"),
-			TEXT("template"),	  TEXT("this"),		   TEXT("thread_local"), TEXT("throw"),	   TEXT("true"),
-			TEXT("try"),		  TEXT("typedef"),	   TEXT("typeid"),		 TEXT("typename"), TEXT("union"),
-			TEXT("unsigned"),	  TEXT("using"),	   TEXT("virtual"),		 TEXT("void"),	   TEXT("volatile"),
-			TEXT("wchar_t"),	  TEXT("while"),	   TEXT("xor"),			 TEXT("xor_eq")};
+		static const TSet<FString> CppKeywords = {TEXT("alignas"),		 TEXT("alignof"),	  TEXT("and"),
+												  TEXT("and_eq"),		 TEXT("asm"),		  TEXT("auto"),
+												  TEXT("bitand"),		 TEXT("bitor"),		  TEXT("bool"),
+												  TEXT("break"),		 TEXT("case"),		  TEXT("catch"),
+												  TEXT("char"),			 TEXT("char8_t"),	  TEXT("char16_t"),
+												  TEXT("char32_t"),		 TEXT("class"),		  TEXT("compl"),
+												  TEXT("concept"),		 TEXT("const"),		  TEXT("consteval"),
+												  TEXT("constexpr"),	 TEXT("constinit"),	  TEXT("const_cast"),
+												  TEXT("continue"),		 TEXT("co_await"),	  TEXT("co_return"),
+												  TEXT("co_yield"),		 TEXT("decltype"),	  TEXT("default"),
+												  TEXT("delete"),		 TEXT("do"),		  TEXT("double"),
+												  TEXT("dynamic_cast"),	 TEXT("else"),		  TEXT("enum"),
+												  TEXT("explicit"),		 TEXT("export"),	  TEXT("extern"),
+												  TEXT("false"),		 TEXT("float"),		  TEXT("for"),
+												  TEXT("friend"),		 TEXT("goto"),		  TEXT("if"),
+												  TEXT("inline"),		 TEXT("int"),		  TEXT("long"),
+												  TEXT("mutable"),		 TEXT("namespace"),	  TEXT("new"),
+												  TEXT("noexcept"),		 TEXT("not"),		  TEXT("not_eq"),
+												  TEXT("nullptr"),		 TEXT("operator"),	  TEXT("or"),
+												  TEXT("or_eq"),		 TEXT("private"),	  TEXT("protected"),
+												  TEXT("public"),		 TEXT("register"),	  TEXT("reinterpret_cast"),
+												  TEXT("requires"),		 TEXT("return"),	  TEXT("short"),
+												  TEXT("signed"),		 TEXT("sizeof"),	  TEXT("static"),
+												  TEXT("static_assert"), TEXT("static_cast"), TEXT("struct"),
+												  TEXT("switch"),		 TEXT("template"),	  TEXT("this"),
+												  TEXT("thread_local"),	 TEXT("throw"),		  TEXT("true"),
+												  TEXT("try"),			 TEXT("typedef"),	  TEXT("typeid"),
+												  TEXT("typename"),		 TEXT("union"),		  TEXT("unsigned"),
+												  TEXT("using"),		 TEXT("virtual"),	  TEXT("void"),
+												  TEXT("volatile"),		 TEXT("wchar_t"),	  TEXT("while"),
+												  TEXT("xor"),			 TEXT("xor_eq")};
 		FString S = In;
 		for (int32 i = 0; i < S.Len(); ++i)
 		{
@@ -1232,7 +1242,6 @@ namespace
 		FString DeclPhase;
 		FString BodyPhase;
 	};
-
 
 	/** Re-indent a verbatim user region: insert a tab after every newline that is OUTSIDE a
 	 *  string/char/raw-string/comment token, so re-indentation never mutates multi-line string-literal
@@ -1546,8 +1555,8 @@ namespace
 					  int32 TrueOrigin = -1);
 
 		const FString& Basename;
-		const FString& FileNs;					   // this FILE's namespace (FILE_SCOPED_EXPORTS — runtime id qualifier)
-		const FString& BodyHash;				   // TB-23: content hash — unique lambda manglings per generation
+		const FString& FileNs;	 // this FILE's namespace (FILE_SCOPED_EXPORTS — runtime id qualifier)
+		const FString& BodyHash; // TB-23: content hash — unique lambda manglings per generation
 		const FUetkxComponentDecl& Decl;
 		TArray<FUetkxDiag>& Diags;
 		TSet<FString>& Uses;					   // component tags this component references (aggregator topo order)
@@ -1779,8 +1788,7 @@ namespace
 					else if (Attr.Kind == EUetkxAttrKind::Bool)
 					{
 						const FString* FlagKind = StyleSlotKinds().Find(Attr.Name);
-						if (AttrEnums().Contains(Attr.Name) ||
-							(FlagKind != nullptr && *FlagKind != TEXT("bool")))
+						if (AttrEnums().Contains(Attr.Name) || (FlagKind != nullptr && *FlagKind != TEXT("bool")))
 						{
 							Fail(TEXT("UETKX0106"),
 								 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
@@ -1909,8 +1917,8 @@ namespace
 					if (const TArray<FString>* Vocab = FailedAttrEnum(Attr.Name, Attr.Value))
 					{
 						Fail(TEXT("UETKX0106"),
-							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
-											 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
+							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value, *Attr.Name,
+											 *FString::Join(*Vocab, TEXT(" | "))),
 							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
@@ -1928,8 +1936,7 @@ namespace
 					// R11: the flag form (= true) only fits bool-kind keys; on an enum or typed
 					// key the runtime would read that true back as a 0/default silently.
 					const FString* FlagKind = StyleSlotKinds().Find(Attr.Name);
-					if (AttrEnums().Contains(Attr.Name) ||
-						(FlagKind != nullptr && *FlagKind != TEXT("bool")))
+					if (AttrEnums().Contains(Attr.Name) || (FlagKind != nullptr && *FlagKind != TEXT("bool")))
 					{
 						Fail(TEXT("UETKX0106"),
 							 FString::Printf(TEXT("flag form assigns true — %s takes a %s value"), *Attr.Name,
@@ -1999,8 +2006,8 @@ namespace
 					if (const TArray<FString>* Vocab = FailedAttrEnum(Attr.Name, Attr.Value))
 					{
 						Fail(TEXT("UETKX0106"),
-							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value,
-											 *Attr.Name, *FString::Join(*Vocab, TEXT(" | "))),
+							 FString::Printf(TEXT("invalid value '%s' for %s — one of: %s"), *Attr.Value, *Attr.Name,
+											 *FString::Join(*Vocab, TEXT(" | "))),
 							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
@@ -2010,9 +2017,8 @@ namespace
 						!EnvironmentBrushes().LowerNames.Contains(Attr.Value.ToLower()))
 					{
 						Fail(TEXT("UETKX0106"),
-							 FString::Printf(
-								 TEXT("invalid value '%s' for %s — not a brush registered in FCoreStyle"),
-								 *Attr.Value, *Attr.Name),
+							 FString::Printf(TEXT("invalid value '%s' for %s — not a brush registered in FCoreStyle"),
+											 *Attr.Value, *Attr.Name),
 							 AbsAt + Attr.At, Attr.Name.Len());
 						continue;
 					}
@@ -2080,8 +2086,7 @@ namespace
 		//   fiber, the duplicate remounts as new — state loss with no diagnostic).
 		//   0111 — slot keys the parent's slot-apply never reads: dropped in total silence.
 		{
-			const TArray<FString>* Consumed =
-				ParentTag.IsEmpty() ? nullptr : SlotConsumption().Find(ParentTag);
+			const TArray<FString>* Consumed = ParentTag.IsEmpty() ? nullptr : SlotConsumption().Find(ParentTag);
 			TSet<FString> SeenKeys;
 			for (const TSharedPtr<FUetkxNode>& ChildPtr : Children)
 			{
@@ -2116,8 +2121,8 @@ namespace
 								 ? FString::Printf(TEXT("%s is ignored — <%s> passes no slot properties to "
 														"its child"),
 												   *Attr.Name, *ParentTag)
-								 : FString::Printf(TEXT("%s is ignored by <%s> — it reads: %s"), *Attr.Name,
-												   *ParentTag, *FString::Join(*Consumed, TEXT(" | "))),
+								 : FString::Printf(TEXT("%s is ignored by <%s> — it reads: %s"), *Attr.Name, *ParentTag,
+												   *FString::Join(*Consumed, TEXT(" | "))),
 							 AbsAt + Attr.At, Attr.Name.Len());
 					}
 				}
@@ -2328,10 +2333,10 @@ namespace
 		//   first-cut TB-23 hashed the impl itself and froze HMR exactly that way).
 		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl"), *Decl.Name);
 		const FString BodyName = FString::Printf(TEXT("%s_UetkxBody_%s"), *Decl.Name, *BodyHash);
-		FString Impl = FString::Printf(
-			TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
-				 "children)\n{\n"),
-			*BodyName, *PropsType);
+		FString Impl =
+			FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
+								 "children)\n{\n"),
+							*BodyName, *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
 		{
 			Impl += FString::Printf(TEXT("\tconst auto& %s = Props.%s;\n"), *Param.Name, *Param.Name);
@@ -2350,10 +2355,9 @@ namespace
 					SrcLineOfRegion(Decl.Setup, Decl.SetupAt, Line), Line);
 			}
 			// `return null;` (TB-28) — render nothing: an empty node array reconciles to zero children.
-			Impl += Decl.Returns.Last().bNull
-						? FString(TEXT("\treturn {};\n}\n"))
-						: FString::Printf(TEXT("\treturn { %s };\n}\n"),
-										  *EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
+			Impl += Decl.Returns.Last().bNull ? FString(TEXT("\treturn {};\n}\n"))
+											  : FString::Printf(TEXT("\treturn { %s };\n}\n"),
+																*EmitNodeExpr(*Decl.Root, Decl.BodyAt, Decl.BodyAt));
 		}
 		else
 		{
@@ -2587,8 +2591,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 				continue;
 			}
 			const FString TargetLabel = Resolver->LabelForKey(Key);
-			const FString TargetNs =
-				FileNamespaceFor(TargetLabel, FPaths::GetBaseFilename(Key)) + TEXT("::");
+			const FString TargetNs = FileNamespaceFor(TargetLabel, FPaths::GetBaseFilename(Key)) + TEXT("::");
 			// No exclusive branching — an ES COMBINED import (`import Def, { A as B } from` /
 			// `import Def, * as X from`) carries default + named/star parts in one declaration and
 			// EVERY part must land in the plane.
@@ -2613,9 +2616,8 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 				if (!DefName.IsEmpty())
 				{
 					const FUetkxTargetDecl* TD = TargetDecls.Find(DefName);
-					Aliases.Bindings.Add(
-						Imp.DefaultAlias,
-						{DefName, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
+					Aliases.Bindings.Add(Imp.DefaultAlias,
+										 {DefName, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
 				}
 			}
 			for (int32 n = 0; n < Imp.Names.Num(); ++n)
@@ -2624,8 +2626,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 				const FString Local =
 					Imp.LocalNames.IsValidIndex(n) && !Imp.LocalNames[n].IsEmpty() ? Imp.LocalNames[n] : Target;
 				const FUetkxTargetDecl* TD = TargetDecls.Find(Target);
-				Aliases.Bindings.Add(Local,
-									 {Target, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
+				Aliases.Bindings.Add(Local, {Target, TargetNs, TD != nullptr && TD->Kind == EUetkxDeclKind::Value});
 			}
 		}
 	}

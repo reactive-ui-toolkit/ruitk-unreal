@@ -99,7 +99,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 	bActive = true;
 	bDirtyAgain = false;
 	RUI::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
-	StartConsoleHider(); // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
+	StartConsoleHider();		   // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
 	return true;
@@ -292,19 +292,18 @@ void FUetkxHmrController::NotifyCodegen(int32 NumChanged, int32 NumErrors, const
 		if (Reason == LastErrorReason && NumErrors == LastErrorCount && RecentErrors.Num() > 0)
 		{
 			++ErrorRepeat;
-			RecentErrors[0] = {FDateTime::Now().ToString(TEXT("%H:%M")),
-							   FString::Printf(TEXT("%s — %d error(s) (still failing ×%d)"), *Reason, NumErrors,
-											   ErrorRepeat)};
+			RecentErrors[0] = {
+				FDateTime::Now().ToString(TEXT("%H:%M")),
+				FString::Printf(TEXT("%s — %d error(s) (still failing ×%d)"), *Reason, NumErrors, ErrorRepeat)};
 		}
 		else
 		{
 			LastErrorReason = Reason;
 			LastErrorCount = NumErrors;
 			ErrorRepeat = 1;
-			RecentErrors.Insert(
-				{FDateTime::Now().ToString(TEXT("%H:%M")),
-				 FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
-				0);
+			RecentErrors.Insert({FDateTime::Now().ToString(TEXT("%H:%M")),
+								 FString::Printf(TEXT("%s — %d error(s)"), *Reason, NumErrors)},
+								0);
 			constexpr int32 MaxRecent = 20;
 			if (RecentErrors.Num() > MaxRecent)
 			{
@@ -365,10 +364,9 @@ void FUetkxHmrController::OnPatchComplete()
 		   Status.Swaps);
 	if (GetDefault<UReactiveUetkxEditorSettings>()->bShowNotifications)
 	{
-		const FText Message = FText::FromString(
-			FString::Printf(TEXT("HMR: patched %s (%.0f ms), %d total"),
-							Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs,
-							Status.Swaps));
+		const FText Message = FText::FromString(FString::Printf(
+			TEXT("HMR: patched %s (%.0f ms), %d total"),
+			Status.LastReason.IsEmpty() ? TEXT("live UI") : *Status.LastReason, Status.LastMs, Status.Swaps));
 		// TB-26: COALESCE — rapid saves stacked one fading toast per patch (a blurry smear).
 		// Reuse the live toast: update its text and restart the expire countdown; spawn a new
 		// one only when the previous has fully faded out.

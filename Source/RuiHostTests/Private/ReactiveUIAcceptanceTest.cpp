@@ -81,7 +81,7 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 		// HostImportProof INCLUDE_RETIREMENT_PLAN.md §B).
 		TestEqual(TEXT("1. all 45 swept .uetkx files (gallery + interop + cycle + children + grammar proof + "
 					   "SimpleCounter.style — the HMR value-companion, R16 — and the LabScopeProof pair: "
-				   "the compiled default-import + ~/ + dual same-name-export proof, FILE_SCOPED_EXPORTS)"),
+					   "the compiled default-import + ~/ + dual same-name-export proof, FILE_SCOPED_EXPORTS)"),
 				  Drift.Total, 45);
 	}
 

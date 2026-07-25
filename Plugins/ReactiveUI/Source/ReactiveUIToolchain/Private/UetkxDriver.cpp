@@ -1078,8 +1078,8 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 			}
 			else
 			{
-				UE_LOG(LogRuiToolchain, Verbose,
-					   TEXT("%s: standing compile error (unchanged, already reported)"), *R.UetkxPath);
+				UE_LOG(LogRuiToolchain, Verbose, TEXT("%s: standing compile error (unchanged, already reported)"),
+					   *R.UetkxPath);
 			}
 		}
 		else if (R.bOk)

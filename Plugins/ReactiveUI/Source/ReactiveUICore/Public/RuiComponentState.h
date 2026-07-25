@@ -60,10 +60,11 @@ public:
 	FRuiChildren LastOutput;
 
 	// --- dev diagnostics (rui.HookValidation) ---
-	TArray<ERuiHookKind> HookLog;		 // this render (transient)
-	uint32 HmrGenerationStamp = 0;		 // TB-13: the HMR generation this state last rendered under
-	TArray<ERuiHookKind> HmrShapeSnapshot; // TB-13: the PREVIOUS render's shape (validation's
-										   // HookSignatures stays first-primed to keep nagging — two consumers, two baselines)
+	TArray<ERuiHookKind> HookLog;  // this render (transient)
+	uint32 HmrGenerationStamp = 0; // TB-13: the HMR generation this state last rendered under
+	TArray<ERuiHookKind>
+		HmrShapeSnapshot; // TB-13: the PREVIOUS render's shape (validation's
+						  // HookSignatures stays first-primed to keep nagging — two consumers, two baselines)
 	TArray<ERuiHookKind> HookSignatures; // primed first render
 	bool bHookOrderPrimed = false;
 	TSet<FName> DiagWarned; // warn-once keys
@@ -160,7 +161,8 @@ template <typename T> void TRuiSetter<T>::operator()(T NewValue) const
 {
 	TSharedPtr<FRuiComponentState> S = State.Pin();
 	if (!S.IsValid() || Slot >= S->Hooks.Num() ||
-		S->Hooks[Slot]->TypeHash() != TRuiStateCell<T>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late calls [audit C3]
+		S->Hooks[Slot]->TypeHash() !=
+			TRuiStateCell<T>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late calls [audit C3]
 	{
 		return;
 	}

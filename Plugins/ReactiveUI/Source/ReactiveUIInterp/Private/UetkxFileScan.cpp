@@ -1271,8 +1271,8 @@ namespace
 			const bool bAliased = Imp.LocalNames.IsValidIndex(idx) && !Imp.LocalNames[idx].IsEmpty() &&
 								  Imp.LocalNames[idx] != Imp.Names[idx];
 			const FString& Bound = bAliased ? Imp.LocalNames[idx] : Imp.Names[idx];
-			const int32 BoundAt = bAliased && Imp.LocalNameAts.IsValidIndex(idx) ? Imp.LocalNameAts[idx]
-																				 : Imp.NameAts[idx];
+			const int32 BoundAt =
+				bAliased && Imp.LocalNameAts.IsValidIndex(idx) ? Imp.LocalNameAts[idx] : Imp.NameAts[idx];
 			if (const FString* Prev = ImportedFrom.Find(Bound))
 			{
 				AddDiag(Out.Diags, TEXT("UETKX2303"), 0,
@@ -1281,10 +1281,10 @@ namespace
 			}
 			else if (ThisImport.Contains(Bound))
 			{
-				AddDiag(
-					Out.Diags, TEXT("UETKX2303"), 0,
-					FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound, *Imp.Specifier),
-					BoundAt, Bound.Len());
+				AddDiag(Out.Diags, TEXT("UETKX2303"), 0,
+						FString::Printf(TEXT("duplicate import of `%s` (already imported from %s)"), *Bound,
+										*Imp.Specifier),
+						BoundAt, Bound.Len());
 			}
 			else
 			{
@@ -1578,9 +1578,10 @@ namespace
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
-			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
-					BodyAt + Decl.Returns.Last().ReturnAt, 6);
+			AddDiag(
+				Out.Diags, TEXT("UETKX3007"), 0,
+				TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
+				BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
 		const FUetkxReturnSpan& Final = Decl.Returns.Last();
@@ -1696,9 +1697,10 @@ namespace
 		}
 		if (!Decl.Returns.Last().bTopLevel)
 		{
-			AddDiag(Out.Diags, TEXT("UETKX3007"), 0,
-					TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
-					BodyAt + Decl.Returns.Last().ReturnAt, 6);
+			AddDiag(
+				Out.Diags, TEXT("UETKX3007"), 0,
+				TEXT("the component's final `return ( ... )` / `return null;` must be at the top level of the body"),
+				BodyAt + Decl.Returns.Last().ReturnAt, 6);
 			return -1;
 		}
 		const FUetkxReturnSpan& Final = Decl.Returns.Last();

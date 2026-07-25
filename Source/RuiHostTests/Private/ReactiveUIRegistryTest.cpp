@@ -34,8 +34,8 @@ bool FRuiRegistryTest::RunTest(const FString&)
 	// Unique short name: one tail match — the designer-edge convenience path.
 	{
 		FName Key;
-		TestEqual(TEXT("unique short name hits"),
-				  (int32)RUI::ResolveNamed(FName(TEXT("RegProbeUnique")), Key), (int32)RUI::EResolveNamed::Hit);
+		TestEqual(TEXT("unique short name hits"), (int32)RUI::ResolveNamed(FName(TEXT("RegProbeUnique")), Key),
+				  (int32)RUI::EResolveNamed::Hit);
 		TestEqual(TEXT("short name resolves to the FQN"), Key, FqnUnique);
 		TestTrue(TEXT("HasNamedFactory accepts the unique short name"),
 				 RUI::HasNamedFactory(FName(TEXT("RegProbeUnique"))));
@@ -49,8 +49,7 @@ bool FRuiRegistryTest::RunTest(const FString&)
 				  (int32)RUI::ResolveNamed(FName(TEXT("RegProbePanel")), Key, &Candidates),
 				  (int32)RUI::EResolveNamed::Ambiguous);
 		TestEqual(TEXT("both candidates named"), Candidates.Num(), 2);
-		TestTrue(TEXT("candidates carry the qualified ids"),
-				 Candidates.Contains(FqnA) && Candidates.Contains(FqnB));
+		TestTrue(TEXT("candidates carry the qualified ids"), Candidates.Contains(FqnA) && Candidates.Contains(FqnB));
 		TestFalse(TEXT("HasNamedFactory rejects the ambiguous short name"),
 				  RUI::HasNamedFactory(FName(TEXT("RegProbePanel"))));
 	}
@@ -58,8 +57,8 @@ bool FRuiRegistryTest::RunTest(const FString&)
 	// Miss: unknown short name, and an explicit qualification that matches nothing.
 	{
 		FName Key;
-		TestEqual(TEXT("unknown short name misses"),
-				  (int32)RUI::ResolveNamed(FName(TEXT("RegProbeNothing")), Key), (int32)RUI::EResolveNamed::Miss);
+		TestEqual(TEXT("unknown short name misses"), (int32)RUI::ResolveNamed(FName(TEXT("RegProbeNothing")), Key),
+				  (int32)RUI::EResolveNamed::Miss);
 		TestEqual(TEXT("unknown qualification misses (no suffix fallback through ::)"),
 				  (int32)RUI::ResolveNamed(FName(TEXT("RuiUetkx_Nowhere::RegProbeUnique")), Key),
 				  (int32)RUI::EResolveNamed::Miss);

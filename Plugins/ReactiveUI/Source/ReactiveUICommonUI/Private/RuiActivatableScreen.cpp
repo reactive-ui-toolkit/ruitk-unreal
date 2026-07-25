@@ -56,8 +56,7 @@ FRuiNode URuiActivatableScreen::BuildTree() const
 			{
 				List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 			}
-			UE_LOG(LogRuiActivatable, Error,
-				   TEXT("ActivatableScreen: '%s' is ambiguous — use a qualified id: %s"),
+			UE_LOG(LogRuiActivatable, Error, TEXT("ActivatableScreen: '%s' is ambiguous — use a qualified id: %s"),
 				   *ComponentName.ToString(), *List);
 			break;
 		}

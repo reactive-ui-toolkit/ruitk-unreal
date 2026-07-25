@@ -138,7 +138,7 @@ namespace RUI
 				{
 					TSharedPtr<FRuiComponentState> S = Weak.Pin();
 					if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
-					S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
+						S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
 					{
 						return;
 					}
@@ -170,7 +170,7 @@ namespace RUI
 					{
 						TSharedPtr<FRuiComponentState> S2 = Weak.Pin();
 						if (!S2.IsValid() || SlotIndex >= S2->Hooks.Num() ||
-					S2->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
+							S2->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
 						{
 							return;
 						}

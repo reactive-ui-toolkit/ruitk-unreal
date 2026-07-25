@@ -548,8 +548,7 @@ void FUetkxFsResolver::EnsureIndex() const
 	}
 }
 
-FString FUetkxFsResolver::FindExporter(const FString& Name, const FString& ImporterPath,
-									   EUetkxDeclKind& OutKind) const
+FString FUetkxFsResolver::FindExporter(const FString& Name, const FString& ImporterPath, EUetkxDeclKind& OutKind) const
 {
 	EnsureIndex();
 	const TArray<FExporterEntry>* Entries = ExportersOf.Find(Name);

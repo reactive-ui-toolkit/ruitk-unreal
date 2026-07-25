@@ -63,10 +63,7 @@ namespace
 			}
 			return FString();
 		}
-		virtual FString SuggestSpecifier(const FString&, const FString& Key) const override
-		{
-			return TEXT("./") + Key;
-		}
+		virtual FString SuggestSpecifier(const FString&, const FString& Key) const override { return TEXT("./") + Key; }
 	};
 
 	/** The shared alias-plane fixture surface: Palette2 (values Cool/Accent + default component
@@ -132,9 +129,10 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("STABLE impl shim (TB-23 — the registered/redirect anchor must never rename)"),
 				 Out.Inl.Contains(TEXT("static FRuiNodeArray Counter_UetkxImpl(FRuiContext& Ctx, "
 									   "const FCounterUetkxProps& Props")));
-		TestTrue(TEXT("registration emitted (FQN runtime identity via the STABLE shim, FS-04)"),
-				 Out.Inl.Contains(TEXT(
-					 "RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
+		TestTrue(
+			TEXT("registration emitted (FQN runtime identity via the STABLE shim, FS-04)"),
+			Out.Inl.Contains(TEXT(
+				"RUI::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuiUetkx_Counter::Counter\")))")));
 		// TB-23 invariant: an EDIT re-hashes the body but the registered pointer symbol stays
 		// stable — Live Coding redirection (HMR's engine) rides the stable name; the first-cut
 		// hashed impl froze HMR (old fibers invoked dead code forever). Pinned both ways.
@@ -144,7 +142,8 @@ export component Counter(StartAt: int32 = 0) {
 			{
 				TestTrue(TEXT("edited generation still registers the STABLE impl symbol"),
 						 Edited.Inl.Contains(TEXT("RegisterComponentId((void*)&Counter_UetkxImpl,")));
-				auto BodyNameOf = [](const FString& Inl) -> FString {
+				auto BodyNameOf = [](const FString& Inl) -> FString
+				{
 					const int32 At = Inl.Find(TEXT("Counter_UetkxBody_"));
 					return At >= 0 ? Inl.Mid(At, 26) : FString();
 				};
@@ -294,7 +293,7 @@ component RowList(Names: TArray<FString>) {
 			TEXT("component Bad4 { return ( <Spacer RenderOpacity=\"abc\" /> ); }"), TEXT("Bad4"));
 		TestTrue(TEXT("0106 malformed float style string"),
 				 !BadFormat.bOk && BadFormat.Diags.ContainsByPredicate([](const FUetkxDiag& D)
-																	  { return D.Code == TEXT("UETKX0106"); }));
+																	   { return D.Code == TEXT("UETKX0106"); }));
 		FUetkxCompileOutput BadColor = FUetkxCodegen::CompileSource(
 			TEXT("component Bad5 { return ( <TextBlock Text=\"t\" ColorAndOpacity=\"red\" /> ); }"), TEXT("Bad5"));
 		TestTrue(TEXT("0106 color has no string form (TextBlock fast path)"),
@@ -306,8 +305,8 @@ component RowList(Names: TArray<FString>) {
 		TestTrue(TEXT("0106 invalid enum value on the TextBlock fast path"),
 				 !BadTbEnum.bOk && BadTbEnum.Diags.ContainsByPredicate([](const FUetkxDiag& D)
 																	   { return D.Code == TEXT("UETKX0106"); }));
-		FUetkxCompileOutput BadFlag = FUetkxCodegen::CompileSource(
-			TEXT("component Bad6 { return ( <Spacer RenderOpacity /> ); }"), TEXT("Bad6"));
+		FUetkxCompileOutput BadFlag =
+			FUetkxCodegen::CompileSource(TEXT("component Bad6 { return ( <Spacer RenderOpacity /> ); }"), TEXT("Bad6"));
 		TestTrue(TEXT("0106 flag form on a float style key"),
 				 !BadFlag.bOk && BadFlag.Diags.ContainsByPredicate([](const FUetkxDiag& D)
 																   { return D.Code == TEXT("UETKX0106"); }));
@@ -324,8 +323,8 @@ component RowList(Names: TArray<FString>) {
 				TEXT("</VerticalBox> ); }"),
 			TEXT("Bad9"));
 		TestTrue(TEXT("0110 duplicate sibling key"),
-				 !DupKey.bOk && DupKey.Diags.ContainsByPredicate([](const FUetkxDiag& D)
-																 { return D.Code == TEXT("UETKX0110"); }));
+				 !DupKey.bOk &&
+					 DupKey.Diags.ContainsByPredicate([](const FUetkxDiag& D) { return D.Code == TEXT("UETKX0110"); }));
 		FUetkxCompileOutput BadSlot = FUetkxCodegen::CompileSource(
 			TEXT("component Bad10 { return ( <VerticalBox><Spacer Slot.ZOrder=\"2\" /></VerticalBox> ); }"),
 			TEXT("Bad10"));
@@ -349,8 +348,7 @@ component RowList(Names: TArray<FString>) {
 				 !BadBrush.bOk && BadBrush.Diags.ContainsByPredicate([](const FUetkxDiag& D)
 																	 { return D.Code == TEXT("UETKX0106"); }));
 		FUetkxCompileOutput GoodBrush = FUetkxCodegen::CompileSource(
-			TEXT("component Ok9 { return ( <Border BorderImage=\"whitebrush\"><Spacer /></Border> ); }"),
-			TEXT("Ok9"));
+			TEXT("component Ok9 { return ( <Border BorderImage=\"whitebrush\"><Spacer /></Border> ); }"), TEXT("Ok9"));
 		TestTrue(TEXT("registered brush compiles (case-insensitive, FName semantics)"), GoodBrush.bOk);
 		FUetkxCodegen::SetEnvironmentBrushNames({});
 		FUetkxCompileOutput NoEnv = FUetkxCodegen::CompileSource(
@@ -371,13 +369,12 @@ component RowList(Names: TArray<FString>) {
 		{
 			NumCasing += Diag.Code == TEXT("UETKX0112") ? 1 : 0;
 		}
-		TestTrue(TEXT("0112 on wrong-cased slot key, element attr, and style key"),
-				 !Miscased.bOk && NumCasing == 3);
+		TestTrue(TEXT("0112 on wrong-cased slot key, element attr, and style key"), !Miscased.bOk && NumCasing == 3);
 
 		FUetkxCompileOutput GoodForms = FUetkxCodegen::CompileSource(
 			TEXT("component Ok7 { return ( <VerticalBox RenderOpacity=\"0.5\" Enabled RenderTranslation=\"5,7\">")
 				TEXT("<Spacer Slot.Padding=\"1,2\" Slot.Fill=\"1\" />")
-				TEXT("<ConstraintCanvas><Spacer Slot.AutoSize=\"true\" /></ConstraintCanvas></VerticalBox> ); }"),
+					TEXT("<ConstraintCanvas><Spacer Slot.AutoSize=\"true\" /></ConstraintCanvas></VerticalBox> ); }"),
 			TEXT("Ok7"));
 		TestTrue(TEXT("well-formed style/slot strings + bool flag compile"), GoodForms.bOk);
 		if (GoodForms.bOk)
@@ -511,9 +508,10 @@ component CardStack(Names: TArray<FString>) {
 		if (TestTrue(TEXT("privacy sample compiles"), Out.bOk))
 		{
 			// exported component: FQN named factory.
-			TestTrue(TEXT("exported component registers a named factory under the FQN"),
-					 Out.Inl.Contains(TEXT(
-						 "RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx_Panel::Panel\")), []() { return Panel(); })")));
+			TestTrue(
+				TEXT("exported component registers a named factory under the FQN"),
+				Out.Inl.Contains(TEXT(
+					"RUI::RegisterNamedFactory(FName(TEXT(\"RuiUetkx_Panel::Panel\")), []() { return Panel(); })")));
 			TestTrue(TEXT("only exported decls in the export surface"),
 					 Out.ExportedNames.Num() == 1 && Out.ExportedNames[0] == TEXT("Panel"));
 			// EVERYTHING wraps in the file namespace; RuiPriv_ is retired.
@@ -716,11 +714,9 @@ component CardStack(Names: TArray<FString>) {
 		if (TestTrue(TEXT("ternary alias sample compiles"), Tern.bOk))
 		{
 			TestTrue(TEXT("ternary second arm maps the star qual"),
-					 Tern.Inl.Contains(
-						 TEXT("true ? RuiUetkx_Palette2::Accent() : RuiUetkx_Palette2::Cool();")));
+					 Tern.Inl.Contains(TEXT("true ? RuiUetkx_Palette2::Accent() : RuiUetkx_Palette2::Cool();")));
 			TestTrue(TEXT("ternary second arm rewrites the rename binding"),
-					 Tern.Inl.Contains(
-						 TEXT("false ? RuiUetkx_Palette2::Cool() : RuiUetkx_Palette2::Cool();")));
+					 Tern.Inl.Contains(TEXT("false ? RuiUetkx_Palette2::Cool() : RuiUetkx_Palette2::Cool();")));
 			TestFalse(TEXT("no local alias qual survives"), Tern.Inl.Contains(TEXT("Pal::")));
 		}
 
@@ -854,9 +850,8 @@ component CardStack(Names: TArray<FString>) {
 			}
 			const FUetkxCompileOutput BindShadow = FUetkxCodegen::CompileSource(
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuiNode ShadowBind() {\n")
-					TEXT("\tauto Use0 = Primary;\n")
-						TEXT("\tauto [Primary, SetPrimary] = UseState(FLinearColor());\n")
-							TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
+					TEXT("\tauto Use0 = Primary;\n") TEXT("\tauto [Primary, SetPrimary] = UseState(FLinearColor());\n")
+						TEXT("\tauto V = Primary;\n\treturn ( <Spacer /> );\n}\n"),
 				TEXT("ShadowBind"), FString(), &ShadowResolver);
 			if (TestTrue(TEXT("binding-shadow sample compiles"), BindShadow.bOk))
 			{
@@ -982,8 +977,8 @@ component CardStack(Names: TArray<FString>) {
 			TestEqual(TEXT("fixture fallback (empty ProjRel)"),
 					  FUetkxCodegen::FileNamespaceFor(FString(), TEXT("Counter")), TEXT("RuiUetkx_Counter"));
 			TestEqual(TEXT("project-relative path derives the FLAT single-identifier namespace"),
-					  FUetkxCodegen::FileNamespaceFor(
-						  TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"), TEXT("SimpleCounter")),
+					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx"),
+													  TEXT("SimpleCounter")),
 					  TEXT("RuiUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter"));
 			TestEqual(TEXT("companion dots fold to underscores"),
 					  FUetkxCodegen::FileNamespaceFor(

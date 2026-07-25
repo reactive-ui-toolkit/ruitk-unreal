@@ -86,7 +86,9 @@ public:
 		{
 			TSharedPtr<FRuiComponentState> S = Weak.Pin();
 			if (!S.IsValid() || i >= S->Hooks.Num() ||
-				S->Hooks[i]->TypeHash() != TRuiReducerCell<T, TAction>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late dispatch
+				S->Hooks[i]->TypeHash() !=
+					TRuiReducerCell<T,
+									TAction>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late dispatch
 			{
 				return;
 			}
@@ -540,7 +542,8 @@ private:
 			{
 				TSharedPtr<FRuiComponentState> S = Weak.Pin();
 				if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
-					S->Hooks[SlotIndex]->TypeHash() != TRuiDeferredCell<T>::StaticTypeHash()) // TB-13: reshaped — ignore
+					S->Hooks[SlotIndex]->TypeHash() !=
+						TRuiDeferredCell<T>::StaticTypeHash()) // TB-13: reshaped — ignore
 				{
 					return;
 				}

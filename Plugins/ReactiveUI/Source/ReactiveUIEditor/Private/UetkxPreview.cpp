@@ -59,8 +59,7 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const
 	FName ComponentId(*Wanted);
 	if (!ProjectRelPath.IsEmpty())
 	{
-		const FName Exact(
-			*(FUetkxCodegen::FileNamespaceFor(ProjectRelPath, Basename) + TEXT("::") + Wanted));
+		const FName Exact(*(FUetkxCodegen::FileNamespaceFor(ProjectRelPath, Basename) + TEXT("::") + Wanted));
 		FName ResolvedExact;
 		if (RUI::ResolveNamed(Exact, ResolvedExact) == RUI::EResolveNamed::Hit)
 		{
