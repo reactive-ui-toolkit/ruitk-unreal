@@ -66,9 +66,9 @@
       the error round-trip costs nothing.
 - [ ] **7. Rapid saves (debounce).** Save 3–4 edits in quick succession. ✅ One coherent
       final patch (the watcher debounces); no half-applied UI.
-- [ ] **8. Stop → external build → restart.** Stop HMR, run the normal Build.bat, restart
+- [x] **8. Stop → external build → restart.** (owner PASS 2026-07-25) Stop HMR, run the normal Build.bat, restart
       HMR. ✅ Both directions work; Stop restores the Live Coding console visibility.
-- [ ] **9. PIE stop/start under HMR.** Stop PIE, start PIE again with HMR still active,
+- [x] **9. PIE stop/start under HMR.** (owner PASS 2026-07-25) Stop PIE, start PIE again with HMR still active,
       save an edit. ✅ Fresh session patches normally.
 
 ## File-manipulation matrix (owner request 2026-07-24 — the watcher's Added/Removed/Rename
