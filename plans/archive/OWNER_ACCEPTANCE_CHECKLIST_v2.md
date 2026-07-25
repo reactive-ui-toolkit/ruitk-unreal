@@ -1,5 +1,10 @@
 # Owner acceptance checklist v2 — verifying the round-2 bug-hunt fixes
 
+> **Status: SUPERSEDED 2026-07-25 — archived.** §A described the DELETED HMR v1; §G was
+> superseded by FILE_SCOPED_EXPORTS; §0's counts are stale (battery is 132, LSP 94). The
+> still-open interactive items (§B/§C/§D/§E/§F/§H/§I) are consolidated into
+> `plans/REMAINING.md` §3.
+
 > **Scope.** This checklist covers the fixes from [BUGHUNT_2026-07-12_round2.md](archive/BUGHUNT_2026-07-12_round2.md)
 > (commit `4ff1ab8`, branch `feat/uetkx-imports`). It is deliberately SMALL: **most of the 51 fixes are
 > already proven headless** and you do not need to re-verify them. This file is the short list of things

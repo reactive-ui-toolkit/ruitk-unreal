@@ -655,7 +655,7 @@ referenced from plans/PRs.
 > are now file-scoped exactly like privates (owner decision, TB-20): every decl emits inside its
 > file's flat namespace, EVERY component's runtime identity is the FQN, the 2106 ledger is
 > retired, and short names resolve by suffix at the designer edges (`RUI::ResolveNamed`).
-> See plans/FILE_SCOPED_EXPORTS_PLAN.md.
+> See plans/archive/FILE_SCOPED_EXPORTS_PLAN.md.
 
 ## TD-026 — Accepted v1 divergences: interp global-name scoping + private-FName last-swap-wins
 - **Where:** `RuiNode.cpp` (process-global name/factory registries), `RuiHmr.cpp`, `UetkxInterpComponent.cpp`

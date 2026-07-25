@@ -448,7 +448,7 @@ mirror, docs, migration codemod.
 **Status: PLANNED (2026-07-24)** — owner directive: "exactly like react, es modules … scale
 doesn't matter, this must be right." Full investigation done (this repo's codegen/driver/
 runtime/LSP + the Unity sibling's shipping mechanics as family precedent) and written up as
-**[plans/FILE_SCOPED_EXPORTS_PLAN.md](FILE_SCOPED_EXPORTS_PLAN.md)** — per-file C++ namespaces
+**[plans/archive/FILE_SCOPED_EXPORTS_PLAN.md](archive/FILE_SCOPED_EXPORTS_PLAN.md)** — per-file C++ namespaces
 for ALL decls, FQN runtime identity, suffix resolution at the designer edges (short names keep
 working; ambiguity is loud), 2106 retired-not-reused, 2303 becomes the load-bearing collision
 diagnostic. The earlier a/b/c question dissolved: the family answer (React + Unity sibling) is

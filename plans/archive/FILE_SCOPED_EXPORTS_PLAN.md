@@ -1,5 +1,11 @@
 # File-Scoped Exports — per-file module identity for `.uetkx` (kill the global export ledger)
 
+> **Status: COMPLETE 2026-07-25 — archived.** Executed M0–M8 (banner below has the full
+> evidence); code-verified at archive time: UETKX2106 never emitted, `RUI::ResolveNamed` +
+> `GetRegisteredFactoryNames` live in RuiNode.h, `CodegenVersion = 4` (UetkxDriver.h:64),
+> committed `.inl`s carry flat `RuiUetkx_*` namespaces. Owner-side field legs (5b PASSED
+> 2026-07-25; 10b pending) live in `plans/REMAINING.md` §1.
+
 > **✅ EXECUTED 2026-07-24 (M0–M5 + M7/M8 on `fix/lsp-field-test-false-positives`; owner
 > directive "scale doesn't matter, this must be right").** Evidence: full battery **132/0** ·
 > LSP **91/91** + smoke PASSED · `RUICompile -full` 43/43, `-check` 0 drift · 35 contract

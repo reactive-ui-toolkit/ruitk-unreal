@@ -1,5 +1,10 @@
 # Owner acceptance checklist — the interactive half of `ReactiveUI.Acceptance`
 
+> **Status: SUPERSEDED 2026-07-25 — archived (second retirement).** Written for the
+> Phase-2-era gallery (11 screens; now 17), HMR v1 (`rui.Hmr.AutoLiveCoding` no longer
+> exists), and old suite counts. The still-open interactive items (VS2022 hands-on, interop
+> smoke, fresh-clone sanity) are consolidated into `plans/REMAINING.md` §3.
+
 > One sitting per section. The headless half already gates CI (52-suite battery + the
 > `ReactiveUI.Acceptance` coherence suite). Everything here needs eyes/hands: PIE, the
 > editor loop, and the IDE extensions. Check items off in this file as you go.

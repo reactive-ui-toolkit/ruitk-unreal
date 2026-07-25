@@ -14,19 +14,24 @@ reversals and consciously-deferred scope (and where that scope is tracked now).
 | `UETKX_DECLARATIONS_PLAN.md` | `hook`/`module` companion declarations shipped (TD-017 RESOLVED 2026-07-11) |
 | `EXIT_ANIMATION_DESIGN.md` | The `<Presence>` boundary shipped as designed (TD-003 RESOLVED 2026-07-12; suite `ReactiveUI.Core.Presence`) |
 | `PR_DESCRIPTION_uetkx-compiler.md` + `PR_DESCRIPTION_uetkx-imports.md` | Historical PR bodies for merged campaigns |
-| ~~`OWNER_ACCEPTANCE_CHECKLIST.md`~~ + ~~`OWNER_ACCEPTANCE_CHECKLIST_v2.md`~~ | UN-ARCHIVED back to `plans/` 2026-07-16 for the post-widget-completion manual acceptance pass (owner request) |
+| `OWNER_ACCEPTANCE_CHECKLIST.md` + `OWNER_ACCEPTANCE_CHECKLIST_v2.md` | Un-archived 2026-07-16 for the manual acceptance pass; RE-archived 2026-07-25: v1 described the Phase-2 gallery + deleted HMR v1, v2's §A/§G superseded (HMR v2, FILE_SCOPED_EXPORTS). Still-open interactive items consolidated into `plans/REMAINING.md` §3 |
 | `WIDGET_COMPLETION_PLAN.md` | Widget-completion campaign COMPLETE (waves 0–4 + G, plugin 0.5.0→0.9.0, 63 tags): every clause of the v1 widget gate met; `plans/WIDGET_INVENTORY.md` (still live) is the ongoing tracker |
 | `EXTENSION_LISTING_PLAN.md` | Marketplace-listing overhaul shipped (extensions 0.3.1): distinguishable display names + structured page bodies on both marketplaces, README generated via `changelog.mjs extract-overview` |
 | `INCLUDE_RETIREMENT_PLAN.md` | Include retirement shipped (plugin 0.10.0, extensions 0.4.0): imports-only preambles, `import "@Header.h"` host includes, auto-included prelude, UETKX2317 hint, `-tidy` codemod; family follow-up tracked as TD-030 |
 | `MARKUP_EVERYWHERE_PLAN.md` | The third IDE pass shipped (plugin 0.11.0, extensions 0.5.0): §1 crash-hardening + E2E, §2 markup-expression lifting, §3 Tools menu entry, §4 markup-everywhere grammar/codegen parity, §5 bundled clangd — all Verify green, release out (archived 2026-07-21) |
 | `ES_MODULES_GENERAL_PLAN.md` + `ES_MODULES_EXECUTION_PLAN.md` | ES-modules redesign shipped (plugin 0.12.0, extensions 0.6.0): the Unreal leg (M0–M9) executed 2026-07-18 — banner + final evidence inside (128/128 battery, 49/49 LSP); the general plan is the verbatim family spec (do not edit — sibling copies must match) |
 | `LSP_COMPLETION_PLAN.md` | TD-033/TD-034 complete 2026-07-18: N0–N7 landed (scope-aware rename/refs/completion + the clangd-rename stretch) — banner + commit shas inside |
+| `FILE_SCOPED_EXPORTS_PLAN.md` | COMPLETE 2026-07-25 (executed 2026-07-24, M0–M8): every `.uetkx` file is its own module — 2106 retired, FQN runtime identity + `RUI::ResolveNamed` suffix resolution, flat per-file namespaces, CodegenVersion 4. Code-verified at archive time; owner field legs in `plans/REMAINING.md` §1 |
+| `F5_FIELD_TEST_BUGS.md` | Closed ledger (rounds 1–6: B1–B9, R5-x, R6-x — all FIXED/SHIPPED with pins). The live ledger is `plans/TESTING_BUGS.md` (TB-series) |
+| `HMR_FIELD_TEST.md` | Protocol record for the HMR v2 field test; matrix consolidated into `plans/REMAINING.md` §1 (2026-07-25). Items 8/9/5b owner-PASSED before the move |
 
 ## Still live in `plans/`
 
 - `ROADMAP.md` — the living status source of truth (one row per phase).
 - `MASTER_PLAN.md` — the AI-first execution plan (decisions D-01..D-33, 10 phases, ship gate).
-- `REMAINING.md` — the consolidated backlog: every open item, categorized (the "what is left?" file).
+- `REMAINING.md` — **THE consolidated open-work file** (2026-07-25): every open item incl. the
+  HMR field-test matrix and the checklist remainders — the only place TODOs live.
+- `TESTING_BUGS.md` — the LIVE field-test bug ledger (TB-series).
 - `TECH_DEBT.md` — the TD-### register (deliberate deferrals with resolutions).
 - `WIDGET_INVENTORY.md` — the authoritative per-widget tracker (batches, engine-diff feedstock).
 - `BENCH_BASELINES.md` — all bench numbers, with machine/config context.

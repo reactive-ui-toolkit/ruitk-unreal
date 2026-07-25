@@ -1,5 +1,10 @@
 # F5 field-test bug ledger — round 2 (2026-07-18, owner gallery sweep)
 
+> **Status: CLOSED LEDGER 2026-07-25 — archived.** Every entry (B1–B9, R5-x, R6-x) is
+> FIXED/SHIPPED/DOCUMENTED with pins; B3/B4's owner confirmation happened across the later
+> F5 rounds. The LIVE field-test ledger is `plans/TESTING_BUGS.md` (TB-series, rounds 7–16
+> and counting) — new findings go there.
+
 > Branch: `fix/lsp-field-test-false-positives` (all work lands here — owner directive).
 > Round 1 (RouterHome/DoomFace/DoomGame false positives) is fixed and committed (`33aae95`).
 > This ledger tracks the SECOND sweep's findings. Process: research → develop → test →

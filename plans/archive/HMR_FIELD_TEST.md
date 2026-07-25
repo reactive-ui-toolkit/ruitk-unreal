@@ -1,5 +1,9 @@
 # HMR field test — the pre-release protocol (HMR v2, Live-Coding-driven)
 
+> **Status: CONSOLIDATED 2026-07-25 — archived.** The matrix moved into
+> `plans/REMAINING.md` §1 (the single open-work file, owner request). Passed before the
+> move: items 8, 9, 5b (owner PASS 2026-07-25). This copy is the protocol record.
+
 > **Why this file:** `OWNER_ACCEPTANCE_CHECKLIST_v2.md` §A describes the DELETED HMR v1
 > (interpreter overrides, "compiled→interp swap") — do not test against it. HMR v2
 > (plans/archive/HMR_V2_PLAN.md, `FUetkxHmrController`) is a Start/Stop MODE: while active,
