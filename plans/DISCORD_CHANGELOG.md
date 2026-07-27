@@ -12,6 +12,42 @@ first announcement post lives at the BOTTOM of this file.
 
 **Hard limit: ≤ 2000 characters per entry** (Discord message cap).
 
+## Announcement post (the #unreal intro — owner pastes; added 2026-07-26)
+
+Building UI in Unreal shouldn't feel like fighting Slate. **ReactiveUI for Unreal** brings the React component model to Slate — in **pure C++**: no JavaScript VM, no WebView, no extra tree layers. Write your UI in clean `.uetkx` files, hit save mid-PIE, and watch it update in about a second — with your state preserved.
+
+**What it does:**
+- Function components with 23 hooks (UseState, UseEffect, UseContext, UseMemo, UseReducer, and more)
+- `.uetkx` markup compiled to reflection-free C++ at build time — zero runtime overhead
+- Hot reload in Play mode (Live-Coding-driven HMR) — no editor restart, state survives the save
+- 63 wrapped Slate widgets with 1:1 Unreal naming — no aliases to memorize
+- Plays WITH Epic's stack, not against it: host our UI inside UMG, drop UMG widgets into our tree, CommonUI activatable screens, live MVVM data via `UseField`
+- Full IDE support — completion, diagnostics, formatting, embedded-C++ IntelliSense — for VS Code and Visual Studio 2022
+- Works with UE 5.6+
+
+**A quick taste:**
+```jsx
+export FRuiNode Counter() {
+	auto [Count, SetCount] = UseState<int32>(0);
+
+	return (
+		<VerticalBox>
+			<TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />
+			<Button OnClicked={ SetCount(Count + 1) }>+</Button>
+		</VerticalBox>
+	);
+}
+```
+
+:package: **GitHub (free, source):** https://github.com/yanivkalfa/ReactiveUI-Unreal
+:book: **Docs & guides:** https://yanivkalfa.github.io/ReactiveUI-Unreal/
+
+Happy to answer any questions about the approach or architecture. Fab listing and demo video are on the way as we work toward v1.0!
+
+Our discord channel - https://discord.gg/Knedqu4Wyv - currently under construction.
+
+---
+
 ## [0.14.0] - 2026-07-25
 
 ### Files are modules for real, return null lands family-wide, and the compiler stops being polite about silent mistakes
