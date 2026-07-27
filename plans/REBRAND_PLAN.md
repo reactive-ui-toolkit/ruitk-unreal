@@ -1,425 +1,387 @@
-# REBRAND PLAN — Unreal leg (`ReactiveUI-Unreal` → org `reactive-ui-toolkit`, repo `ruitk-unreal`)
+# REBRAND PLAN v2 — Unreal leg (`ReactiveUI-Unreal` → org `reactive-ui-toolkit`, repo `ruitk-unreal`)
 
-**Status:** PLANNED — census measured 2026-07-27. Execution blocked on the family gates in §2.
-**Authority:** the family rebrand ruling (owner, 2026-07-27): everything moves under the umbrella
-**Reactive UI Toolkit**, GitHub org **`reactive-ui-toolkit`**, and it is a **FULL conversion** —
-"if we do a rename its a complete rename, nothing stays". Clean break + codemod, no compat window.
-Repo slugs are **Scheme C** (`ruitk-<engine>`): this repo becomes **`ruitk-unreal`**.
-Sequencing (ratified): **org transfer FIRST, in-repo rename SECOND.**
-**Sibling plans:** Godot `plans/REBRAND_PLAN.md` (the reference format, branch `docs/rebrand-plan`
-in ReactiveUI-Gadot); Unity `Plans~/REBRAND_PLAN.md` (branch `docs/rebrand-plan` in the Unity repo).
+**Status: PLANNED — v2. Census re-verified 2026-07-28 against `dev` @ `8986188`** (v1's counts
+were measured on a drifted checkout; every anchor below is re-pinned). **UE-Q1–UE-Q4 are
+RATIFIED (owner, 2026-07-28):** modules → `Ruitk*`; host project → `RuitkUnrealDemo`; the
+localization binaries get regenerated; versions bump one minor (plugin **0.15.0**, extensions
+**0.9.0**). v2 also closes the gaps a full verification pass found in v1: five type-prefixes
+that had no sweep rule, the 24 public `RUI_*` macros, ~180 brand-named source files, the 135
+automation-spec names, and a dozen smaller sites — all enumerated below.
 
-This document is written to be executed by a **lesser model**. Every step names the exact file,
-the exact OLD string, the exact NEW string, and a verification command. The executor contract
-in §1 is binding.
+**Authority:** family rebrand ruling (owner, 2026-07-27/28) — umbrella **Reactive UI Toolkit**,
+org **`reactive-ui-toolkit`**, FULL conversion ("a complete rename, nothing stays"), clean
+break + codemod, Scheme C slugs, transfer FIRST / rename SECOND, extension marketplace
+identity AND display names frozen. Siblings: Godot `plans/REBRAND_PLAN.md` v4, Unity
+`Plans~/REBRAND_PLAN.md` v2 — each on `docs/rebrand-plan` in its repo.
+
+Written for a **lesser-model executor**. §1 is binding.
 
 ---
 
 ## 1. Executor contract (binding — read first)
 
-1. **Never free-lance a sweep.** Only perform the replacements this plan lists. If a grep during
-   verification surfaces an occurrence this plan does not account for (not in a step, not in the
-   expected-leftovers table §10), **STOP and report** — do not "helpfully" convert it.
-2. **Exact-string edits.** Each step gives OLD → NEW. If OLD is not found exactly where stated,
-   **STOP** — the tree has drifted from the census and the plan needs re-verification.
-3. **Whole-word / boundary-aware replaces only** for identifier sweeps. The per-rule regexes in
-   §7.D are normative; do not widen them.
-4. **Order matters.** Groups run in the order given; inside §7.C and §7.D the numbered rules run
-   in the numbered order (longest-token-first protects against substring clobbering, e.g.
-   `ReactiveUICommonUI` must be mapped before any bare `ReactiveUI` rule could touch it).
-5. **Enumerate-then-map** (§7.D rule D6): before running an open-class rule, enumerate the distinct
-   tokens it would touch and check every one against the table. An unlisted token = STOP.
-6. **Tier 3 is frozen.** Historical record — `CHANGELOG.md` entries below the new 0.15.0 section,
-   `plans/archive/`, `plans/DISCORD_CHANGELOG.md` past posts, `research/`, `BENCH_BASELINES.md`,
-   git history itself — keeps its old names forever. Only **live URLs** inside Tier-3 files are
-   updated (they would otherwise 404 or point at a fork-target after transfer; GitHub redirects
-   cover most, Pages URLs are NOT redirected — see §3).
-7. **Engine-gated steps** (marked `[ENGINE]`) need a local UE 5.6.1 install (see `CLAUDE.md` for
-   the engine path convention) or the self-hosted CI leg. If no engine is available, complete every
-   non-engine step, then report the exact `[ENGINE]` steps left for the owner/CI.
-8. **Branch flow (house rule, mandatory):** work on a feature branch (`rebrand/umbrella`) cut from
-   `dev`; push the branch ONLY. Never push `master` or `dev`. The owner PRs into `dev`, waits for
-   checks, merges, and fast-forwards `master` himself. No `Co-Authored-By` trailers on any commit.
-9. **The working tree must be clean** before Phase 3 starts (`git status --short` empty). As of
-   census day the repo's main checkout sat on `docs/discord-unreal-announcement` with a modified
-   `ReactiveUIUnrealDemo.uproject` — that state belongs to another workstream; do not stage,
-   stash, or discard it. Use a fresh worktree/clone of `dev` if the main checkout is busy.
+1. **Never free-lance a sweep.** Only the replacements this plan lists. A verification grep
+   hit not accounted for by a step or §10 = **STOP and report**.
+2. **Exact strings.** OLD not found exactly where stated → STOP (tree drifted; re-verify).
+3. **The regexes in §7.D are normative** — do not widen or "improve" them.
+4. **Order matters.** Groups in order; numbered rules inside a group in numbered order
+   (longest-token-first prevents substring clobbering).
+5. **Enumerate-then-map** where a rule says so; **blanket rules** (D5/D6) instead use the
+   before/after token-count audit written into the rule. An unmapped token in an
+   enumerate-then-map rule = STOP.
+6. **Tier 3 frozen (by name):** `plans/archive/**`, `research/**`, `BENCH_BASELINES.md`,
+   `CHANGELOG.md` + mirror `Plugins/ReactiveUI/CHANGELOG.md` bodies below the new 0.15.0
+   section, `plans/DISCORD_CHANGELOG.md` old post bodies, git history. Live URLs inside them
+   still update (§7.A). Everything else in `plans/` (MASTER_PLAN, REMAINING, ROADMAP,
+   PENDING_CHANGELOG) is live and converts.
+7. **[ENGINE] steps** need UE 5.6.1+ (see `CLAUDE.md` for the path convention) or the
+   self-hosted CI leg. Without an engine: finish all non-engine steps, report the rest.
+8. **Branch flow (house rule):** `rebrand/umbrella` off `dev`; push the branch ONLY; owner
+   PRs → dev → checks → merge. No `Co-Authored-By` trailers.
+9. **Clean tree required.** As of census the main checkout sat on another branch with a
+   locally-modified `.uproject` (an `EngineAssociation` GUID — another workstream's state):
+   never stage, stash, or discard it; work from a fresh worktree/clone of `dev`.
 
 ---
 
-## 2. Gates — what must happen before execution
+## 2. Gates
 
 | Gate | What | Who |
 |---|---|---|
-| G1 | GitHub org `reactive-ui-toolkit` exists; repo transferred and renamed to `ruitk-unreal` (transfer first, rename second — both preserve issues/PRs/stars/secrets/rulesets; git+web URLs redirect, **GitHub Pages URLs do NOT redirect**; the freed `yanivkalfa/ReactiveUI-Unreal` name must never be reused) | OWNER |
-| G2 | Godot leg executed first (owner ruling: Godot-only first; this plan runs when the owner says go for Unreal) | OWNER |
-| G3 | Open questions UE-Q1…UE-Q4 (§5) ratified | OWNER |
-| G4 | GitHub Pages re-enabled on the transferred repo and the new URL confirmed serving (`https://reactive-ui-toolkit.github.io/ruitk-unreal/`) | OWNER (one dashboard click) + executor verify |
-| G5 | CI secrets survive transfer (they do) — `VSCE_PAT`/`OVSX_PAT`-class secrets confirmed present in the org repo settings before any publish | OWNER |
+| G1 | Org exists; repo transferred + renamed `ruitk-unreal` (issues/PRs/stars/secrets survive; git+web URLs redirect; **Pages URLs do NOT**; never reuse the freed name) | OWNER |
+| G2 | Godot leg executed first | OWNER |
+| G3 | Remaining open questions §5 answered | OWNER |
+| G4 | Pages re-enabled on the transferred repo; `https://reactive-ui-toolkit.github.io/ruitk-unreal/` serving | OWNER + executor verify |
+| G5 | CI secrets present post-transfer (marketplace PATs, self-hosted runner registration) | OWNER |
+| G6 | **GitHub repo VARIABLE `RUI_CI_ENGINE_ARMED` renamed to `RUITK_CI_ENGINE_ARMED`** in repo settings (referenced as `vars.RUI_CI_ENGINE_ARMED` in `publish.yml:152` + `engine-tests.yml`; a text sweep alone would break arming) — dashboard action, coordinated with the D6 sweep landing | OWNER |
 
 ---
 
-## 3. Name Registry (UE-N1 … UE-N20)
-
-Resolved names. Every step in §6–§9 refers to these by number.
+## 3. Name Registry (UE-N1 … UE-N24)
 
 | # | Thing | OLD | NEW |
 |---|---|---|---|
 | UE-N1 | GitHub owner/org | `yanivkalfa` | `reactive-ui-toolkit` |
 | UE-N2 | Repo slug | `ReactiveUI-Unreal` | `ruitk-unreal` |
 | UE-N3 | Product display name | "ReactiveUI for Unreal" | "Reactive UI Toolkit for Unreal" |
-| UE-N4 | Plugin folder + `.uplugin` filename | `Plugins/ReactiveUI/`, `ReactiveUI.uplugin` | `Plugins/ReactiveUIToolkit/`, `ReactiveUIToolkit.uplugin` (folder and uplugin filename MUST stay identical — Unreal resolves plugins by that pairing) |
-| UE-N5 | Plugin name as referenced by projects (`.uproject` `"Plugins"` list, `EnablePlugins`) | `ReactiveUI` | `ReactiveUIToolkit` |
-| UE-N6 | The 8 plugin modules | `ReactiveUICore, ReactiveUISlate, ReactiveUIUMG, ReactiveUICommonUI, ReactiveUIMVVMBridge, ReactiveUIInterp, ReactiveUIToolchain, ReactiveUIEditor` | `RuitkCore, RuitkSlate, RuitkUMG, RuitkCommonUI, RuitkMVVMBridge, RuitkInterp, RuitkToolchain, RuitkEditor` (UE-Q1 rec; see §5) |
-| UE-N7 | Module export macros (UBT derives them from UE-N6) | `REACTIVEUICORE_API` (91), `REACTIVEUISLATE_API` (203), `REACTIVEUIUMG_API` (20), `REACTIVEUICOMMONUI_API` (11), `REACTIVEUIMVVMBRIDGE_API` (3), `REACTIVEUIINTERP_API` (24), `REACTIVEUITOOLCHAIN_API` (16), `REACTIVEUIEDITOR_API` (1) — 369 total | `RUITKCORE_API, RUITKSLATE_API, RUITKUMG_API, RUITKCOMMONUI_API, RUITKMVVMBRIDGE_API, RUITKINTERP_API, RUITKTOOLCHAIN_API, RUITKEDITOR_API` |
-| UE-N8 | Plain-struct/class prefix | `FRui*` (9,406 occ; classifier `FRuiNode` 2,023) | `FRuitk*` (`FRuitkNode`) |
-| UE-N9 | UObject class prefix | `URui*` (388 occ, 12 distinct) | `URuitk*` + CoreRedirects (§7.D rule D4) |
-| UE-N10 | C++ namespace | `RUI::` (2,420 occ; `namespace RUI`) | `Ruitk::` / `namespace Ruitk` |
-| UE-N11 | Commandlet spellings (user-facing `-run=` names derive from class names) | `-run=RUICompile / RUIContractDump / RUIExportSchema / RUIMigrateEsModules / RUIMigrateImports` (classes `URUICompileCommandlet` etc.) | `-run=RuitkCompile / RuitkContractDump / RuitkExportSchema / RuitkMigrateEsModules / RuitkMigrateImports` (classes `URuitkCompileCommandlet` etc.) |
-| UE-N12 | Host-project game modules | `Source/RuiDemo` (204 refs), `Source/RuiHostTests` (47 refs) | `Source/RuitkDemo`, `Source/RuitkHostTests` |
-| UE-N13 | Host project + targets | `ReactiveUIUnrealDemo.uproject`, `ReactiveUIUnrealDemo{,Editor,Server}.Target.cs` | `RuitkUnrealDemo.uproject`, `RuitkUnrealDemo{,Editor,Server}.Target.cs` (UE-Q2) |
-| UE-N14 | Docs site base path + Pages URL | `base: '/ReactiveUI-Unreal/'` → `https://yanivkalfa.github.io/ReactiveUI-Unreal/` | `base: '/ruitk-unreal/'` → `https://reactive-ui-toolkit.github.io/ruitk-unreal/` |
-| UE-N15 | VS Code extension identity | publisher `ReactiveUITK`, name `uetkx`, displayName "UETKX (Unreal - VS Code)" | **UNCHANGED** (family ruling #3: marketplace identity AND display names both stay; publisher IDs are hard-immutable anyway) |
-| UE-N16 | VS2022 extension identity | Id `UetkxVsix.ReactiveUITK`, Publisher "Yaniv Kalfa", DisplayName "UETKX (Unreal - VS2022)" | **UNCHANGED** (same ruling) |
-| UE-N17 | Release asset zips (`publish.yml`) | `ReactiveUI-<ver>.zip`, `ReactiveUI-<ver>-UE<eng>.zip` | `ReactiveUIToolkit-<ver>.zip`, `ReactiveUIToolkit-<ver>-UE<eng>.zip` |
-| UE-N18 | Wave versions | plugin `0.14.0` (`"Version": 15`), extensions/LSP `0.8.0` | plugin **0.15.0** (`"Version": 16`) BREAKING; extensions/LSP **0.9.0** (UE-Q4) |
-| UE-N19 | Migration doc + codemod | (precedent: `-run=RUIMigrateEsModules`, record-driven) | `MIGRATION-0.15.md` + commandlet `URuitkMigrateBrandCommandlet` (`-run=RuitkMigrateBrand`), §7.G |
-| UE-N20 | Fab listing | none live yet (`"MarketplaceURL": ""`) | first-ever listing created AFTER the rebrand under the new name — zero migration cost, best-possible timing |
+| UE-N4 | Plugin folder + `.uplugin` | `Plugins/ReactiveUI/`, `ReactiveUI.uplugin` | `Plugins/ReactiveUIToolkit/`, `ReactiveUIToolkit.uplugin` (folder ↔ uplugin filename must stay paired) |
+| UE-N5 | Plugin name in `.uproject` | `"Name": "ReactiveUI"` (line 20 — the SOLE site, verified) | `"Name": "ReactiveUIToolkit"` |
+| UE-N6 | The 8 plugin modules **(UE-Q1 RATIFIED)** | `ReactiveUICore, ReactiveUISlate, ReactiveUIUMG, ReactiveUICommonUI, ReactiveUIMVVMBridge, ReactiveUIInterp, ReactiveUIToolchain, ReactiveUIEditor` | `RuitkCore, RuitkSlate, RuitkUMG, RuitkCommonUI, RuitkMVVMBridge, RuitkInterp, RuitkToolchain, RuitkEditor` |
+| UE-N7 | Module export macros (UBT-derived; **9**, not 8 — v1 missed the game module's) | `REACTIVEUISLATE_API` 206 · `REACTIVEUICORE_API` 95 · `REACTIVEUIINTERP_API` 24 · `REACTIVEUIUMG_API` 20 · `REACTIVEUITOOLCHAIN_API` 16 · `REACTIVEUICOMMONUI_API` 11 · `REACTIVEUIMVVMBRIDGE_API` 3 · `REACTIVEUIEDITOR_API` 1 · **`RUIDEMO_API` 44** = **376** | `RUITKSLATE_API, RUITKCORE_API, RUITKINTERP_API, RUITKUMG_API, RUITKTOOLCHAIN_API, RUITKCOMMONUI_API, RUITKMVVMBRIDGE_API, RUITKEDITOR_API, RUITKDEMO_API` |
+| UE-N8 | Type prefixes — **all five UE letters, not just F/U** | `FRui*` 10,866 (classifier `FRuiNode` 2,313) · `URui*` 387 · `SRui*` 316 (17 distinct) · `TRui*` 220 (17) · `IRui*` 181 (5) · `ERui*` 406 (9) · `ARui*` 5 (1) | `FRuitk*/URuitk*/SRuitk*/TRuitk*/IRuitk*/ERuitk*/ARuitk*` |
+| UE-N9 | Bare `Rui*` identifiers (incl. generated-symbol prefixes `RuiPriv_*`, `RuiUetkx_*`, and 108 source FILENAMES) | 185 distinct tokens / 2,266 occ | `Ruitk*` (blanket rule D5) |
+| UE-N10 | C++ namespace | `RUI::` 2,419 · `namespace RUI` | `Ruitk::` / `namespace Ruitk` |
+| UE-N11 | **Public preprocessor macros** (v1 missed all of them) | 24 distinct `RUI_*` / 1,010 occ — user-facing API: `RUI_PROP` 231, `RUI_EQ` 215, `RUI_COMPONENT` 110, `RUI_UETKX_DECL_PHASE` 87 (**emitted by codegen** into `*.Uetkx.gen.cpp`), `RUI_ROW` 84, `RUI_PROPS_BODY` 71, `RUI_PROP_EVENT` 62, + 17 test-flag/log macros | `RUITK_*` (rule D6; codegen emit site changes in lockstep; breaking → codemod + MIGRATION) |
+| UE-N12 | Commandlets (`-run=` names derive from class names) | `-run=RUICompile/RUIContractDump/RUIExportSchema/RUIMigrateEsModules/RUIMigrateImports`; classes `URUI*Commandlet` in 4 headers (`RUIMigrateImportsCommandlet.h` holds two classes) | `-run=Ruitk*`; classes `URuitk*Commandlet`; the commandlet FILES rename too (§7.C9) |
+| UE-N13 | Automation spec names (v1 missed) | **135** `IMPLEMENT_*_AUTOMATION_TEST` specs `"ReactiveUI.<Suite>.<Test>"` across 54 test files; CI filter `-ExecCmds="Automation RunTests ReactiveUI; Quit"` (`engine-tests.yml:67`); suite size 132 entries | `"Ruitk.<Suite>.<Test>"`; CI filter `Automation RunTests Ruitk`; skills/docs updated |
+| UE-N14 | Host project **(UE-Q2 RATIFIED)** | `ReactiveUIUnrealDemo.uproject` + 3 `Target.cs`; `Source/RuiDemo` (202 refs) + `Source/RuiHostTests` (47) | `RuitkUnrealDemo.uproject`; `Source/RuitkDemo`, `Source/RuitkHostTests` |
+| UE-N15 | `ReactiveUetkx*` editor types/files (v1 missed — no rule matched them) | 6 files in `ReactiveUIEditor/Private/`: `ReactiveUetkxCommands.{h,cpp}`, `ReactiveUetkxEditorSettings.h`, `ReactiveUetkxMenu.{h,cpp}`, `SReactiveUetkxHmrPanel.{h,cpp}` + their type names | `RuitkUetkx*` / `SRuitkUetkxHmrPanel` |
+| UE-N16 | Seller-repo marker | `.rui-seller-repo` (root file; read by `FUetkxCodegen::IsSellerRepo` to pick the generated-file copyright banner) | `.ruitk-seller-repo` + the C++ constant in lockstep |
+| UE-N17 | Docs site folder + base path | `ReactiveUIUnrealDocs~/`; `vite.config.ts:69` `base: '/ReactiveUI-Unreal/'` | `RuitkUnrealDocs~/`; `base: '/ruitk-unreal/'` (router basename DERIVES from `BASE_URL` — `main.tsx:9`; only the comment on `main.tsx:7` mentions the old path) |
+| UE-N18 | Extension identities | vscode `uetkx` / publisher `ReactiveUITK` / "UETKX (Unreal - VS Code)" / 0.8.0; vsix `UetkxVsix.ReactiveUITK` / `Publisher="Yaniv Kalfa"` / "UETKX (Unreal - VS2022)"; lsp `uetkx-language-server` 0.8.0 | **identity + display UNCHANGED**; versions → 0.9.0; content underneath converts |
+| UE-N19 | Release asset zips | `ReactiveUI-<ver>.zip`, `ReactiveUI-<ver>-UE<eng>.zip` | `ReactiveUIToolkit-<ver>.zip`, `-UE<eng>.zip` |
+| UE-N20 | Wave versions **(UE-Q4 RATIFIED)** | plugin `0.14.0` / `"Version": 15`; extensions+LSP `0.8.0` | plugin **0.15.0** / `"Version": 16` (BREAKING); extensions+LSP **0.9.0** |
+| UE-N21 | Migration + codemod | (model: record-driven `URuitkMigrateEsModulesCommandlet`) | `MIGRATION-0.15.md` + `URuitkMigrateBrandCommandlet` (`-run=RuitkMigrateBrand`) |
+| UE-N22 | Fab listing | none live (`"MarketplaceURL": ""`) | created fresh post-rename — zero migration |
+| UE-N23 | Localization set **(UE-Q3 RATIFIED: regenerate)** | `Content/Localization/RuiDemo/{RuiDemo.locmeta, RuiDemo.manifest, en/RuiDemo.locres, en/RuiDemo.archive}` + `Config/Localization/RuiDemo_Gather.ini` + `DefaultGame.ini` `+LocalizationPaths=…/RuiDemo` | `…/RuitkDemo/` set, target renamed, regenerated via the Localization Dashboard `[ENGINE]` |
+| UE-N24 | Demo project display strings (v1 missed) | `.uproject` `"Description": "ReactiveUI for Unreal — demo host project…"`; `DefaultGame.ini` `ProjectName=ReactiveUI Unreal Demo` + `Description=…ReactiveUI for Unreal.` | UE-N3 phrasing (`ProjectName=Reactive UI Toolkit Unreal Demo`) |
 
-**Naming system coherence** (why these forms): slug `ruitk-unreal` ↔ type prefixes `FRuitk*/URuitk*` ↔
-namespace `Ruitk` ↔ modules `Ruitk*` ↔ macros `RUITK*_API` — one abbreviation system, identical to
-Godot's `ruitk-godot` ↔ `Ruitk*` classes ↔ `reactive_ui_toolkit` folder. The plugin FOLDER uses the
-full words (`ReactiveUIToolkit`) exactly as Godot's addon folder does, because folders are the
-user-visible install artifact.
-
----
-
-## 4. Census (measured 2026-07-27, tree @ `dev` ≈ `5c9bb7a`)
-
-The scale of the Unreal leg — largest of the three:
-
-| Token / thing | Count | Where |
-|---|---|---|
-| `FRui*` identifiers | **9,406** | everywhere (runtime, demo, tests, extensions, docs) |
-| `FRuiNode` (the E-01 component classifier — grammar, not just naming) | **2,023** | `Source/` 1,335 · `Plugins/` 452 · `ide-extensions/` 149 · docs 35 |
-| `RUI::` namespace refs | **2,420** | C++ throughout |
-| `URui*` (UHT-reflected UObject classes) | **388** (12 distinct classes) | plugin + demo |
-| Other `RUI`-prefixed identifiers (commandlets etc.) | **473** | Toolchain, CI, skills, docs |
-| Module-name refs | Core 67 · Slate 80 · UMG 34 · CommonUI 20 · MVVMBridge 18 · Interp 52 · Toolchain 69 · Editor 41 | `Build.cs`, `.uplugin`, `#include` paths, CI |
-| `_API` export macros | **369** (breakdown in UE-N7) | headers |
-| `RuiDemo` / `RuiHostTests` | 204 / 47 | host project |
-| Committed generated files | **45 × `*.uetkx.inl`** + **2 × `Uetkx.gen.cpp`** | demo + tests (regen §7.H) |
-| `yanivkalfa` URLs | **34 occ / 18 files** | list in §7.A |
-| CoreRedirects | **none exist today** | `Config/` — will be ADDED (§7.D rule D4) |
-| **Family corpus** (`uetkx-scanner-cases.json` `_tiers`) | `FRuiNode` ×15 — **ALL in `fileScanLeg`, a `perLeg` section. The 3 `familyCore` sections contain ZERO brand tokens** (verified by tier-walk 2026-07-27) | §7.F — the family hash must come out UNCHANGED |
-
-The corpus fact is the leg's biggest de-risk: like Godot and Unity, the Unreal rename is
-**repo-local** — no family-wide corpus re-pin. The 15 `fileScanLeg` tokens convert in lockstep
-with the scanner's classifier constant (§7.E) and only move the *per-leg* portion of the fixture.
+**Naming coherence:** slug `ruitk-unreal` ↔ prefixes `FRuitk*/…/ARuitk*` ↔ `namespace Ruitk` ↔
+modules `Ruitk*` ↔ macros `RUITK*` — one abbreviation system; the plugin FOLDER uses full words
+(`ReactiveUIToolkit`) exactly like Godot's addon folder, because folders are the install artifact.
 
 ---
 
-## 5. Open questions (owner ratifies before execution)
+## 4. Census (v2, measured 2026-07-28 @ `dev` = `8986188`)
 
-- **UE-Q1 — module name form.** REC (plan-primary, all tables assume it): **`Ruitk*`**
-  (`RuitkCore` …). Rationale: matches the family abbreviation system, keeps the UBT-derived
-  export macros readable (`RUITKCORE_API` vs the 30-char `REACTIVEUITOOLKITMVVMBRIDGE_API`),
-  and shortens every user's `PublicDependencyModuleNames` line. ALTERNATIVE (if the owner
-  prefers folder-style full words): `ReactiveUIToolkitCore` … — same steps apply; substitute
-  the names throughout §7.C and re-derive UE-N7 macros by upper-casing.
-- **UE-Q2 — host project rename.** REC: yes, `ReactiveUIUnrealDemo` → `RuitkUnrealDemo`
-  (uproject + 3 Target.cs + `TargetName`/`ProjectName` strings + CI paths). It is not shipped,
-  but "nothing stays" and it appears in every CI command line. Cost: one more rename cascade,
-  fully enumerated in §7.C step C8.
-- **UE-Q3 — demo localization binary.** `RuiDemo.locres` (binary, contains old identifier
-  strings). REC: regenerate via the editor's Localization Dashboard after the sweep `[ENGINE]`;
-  if skipped, the stale binary is demo-only cosmetic and goes on the §10 leftovers list.
-- **UE-Q4 — wave versions.** REC: plugin **0.15.0** / `"Version": 16` (BREAKING — every user
-  `.uetkx` head, `Build.cs` dep, include path, and C++ callsite changes); vscode + vs2022 + LSP
-  **0.9.0**. Tags stay scheme `v*` / `vscode-v*` / `vs2022-v*`.
+§7.0 re-runs these and STOPs on drift:
+
+```bash
+git grep -ohI "\bFRui[A-Za-z_]*" | wc -l    # 10866
+git grep -oI  "RUI::" | wc -l               #  2419
+git grep -ohI "\bURui[A-Za-z_]*" | wc -l    #   387   (+1 binary match line from RuiDemo.locres)
+git grep -ohI "\bSRui[A-Za-z_]*" | wc -l    #   316
+git grep -ohI "\bTRui[A-Za-z_]*" | wc -l    #   220
+git grep -ohI "\bIRui[A-Za-z_]*" | wc -l    #   181
+git grep -ohI "\bERui[A-Za-z_]*" | wc -l    #   406
+git grep -ohI "\bRUI_[A-Z_]*" | wc -l       #  1010   (24 distinct)
+git grep -ohI "REACTIVEUI[A-Z]*_API\|RUIDEMO_API" | wc -l   # 376 (9 distinct)
+git grep -ohI "FRuiNode" | wc -l            #  2313
+git grep -cI  "Ruitk" | wc -l               #     0   ← collision check
+```
+
+Other pinned facts: `FRuiNode` split — `Source/` 1,543 · `Plugins/` 539 · `ide-extensions/`
+148 · docs 36 · plans 31 · rest ≤5 each. `RuiDemo` 202 / `RuiHostTests` 47. Bare-`Rui` blanket:
+185 distinct tokens / 2,266 occ / **108 brand-named source files**. Bare-word `ReactiveUI`
+appears in **206 files** (dominated by the 135 automation specs + 54 test filenames + module
+files). `yanivkalfa`: 18 files / 34 occ (per-file figures in §7.A are LINE counts;
+`LicensingPage.tsx` has 6 occ on 4 lines). Committed generated: 45 `*.uetkx.inl` + 2
+`Uetkx.gen.cpp` (`Source/RuiDemo/Private/RuiDemo.Uetkx.gen.cpp`,
+`Source/RuiHostTests/Private/RuiHostTests.Uetkx.gen.cpp`). CoreRedirects: none exist today.
+No `.uasset`/`.umap` tracked at all → the D4 redirects serve USER projects only.
+Suite baseline: **132 automation-suite entries; last recorded run 129/132 with 3 known
+owner-in-flight failures (`plans/ROADMAP.md:13`); 132/132 was green on UE 5.7 on 2026-07-25**.
+
+**Family corpus (STOP-gate fact):** `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json`
+— familyCore = `[skipNoncodeMarkup, findMatchingMarkup, fileScan]` holds **ZERO** brand tokens
+(`FRui/URui/SRui/IRui/TRui/ERui/RUI/ReactiveUI/Rui`); `FRuiNode` ×15 sit entirely in perLeg
+`fileScanLeg`. Family hash pinned: `plans/family-corpus.hash` =
+`71a37c75b16a1666c8ce20eae9dbddc50c6e7f583cc5b9e9e287bc14f3a6b069` — must be byte-identical
+after the wave. **Caveat:** `nonBmp` cases route by a per-case `section` field and CAN land in
+familyCore sections — the sweep exclusion in §7.D therefore covers the `nonBmp` block too.
 
 ---
 
-## 6. Phase structure
+## 5. Open questions (UE-Q1…Q4 are RATIFIED; new finds only)
+
+- **UE-Q5 — SPDX license ref.** `ide-extensions/lsp-server/package.json:5` (+ lockfile) says
+  `"license": "LicenseRef-ReactiveUI-Community-1.0"` — the identifier of the family's legal
+  document ("ReactiveUI Community License 1.0"). Renaming the LICENSE itself is a
+  family-level legal decision affecting all three repos, not an Unreal sweep. REC: keep the
+  LicenseRef + license title unchanged this wave; add the license-title rename to the family
+  backlog. (License product LABELS — prose naming the product — DO convert, §7.B.)
+- **UE-Q6 — marketplace tags/keywords.** vsix `<Tags>` and vscode `keywords` contain
+  `reactiveui`-family tokens. REC: update tokens to the umbrella name (searchable metadata is
+  content, not identity).
+
+---
+
+## 6. Phases
 
 | Phase | What | Who |
 |---|---|---|
-| 0 | Preflight (§7.0) | executor |
-| 1 | Org transfer + repo rename + Pages re-enable (G1/G4) | OWNER |
+| 0 | Preflight §7.0 | executor |
+| 1 | Org transfer + rename + Pages + G6 variable | OWNER |
 | 2 | Branch `rebrand/umbrella` off post-transfer `dev` | executor |
-| 3 | Groups A–I (§7) in order | executor |
-| 4 | Verification battery (§8) | executor + `[ENGINE]` legs |
-| 5 | Release wave (§9) | executor prepares, OWNER merges + tags |
+| 3 | Groups A–I (§7, in order) | executor |
+| 4 | Battery §8 | executor + `[ENGINE]` |
+| 5 | Release wave §9 | executor prepares, OWNER merges + tags |
 
----
-
-## 7. Phase 3 — the work, group by group
+## 7. Phase 3 — the work
 
 ### 7.0 Preflight
+Clean tree (contract rule 9) → run every §4 anchor, STOP on drift → record
+`node scripts/corpus-hash.mjs` output as the §7.F baseline.
 
-1. `git status --short` → must be empty (contract rule 9).
-2. Record the corpus baseline: `node scripts/corpus-hash.mjs` → save the printed familyCore hash
-   to compare in §7.F. (The script hashes only `_tiers.familyCore` sections, prefix-normalized
-   `UETKX→TKX` — type names are NOT normalized, which is exactly why familyCore must stay
-   brand-token-free.)
-3. Verify census anchor-counts still hold (STOP on drift):
-   ```bash
-   git grep -oh "\bFRui[A-Za-z_]*" | wc -l        # expect ≈9406
-   git grep -c  "RUI::" | awk -F: '{s+=$2}END{print s}'   # expect ≈2420
-   git grep -oh "REACTIVEUI[A-Z]*_API" | wc -l    # expect 369
-   ```
-
-### 7.A Group A — URL swap (runs FIRST after transfer; touches Tier-3 files for URLs ONLY)
-
-Replace, in the 18 files below, every live URL:
+### 7.A Group A — URL swap (first after transfer; Tier-3 touched for URLs only)
 
 | OLD | NEW |
 |---|---|
 | `https://github.com/yanivkalfa/ReactiveUI-Unreal` | `https://github.com/reactive-ui-toolkit/ruitk-unreal` |
-| `https://github.com/yanivkalfa` (bare profile link, e.g. `CreatedByURL`) | `https://github.com/reactive-ui-toolkit` |
+| `https://github.com/yanivkalfa` (profile form, `CreatedByURL`) | `https://github.com/reactive-ui-toolkit` |
 | `https://yanivkalfa.github.io/ReactiveUI-Unreal/` | `https://reactive-ui-toolkit.github.io/ruitk-unreal/` |
 
-Files (occurrence counts from census): `plans/DISCORD_CHANGELOG.md` (4 — URL swap only, do NOT
-touch the posts' prose), `ReactiveUIUnrealDocs~/src/pages/Licensing/LicensingPage.tsx` (4),
-`Plugins/ReactiveUI/README.md` (4), `README.md` (3), `Plugins/ReactiveUI/ReactiveUI.uplugin` (3 —
-`CreatedByURL`, `DocsURL`, `SupportURL`), `ide-extensions/vscode-uetkx/package.json` (2 —
-`repository.url` + any homepage/bugs), `research/round2-implementation/godot-ecosystem.md` (1),
-`plans/archive/PR_DESCRIPTION_uetkx-imports.md` (1), `plans/archive/EXTENSION_LISTING_PLAN.md` (1),
-`plans/archive/AUDIT_2026-07-14.md` (1), `ide-extensions/vscode-uetkx/readme-template.md` (1),
-`ide-extensions/vscode-uetkx/README.md` (1),
-`ide-extensions/visual-studio/UetkxVsix/source.extension.vsixmanifest` (1),
-`ide-extensions/visual-studio/UetkxVsix/publishManifest.json` (1),
-`ide-extensions/visual-studio/UetkxVsix/overview-template.md` (1),
-`ReactiveUIUnrealDocs~/src/links.ts` (1), `ReactiveUIUnrealDocs~/src/components/TopBar/TopBar.tsx` (1),
-`LICENSE-COMMERCIAL.md` (1).
-
-Also:
-- `ReactiveUIUnrealDocs~/vite.config.*` line ≈69: `base: '/ReactiveUI-Unreal/'` →
-  `base: '/ruitk-unreal/'`, AND the router `basename` in `ReactiveUIUnrealDocs~/src/main.tsx`
-  (the vite config comment says the two mirror each other — change both).
-- `git remote -v` sanity: after transfer the old remote URL still redirects; update local remotes
-  to the canonical new URL anyway (`git remote set-url origin …/ruitk-unreal.git`).
-
-Verify: `git grep -n "yanivkalfa" -- . ':!plans/archive' ':!research'` → only hits allowed are
-Tier-3 prose (author attribution "Yaniv Kalfa" / `CreatedBy` stays — it's a person, not a URL).
+The 18 files (occurrence counts; some lines carry two): `plans/DISCORD_CHANGELOG.md`,
+`ReactiveUIUnrealDocs~/src/pages/Licensing/LicensingPage.tsx` (6 occ / 4 lines),
+`Plugins/ReactiveUI/README.md`, `README.md`, `Plugins/ReactiveUI/ReactiveUI.uplugin`
+(`CreatedByURL`/`DocsURL`/`SupportURL`), `ide-extensions/vscode-uetkx/package.json`,
+`research/round2-implementation/godot-ecosystem.md`, 3× `plans/archive/*`,
+`ide-extensions/vscode-uetkx/{readme-template.md, README.md}`,
+`ide-extensions/visual-studio/UetkxVsix/{source.extension.vsixmanifest, publishManifest.json, overview-template.md}`,
+`ReactiveUIUnrealDocs~/src/links.ts`, `…/components/TopBar/TopBar.tsx`, `LICENSE-COMMERCIAL.md`.
+Docs base: `ReactiveUIUnrealDocs~/vite.config.ts` line 69 `base: '/ReactiveUI-Unreal/',` →
+`base: '/ruitk-unreal/',` + the comment on lines 67–68 AND `src/main.tsx:7` (comment only —
+the basename itself derives from `BASE_URL`, no functional edit).
+`git remote set-url origin https://github.com/reactive-ui-toolkit/ruitk-unreal.git`.
+**Verify:** remaining `yanivkalfa` hits are person-attributions only (`CreatedBy`, vsix
+`Publisher`, license copyright, mailtos).
 
 ### 7.B Group B — display strings + licenses
 
-1. `Plugins/ReactiveUI/ReactiveUI.uplugin`:
-   - `"FriendlyName": "ReactiveUI for Unreal"` → `"FriendlyName": "Reactive UI Toolkit for Unreal"`
-   - `"Description"`: keep the sentence, no brand token inside it today — verify, don't edit.
-   - (URLs already done in Group A; `"Version"`/`"VersionName"` bump happens in §9, not here.)
-2. LICENSE product labels: grep both license files —
-   `git grep -n "ReactiveUI" LICENSE.md LICENSE-COMMERCIAL.md` — replace every product-label
-   occurrence (the strings naming THIS product, e.g. "ReactiveUI (Unreal)") with
-   "Reactive UI Toolkit for Unreal". The license TEXT (Community License 1.0 terms) does not
-   change. STOP and list them if any hit is ambiguous between product-label and prose.
-3. `README.md` + `Plugins/ReactiveUI/README.md`: title lines and product-name prose →
-   "Reactive UI Toolkit for Unreal" (first mention), "the toolkit" thereafter. Historical
-   changelog links inside README stay as-is apart from Group A URL swaps.
-4. Docs site display strings: `ReactiveUIUnrealDocs~/` — grep `"ReactiveUI"` in `src/` and
-   convert TITLES and NAV labels (`TopBar`, `<title>`, landing hero) to the UE-N3 name.
-   Code-sample content converts in Group D/E sweeps, not here.
-5. `.claude/skills/*.md` + `CLAUDE.md`: these are LIVE operator docs (Tier 1) — their `-run=RUI*`
-   command spellings and module/class names update in Groups C/D sweeps automatically; in THIS
-   step only fix display-name prose ("ReactiveUI for Unreal" → UE-N3).
-6. `plans/MASTER_PLAN.md`, `plans/REMAINING.md`, `plans/PENDING_CHANGELOG.md` — live planning
-   docs: same treatment as 5. (`plans/archive/` stays frozen.)
+1. uplugin `"FriendlyName": "ReactiveUI for Unreal"` → `"Reactive UI Toolkit for Unreal"`;
+   `Description` verified brand-free — don't edit.
+2. License labels — the files are `LICENSE` (no extension), NOT `LICENSE.md`:
+   `git grep -n "ReactiveUI" LICENSE LICENSE-COMMERCIAL.md Plugins/ReactiveUI/LICENSE ide-extensions/vscode-uetkx/LICENSE ide-extensions/visual-studio/UetkxVsix/LICENSE.txt`
+   (8+6+8+8+8 hits) → product-LABEL occurrences → UE-N3. License terms + title unchanged
+   (UE-Q5). Ambiguous hit → STOP-list.
+3. `README.md`, `Plugins/ReactiveUI/README.md`, docs-site titles/nav, `templates/fab-listing.template.md` (2) → UE-N3.
+4. `CLA.md` (3), `THIRD_PARTY_NOTICES.md` (1), `VERSIONING.md` (3), `.github/PULL_REQUEST_TEMPLATE.md`,
+   `.github/ISSUE_TEMPLATE/bug_report.yml` (2), `.github/dependabot.yml` comment,
+   `.vscode/launch.json`, `.gitattributes`/`.gitignore` comments — product-name prose → UE-N3.
+5. UE-N24: uproject `Description`; `Config/DefaultGame.ini` `ProjectName=Reactive UI Toolkit Unreal Demo`
+   + its `Description`; `Config/DefaultEditorPerProjectUserSettings.ini:1` comment.
+   (`CompanyName`/`CopyrightNotice` = person attribution — stays.)
+6. `publish.yml:142` `--title "ReactiveUI for Unreal …"` → UE-N3 (the zip NAMES are C7's).
+7. Live operator docs (`CLAUDE.md`, `.claude/skills/*`, `plans/MASTER_PLAN.md`, `plans/REMAINING.md`,
+   `plans/ROADMAP.md`, `plans/PENDING_CHANGELOG.md`): display-name prose here; identifiers
+   change via C/D sweeps.
 
-### 7.C Group C — module + folder + project renames (ordered!)
+### 7.C Group C — modules, folders, files, project (ordered!)
 
-**Rule order protects substrings: rename module tokens LONGEST-FIRST, then the plugin folder,
-then bare `ReactiveUI` display leftovers are Group B's problem (already done) — after C, a bare
-`ReactiveUI` token should only survive where §10 expects it.**
-
-C1. Module token sweep — replace as WHOLE WORDS, in this exact order (longest first):
-
-| # | OLD | NEW |
-|---|---|---|
-| 1 | `ReactiveUIMVVMBridge` | `RuitkMVVMBridge` |
-| 2 | `ReactiveUICommonUI` | `RuitkCommonUI` |
-| 3 | `ReactiveUIToolchain` | `RuitkToolchain` |
-| 4 | `ReactiveUIEditor` | `RuitkEditor` |
-| 5 | `ReactiveUIInterp` | `RuitkInterp` |
-| 6 | `ReactiveUISlate` | `RuitkSlate` |
-| 7 | `ReactiveUICore` | `RuitkCore` |
-| 8 | `ReactiveUIUMG` | `RuitkUMG` |
-
-   Touches: `.uplugin` `Modules[].Name`, every `*.Build.cs` (own name + dependency lists),
-   `#include "ReactiveUICore/..."`-style paths, CI yml, docs, skills. Boundary regex:
-   `\bReactiveUIMVVMBridge\b` etc.
-C2. Export-macro sweep (UE-N7): 8 exact whole-word pairs `REACTIVEUICORE_API` → `RUITKCORE_API`
-    etc. (369 total). UBT derives the macro from the module name — after C1+C2 the two agree again.
-C3. Rename module DIRECTORIES + their `.Build.cs` files via `git mv` (preserves history):
+C1. Module token sweep, whole-word, LONGEST FIRST (same 8-row table, ratified `Ruitk*` targets):
+    `ReactiveUIMVVMBridge→RuitkMVVMBridge`, `ReactiveUICommonUI→RuitkCommonUI`,
+    `ReactiveUIToolchain→RuitkToolchain`, `ReactiveUIEditor→RuitkEditor`,
+    `ReactiveUIInterp→RuitkInterp`, `ReactiveUISlate→RuitkSlate`, `ReactiveUICore→RuitkCore`,
+    `ReactiveUIUMG→RuitkUMG`.
+C2. Export-macro sweep — **9 pairs** (UE-N7), incl. `RUIDEMO_API → RUITKDEMO_API`. 376 total.
+C3. Module dirs + Build.cs + **module implementation files** (v1 missed the third):
     ```bash
     for m in Core Slate UMG CommonUI MVVMBridge Interp Toolchain Editor; do
       git mv "Plugins/ReactiveUI/Source/ReactiveUI$m" "Plugins/ReactiveUI/Source/Ruitk$m"
-      git mv "Plugins/ReactiveUI/Source/Ruitk$m/ReactiveUI$m.Build.cs" "Plugins/ReactiveUI/Source/Ruitk$m/Ruitk$m.Build.cs"
+      git mv "Plugins/ReactiveUI/Source/Ruitk$m/ReactiveUI$m.Build.cs" "…/Ruitk$m.Build.cs"
+      # module impl: Private/ReactiveUI<m>Module.cpp → Private/Ruitk<m>Module.cpp (8 files)
     done
     ```
-    (If a module's Build.cs was already renamed by a glob step, skip — verify each exists first.)
-C4. Rename the uplugin file, THEN the plugin folder (this order keeps paths valid at each step):
-    ```bash
-    git mv Plugins/ReactiveUI/ReactiveUI.uplugin Plugins/ReactiveUI/ReactiveUIToolkit.uplugin
-    git mv Plugins/ReactiveUI Plugins/ReactiveUIToolkit
-    ```
-C5. Path-string sweep: `Plugins/ReactiveUI/` → `Plugins/ReactiveUIToolkit/` and
-    `Plugins/ReactiveUI ` (trailing-space/quote/paren forms) across `.github/workflows/*.yml`
-    (publish.yml zips at lines ≈112/122/128, engine-tests.yml), `scripts/package-plugin.ps1`,
-    `scripts/check-headers.mjs`, `scripts/verify-mirror.mjs`, `.claude/skills/`, docs. Use grep
-    `"Plugins/ReactiveUI"` and convert every hit (the folder no longer exists — no ambiguity).
-C6. Plugin NAME references (UE-N5): in `ReactiveUIUnrealDemo.uproject` `"Plugins"` list,
-    `"Name": "ReactiveUI"` → `"Name": "ReactiveUIToolkit"`. Grep for other `"ReactiveUI"` exact
-    JSON-name tokens (`EnablePlugins`, test configs).
-C7. Release-asset names (UE-N17): in `publish.yml`, `ReactiveUI-${{ steps.ver.outputs.version }}`
-    zip name fragments → `ReactiveUIToolkit-…` (3+ sites incl. the release-body printf at line
-    ≈104 and the sync-comment at ≈156), and the `jq -r .VersionName Plugins/ReactiveUI/…` path
-    (already covered by C5 — verify).
-C8. Host project (UE-Q2, if ratified):
+C4. Uplugin file, then plugin folder:
+    `git mv Plugins/ReactiveUI/ReactiveUI.uplugin Plugins/ReactiveUI/ReactiveUIToolkit.uplugin`
+    then `git mv Plugins/ReactiveUI Plugins/ReactiveUIToolkit`.
+    `Plugins/ReactiveUIToolkit/Config/FilterPlugin.ini` is brand-free — verify it survived the move.
+C5. Path-string sweep — BOTH separators (v1 missed the backslash form):
+    `Plugins/ReactiveUI/` AND `Plugins\ReactiveUI\` → Toolkit forms. Sites: workflows,
+    `scripts/package-plugin.ps1:32` (`Join-Path … 'Plugins\ReactiveUI\ReactiveUI.uplugin'`),
+    `scripts/{check-headers,verify-mirror,docs-drift,check-style-builders,bump}.mjs` hardcoded
+    paths (`check-style-builders.mjs` also hard-codes `RuiStyle.h` + `RUI::Style()`/`RUI::Slot()`
+    — D-rules rewrite the tokens; verify the script still resolves post-D5 filenames),
+    `.claude/skills/`, docs.
+C6. Plugin name refs (UE-N5): the uproject line 20 — sole site, verified.
+C7. Release assets (UE-N19) — the FULL `publish.yml` line set: 104 (release-body printf),
+    112 (zip create), **113** (`-x 'ReactiveUI/Binaries/*' …` exclusions), **114** + **130**
+    (echo lines), 122–128 (stage-dir cp/zip loop), **144** (`dist/ReactiveUI-*.zip` glob), plus
+    `scripts/package-plugin.ps1:67` (`dist/ReactiveUI-$versionName-UE$shortVer.zip`).
+    (Line 156 is a brand-free sync comment — v1 pointed there in error; nothing to edit.)
+C8. Host project (UE-Q2 RATIFIED — unconditional):
     ```bash
     git mv Source/RuiDemo Source/RuitkDemo
     git mv Source/RuiHostTests Source/RuitkHostTests
     git mv ReactiveUIUnrealDemo.uproject RuitkUnrealDemo.uproject
     for t in "" Editor Server; do git mv "Source/ReactiveUIUnrealDemo$t.Target.cs" "Source/RuitkUnrealDemo$t.Target.cs"; done
     ```
-    Then whole-word sweeps `ReactiveUIUnrealDemo` → `RuitkUnrealDemo` (Target.cs class names +
-    `TargetName`, CI command lines in `engine-tests.yml` line ≈59, `.claude/skills/test-run` etc.)
-    and `RuiDemo` → `RuitkDemo` (204), `RuiHostTests` → `RuitkHostTests` (47) — these two run in
-    Group D's D5 rule ordering (after `FRui`/`URui` rules, see below; `\bRui` does not match
-    inside `FRui`/`URui` so order is actually safe either way — keep D5 anyway for auditability).
+    + whole-word `ReactiveUIUnrealDemo` → `RuitkUnrealDemo` (Target classes/`TargetName`, CI
+    command lines, skills). **`Config/DefaultEngine.ini:17`
+    `GlobalDefaultGameMode=/Script/RuiDemo.RuiDemoGameMode` →
+    `/Script/RuitkDemo.RuitkDemoGameMode`** (v1 missed — the game breaks at boot without it).
+    Localization set per UE-N23: `git mv` the `Content/Localization/RuiDemo` tree +
+    `Config/Localization/RuiDemo_Gather.ini` (fix its internal `Plugins/…` + `ReactiveUIEditor/*`
+    paths too) + `DefaultGame.ini` `+LocalizationPaths`; regenerate binaries in §8 `[ENGINE]`.
+C9. **File renames the D-rules imply (v1 had no step):** driven by
+    `git ls-files | grep -E "(^|/)(ReactiveUI|Rui|SRui|RUI)[A-Za-z_]*\.(h|cpp|cs|uetkx|inl)"`,
+    `git mv` each per the SAME mapping as its token rule: 108 `Rui*/SRui*` plugin+demo files
+    (`RuiNode.h → RuitkNode.h`, `SRuiCanvas.cpp → SRuitkCanvas.cpp`, …), 54 test files
+    (`ReactiveUIAcceptanceTest.cpp → RuitkAcceptanceTest.cpp`, …), the 4 commandlet headers +
+    cpps (`RUICompileCommandlet.h → RuitkCompileCommandlet.h`, …; `RUIMigrateImportsCommandlet.h`
+    holds two classes — one file, one rename), the 6 `ReactiveUetkx*` files (UE-N15 →
+    `RuitkUetkx*`), the 2 `*.Uetkx.gen.cpp` (follow their module dirs). `#include` strings are
+    rewritten by the token sweeps — filenames and includes converge; the §8 build proves it.
+C10. UE-N16: `git mv .rui-seller-repo .ruitk-seller-repo` + the `IsSellerRepo` constant in
+    the Toolchain codegen (locate: `git grep -n "rui-seller-repo"`).
+C11. Docs folder (UE-N17): `git mv ReactiveUIUnrealDocs~ RuitkUnrealDocs~` + its **18 external
+    references** (zero self-references inside, verified): `.github/dependabot.yml:7`,
+    `publish.yml:29,37,53`, `test.yml:98,110`, `.gitignore:33`, `CLAUDE.md:43,83`, `README.md:92`,
+    `.claude/skills/engine-catchup/SKILL.md:58`, `scripts/check-headers.mjs:14`,
+    `scripts/docs-drift.mjs` ×7, `templates/hook_doc.template.tsx:4,5` (+ live `plans/` mentions).
 
-### 7.D Group D — the identifier sweep (C++ + everywhere)
+### 7.D Group D — the identifier sweep
 
-Run rules in this order, each as a single repo-wide regex replace over TRACKED TEXT files
-(exclude: `.git/`, binary `*.locres` `*.uasset` `*.png`…, and the §10 frozen Tier-3 paths —
-`plans/archive/`, `research/`, `BENCH_BASELINES.md`, `plans/DISCORD_CHANGELOG.md` below its
-newest entry, `CHANGELOG.md` below the new 0.15.0 section):
+Repo-wide over tracked text files, EXCLUDING: binaries, the §1.6 Tier-3 set, and — for
+`uetkx-scanner-cases.json` — the three familyCore sections AND the `nonBmp` block (§4 caveat).
+The 15 perLeg `fileScanLeg` `FRuiNode` tokens DO convert (lockstep with the scanner).
 
-| # | Rule (regex → replacement) | Covers | Census |
+| # | Rule | Covers | Census |
 |---|---|---|---|
-| D1 | `\bFRui` → `FRuitk` | ALL `FRui*` types incl. `FRuiNode`→`FRuitkNode` | 9,406 |
-| D2 | `\bURui` → `URuitk` | the 12 UObject classes | 388 |
-| D3 | `\bRUI::` → `Ruitk::` AND `\bnamespace RUI\b` → `namespace Ruitk` AND `using namespace RUI\b` → `using namespace Ruitk` | the C++ namespace | 2,420 |
-| D4 | **CoreRedirects (ADD, don't replace):** for every renamed UHT-reflected type — enumerate first: `git grep -B3 "class REACTIVEUI\|class RUITK" -- '*.h' \| grep -A3 "UCLASS\|USTRUCT\|UENUM"` (post-C2 macros) — add to the demo project's `Config/DefaultEngine.ini` a `[CoreRedirects]` block: `+ClassRedirects=(OldName="/Script/ReactiveUISlate.RuiHostWidget",NewName="/Script/RuitkSlate.RuitkHostWidget")`-style entries for each of the 12 `URui*` classes (old `/Script/<OldModule>.<OldClassNameNoU>` → new), plus `StructRedirects`/`EnumRedirects` for any reflected `FRui*`/`ERui*` UHT types the enumeration surfaces. The SAME block ships verbatim inside `MIGRATION-0.15.md` for users' projects. No CoreRedirects existed before — this is a new section. | binary `.uasset`/BP references load-fix | 12 classes |
-| D5 | `\bRui(?!tk)` word-start → `Ruitk` — but ONLY via enumerate-then-map: `git grep -oh "\bRui[A-Za-z_]*" \| sort -u` and check every token against: `RuiDemo→RuitkDemo`, `RuiHostTests→RuitkHostTests` (+ their `.locres`/config name forms). Unlisted token = STOP. | host modules | 204+47 |
-| D6 | `\bRUI(?=[A-Z])` → `Ruitk` — enumerate-then-map: `git grep -oh "\bRUI[A-Za-z_]*" \| sort -u`; expected tokens are exactly the commandlet family `RUICompile, RUIContractDump, RUIExportSchema, RUIMigrateEsModules, RUIMigrateImports` (+ their `URUI*Commandlet` class forms, which D2 does NOT cover — `URUI` ≠ `URui` case) → `RuitkCompile…` / `URuitkCompileCommandlet…`. Any OTHER `RUI*` token (e.g. an all-caps log category or macro the census bucketed into the 473) gets mapped `RUI→RUITK` (`RUI_LOG`-style → `RUITK_LOG`) and MUST be added to the executed-mapping list in the commit message. | commandlets + misc | 473 |
-| D7 | `-run=RUI` → `-run=Ruitk` — should already be covered by D6; run the grep to verify ZERO remaining: `engine-tests.yml`, `.claude/skills/{dev-process,engine-catchup,grammar-contract,new-component,rebuild-ide-extensions,test-run}/SKILL.md`, `CLAUDE.md` | CI + operator docs | — |
+| D1 | `\bFRui` → `FRuitk` | all `FRui*` incl. `FRuiNode→FRuitkNode` | 10,866 |
+| D2 | `\bURui` → `URuitk` · `\bSRui` → `SRuitk` · `\bTRui` → `TRuitk` · `\bIRui` → `IRuitk` · `\bERui` → `ERuitk` · `\bARui` → `ARuitk` (six sub-rules — v1 had only URui) | all reflected + Slate + template + interface + enum + actor types | 387+316+220+181+406+5 |
+| D3 | `\bRUI::` → `Ruitk::` · `\bnamespace RUI\b` → `namespace Ruitk` · `using namespace RUI\b` → same | the namespace | 2,419 |
+| D4 | **CoreRedirects (ADD):** in the DEMO's `Config/DefaultEngine.ini`, new `[CoreRedirects]` block for the UHT-reflected renames — the verified inventory is **8 `URui*` classes + `ARuiDemoGameMode`** (NOT 12; `URuiLogic`/`URuiMarkupAsset`/`URuiViewModelBridge` are research-only prose, `URuiSubsystem` is superseded prose): `URuiHostWidget`/`URuiSignalViewModel`/`URuiWorldSubsystem` in **`ReactiveUIUMG`** (v1's worked example wrongly said Slate), `URuiActivatableScreen` in `ReactiveUICommonUI`, `URuiMvvmViewModel` in `ReactiveUIMVVMBridge`, `URuiTestViewModel`/`URuiTestUserWidget`/`URuiTestMvvmSubViewModel` in `RuiHostTests`, `ARuiDemoGameMode` in `RuiDemo`. Form: `+ClassRedirects=(OldName="/Script/ReactiveUIUMG.RuiHostWidget",NewName="/Script/RuitkUMG.RuitkHostWidget")`. **No reflected `FRui*` USTRUCTs / `ERui*` UENUMs exist** → no Struct/EnumRedirects. No tracked assets in-repo → the block serves USER projects; ship it verbatim in MIGRATION-0.15.md. | user-project load-fix | 9 types |
+| D5 | **Blanket:** `\bRui(?!tk)` → `Ruitk`. 185 distinct tokens is too many for a map table; instead AUDIT: before — `git grep -ohI "\bRui[A-Za-z_]*" \| sort -u \| wc -l` (expect 185); after — the same count must appear as `Ruitk*` tokens and `git grep -ohI "\bRui(?\!tk)"` → 0. Sample-verify 10 random tokens converted sanely (`RuiPriv_*→RuitkPriv_*`, `RuiUetkx_*→RuitkUetkx_*`). | RuiNode/RuiRouter/RuiPriv_/RuiUetkx_/RuiDemo/RuiHostTests/… | 2,266 |
+| D6 | **Prefix by case-class (v1's regex and prose contradicted; this is normative):** PascalCase `\bRUI(?=[A-Z][a-z])` → `Ruitk` (the commandlet family: `RUICompile→RuitkCompile`, `URUICompileCommandlet→URuitkCompileCommandlet`, …); ALL-CAPS `\bRUI(?=[A-Z_])` incl. `\bRUI_` → `RUITK` (`RUI_PROP→RUITK_PROP`, `RUIDEMO→RUITKDEMO` — already via C2, `RUIBENCH→RUITKBENCH`, `RUISelfTest→RuitkSelfTest` is PascalCase → first rule). Enumerate first: `git grep -ohI "\bRUI[A-Za-z_]\+" \| sort -u` — 29 letters-only + 24 underscore tokens expected; anything new → STOP. The codegen's emit of `RUI_UETKX_DECL_PHASE` changes in the SAME commit as the `.gen.cpp` sweep (else §7.H's byte-stable gate fails). `RUI_CI_ENGINE_ARMED` → `RUITK_CI_ENGINE_ARMED` in yml, coordinated with gate G6. | commandlets + macros + log prefixes | 473 + 1,010 |
+| D7 | UE-N13 automation specs: `"ReactiveUI.` → `"Ruitk.` inside the 135 `IMPLEMENT_*_AUTOMATION_TEST` macro lines; `engine-tests.yml:67` filter `Automation RunTests ReactiveUI` → `… Ruitk`; the `test-run` skill's suite map + incantations. Verify: `git grep -c "IMPLEMENT.*AUTOMATION_TEST.*\"Ruitk\."` → 135. | the test suite's identity | 135 specs |
+| D8 | `-run=RUI` → 0 remaining (D6 covered it) — verify across the **44 files** that carry it (v1 said 8): skills ×6, `engine-tests.yml`, `CLAUDE.md`, `README.md`, CHANGELOG mirror pair (new-section only), 6 docs pages, 3 LSP sources (quick-fix text), 4 plugin C++ files, commandlet headers, and the golden fixture `Source/RuitkHostTests/ContractFixtures/ImportError.uetkx.diags.expected` (regenerated in §7.F — hand-edit only if regen is unavailable). | CI + docs + quick-fixes | 44 files |
 
-After D: `git grep -n "\bFRui\b\|\bFRui[A-Z]\|\bURui[A-Z]\|RUI::" -- ':!plans/archive' ':!research'`
-→ ZERO hits outside §10 leftovers.
+After D: `git grep -nI "\bFRui[A-Z]\|\bURui[A-Z]\|\bSRui[A-Z]\|\bTRui[A-Z]\|\bIRui[A-Z]\|\bERui[A-Z]\|RUI::\|\bRUI_" -- ':!plans/archive' ':!research' ':!BENCH_BASELINES.md'`
+→ 0 outside §10.
 
-### 7.E Group E — ide-extensions content (identity FROZEN, content converts)
+### 7.E Group E — ide-extensions (identity frozen, content converts)
 
-The marketplace identities (UE-N15/16) do NOT change: `publisher`, `name`, `displayName`,
-vsix `Id`. Everything underneath converts:
-
-1. LSP scanner/formatter classifier: the D1 sweep already turned `FRuiNode` → `FRuitkNode` in
-   `ide-extensions/lsp-server/src/**` (incl. `formatUetkx.ts` ≈line 570/573 and every test file)
-   AND in `ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` — the 15 fixture
-   occurrences all sit in the `fileScanLeg` per-leg section, in lockstep with the scanner code.
-   Verify the lockstep: `grep -c "FRuitkNode" ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json` → 15, `grep -c "FRuiNode"` → 0.
-2. TextMate grammar + snippets in `ide-extensions/vscode-uetkx/` — D1 covered the token; verify
-   with `git grep -n "FRuiNode" ide-extensions/` → 0.
-3. `ide-extensions/vscode-uetkx/package.json`: `repository.url` already fixed in Group A; verify
-   `description`/README/readme-template prose uses UE-N3 for the product (Group B style), but the
-   extension's OWN displayName stays byte-identical.
-4. `ide-extensions/visual-studio/UetkxVsix/`: same split — manifest identity frozen,
-   overview-template prose + URLs converted.
-5. Rebuild + tests are in §8 (LSP suite ≈152 tests + smoke).
+1. Frozen lines (byte-identical at the end): vscode `package.json` `name`/`publisher`/`displayName`;
+   vsix `Identity Id`/`Publisher`/`DisplayName`; lsp `package.json` `name`. Everything else in
+   `ide-extensions/` converts via A/C/D (incl. `formatUetkx.ts:570,573`, grammar, fixtures —
+   the 15 `fileScanLeg` tokens land at `FRuitkNode`, verify 15/0 old).
+2. UE-Q6: vsix `<Tags>` + vscode `keywords` brand tokens → umbrella name.
+3. UE-Q5: the `LicenseRef-ReactiveUI-Community-1.0` string stays this wave (family decision).
+4. Rebuild + tests in §8.
 
 ### 7.F Group F — contracts, schema, goldens, corpus `[ENGINE]`
 
-1. Regenerate grammar goldens: `<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject
-   -run=RuitkContractDump` (WITHOUT `--check` — we are re-dumping, exactly like the Godot plan's
-   Group F), commit the refreshed goldens; the TS side replays them in the LSP suite.
-2. Refresh the schema: `-run=RuitkExportSchema` → `uetkx-schema.json` (LSP + generated docs pages
-   pick it up).
-3. **Corpus gate (STOP-gate):** `node scripts/corpus-hash.mjs` → the familyCore hash MUST equal
-   the §7.0 baseline byte-for-byte. familyCore contained zero brand tokens, so any drift means a
-   sweep leaked into a familyCore section — revert that hunk, do NOT re-pin. (The per-leg
-   `fileScanLeg` change is invisible to the hash by design.)
-4. `scripts/check-headers.mjs`, `scripts/verify-mirror.mjs`, `scripts/docs-drift.mjs`,
-   `scripts/check-style-builders.mjs` — run all; they are name-based and consume the renamed tree.
-   Fix path constants inside them if C5 grep missed any (STOP-report if logic, not paths, breaks).
+1. `-run=RuitkContractDump` (no `--check`) regenerates goldens — incl. the
+   `ImportError.uetkx.diags.expected` fixture from D8; then `--check` green.
+2. `-run=RuitkExportSchema` → refresh `ide-extensions/lsp-server/src/uetkx-schema.json`
+   (exact path — v1 gave a bare filename).
+3. **Corpus STOP-gate:** `node scripts/corpus-hash.mjs` == §7.0 baseline
+   (`71a37c75…b069`), byte-identical. Drift = a sweep leaked into familyCore or `nonBmp` →
+   revert that hunk; never re-pin.
+4. Run all `scripts/*.mjs` checkers; fix path constants C5/C11 missed (STOP if logic breaks).
+5. `engine-tests.yml:53`: fix the stale "25 committed generated files" comment → 47.
 
 ### 7.G Group G — user codemod + migration doc
 
-1. New commandlet `URuitkMigrateBrandCommandlet` (`-run=RuitkMigrateBrand`) in `RuitkToolchain`,
-   modeled 1:1 on the existing record-driven `URuitkMigrateEsModulesCommandlet` (post-rename
-   name). It rewrites a USER project: `.uetkx` heads (`FRuiNode`→`FRuitkNode` + any `FRui*`/
-   `URui*`/`RUI::`/module tokens in embedded C++), `Build.cs` dependency names (C1 table),
-   `#include` path prefixes, `.uproject` plugin name (UE-N5). Idempotent — a clean tree reports 0.
-2. `MIGRATION-0.15.md` at repo root: the manual steps (delete old `Plugins/ReactiveUI`, install
-   `Plugins/ReactiveUIToolkit`, run the codemod, paste the D4 CoreRedirects block, resave any
-   Blueprint referencing a `URui*` type, then `-run=RuitkCompile -check` must exit 0). Include
-   the full C1 module table and the D1–D6 rule list verbatim so users can hand-migrate.
-3. `CHANGELOG.md`: new `## 0.15.0` section at top — BREAKING, the rename in one table, link to
-   MIGRATION-0.15.md. Entries below it are Tier-3 frozen.
+1. `URuitkMigrateBrandCommandlet` (`-run=RuitkMigrateBrand`) in RuitkToolchain, modeled on
+   the record-driven `URuitkMigrateEsModulesCommandlet`. Rewrites a USER project with the SAME
+   rule set as §7.C/D: `.uetkx` heads + embedded C++ (`FRuiNode`, all seven prefixes, `RUI::`,
+   **the `RUI_*` macros** — v1's codemod spec missed them and the `E/T/I/S/A` prefixes),
+   `Build.cs` module deps (C1 table), `#include` paths, `.uproject` plugin name. Idempotent.
+2. `MIGRATION-0.15.md`: delete old `Plugins/ReactiveUI` → install `Plugins/ReactiveUIToolkit`
+   → run the codemod → paste the D4 CoreRedirects block → resave Blueprints referencing
+   `URui*` types → `-run=RuitkCompile -check` exits 0. Include the C1 module table, the
+   macro table (`RUI_PROP→RUITK_PROP` …), and the D-rules verbatim.
+3. `CHANGELOG.md` (+ mirror): new `## 0.15.0` BREAKING section; old bodies frozen.
 
 ### 7.H Group H — committed generated files `[ENGINE]`
 
-The 45 `*.uetkx.inl` + 2 `Uetkx.gen.cpp` are committed text — the D sweeps already rewrote them.
-Prove the compiler agrees: run `-run=RuitkCompile` over the demo tree, then `git status --short`
-→ empty (byte-stable regen). If the regen differs from the sweep result, commit the REGENERATED
-form (the compiler is the source of truth) and STOP-report the diff summary.
+The 45 `.uetkx.inl` + 2 `Uetkx.gen.cpp` were swept as text; prove the compiler agrees:
+`-run=RuitkCompile` over the demo tree → `git status --short` empty (byte-stable). A diff means
+the codegen's emitted strings (banner via UE-N16, `RUITK_UETKX_DECL_PHASE`, `RuitkUetkx_*`
+symbol prefix) weren't updated in lockstep — fix the emitter, commit the REGENERATED form,
+STOP-report the diff summary. Regenerate the UE-N23 localization set here too.
 
 ### 7.I Group I — expected-leftovers audit
+Run §10; any unexplained hit = STOP.
 
-Run §10's greps. Every hit must match the table. Anything else = STOP (contract rule 1).
+## 8. Phase 4 — battery
 
----
-
-## 8. Phase 4 — verification battery
-
-Non-engine (executor runs all):
+Non-engine:
 ```bash
 cd ide-extensions/lsp-server && npm ci && npm run build && node --test out/test/*.test.js && node scripts/smoke.js
 cd ide-extensions/vscode-uetkx && npm ci && npm run build
-cd ReactiveUIUnrealDocs~ && npm ci && npm run build && npm run lint
-node scripts/corpus-hash.mjs          # familyCore hash == §7.0 baseline
-node scripts/check-headers.mjs && node scripts/verify-mirror.mjs && node scripts/docs-drift.mjs
+cd RuitkUnrealDocs~ && npm ci && npm run build && npm run lint      # renamed folder
+node scripts/corpus-hash.mjs      # == baseline
+node scripts/check-headers.mjs && node scripts/verify-mirror.mjs && node scripts/docs-drift.mjs && node scripts/check-style-builders.mjs
 ```
-`[ENGINE]` (owner machine or the self-hosted `engine-tests.yml` leg):
+`[ENGINE]`:
 ```
-UnrealEditor-Cmd RuitkUnrealDemo.uproject -run=RuitkCompile -check     # exit 0
+UnrealEditor-Cmd RuitkUnrealDemo.uproject -run=RuitkCompile -check          # exit 0
 UnrealEditor-Cmd RuitkUnrealDemo.uproject -run=RuitkContractDump --check
-full automation suite per .claude/skills/test-run (all legs green — the suite was 132/132 pre-rename)
-Editor boot: demo gallery opens, no CoreRedirects warnings in the log after asset resave
+Automation suite: -ExecCmds="Automation RunTests Ruitk; Quit" — green vs the recorded baseline
+  (132 entries; 129/132 with 3 known owner-side in-flight failures per plans/ROADMAP.md:13 —
+  the SAME 3 may fail; any NEW failure is a rebrand regression)
+Editor boot: gallery opens; log shows the CoreRedirects block parsed with no warnings
+Localization Dashboard: regenerate the RuitkDemo target (UE-N23)
 ```
-VS2022 extension build per `ide-extensions/README`/CI job (Windows + msbuild `[ENGINE]`-class gate).
-
----
+VS2022 vsix build per its CI job (Windows/msbuild-gated).
 
 ## 9. Phase 5 — release wave (owner merges first)
 
-1. Bump `Plugins/ReactiveUIToolkit/ReactiveUIToolkit.uplugin`: `"Version": 15 → 16`,
-   `"VersionName": "0.14.0" → "0.15.0"` (UE-Q4). `scripts/bump.mjs` if it automates this —
-   inspect before use.
-2. Extensions + LSP `package.json`/vsixmanifest versions `0.8.0 → 0.9.0`.
-3. `plans/PENDING_CHANGELOG.md` → fold into `CHANGELOG.md` 0.15.0 per house flow;
-   `plans/DISCORD_CHANGELOG.md` gets a NEW 0.15.0 post (old posts frozen).
-4. Owner: PR → dev → checks → merge → fast-forward master → tag `v0.15.0` (publish.yml attaches
-   `ReactiveUIToolkit-0.15.0.zip` + per-engine stamped zips), then `vscode-v0.9.0` / `vs2022-v0.9.0`.
-5. Fab (UE-N20): first listing, created fresh under "Reactive UI Toolkit for Unreal" — nothing to
-   migrate. `MarketplaceURL` in the uplugin gets filled when the listing exists (post-wave patch).
+1. `Plugins/ReactiveUIToolkit/ReactiveUIToolkit.uplugin`: `"Version": 15 → 16`,
+   `"VersionName": "0.14.0" → "0.15.0"` (`scripts/bump.mjs` — inspect before use; it
+   hard-codes the uplugin path, fixed in C5).
+2. Extensions + LSP → `0.9.0` (vscode + vsix + lsp-server package.json).
+3. `plans/PENDING_CHANGELOG.md` → fold into CHANGELOG 0.15.0; new Discord post (old frozen).
+4. Owner: PR → dev → checks → merge → ff master → tag `v0.15.0` (zips now
+   `ReactiveUIToolkit-0.15.0*.zip`), then `vscode-v0.9.0` / `vs2022-v0.9.0`.
+5. Fab (UE-N22): first listing under the new name; fill `MarketplaceURL` post-listing.
 
----
+## 10. Expected leftovers (the ONLY permitted survivors)
 
-## 10. Expected leftovers (the ONLY permitted old-name survivors)
-
-| Grep | Where hits are allowed |
+| Grep | Allowed |
 |---|---|
-| `ReactiveUI` | `CHANGELOG.md` below 0.15.0 · `plans/archive/**` · `plans/DISCORD_CHANGELOG.md` old posts · `research/**` · `BENCH_BASELINES.md` · MIGRATION-0.15.md's OLD column · the codemod's OLD-token tables · git history |
-| `FRui\|URui\|RUI::` | same Tier-3 set + MIGRATION/codemod OLD columns |
-| `RuiDemo.locres` binary content | if UE-Q3 skipped (demo-only) |
-| `yanivkalfa` | Tier-3 prose + "Yaniv Kalfa" author attributions (`CreatedBy`, vsix `Publisher`, license copyright line) — PEOPLE keep their name; only URLs moved |
-| `ReactiveUI-Unreal` | Tier-3 prose; and NOWHERE as a live URL |
-
----
+| `ReactiveUI` / `FRui\|URui\|SRui\|TRui\|IRui\|ERui\|ARui\|RUI::\|RUI_` | `plans/archive/**` · `research/**` · `BENCH_BASELINES.md` (incl. the old `RUIBENCH` log prefix it documents) · CHANGELOG bodies below 0.15.0 (+ mirror) · `plans/DISCORD_CHANGELOG.md` old posts · MIGRATION/codemod OLD columns |
+| `LicenseRef-ReactiveUI-Community-1.0` | lsp package.json + lock (UE-Q5, this wave) |
+| `ReactiveUITK` | the frozen vscode `publisher` field (family marketplace identity) |
+| `yanivkalfa` / `Yaniv Kalfa` | person attributions: uplugin `CreatedBy`, vsix `Publisher`, license copyright, mailtos — people keep their names; only URLs moved |
+| `ReactiveUI-Unreal` | Tier-3 prose; NOWHERE as a live URL |
+| old tokens in `RuiDemo.locres` etc. | none — UE-Q3 ratified regeneration replaces the set |
 
 ## 11. Rollback
 
-Everything before the owner's merge is one feature branch — `git branch -D rebrand/umbrella` and
-re-clone. After merge: revert the merge commit on dev; the org transfer itself is NOT rolled back
-(redirects keep old URLs alive; Pages URL would need the old repo name back — avoid, per G1 never
-reuse freed names). CoreRedirects are additive and safe to leave in place.
+Pre-merge: delete `rebrand/umbrella`, re-clone. Post-merge: revert the merge on dev; org
+transfer stays (redirects hold; never reuse freed names). CoreRedirects are additive and safe
+to leave. G6's variable rename reverts in the dashboard if the wave reverts.
