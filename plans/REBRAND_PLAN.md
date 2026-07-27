@@ -1,8 +1,9 @@
 # REBRAND PLAN v2 — Unreal leg (`ReactiveUI-Unreal` → org `reactive-ui-toolkit`, repo `ruitk-unreal`)
 
-**Status: PLANNED — v2. Census re-verified 2026-07-28 against `dev` @ `8986188`** (v1's counts
-were measured on a drifted checkout; every anchor below is re-pinned). **UE-Q1–UE-Q4 are
-RATIFIED (owner, 2026-07-28):** modules → `Ruitk*`; host project → `RuitkUnrealDemo`; the
+**Status: PLANNED + FULLY RATIFIED — v2. Census re-verified 2026-07-28 against `dev` @
+`8986188`** (v1's counts were measured on a drifted checkout; every anchor below is
+re-pinned). **UE-Q1–UE-Q6 are ALL RESOLVED (owner, 2026-07-28; Q5/Q6 in §5). Blocked only
+on the §2 gates. UE-Q1–UE-Q4:** modules → `Ruitk*`; host project → `RuitkUnrealDemo`; the
 localization binaries get regenerated; versions bump one minor (plugin **0.15.0**, extensions
 **0.9.0**). v2 also closes the gaps a full verification pass found in v1: five type-prefixes
 that had no sweep rule, the 24 public `RUI_*` macros, ~180 brand-named source files, the 135
@@ -132,17 +133,20 @@ familyCore sections — the sweep exclusion in §7.D therefore covers the `nonBm
 
 ---
 
-## 5. Open questions (UE-Q1…Q4 are RATIFIED; new finds only)
+## 5. Open questions — ALL RESOLVED (owner, 2026-07-28)
 
-- **UE-Q5 — SPDX license ref.** `ide-extensions/lsp-server/package.json:5` (+ lockfile) says
-  `"license": "LicenseRef-ReactiveUI-Community-1.0"` — the identifier of the family's legal
-  document ("ReactiveUI Community License 1.0"). Renaming the LICENSE itself is a
-  family-level legal decision affecting all three repos, not an Unreal sweep. REC: keep the
-  LicenseRef + license title unchanged this wave; add the license-title rename to the family
-  backlog. (License product LABELS — prose naming the product — DO convert, §7.B.)
-- **UE-Q6 — marketplace tags/keywords.** vsix `<Tags>` and vscode `keywords` contain
-  `reactiveui`-family tokens. REC: update tokens to the umbrella name (searchable metadata is
-  content, not identity).
+- **UE-Q5 — RESOLVED, and OVERRULED into a family ruling: the license itself renames +
+  version-bumps, in all three repos.** `ReactiveUI Community License 1.0` →
+  **`Reactive UI Toolkit Community License 1.1`**: title + internal product references +
+  credit-line clause (`Made with Reactive UI Toolkit`) + version refs update; legal terms
+  otherwise unchanged; copyright holder stays; licensees under 1.0 keep 1.0. For THIS repo:
+  the five license copies (§7.B.2) get the full retitle, and the SPDX ref in
+  `ide-extensions/lsp-server/package.json:5` (+ lockfile) becomes
+  **`LicenseRef-Reactive-UI-Toolkit-Community-1.1`** (valid SPDX idstring:
+  letters/digits/`.`/`-` only).
+- **UE-Q6 — RESOLVED: ADDITIVE.** Keep the existing vsix `<Tags>` / vscode `keywords`
+  tokens AND add the umbrella-name tokens (`Reactive UI Toolkit`) — old search terms keep
+  finding the extensions through the transition.
 
 ---
 
@@ -190,10 +194,13 @@ the basename itself derives from `BASE_URL`, no functional edit).
 
 1. uplugin `"FriendlyName": "ReactiveUI for Unreal"` → `"Reactive UI Toolkit for Unreal"`;
    `Description` verified brand-free — don't edit.
-2. License labels — the files are `LICENSE` (no extension), NOT `LICENSE.md`:
+2. Licenses — **the full license-1.1 rewrite (UE-Q5 family ruling):** the files are
+   `LICENSE` (no extension), NOT `LICENSE.md`:
    `git grep -n "ReactiveUI" LICENSE LICENSE-COMMERCIAL.md Plugins/ReactiveUI/LICENSE ide-extensions/vscode-uetkx/LICENSE ide-extensions/visual-studio/UetkxVsix/LICENSE.txt`
-   (8+6+8+8+8 hits) → product-LABEL occurrences → UE-N3. License terms + title unchanged
-   (UE-Q5). Ambiguous hit → STOP-list.
+   (8+6+8+8+8 hits) → retitle to `Reactive UI Toolkit Community License 1.1`, version refs
+   `1.0` → `1.1`, product references + credit-line clause updated, terms otherwise
+   unchanged; keep all copies byte-identical to the root `LICENSE`; matching labels in
+   `LICENSE-COMMERCIAL.md`. Ambiguous hit → STOP-list.
 3. `README.md`, `Plugins/ReactiveUI/README.md`, docs-site titles/nav, `templates/fab-listing.template.md` (2) → UE-N3.
 4. `CLA.md` (3), `THIRD_PARTY_NOTICES.md` (1), `VERSIONING.md` (3), `.github/PULL_REQUEST_TEMPLATE.md`,
    `.github/ISSUE_TEMPLATE/bug_report.yml` (2), `.github/dependabot.yml` comment,
@@ -296,8 +303,10 @@ After D: `git grep -nI "\bFRui[A-Z]\|\bURui[A-Z]\|\bSRui[A-Z]\|\bTRui[A-Z]\|\bIR
    vsix `Identity Id`/`Publisher`/`DisplayName`; lsp `package.json` `name`. Everything else in
    `ide-extensions/` converts via A/C/D (incl. `formatUetkx.ts:570,573`, grammar, fixtures —
    the 15 `fileScanLeg` tokens land at `FRuitkNode`, verify 15/0 old).
-2. UE-Q6: vsix `<Tags>` + vscode `keywords` brand tokens → umbrella name.
-3. UE-Q5: the `LicenseRef-ReactiveUI-Community-1.0` string stays this wave (family decision).
+2. UE-Q6 (ADDITIVE, resolved): keep existing vsix `<Tags>` + vscode `keywords`, ADD the
+   umbrella-name tokens.
+3. UE-Q5 (resolved): SPDX ref in lsp `package.json:5` + lockfile →
+   `LicenseRef-Reactive-UI-Toolkit-Community-1.1`.
 4. Rebuild + tests in §8.
 
 ### 7.F Group F — contracts, schema, goldens, corpus `[ENGINE]`
@@ -374,7 +383,6 @@ VS2022 vsix build per its CI job (Windows/msbuild-gated).
 | Grep | Allowed |
 |---|---|
 | `ReactiveUI` / `FRui\|URui\|SRui\|TRui\|IRui\|ERui\|ARui\|RUI::\|RUI_` | `plans/archive/**` · `research/**` · `BENCH_BASELINES.md` (incl. the old `RUIBENCH` log prefix it documents) · CHANGELOG bodies below 0.15.0 (+ mirror) · `plans/DISCORD_CHANGELOG.md` old posts · MIGRATION/codemod OLD columns |
-| `LicenseRef-ReactiveUI-Community-1.0` | lsp package.json + lock (UE-Q5, this wave) |
 | `ReactiveUITK` | the frozen vscode `publisher` field (family marketplace identity) |
 | `yanivkalfa` / `Yaniv Kalfa` | person attributions: uplugin `CreatedBy`, vsix `Publisher`, license copyright, mailtos — people keep their names; only URLs moved |
 | `ReactiveUI-Unreal` | Tier-3 prose; NOWHERE as a live URL |
