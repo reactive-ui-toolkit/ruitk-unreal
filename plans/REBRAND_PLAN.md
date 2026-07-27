@@ -68,7 +68,7 @@ Written for a **lesser-model executor**. §1 is binding.
 | UE-N4 | Plugin folder + `.uplugin` | `Plugins/ReactiveUI/`, `ReactiveUI.uplugin` | `Plugins/ReactiveUIToolkit/`, `ReactiveUIToolkit.uplugin` (folder ↔ uplugin filename must stay paired) |
 | UE-N5 | Plugin name in `.uproject` | `"Name": "ReactiveUI"` (line 20 — the SOLE site, verified) | `"Name": "ReactiveUIToolkit"` |
 | UE-N6 | The 8 plugin modules **(UE-Q1 RATIFIED)** | `ReactiveUICore, ReactiveUISlate, ReactiveUIUMG, ReactiveUICommonUI, ReactiveUIMVVMBridge, ReactiveUIInterp, ReactiveUIToolchain, ReactiveUIEditor` | `RuitkCore, RuitkSlate, RuitkUMG, RuitkCommonUI, RuitkMVVMBridge, RuitkInterp, RuitkToolchain, RuitkEditor` |
-| UE-N7 | Module export macros (UBT-derived; **9**, not 8 — v1 missed the game module's) | `REACTIVEUISLATE_API` 206 · `REACTIVEUICORE_API` 95 · `REACTIVEUIINTERP_API` 24 · `REACTIVEUIUMG_API` 20 · `REACTIVEUITOOLCHAIN_API` 16 · `REACTIVEUICOMMONUI_API` 11 · `REACTIVEUIMVVMBRIDGE_API` 3 · `REACTIVEUIEDITOR_API` 1 · **`RUIDEMO_API` 44** = **376** | `RUITKSLATE_API, RUITKCORE_API, RUITKINTERP_API, RUITKUMG_API, RUITKTOOLCHAIN_API, RUITKCOMMONUI_API, RUITKMVVMBRIDGE_API, RUITKEDITOR_API, RUITKDEMO_API` |
+| UE-N7 | Module export macros (UBT-derived; **9**, not 8 — v1 missed the game module's) | `REACTIVEUISLATE_API` 206 · `REACTIVEUICORE_API` 95 · `REACTIVEUIINTERP_API` 24 · `REACTIVEUIUMG_API` 20 · `REACTIVEUITOOLCHAIN_API` 16 · `REACTIVEUICOMMONUI_API` 11 · `REACTIVEUIMVVMBRIDGE_API` 3 · `REACTIVEUIEDITOR_API` 1 · **`RUIDEMO_API` 44** = **420** (errata: the 8 plugin macros sum to 376; `RUIDEMO_API` is on top) | `RUITKSLATE_API, RUITKCORE_API, RUITKINTERP_API, RUITKUMG_API, RUITKTOOLCHAIN_API, RUITKCOMMONUI_API, RUITKMVVMBRIDGE_API, RUITKEDITOR_API, RUITKDEMO_API` |
 | UE-N8 | Type prefixes — **all five UE letters, not just F/U** | `FRui*` 10,866 (classifier `FRuiNode` 2,313) · `URui*` 387 · `SRui*` 316 (17 distinct) · `TRui*` 220 (17) · `IRui*` 181 (5) · `ERui*` 406 (9) · `ARui*` 5 (1) | `FRuitk*/URuitk*/SRuitk*/TRuitk*/IRuitk*/ERuitk*/ARuitk*` |
 | UE-N9 | Bare `Rui*` identifiers (incl. generated-symbol prefixes `RuiPriv_*`, `RuiUetkx_*`, and 108 source FILENAMES) | 185 distinct tokens / 2,266 occ | `Ruitk*` (blanket rule D5) |
 | UE-N10 | C++ namespace | `RUI::` 2,419 · `namespace RUI` | `Ruitk::` / `namespace Ruitk` |
@@ -106,7 +106,7 @@ git grep -ohI "\bTRui[A-Za-z_]*" | wc -l    #   220
 git grep -ohI "\bIRui[A-Za-z_]*" | wc -l    #   181
 git grep -ohI "\bERui[A-Za-z_]*" | wc -l    #   406
 git grep -ohI "\bRUI_[A-Z_]*" | wc -l       #  1010   (24 distinct)
-git grep -ohI "REACTIVEUI[A-Z]*_API\|RUIDEMO_API" | wc -l   # 376 (9 distinct)
+git grep -ohI "REACTIVEUI[A-Z]*_API\|RUIDEMO_API" | wc -l   # 420 (9 distinct: 376 across the 8 REACTIVEUI* + RUIDEMO_API 44)
 git grep -ohI "FRuiNode" | wc -l            #  2313
 git grep -cI  "Ruitk" | wc -l               #     0   ← collision check
 ```
@@ -220,7 +220,7 @@ C1. Module token sweep, whole-word, LONGEST FIRST (same 8-row table, ratified `R
     `ReactiveUIToolchain→RuitkToolchain`, `ReactiveUIEditor→RuitkEditor`,
     `ReactiveUIInterp→RuitkInterp`, `ReactiveUISlate→RuitkSlate`, `ReactiveUICore→RuitkCore`,
     `ReactiveUIUMG→RuitkUMG`.
-C2. Export-macro sweep — **9 pairs** (UE-N7), incl. `RUIDEMO_API → RUITKDEMO_API`. 376 total.
+C2. Export-macro sweep — **9 pairs** (UE-N7), incl. `RUIDEMO_API → RUITKDEMO_API`. 420 total.
 C3. Module dirs + Build.cs + **module implementation files** (v1 missed the third):
     ```bash
     for m in Core Slate UMG CommonUI MVVMBridge Interp Toolchain Editor; do
