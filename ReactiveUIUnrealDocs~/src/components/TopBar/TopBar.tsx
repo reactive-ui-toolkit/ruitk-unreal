@@ -50,7 +50,7 @@ export const TopBar: FC<TopBarProps> = ({ onOpenSearch }) => {
               </MenuItem>
             ))}
           </Select>
-          <IconButton component={Link} href="https://github.com/yanivkalfa/ReactiveUI-Unreal" target="_blank" rel="noreferrer">
+          <IconButton component={Link} href="https://github.com/reactive-ui-toolkit/ruitk-unreal" target="_blank" rel="noreferrer">
             <GitHubIcon />
           </IconButton>
           <IconButton component={Link} href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" aria-label="Join our Discord">

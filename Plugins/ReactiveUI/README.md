@@ -6,8 +6,8 @@ lives in hooks. `.uetkx` markup (grammar-compatible with the family's `.guitkx`/
 compiles to native C++ for shipping builds and hot-reloads live in PIE during development —
 no script VM in your shipped game.
 
-The Unreal sibling of [ReactiveUIToolKit](https://github.com/yanivkalfa/ReactiveUIToolKit)
-(Unity) and [ReactiveUI-Godot](https://github.com/yanivkalfa/ReactiveUI-Godot) (Godot).
+The Unreal sibling of [ReactiveUIToolKit](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit)
+(Unity) and [ReactiveUI-Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot).
 
 > **Status: beta — built end to end.** 23 core hooks, 65+ wrapped Slate widgets (including
 > virtualized `ListView`/`TileView`), the `.uetkx` compiler with committed codegen and a CI
@@ -17,7 +17,7 @@ The Unreal sibling of [ReactiveUIToolKit](https://github.com/yanivkalfa/Reactive
 > Localization Dashboard; culture switches re-render live), and first-class UMG/CommonUI/MVVM
 > interop — all green under the repository's headless automation battery. Remaining before v1:
 > docs-site build-out. Progress and the v1 ship gate:
-> <https://github.com/yanivkalfa/ReactiveUI-Unreal>
+> <https://github.com/reactive-ui-toolkit/ruitk-unreal>
 
 ## What it is
 
@@ -32,7 +32,7 @@ The Unreal sibling of [ReactiveUIToolKit](https://github.com/yanivkalfa/Reactive
 
 ## Support
 
-Issues: <https://github.com/yanivkalfa/ReactiveUI-Unreal/issues> ·
+Issues: <https://github.com/reactive-ui-toolkit/ruitk-unreal/issues> ·
 Discord: <https://discord.gg/Knedqu4Wyv> (`#unreal`)
 
 ## License

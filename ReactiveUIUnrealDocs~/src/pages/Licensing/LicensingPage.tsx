@@ -117,7 +117,7 @@ export const LicensingPage: FC = () => (
       a license certificate PDF, the document your producer files for publisher and platform
       paperwork. The full texts live in the repository:{' '}
       <a
-        href="https://github.com/yanivkalfa/ReactiveUI-Unreal/blob/master/LICENSE"
+        href="https://github.com/reactive-ui-toolkit/ruitk-unreal/blob/master/LICENSE"
         target="_blank"
         rel="noreferrer"
       >
@@ -125,7 +125,7 @@ export const LicensingPage: FC = () => (
       </a>{' '}
       and{' '}
       <a
-        href="https://github.com/yanivkalfa/ReactiveUI-Unreal/blob/master/LICENSE-COMMERCIAL.md"
+        href="https://github.com/reactive-ui-toolkit/ruitk-unreal/blob/master/LICENSE-COMMERCIAL.md"
         target="_blank"
         rel="noreferrer"
       >

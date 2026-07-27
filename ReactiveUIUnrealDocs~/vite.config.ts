@@ -64,9 +64,9 @@ const eventPayloads: Record<string, string> = uetkxSchema.eventPayloads ?? {}
 
 // https://vite.dev/config/
 export default defineConfig({
-  // GitHub Pages PROJECT site: served from /ReactiveUI-Unreal/. Asset URLs are base-prefixed and the
+  // GitHub Pages PROJECT site: served from /ruitk-unreal/. Asset URLs are base-prefixed and the
   // router basename mirrors this (see src/main.tsx). Switch both to '/' for a custom domain.
-  base: '/ReactiveUI-Unreal/',
+  base: '/ruitk-unreal/',
   plugins: [react()],
   define: {
     __PACKAGE_VERSION__: JSON.stringify(readPluginVersion()),

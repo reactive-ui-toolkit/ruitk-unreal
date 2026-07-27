@@ -1,6 +1,6 @@
 # ReactiveUI-Godot Production Ecosystem Inventory (reference for ReactiveUI-Unreal "step 0")
 
-Repo root: `c:\Yanivs\GameDev\ReactiveUI\ReactiveUI-Gadot` (GitHub: `yanivkalfa/ReactiveUI-Godot`). Four independently-versioned deliverables in one repo, one manual Publish button, two changelog lanes, headless test harness, Claude skills encoding house process.
+Repo root: `c:\Yanivs\GameDev\ReactiveUI\ReactiveUI-Gadot` (GitHub: `reactive-ui-toolkit/ReactiveUI-Godot`). Four independently-versioned deliverables in one repo, one manual Publish button, two changelog lanes, headless test harness, Claude skills encoding house process.
 
 ---
 

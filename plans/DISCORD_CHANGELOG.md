@@ -39,8 +39,8 @@ export FRuiNode Counter() {
 }
 ```
 
-:package: **GitHub (free, source):** https://github.com/yanivkalfa/ReactiveUI-Unreal
-:book: **Docs & guides:** https://yanivkalfa.github.io/ReactiveUI-Unreal/
+:package: **GitHub (free, source):** https://github.com/reactive-ui-toolkit/ruitk-unreal
+:book: **Docs & guides:** https://reactive-ui-toolkit.github.io/ruitk-unreal/
 
 Happy to answer any questions about the approach or architecture. Fab listing and demo video are on the way as we work toward v1.0!
 
@@ -382,8 +382,8 @@ component Counter {
 ```
 
 :clapper: **Demo video:** __VIDEO_URL__ <!-- the Doom demo recording — owner records -->
-:book: **Docs & guides:** https://yanivkalfa.github.io/ReactiveUI-Unreal/
-:package: **GitHub:** https://github.com/yanivkalfa/ReactiveUI-Unreal
+:book: **Docs & guides:** https://reactive-ui-toolkit.github.io/ruitk-unreal/
+:package: **GitHub:** https://github.com/reactive-ui-toolkit/ruitk-unreal
 
 Happy to answer any questions about the approach or architecture. More updates to come as we
 work toward v1.0!
