@@ -44,7 +44,7 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
 
 1. **Plugin manifest**: the dev repo's `ReactiveUIToolkit.uplugin` carries **NO `EngineVersion`
    pin** — that field is a hard per-version compatibility gate, not a floor declaration
-   (a 5.6.0 pin made 5.7 show "'ReactiveUI' is Incompatible… Attempt to load anyway?",
+   (a 5.6.0 pin made 5.7 show "'ReactiveUIToolkit' is Incompatible… Attempt to load anyway?",
    which headless/-unattended auto-answers NO → the plugin silently never loads and every
    adapter lookup dies). The floor lives in VERSIONING.md/README; per-engine zips stamp
    `EngineVersion` at packaging (release-process).

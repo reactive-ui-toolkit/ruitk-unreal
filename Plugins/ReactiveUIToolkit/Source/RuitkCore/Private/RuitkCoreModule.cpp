@@ -17,7 +17,7 @@ public:
 	virtual void StartupModule() override
 	{
 		FString VersionName = TEXT("unknown");
-		if (const TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("ReactiveUI")))
+		if (const TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("ReactiveUIToolkit")))
 		{
 			VersionName = Plugin->GetDescriptor().VersionName;
 		}

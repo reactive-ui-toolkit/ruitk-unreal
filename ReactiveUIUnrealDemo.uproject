@@ -17,7 +17,7 @@
 	],
 	"Plugins": [
 		{
-			"Name": "ReactiveUI",
+			"Name": "ReactiveUIToolkit",
 			"Enabled": true
 		},
 		{
