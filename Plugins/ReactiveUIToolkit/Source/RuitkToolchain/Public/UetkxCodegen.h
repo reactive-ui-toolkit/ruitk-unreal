@@ -46,7 +46,7 @@ public:
 											 TOptional<bool> bSellerRepoOverride = TOptional<bool>());
 
 	/** D-32(a) context-aware generated-code header. TRUE only inside ReactiveUI's OWN repo (the seller's
-	 *  monorepo, marked by a `.rui-seller-repo` sentinel at the project root that never ships in the Fab
+	 *  monorepo, marked by a `.ruitk-seller-repo` sentinel at the project root that never ships in the Fab
 	 *  package) — there generated code carries the seller copyright. In a CUSTOMER project the sentinel
 	 *  is absent, so generated code carries the neutral "belongs to your project" banner. */
 	static bool IsSellerRepo();

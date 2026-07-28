@@ -2438,7 +2438,7 @@ bool FUetkxCodegen::IsSellerRepo()
 	// The sentinel lives at the seller monorepo's project root, ABOVE Plugins/ReactiveUIToolkit/, so it is
 	// never part of the Fab plugin package a customer installs (D-32a). Cached: a process is entirely
 	// in one repo or the other. Tests that need the other banner pass an explicit override instead.
-	static const bool bSeller = FPaths::FileExists(FPaths::ProjectDir() / TEXT(".rui-seller-repo"));
+	static const bool bSeller = FPaths::FileExists(FPaths::ProjectDir() / TEXT(".ruitk-seller-repo"));
 	return bSeller;
 }
 
