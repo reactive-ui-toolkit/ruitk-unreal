@@ -27,10 +27,25 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.EPIC_GHCR_PAT }}
+      # Runner-temp EACCES (broken since 2026-07-27, runner-side): the runner mounts /__w/_temp
+      # with root-only file-command files, and the image's default non-root user (ue4) cannot
+      # write them — actions/checkout and every post-step die with EACCES before any code runs.
+      # Fix: the CONTAINER runs as root so the runner glue works; every ENGINE invocation below
+      # drops back to ue4 via setpriv, because the prebuilt Linux editor refuses euid 0 outright
+      # (UnixPlatformMemory.cpp, UE4_DO_ROOT_PRIVILEGE_CHECK — compile-time, no runtime bypass).
+      options: --user root
     env:
       ENGINE_ROOT: /home/ue4/UnrealEngine
+      # setpriv (util-linux) demotes to the image's engine user without resetting the
+      # environment; HOME is pinned so editor config/cache lands in ue4's home, not /root.
+      AS_UE4: setpriv --reuid=ue4 --regid=ue4 --init-groups env HOME=/home/ue4
     steps:
       - uses: actions/checkout@v7
+
+      # The checkout above ran as root, so hand the workspace to the engine user before any
+      # engine step writes into it (Intermediate/, Saved/, test-report/).
+      - name: Hand the workspace to the engine user
+        run: chown -R ue4:ue4 "$GITHUB_WORKSPACE"
 
       # 1. The empty-plugin/editor compile IS Phase 0's engine gate. Development Editor first.
       #    -DisableUnity -NoPCH (2026-07-25, TB-30): the marketplace/Fab build mode. Unity builds
@@ -39,14 +54,14 @@ jobs:
       #    class here on clang exactly as MSVC -StrictIncludes does at packaging time.
       - name: Build Development Editor (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoEditor Linux Development \
+          $AS_UE4 "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoEditor Linux Development \
             -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 2. Dedicated-server compile leg — D-27's server policy is CI-verified, not assumed
       #    (modules stay present on Server targets; behavior is gated at runtime instead).
       - name: Build DedicatedServer (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoServer Linux Development \
+          $AS_UE4 "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoServer Linux Development \
             -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 3. Markup drift gate — the RuitkCompile commandlet + committed *.uetkx.inl / aggregators exist
@@ -55,7 +70,7 @@ jobs:
       #    when armed (bughunt BUILD-2).
       - name: Markup drift gate
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
+          $AS_UE4 "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
             -run=RuitkCompile -check -unattended -nopause -nullrhi
 
       # 4. Automation suites (headless) — the Ruitk.* specs exist (Phase 1+). Pass/fail parses
@@ -63,7 +78,7 @@ jobs:
       #    activation point, so an armed run reported green having run ZERO tests (bughunt BUILD-2).
       - name: Automation suites (headless)
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
+          $AS_UE4 "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
             -ExecCmds="Automation RunTests Ruitk; Quit" \
             -unattended -nopause -nosplash -nullrhi -stdout -FullStdOutLogOutput \
             -ReportExportPath="$GITHUB_WORKSPACE/test-report"
