@@ -129,9 +129,9 @@ export const sections: DocSection[] = [
         canonicalId: 'migration',
         title: 'Migration & Adoption',
         path: '/guides/migration',
-        keywords: ['migration', 'adoption', 'existing project', 'incremental', 'umg', 'convert'],
+        keywords: ['migration', 'adoption', 'existing project', 'incremental', 'umg', 'convert', 'rename', 'rebrand', '0.15'],
         searchContent:
-          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget Reactive UI Toolkit Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion Reactive UI Toolkit owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
+          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget Reactive UI Toolkit Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion Reactive UI Toolkit owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog 0.15 rename rebrand Reactive UI Toolkit RuitkMigrateBrand brand codemod CoreRedirects RuitkCore FRuitkNode Ruitk namespace RUITK_PROP plugin folder ReactiveUIToolkit ruitk cvars',
         element: () => <MigrationPage />,
       },
       {

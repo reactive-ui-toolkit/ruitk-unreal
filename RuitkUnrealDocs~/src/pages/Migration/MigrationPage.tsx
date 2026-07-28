@@ -1,6 +1,17 @@
 import type { FC } from 'react'
-import { Alert, Box, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
+import { GITHUB_URL } from '../../links'
 
 const LEAF = `// Stage 1 — in the UMG Designer: drop a "Reactive UI Toolkit Host" (URuitkHostWidget)
 // into your EXISTING UserWidget layout and set ComponentName to a registered
@@ -38,6 +49,24 @@ export FRuitkNode ScoreRow() {
 		</HorizontalBox>
 	);
 }`
+
+const BRAND_RUN = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkMigrateBrand
+<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkCompile -check`
+
+const CORE_REDIRECTS = `[CoreRedirects]
++ClassRedirects=(OldName="/Script/ReactiveUIUMG.RuiHostWidget",NewName="/Script/RuitkUMG.RuitkHostWidget")
++ClassRedirects=(OldName="/Script/ReactiveUIUMG.RuiSignalViewModel",NewName="/Script/RuitkUMG.RuitkSignalViewModel")
++ClassRedirects=(OldName="/Script/ReactiveUIUMG.RuiWorldSubsystem",NewName="/Script/RuitkUMG.RuitkWorldSubsystem")
++ClassRedirects=(OldName="/Script/ReactiveUICommonUI.RuiActivatableScreen",NewName="/Script/RuitkCommonUI.RuitkActivatableScreen")
++ClassRedirects=(OldName="/Script/ReactiveUIMVVMBridge.RuiMvvmViewModel",NewName="/Script/RuitkMVVMBridge.RuitkMvvmViewModel")`
+
+const RENAME_TABLE: Array<[string, string]> = [
+  ['Plugins/ReactiveUI/ + ReactiveUI.uplugin', 'Plugins/ReactiveUIToolkit/ + ReactiveUIToolkit.uplugin'],
+  ['ReactiveUI<Mod> modules (ReactiveUICore, …)', 'Ruitk<Mod> (RuitkCore, RuitkSlate, RuitkUMG, …) — Build.cs deps + RUITK<MOD>_API'],
+  ['FRui* / URui* / SRui* / TRui* / IRui* / ERui* / ARui*', 'FRuitk* / URuitk* / … (FRuiNode → FRuitkNode)'],
+  ['RUI:: / namespace RUI', 'Ruitk:: / namespace Ruitk'],
+  ['RUI_* macros (RUI_PROP, RUI_COMPONENT, …)', 'RUITK_* (RUITK_PROP, RUITK_COMPONENT, …)'],
+]
 
 export const MigrationPage: FC = () => (
   <Box>
@@ -90,6 +119,57 @@ export const MigrationPage: FC = () => (
       19 screens are all compiled <code>.uetkx</code> and double as conversion references.
     </Typography>
     <CodeBlock code={CONVERT} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Upgrading to 0.15 — the Reactive UI Toolkit rename
+    </Typography>
+    <Typography variant="body1" paragraph>
+      0.15.0 renames the product and <strong>every public identifier</strong> to the family&apos;s
+      umbrella name, <strong>Reactive UI Toolkit</strong> — behaviorally it is 0.14.0 with new
+      names, but a 0.14 project will not compile until migrated. The rename is mechanical:
+    </Typography>
+    <TableContainer sx={{ mb: 2 }}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>0.14</TableCell>
+            <TableCell>0.15</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {RENAME_TABLE.map(([oldForm, newForm]) => (
+            <TableRow key={oldForm}>
+              <TableCell>
+                <code>{oldForm}</code>
+              </TableCell>
+              <TableCell>
+                <code>{newForm}</code>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <Typography variant="body1" paragraph>
+      Install the new plugin folder, then one idempotent codemod rewrites your{' '}
+      <code>.uetkx</code> files, <code>Build.cs</code> dependencies, <code>#include</code> paths,
+      and the <code>.uproject</code> plugin reference; the compile gate proves you&apos;re done:
+    </Typography>
+    <CodeBlock code={BRAND_RUN} language="bash" />
+    <Typography variant="body1" paragraph>
+      If your assets or Blueprints reference the renamed reflected classes, paste the redirects
+      into <code>Config/DefaultEngine.ini</code> and resave them once:
+    </Typography>
+    <CodeBlock code={CORE_REDIRECTS} language="ini" />
+    <Alert severity="info" sx={{ mb: 2 }}>
+      Full detail — the complete rule set, the automation-suite (<code>Ruitk.*</code>) and
+      commandlet (<code>-run=Ruitk*</code>) renames, <code>ruitk.*</code> console variables, and
+      the license retitle to the Reactive UI Toolkit Community License 1.1 — lives in{' '}
+      <a href={`${GITHUB_URL}/blob/HEAD/MIGRATION-0.15.md`} target="_blank" rel="noreferrer">
+        MIGRATION-0.15.md
+      </a>{' '}
+      in the repo.
+    </Alert>
 
     <Alert severity="info" sx={{ mt: 2 }}>
       Upgrading an existing <code>.uetkx</code> tree to the ES-modules grammar (strict imports

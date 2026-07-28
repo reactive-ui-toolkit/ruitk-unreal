@@ -6,8 +6,8 @@ lives in hooks. `.uetkx` markup (grammar-compatible with the family's `.guitkx`/
 compiles to native C++ for shipping builds and hot-reloads live in PIE during development —
 no script VM in your shipped game.
 
-The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit)
-(Unity) and [Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/Reactive UI Toolkit for Godot) (Godot).
+The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ruitk-unity)
+(Unity) and [Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ruitk-godot) (Godot).
 
 > **Status: beta — built end to end.** 23 core hooks, 65+ wrapped Slate widgets (including
 > virtualized `ListView`/`TileView`), the `.uetkx` compiler with committed codegen and a CI
