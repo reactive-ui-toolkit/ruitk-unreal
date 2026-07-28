@@ -13,11 +13,11 @@
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
 DECLARE_STATS_GROUP(TEXT("Ruitk"), STATGROUP_Ruitk, STATCAT_Advanced);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuiRenders, STATGROUP_Ruitk, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuiCommits, STATGROUP_Ruitk, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuiPlacements, STATGROUP_Ruitk, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuiUpdates, STATGROUP_Ruitk, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuitkRenders, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuitkCommits, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuitkPlacements, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuitkUpdates, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuitkDeletions, STATGROUP_Ruitk, RUITKCORE_API);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Config (ruitk.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
@@ -64,7 +64,7 @@ struct RUITKCORE_API FRuitkDiagnostics
 	static void Reset();
 	static void OnRender()
 	{
-		INC_DWORD_STAT(STAT_RuiRenders);
+		INC_DWORD_STAT(STAT_RuitkRenders);
 		if (bEnabled)
 		{
 			++Renders;
@@ -72,7 +72,7 @@ struct RUITKCORE_API FRuitkDiagnostics
 	}
 	static void OnCommit()
 	{
-		INC_DWORD_STAT(STAT_RuiCommits);
+		INC_DWORD_STAT(STAT_RuitkCommits);
 		if (bEnabled)
 		{
 			++Commits;
@@ -80,7 +80,7 @@ struct RUITKCORE_API FRuitkDiagnostics
 	}
 	static void OnPlacement()
 	{
-		INC_DWORD_STAT(STAT_RuiPlacements);
+		INC_DWORD_STAT(STAT_RuitkPlacements);
 		if (bEnabled)
 		{
 			++Placements;
@@ -88,7 +88,7 @@ struct RUITKCORE_API FRuitkDiagnostics
 	}
 	static void OnUpdate()
 	{
-		INC_DWORD_STAT(STAT_RuiUpdates);
+		INC_DWORD_STAT(STAT_RuitkUpdates);
 		if (bEnabled)
 		{
 			++Updates;
@@ -96,7 +96,7 @@ struct RUITKCORE_API FRuitkDiagnostics
 	}
 	static void OnDeletion()
 	{
-		INC_DWORD_STAT(STAT_RuiDeletions);
+		INC_DWORD_STAT(STAT_RuitkDeletions);
 		if (bEnabled)
 		{
 			++Deletions;

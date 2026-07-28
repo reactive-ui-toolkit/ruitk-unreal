@@ -4,11 +4,11 @@
 #include "HAL/IConsoleManager.h"
 #include "Misc/App.h"
 
-DEFINE_STAT(STAT_RuiRenders);
-DEFINE_STAT(STAT_RuiCommits);
-DEFINE_STAT(STAT_RuiPlacements);
-DEFINE_STAT(STAT_RuiUpdates);
-DEFINE_STAT(STAT_RuiDeletions);
+DEFINE_STAT(STAT_RuitkRenders);
+DEFINE_STAT(STAT_RuitkCommits);
+DEFINE_STAT(STAT_RuitkPlacements);
+DEFINE_STAT(STAT_RuitkUpdates);
+DEFINE_STAT(STAT_RuitkDeletions);
 
 // ── CVars (ruitk.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 

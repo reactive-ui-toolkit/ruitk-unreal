@@ -47,31 +47,45 @@ namespace
 		{TEXT("Plugins/ReactiveUI/"), TEXT("Plugins/ReactiveUIToolkit/")},
 		{TEXT("Plugins\\\\ReactiveUI\\\\"), TEXT("Plugins\\ReactiveUIToolkit\\")},
 		{TEXT("\\bReactiveUI\\.uplugin\\b"), TEXT("ReactiveUIToolkit.uplugin")},
-		{TEXT("\"Name\": \"ReactiveUI\""), TEXT("\"Name\": \"ReactiveUIToolkit\"")},
-		// D1/D2 — the seven type prefixes.
-		{TEXT("\\bFRui(?!tk)"), TEXT("FRuitk")},
-		{TEXT("\\bURui(?!tk)"), TEXT("URuitk")},
-		{TEXT("\\bSRui(?!tk)"), TEXT("SRuitk")},
-		{TEXT("\\bTRui(?!tk)"), TEXT("TRuitk")},
-		{TEXT("\\bIRui(?!tk)"), TEXT("IRuitk")},
-		{TEXT("\\bERui(?!tk)"), TEXT("ERuitk")},
-		{TEXT("\\bARui(?!tk)"), TEXT("ARuitk")},
+		{TEXT("\"Name\"\\s*:\\s*\"ReactiveUI\""), TEXT("\"Name\": \"ReactiveUIToolkit\"")},
+		// D1/D2 — the seven type prefixes. The `(?=[A-Z_])` lookahead is load-bearing, not
+		// decoration: `(?!tk)` alone only blocks the already-migrated continuation, so the rule
+		// would also rewrite any unrelated word that merely STARTS with the prefix letters (a
+		// user's `FRuit` struct -> `FRuitkt`). `_` belongs in the class because the widget
+		// templates use `FRui__TAG__*` placeholders. Audited by enumeration over the whole 0.14
+		// corpus: every real brand token is followed by an uppercase letter or `_`, and nothing
+		// that is followed by anything else is a brand identifier (the rest are prose words in
+		// comments — "the Rui side", "a Rui tree" — which this rule deliberately leaves alone).
+		{TEXT("\\bFRui(?!tk)(?=[A-Z_])"), TEXT("FRuitk")},
+		{TEXT("\\bURui(?!tk)(?=[A-Z_])"), TEXT("URuitk")},
+		{TEXT("\\bSRui(?!tk)(?=[A-Z_])"), TEXT("SRuitk")},
+		{TEXT("\\bTRui(?!tk)(?=[A-Z_])"), TEXT("TRuitk")},
+		{TEXT("\\bIRui(?!tk)(?=[A-Z_])"), TEXT("IRuitk")},
+		{TEXT("\\bERui(?!tk)(?=[A-Z_])"), TEXT("ERuitk")},
+		{TEXT("\\bARui(?!tk)(?=[A-Z_])"), TEXT("ARuitk")},
 		// D3 — the namespace.
 		{TEXT("\\bRUI::"), TEXT("Ruitk::")},
 		{TEXT("\\bnamespace RUI\\b"), TEXT("namespace Ruitk")},
-		// Boundary-blocked families (word-char prefixes defeat \b).
-		{TEXT("LogRui(?!tk)"), TEXT("LogRuitk")},
-		{TEXT("CVarRui(?!tk)"), TEXT("CVarRuitk")},
-		{TEXT("GRui(?!tk)(?=[A-Z])"), TEXT("GRuitk")},
+		// Boundary-blocked families (word-char prefixes defeat \b) — same uppercase/underscore
+		// class, same reason (`LogRuins` must not become `LogRuitkns`).
+		{TEXT("LogRui(?!tk)(?=[A-Z_])"), TEXT("LogRuitk")},
+		{TEXT("CVarRui(?!tk)(?=[A-Z_])"), TEXT("CVarRuitk")},
+		{TEXT("GRui(?!tk)(?=[A-Z_])"), TEXT("GRuitk")},
 		// D5 — the bare-Rui blanket.
-		{TEXT("\\bRui(?!tk)"), TEXT("Ruitk")},
+		{TEXT("\\bRui(?!tk)(?=[A-Z_])"), TEXT("Ruitk")},
 		// D6 — case-class: PascalCase (commandlet family) first, then ALL-CAPS macros.
-		{TEXT("\\bRUI(?=[A-Z][a-z])"), TEXT("Ruitk")},
+		{TEXT("\\bRUI(?!TK)(?=[A-Z][a-z])"), TEXT("Ruitk")},
 		{TEXT("\\bRUI(?!TK)(?=[A-Z_])"), TEXT("RUITK")},
-		// Console variables + baked codegen constants (0.15 identity ruling): user ini/source
-		// lines keep working under the new names; hook-sig constants regenerate via
+		// Console variables — ENUMERATED, not open-ended. An open `\brui\.` rule (even guarded by
+		// a following uppercase) also rewrites ordinary member access on a variable named `rui`
+		// (`rui.GetValue()` -> `ruitk.GetValue()`), silently, inside working user code. The set of
+		// old cvar names is closed — 0.14 is the last version that can contain them — so the rule
+		// names all nine `rui.*` tokens the 0.14 tree ever registered or documented.
+		{TEXT("\\brui\\.(?=(DumpTree|FrameBudgetMs|Hmr|HookValidation|HostNodePool|Stats|StrictDiagnostics|"
+			  "StrictMode|TimeSlicing)\\b)"),
+		 TEXT("ruitk.")},
+		// Baked codegen constants (0.15 identity ruling): hook-sig constants regenerate via
 		// RuitkCompile anyway — this rule just keeps a not-yet-regenerated tree consistent.
-		{TEXT("\\brui\\.(?=[A-Z])"), TEXT("ruitk.")},
 		{TEXT("_RUI_HOOK_SIG"), TEXT("_RUITK_HOOK_SIG")},
 	};
 
@@ -103,9 +117,20 @@ namespace
 
 	bool ShouldSkip(const FString& Path)
 	{
-		// The 0.15 plugin ships converted; build output and VCS internals are never sources.
-		static const TCHAR* Skips[] = {TEXT("/Plugins/"), TEXT("/Binaries/"),		  TEXT("/Intermediate/"),
-									   TEXT("/Saved/"),	  TEXT("/DerivedDataCache/"), TEXT("/.git/")};
+		// Only the two BRAND plugin folders are skipped, not `Plugins/` wholesale: the 0.15 plugin
+		// ships already converted, and the retired 0.14 plugin must keep compiling until the user
+		// deletes it (MIGRATION-0.15.md has both installed side by side while this runs). A user's
+		// OWN project plugins — `Plugins/MyUI/Source/MyUI/Private/Screen.cpp`, a very common UE
+		// layout — are ordinary sources full of `FRuiNode`/`ReactiveUICore` includes, and ARE
+		// migrated; skipping them produced a silent partial migration and an unexplained build
+		// failure. Build output and VCS internals are never sources.
+		static const TCHAR* Skips[] = {TEXT("/Plugins/ReactiveUIToolkit/"),
+									   TEXT("/Plugins/ReactiveUI/"),
+									   TEXT("/Binaries/"),
+									   TEXT("/Intermediate/"),
+									   TEXT("/Saved/"),
+									   TEXT("/DerivedDataCache/"),
+									   TEXT("/.git/")};
 		for (const TCHAR* Skip : Skips)
 		{
 			if (Path.Contains(Skip))

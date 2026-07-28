@@ -44,9 +44,12 @@ make the migration mechanical.
 
 - **`-run=RuitkMigrateBrand`** — record-driven, idempotent user-project codemod applying the
   full rename rule set (`.uetkx` heads + embedded C++, `Build.cs` deps, `#include` paths,
-  `.uproject` plugin name). Ships with `MIGRATION-0.15.md`, which includes a verbatim
-  `[CoreRedirects]` block (8 renamed `URui*` classes + `ARuiDemoGameMode`) so existing
-  assets load and resave cleanly.
+  `.uproject` plugin name). Migrates `Source/` **and your own project plugins**; skips only the
+  two brand plugin folders. Ships with `MIGRATION-0.15.md`, which includes a verbatim
+  `[CoreRedirects]` block (the five reflected classes the shipped plugin exposes) so existing
+  assets load and resave cleanly. Install the new plugin **alongside** the old one, run the
+  codemod, then delete the old one — the codemod ships inside the new plugin, so a C++ project
+  that deletes first can no longer compile far enough to run it.
 
 ## [0.14.0] — 2026-07-25
 

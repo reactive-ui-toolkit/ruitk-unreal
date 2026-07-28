@@ -516,7 +516,7 @@ export const sections: DocSection[] = [
         path: '/licensing',
         keywords: ['license', 'licensing', 'pricing', 'commercial', 'free tier'],
         searchContent:
-          'licensing license free tier 250k threshold reactiveui community license 1.0 commercial license per-title 2000 studio 2500 per year revenue funding trailing 12 months ship commercially credits made with reactiveui noncompete competing product reselling old versions keep their terms grandfather contractor client revenue 60-day cure window nonprofit edge case certificate pdf publisher platform paperwork LICENSE LICENSE-COMMERCIAL.md CLA contributor license agreement fab eula',
+          'licensing license free tier 250k threshold reactive ui toolkit community license 1.1 reactiveui community license 1.0 commercial license per-title 2000 studio 2500 per year revenue funding trailing 12 months ship commercially credits made with reactive ui toolkit made with reactiveui noncompete competing product reselling old versions keep their terms grandfather contractor client revenue 60-day cure window nonprofit edge case certificate pdf publisher platform paperwork LICENSE LICENSE-COMMERCIAL.md CLA contributor license agreement fab eula',
         element: () => <LicensingPage />,
       },
     ],

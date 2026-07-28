@@ -50,7 +50,10 @@ export FRuitkNode ScoreRow() {
 	);
 }`
 
-const BRAND_RUN = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkMigrateBrand
+const BRAND_RUN = `# 1. install Plugins/ReactiveUIToolkit/ ALONGSIDE the old Plugins/ReactiveUI/ — do not delete yet
+# 2. migrate your sources (Source/ and your own project plugins; both brand plugin folders are skipped)
+<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkMigrateBrand
+# 3. NOW delete Plugins/ReactiveUI/, then verify the tree is byte-stable under the new names
 <Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkCompile -check`
 
 const CORE_REDIRECTS = `[CoreRedirects]
@@ -151,10 +154,19 @@ export const MigrationPage: FC = () => (
       </Table>
     </TableContainer>
     <Typography variant="body1" paragraph>
-      Install the new plugin folder, then one idempotent codemod rewrites your{' '}
-      <code>.uetkx</code> files, <code>Build.cs</code> dependencies, <code>#include</code> paths,
-      and the <code>.uproject</code> plugin reference; the compile gate proves you&apos;re done:
+      One idempotent codemod rewrites your <code>.uetkx</code> files, <code>Build.cs</code>{' '}
+      dependencies, <code>#include</code> paths, and the <code>.uproject</code> plugin reference;
+      the compile gate proves you&apos;re done. It migrates <strong>all</strong> your sources —{' '}
+      <code>Source/</code> and any UI you keep in your own project plugins — skipping only the
+      two brand plugin folders themselves:
     </Typography>
+    <Alert severity="warning" sx={{ mb: 2 }}>
+      <strong>C++ projects: install the new plugin before deleting the old one.</strong> The
+      codemod ships inside the new plugin, and launching it compiles your game modules first — so
+      if <code>Plugins/ReactiveUI/</code> is already gone, your still-unmigrated sources fail to
+      compile and the codemod can never run. The two plugins share no module or reflected class
+      name, so they coexist safely for the one run. Blueprint-only projects can use any order.
+    </Alert>
     <CodeBlock code={BRAND_RUN} language="bash" />
     <Typography variant="body1" paragraph>
       If your assets or Blueprints reference the renamed reflected classes, paste the redirects

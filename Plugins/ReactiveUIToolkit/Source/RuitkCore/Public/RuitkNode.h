@@ -190,7 +190,7 @@ namespace Ruitk
  * indistinguishable to the reconciler.
  */
 #define RUITK_COMPONENT(FnName)                                                                                        \
-	static const FName FnName##_RuiId = Ruitk::RegisterComponentId((void*)&FnName, FName(TEXT(#FnName)));
+	static const FName FnName##_RuitkId = Ruitk::RegisterComponentId((void*)&FnName, FName(TEXT(#FnName)));
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Node factories — the Ruitk:: builder surface's structural pieces (element builders arrive
