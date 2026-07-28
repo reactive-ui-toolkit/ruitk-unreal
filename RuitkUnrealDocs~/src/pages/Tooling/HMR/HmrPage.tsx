@@ -37,14 +37,14 @@ export const HmrPage: FC = () => (
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
-      The ReactiveUetkx window &amp; settings
+      The Reactive UI Toolkit window &amp; settings
     </Typography>
     <Typography variant="body1" paragraph>
-      The <strong>ReactiveUetkx</strong> menu and window drive the loop from inside the editor: watch
+      The <strong>Reactive UI Toolkit</strong> menu and window drive the loop from inside the editor: watch
       status, trigger a compile, and toggle <strong>Follow Play</strong> to tie hot-reload to
       PIE&apos;s Play/Stop. Live Coding must be enabled for the reload half to fire. Tuning lives in{' '}
-      <em>Project Settings ▸ Plugins ▸ ReactiveUetkx</em> (watched roots, debounce, notifications,
-      follow-PIE, hide the Live Coding console), and <code>ReactiveUetkx.HMR.Start</code> /{' '}
+      <em>Project Settings ▸ Plugins ▸ Reactive UI Toolkit</em> (watched roots, debounce, notifications,
+      follow-PIE, hide the Live Coding console), and <code>RuitkUetkx.HMR.Start</code> /{' '}
       <code>Stop</code> / <code>Toggle</code> drive it from the console.
     </Typography>
 

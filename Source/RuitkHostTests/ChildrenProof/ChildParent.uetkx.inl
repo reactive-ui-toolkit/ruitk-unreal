@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent
 {
 struct FChildParentUetkxProps final : public FRuitkPropsBase
 {
@@ -17,31 +17,31 @@ struct FChildParentUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode ChildParent(FChildParentUetkxProps InProps = FChildParentUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+} // namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent
 #else
-namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent
 {
 static FRuitkNodeArray ChildParent_UetkxBody_89D33BE0(FRuitkContext& Ctx, const FChildParentUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { [&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::FChildHostUetkxProps P;
+		RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost::FChildHostUetkxProps P;
 		TArray<FRuitkNode> Ch;
 		Ch.Add(Ruitk::TextBlock(NSLOCTEXT("Uetkx.ChildParent", "ChildParent_1", "FORWARDED-A"), FRuitkKey()));
 		Ch.Add(Ruitk::TextBlock(NSLOCTEXT("Uetkx.ChildParent", "ChildParent_2", "FORWARDED-B"), FRuitkKey()));
-		return RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost::ChildHost(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}() };
 }
 static FRuitkNodeArray ChildParent_UetkxImpl(FRuitkContext& Ctx, const FChildParentUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return ChildParent_UetkxBody_89D33BE0(Ctx, Props, children);
 }
-static const FName GChildParentUetkxId = Ruitk::RegisterComponentId((void*)&ChildParent_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")));
+static const FName GChildParentUetkxId = Ruitk::RegisterComponentId((void*)&ChildParent_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent::ChildParent")));
 static constexpr uint32 ChildParent_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ChildParent(FChildParentUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ChildParent_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GChildParentUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent::ChildParent")), []() { return ChildParent(); });
+static const bool GChildParentUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent::ChildParent")), []() { return ChildParent(); });
 
-} // namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildParent
+} // namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildParent
 #endif

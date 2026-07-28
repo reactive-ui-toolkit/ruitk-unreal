@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+namespace RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels
 {
 struct FStyledPanelsUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FStyledPanelsUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode StyledPanels(FStyledPanelsUetkxProps InProps = FStyledPanelsUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+namespace RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels
 {
 static FRuitkNodeArray StyledPanels_UetkxBody_017C6E5E(FRuitkContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -109,13 +109,13 @@ static FRuitkNodeArray StyledPanels_UetkxImpl(FRuitkContext& Ctx, const FStyledP
 {
 	return StyledPanels_UetkxBody_017C6E5E(Ctx, Props, children);
 }
-static const FName GStyledPanelsUetkxId = Ruitk::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
+static const FName GStyledPanelsUetkxId = Ruitk::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
 static constexpr uint32 StyledPanels_RUITK_HOOK_SIG = 0x72A626EBu;
 inline FRuitkNode StyledPanels(FStyledPanelsUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&StyledPanels_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GStyledPanelsUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")), []() { return StyledPanels(); });
+static const bool GStyledPanelsUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels::StyledPanels")), []() { return StyledPanels(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels
 #endif

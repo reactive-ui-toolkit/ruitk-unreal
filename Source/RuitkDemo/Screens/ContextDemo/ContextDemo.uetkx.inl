@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo
 {
 struct FContextDemoUetkxProps final : public FRuitkPropsBase
 {
@@ -18,22 +18,22 @@ struct FContextDemoUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode ContextDemo(FContextDemoUetkxProps InProps = FContextDemoUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo
 {
 static FRuitkNodeArray ContextDemo_UetkxBody_73D2053D(FRuitkContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 6 "Source/RuitkDemo/Screens/ContextDemo/ContextDemo.uetkx"
 	auto [bPrimary, SetPrimary] = Ctx.UseState<bool>(true);
-		const FLinearColor Theme = bPrimary ? RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style::CoolTheme() : RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style::WarmTheme();
+		const FLinearColor Theme = bPrimary ? RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style::CoolTheme() : RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style::WarmTheme();
 		Ctx.ProvideContext(RuitkDemo::GDemoThemeCtx, Theme);
 #line 32 "ContextDemo.uetkx.inl"
 	return { [&]() -> FRuitkNode {
 		FRuitkBorderProps P;
 		P.SetPadding(FMargin(12));
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
-		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style::PanelBackground()));
+		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style::PanelBackground()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,10,0,0")));
@@ -68,15 +68,15 @@ static FRuitkNodeArray ContextDemo_UetkxBody_73D2053D(FRuitkContext& Ctx, const 
 		return Ruitk::Slate::HorizontalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::FDemoContextPanelUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::FDemoContextPanelUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::FDemoContextPanelUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::FDemoContextPanelUetkxProps P;
 		P.Label = TEXT("Secondary Panel");
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		return Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
@@ -87,13 +87,13 @@ static FRuitkNodeArray ContextDemo_UetkxImpl(FRuitkContext& Ctx, const FContextD
 {
 	return ContextDemo_UetkxBody_73D2053D(Ctx, Props, children);
 }
-static const FName GContextDemoUetkxId = Ruitk::RegisterComponentId((void*)&ContextDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
+static const FName GContextDemoUetkxId = Ruitk::RegisterComponentId((void*)&ContextDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
 static constexpr uint32 ContextDemo_RUITK_HOOK_SIG = 0xF574B6D3u;
 inline FRuitkNode ContextDemo(FContextDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ContextDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GContextDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")), []() { return ContextDemo(); });
+static const bool GContextDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo::ContextDemo")), []() { return ContextDemo(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo
 #endif

@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style
 {
 inline FLinearColor Accent()
 {
@@ -41,9 +41,9 @@ inline FLinearColor Panel()
 ;
 }
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style
 {
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style
 #endif

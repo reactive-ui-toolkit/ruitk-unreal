@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost
+namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost
 {
 struct FChildHostUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FChildHostUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode ChildHost(FChildHostUetkxProps InProps = FChildHostUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost
+} // namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost
 #else
-namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost
+namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost
 {
 static FRuitkNodeArray ChildHost_UetkxBody_82FA7DEF(FRuitkContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -36,13 +36,13 @@ static FRuitkNodeArray ChildHost_UetkxImpl(FRuitkContext& Ctx, const FChildHostU
 {
 	return ChildHost_UetkxBody_82FA7DEF(Ctx, Props, children);
 }
-static const FName GChildHostUetkxId = Ruitk::RegisterComponentId((void*)&ChildHost_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")));
+static const FName GChildHostUetkxId = Ruitk::RegisterComponentId((void*)&ChildHost_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost::ChildHost")));
 static constexpr uint32 ChildHost_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ChildHost(FChildHostUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ChildHost_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GChildHostUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")), []() { return ChildHost(); });
+static const bool GChildHostUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost::ChildHost")), []() { return ChildHost(); });
 
-} // namespace RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost
+} // namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost
 #endif

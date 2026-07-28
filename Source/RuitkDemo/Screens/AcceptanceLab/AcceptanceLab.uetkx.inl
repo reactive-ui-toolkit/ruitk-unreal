@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab
 {
 struct FAcceptanceLabUetkxProps final : public FRuitkPropsBase
 {
@@ -17,16 +17,16 @@ struct FAcceptanceLabUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode AcceptanceLab(FAcceptanceLabUetkxProps InProps = FAcceptanceLabUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab
 {
 static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 21 "Source/RuitkDemo/Screens/AcceptanceLab/AcceptanceLab.uetkx"
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
 		// Imported hook: destructured from a 3-tuple. F12 on UseLabState jumps to AcceptanceLab.hooks.
-		auto [Count, Increment, Reset] = RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks::UseLabState(Ctx, 0);
+		auto [Count, Increment, Reset] = RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks::UseLabState(Ctx, 0);
 	
 		auto [Name, SetName] = Ctx.UseState<FString>(FString());
 		auto [bChecked, SetChecked] = Ctx.UseState<bool>(true);
@@ -64,7 +64,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 			TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 			TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 			TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-			__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
+			__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
 			if (!__Style->IsEmpty()) { __P->Style = __Style; }
 			if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 			__N.Props = __P;
@@ -76,7 +76,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		FRuitkBorderProps P;
 		P.SetPadding(FMargin(12));
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
-		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Panel()));
+		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Panel()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,10,0,0")));
@@ -95,7 +95,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Style->Add(FName(TEXT("Font.Size")), FRuitkValue(18.0f));
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -258,7 +258,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -272,7 +272,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -286,7 +286,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -417,7 +417,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -432,7 +432,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -447,7 +447,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -479,25 +479,25 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		FRuitkHorizontalBoxProps P;
 		TArray<FRuitkNode> Ch;
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::FLabCardUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::FLabCardUetkxProps P;
 		P.Label = TEXT("Live count");
 		P.Count = Count;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::FLabCardUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::FLabCardUetkxProps P;
 		P.Label = TEXT("Always zero");
 		P.Count = 0;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		return Ruitk::Slate::HorizontalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::FLabScopeProofUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::FLabScopeProofUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		return Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
@@ -543,7 +543,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -565,13 +565,13 @@ static FRuitkNodeArray AcceptanceLab_UetkxImpl(FRuitkContext& Ctx, const FAccept
 {
 	return AcceptanceLab_UetkxBody_24CDEE20(Ctx, Props, children);
 }
-static const FName GAcceptanceLabUetkxId = Ruitk::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
+static const FName GAcceptanceLabUetkxId = Ruitk::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
 static constexpr uint32 AcceptanceLab_RUITK_HOOK_SIG = 0x49531E04u;
 inline FRuitkNode AcceptanceLab(FAcceptanceLabUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&AcceptanceLab_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GAcceptanceLabUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")), []() { return AcceptanceLab(); });
+static const bool GAcceptanceLabUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")), []() { return AcceptanceLab(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab
 #endif

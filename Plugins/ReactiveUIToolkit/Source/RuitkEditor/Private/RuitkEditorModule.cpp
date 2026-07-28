@@ -6,9 +6,9 @@
 #include "Framework/Application/SlateApplication.h"
 #include "MessageLogModule.h"
 #include "Modules/ModuleManager.h"
-#include "ReactiveUetkxCommands.h"
-#include "ReactiveUetkxMenu.h"
-#include "SReactiveUetkxHmrPanel.h"
+#include "RuitkUetkxCommands.h"
+#include "RuitkUetkxMenu.h"
+#include "SRuitkUetkxHmrPanel.h"
 #include "SUetkxPreviewPanel.h"
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
@@ -27,7 +27,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuitkEditor, Log, All);
 namespace
 {
 	const FName GRuitkPreviewTabId(TEXT("RuitkPreview"));
-	const FName GRuitkHmrTabId(TEXT("ReactiveUetkxHmr"));
+	const FName GRuitkHmrTabId(TEXT("RuitkUetkxHmr"));
 } // namespace
 
 class FRuitkEditorModule : public IModuleInterface
@@ -86,31 +86,31 @@ public:
 		FUetkxHmrController::Get().RegisterPieHooks();
 
 		// Rebindable, default-unbound shortcuts (D-HMR-6) + a global key preprocessor to fire them.
-		FReactiveUetkxCommands::Register();
+		FRuitkUetkxCommands::Register();
 		if (FSlateApplication::IsInitialized())
 		{
-			InputProcessor = MakeShared<FReactiveUetkxInputProcessor>();
+			InputProcessor = MakeShared<FRuitkUetkxInputProcessor>();
 			FSlateApplication::Get().RegisterInputPreProcessor(InputProcessor);
 		}
 
 		// The main-menu bar isn't up yet at module load — register once ToolMenus is ready.
 		UToolMenus::RegisterStartupCallback(
-			FSimpleMulticastDelegate::FDelegate::CreateStatic(&FReactiveUetkxMenu::Register));
+			FSimpleMulticastDelegate::FDelegate::CreateStatic(&FRuitkUetkxMenu::Register));
 		UE_LOG(LogRuitkEditor, Display,
-			   TEXT("RuitkEditor started — .uetkx watcher armed; ReactiveUetkx menu + HMR window; "
-					"console: ReactiveUetkx.HMR.Start/Stop/Toggle"));
+			   TEXT("RuitkEditor started — .uetkx watcher armed; RuitkUetkx menu + HMR window; "
+					"console: RuitkUetkx.HMR.Start/Stop/Toggle"));
 	}
 
 	virtual void ShutdownModule() override
 	{
-		FReactiveUetkxMenu::Unregister();
+		FRuitkUetkxMenu::Unregister();
 		UToolMenus::UnRegisterStartupCallback(this);
 		if (InputProcessor.IsValid() && FSlateApplication::IsInitialized())
 		{
 			FSlateApplication::Get().UnregisterInputPreProcessor(InputProcessor);
 		}
 		InputProcessor.Reset();
-		FReactiveUetkxCommands::Unregister();
+		FRuitkUetkxCommands::Unregister();
 		FUetkxHmrController::Get().Shutdown();
 		HmrCommands.Reset();
 		if (Watcher.IsValid())
@@ -158,7 +158,7 @@ private:
 		return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SUetkxPreviewPanel)];
 	}
 
-	/** Register the ReactiveUetkx Hot Reload window as a nomad tab (opened from the menu, HMR v2 Phase 2). */
+	/** Register the RuitkUetkx Hot Reload window as a nomad tab (opened from the menu, HMR v2 Phase 2). */
 	void RegisterHmrWindowTab()
 	{
 		if (!FSlateApplication::IsInitialized())
@@ -167,7 +167,7 @@ private:
 		}
 		FGlobalTabmanager::Get()
 			->RegisterNomadTabSpawner(GRuitkHmrTabId, FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnHmrTab))
-			.SetDisplayName(NSLOCTEXT("RuitkUetkx", "HmrTabTitle", "ReactiveUetkx Hot Reload"))
+			.SetDisplayName(NSLOCTEXT("RuitkUetkx", "HmrTabTitle", "Reactive UI Toolkit Hot Reload"))
 			.SetTooltipText(
 				NSLOCTEXT("RuitkUetkx", "HmrTabTooltip", "Start/Stop .uetkx Hot Module Reload (Live Coding)"))
 			.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Recompile"))
@@ -177,7 +177,7 @@ private:
 
 	TSharedRef<SDockTab> SpawnHmrTab(const FSpawnTabArgs&)
 	{
-		return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SReactiveUetkxHmrPanel)];
+		return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SRuitkUetkxHmrPanel)];
 	}
 
 	/** Start/Stop/Toggle the HMR mode from the console (the Phase-2 window + shortcuts drive the same
@@ -185,7 +185,7 @@ private:
 	void RegisterHmrConsoleCommands()
 	{
 		HmrCommands.Add(MakeUnique<FAutoConsoleCommand>(
-			TEXT("ReactiveUetkx.HMR.Start"), TEXT("Start ReactiveUetkx HMR (enables Live Coding mode)."),
+			TEXT("RuitkUetkx.HMR.Start"), TEXT("Start RuitkUetkx HMR (enables Live Coding mode)."),
 			FConsoleCommandDelegate::CreateLambda(
 				[]()
 				{
@@ -196,10 +196,10 @@ private:
 					}
 				})));
 		HmrCommands.Add(MakeUnique<FAutoConsoleCommand>(
-			TEXT("ReactiveUetkx.HMR.Stop"), TEXT("Stop ReactiveUetkx HMR."),
+			TEXT("RuitkUetkx.HMR.Stop"), TEXT("Stop RuitkUetkx HMR."),
 			FConsoleCommandDelegate::CreateLambda([]() { FUetkxHmrController::Get().Stop(); })));
 		HmrCommands.Add(MakeUnique<FAutoConsoleCommand>(
-			TEXT("ReactiveUetkx.HMR.Toggle"), TEXT("Toggle ReactiveUetkx HMR on/off."),
+			TEXT("RuitkUetkx.HMR.Toggle"), TEXT("Toggle RuitkUetkx HMR on/off."),
 			FConsoleCommandDelegate::CreateLambda(
 				[]()
 				{
@@ -220,8 +220,8 @@ private:
 	}
 
 	TUniquePtr<FUetkxWatcher> Watcher;
-	TArray<TUniquePtr<FAutoConsoleCommand>> HmrCommands;	 // ReactiveUetkx.HMR.Start/Stop/Toggle
-	TSharedPtr<FReactiveUetkxInputProcessor> InputProcessor; // global shortcut handler (Phase 3)
+	TArray<TUniquePtr<FAutoConsoleCommand>> HmrCommands;	 // RuitkUetkx.HMR.Start/Stop/Toggle
+	TSharedPtr<FRuitkUetkxInputProcessor> InputProcessor; // global shortcut handler (Phase 3)
 };
 
 IMPLEMENT_MODULE(FRuitkEditorModule, RuitkEditor)

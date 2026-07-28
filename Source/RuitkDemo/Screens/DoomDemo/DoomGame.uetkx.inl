@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame
 {
 struct FDoomGameUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FDoomGameUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomGame(FDoomGameUetkxProps InProps = FDoomGameUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame
 {
 static FRuitkNodeArray DoomGame_UetkxBody_8E8CD597(FRuitkContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -44,25 +44,25 @@ static FRuitkNodeArray DoomGame_UetkxBody_8E8CD597(FRuitkContext& Ctx, const FDo
 		if (bInGame)
 		{
 			Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::FDoomGameScreenUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen::FDoomGameScreenUetkxProps P;
 		P.Level = Level;
 		P.Diff = Diff;
 		P.OnBackToMenu = OnBackToMenu;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen(MoveTemp(P), MoveTemp(Ch), FRuitkKey(FName(*FString::Printf(TEXT("play%d"), PlayCount))));
+		return RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen(MoveTemp(P), MoveTemp(Ch), FRuitkKey(FName(*FString::Printf(TEXT("play%d"), PlayCount))));
 	}());
 		}
 		else
 		{
 			Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::FDoomMainMenuUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::FDoomMainMenuUetkxProps P;
 		P.Level = Level;
 		P.Diff = Diff;
 		P.OnLevelChange = OnLevelChange;
 		P.OnDifficultyChange = OnDiffChange;
 		P.OnStart = OnStart;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu(MoveTemp(P), MoveTemp(Ch), FRuitkKey(FName(TEXT("menu"))));
+		return RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu(MoveTemp(P), MoveTemp(Ch), FRuitkKey(FName(TEXT("menu"))));
 	}());
 		}
 		return Ruitk::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
@@ -72,13 +72,13 @@ static FRuitkNodeArray DoomGame_UetkxImpl(FRuitkContext& Ctx, const FDoomGameUet
 {
 	return DoomGame_UetkxBody_8E8CD597(Ctx, Props, children);
 }
-static const FName GDoomGameUetkxId = Ruitk::RegisterComponentId((void*)&DoomGame_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame::DoomGame")));
+static const FName GDoomGameUetkxId = Ruitk::RegisterComponentId((void*)&DoomGame_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame::DoomGame")));
 static constexpr uint32 DoomGame_RUITK_HOOK_SIG = 0x7810B479u;
 inline FRuitkNode DoomGame(FDoomGameUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomGame_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomGameUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame::DoomGame")), []() { return DoomGame(); });
+static const bool GDoomGameUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame::DoomGame")), []() { return DoomGame(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGame
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame
 #endif

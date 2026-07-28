@@ -4,7 +4,7 @@
 #include "Doom/DoomMaps.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 {
 struct FDoomMainMenuUetkxProps final : public FRuitkPropsBase
 {
@@ -28,9 +28,9 @@ struct FDoomMainMenuUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomMainMenu(FDoomMainMenuUetkxProps InProps = FDoomMainMenuUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 {
 static FRuitkNodeArray DoomMainMenu_UetkxBody_F6778A6A(FRuitkContext& Ctx, const FDoomMainMenuUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -300,13 +300,13 @@ static FRuitkNodeArray DoomMainMenu_UetkxImpl(FRuitkContext& Ctx, const FDoomMai
 {
 	return DoomMainMenu_UetkxBody_F6778A6A(Ctx, Props, children);
 }
-static const FName GDoomMainMenuUetkxId = Ruitk::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
+static const FName GDoomMainMenuUetkxId = Ruitk::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
 static constexpr uint32 DoomMainMenu_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomMainMenu(FDoomMainMenuUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomMainMenu_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomMainMenuUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")), []() { return DoomMainMenu(); });
+static const bool GDoomMainMenuUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")), []() { return DoomMainMenu(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu
 #endif

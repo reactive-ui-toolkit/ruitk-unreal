@@ -4,7 +4,7 @@
 #include "Misc/DateTime.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+namespace RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof
 {
 struct FHostImportProofUetkxProps final : public FRuitkPropsBase
 {
@@ -18,9 +18,9 @@ struct FHostImportProofUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode HostImportProof(FHostImportProofUetkxProps InProps = FHostImportProofUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+} // namespace RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof
 #else
-namespace RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+namespace RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof
 {
 static FRuitkNodeArray HostImportProof_UetkxBody_9F33ABBB(FRuitkContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -37,13 +37,13 @@ static FRuitkNodeArray HostImportProof_UetkxImpl(FRuitkContext& Ctx, const FHost
 {
 	return HostImportProof_UetkxBody_9F33ABBB(Ctx, Props, children);
 }
-static const FName GHostImportProofUetkxId = Ruitk::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof::HostImportProof")));
+static const FName GHostImportProofUetkxId = Ruitk::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof::HostImportProof")));
 static constexpr uint32 HostImportProof_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode HostImportProof(FHostImportProofUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&HostImportProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GHostImportProofUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof::HostImportProof")), []() { return HostImportProof(); });
+static const bool GHostImportProofUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof::HostImportProof")), []() { return HostImportProof(); });
 
-} // namespace RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof
+} // namespace RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof
 #endif

@@ -6,7 +6,7 @@ const PHASES: Array<[string, string, Status, string]> = [
   ['1', 'Core reconciler + hooks', 'done', 'Fiber reconciler (subtree-skip, keyed diff, error boundaries), all hooks, signals + Suspense.'],
   ['2', 'Slate host + first widgets', 'done', 'Adapter registry, event proxies, mount surfaces, the first widget set, style v1, demo gallery.'],
   ['3', '.uetkx compiler + build', 'done', 'Lexer/parser → committed reflection-free .inl, schema sidecars, RuitkCompile commandlets, formatter.'],
-  ['4', 'Hot reload', 'done', 'Live Coding-driven HMR, editor watcher, the ReactiveUetkx window, status line.'],
+  ['4', 'Hot reload', 'done', 'Live Coding-driven HMR, editor watcher, the Reactive UI Toolkit window, status line.'],
   ['5', 'IDE extensions', 'done', 'uetkx-language-server + VS Code and VS2022 extensions (completion, hover, diagnostics, formatting).'],
   ['6', 'UMG / CommonUI / MVVM interop', 'done', 'URuitkHostWidget, Ruitk::Umg::UserWidget, UseField, CommonUI activatables, MVVM collection, UMG prop-map.'],
   ['7', 'Production gaps', 'done', 'Virtualized lists, focus, animation/media hooks, portals, drag-and-drop, widget batch 2, localization (gather + live culture switch).'],

@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB
+namespace RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB
 {
 struct FCycleBUetkxProps final : public FRuitkPropsBase
 {
@@ -19,9 +19,9 @@ struct FCycleBUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode CycleB(FCycleBUetkxProps InProps = FCycleBUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB
+} // namespace RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB
 #else
-namespace RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB
+namespace RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB
 {
 static FRuitkNodeArray CycleB_UetkxBody_E880605E(FRuitkContext& Ctx, const FCycleBUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -33,10 +33,10 @@ static FRuitkNodeArray CycleB_UetkxBody_E880605E(FRuitkContext& Ctx, const FCycl
 		if (Depth > 0)
 		{
 			Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiHostTests_CycleProof_CycleA::FCycleAUetkxProps P;
+		RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleA::FCycleAUetkxProps P;
 		P.Depth = Depth - 1;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiHostTests_CycleProof_CycleA::CycleA(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleA::CycleA(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		}
 		return Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
@@ -46,13 +46,13 @@ static FRuitkNodeArray CycleB_UetkxImpl(FRuitkContext& Ctx, const FCycleBUetkxPr
 {
 	return CycleB_UetkxBody_E880605E(Ctx, Props, children);
 }
-static const FName GCycleBUetkxId = Ruitk::RegisterComponentId((void*)&CycleB_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB")));
+static const FName GCycleBUetkxId = Ruitk::RegisterComponentId((void*)&CycleB_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB::CycleB")));
 static constexpr uint32 CycleB_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode CycleB(FCycleBUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CycleB_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCycleBUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB::CycleB")), []() { return CycleB(); });
+static const bool GCycleBUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB::CycleB")), []() { return CycleB(); });
 
-} // namespace RuitkUetkx_Source_RuiHostTests_CycleProof_CycleB
+} // namespace RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleB
 #endif

@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter
 {
 struct FSignalCounterUetkxProps final : public FRuitkPropsBase
 {
@@ -18,9 +18,9 @@ struct FSignalCounterUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode SignalCounter(FSignalCounterUetkxProps InProps = FSignalCounterUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter
 {
 static FRuitkNodeArray SignalCounter_UetkxBody_F1764063(FRuitkContext& Ctx, const FSignalCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -58,14 +58,14 @@ static FRuitkNodeArray SignalCounter_UetkxBody_F1764063(FRuitkContext& Ctx, cons
 		return Ruitk::Slate::Spacer(MoveTemp(P), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::FSignalPanelUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkSpacerProps P;
@@ -125,13 +125,13 @@ static FRuitkNodeArray SignalCounter_UetkxImpl(FRuitkContext& Ctx, const FSignal
 {
 	return SignalCounter_UetkxBody_F1764063(Ctx, Props, children);
 }
-static const FName GSignalCounterUetkxId = Ruitk::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter::SignalCounter")));
+static const FName GSignalCounterUetkxId = Ruitk::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter::SignalCounter")));
 static constexpr uint32 SignalCounter_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode SignalCounter(FSignalCounterUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SignalCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSignalCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter::SignalCounter")), []() { return SignalCounter(); });
+static const bool GSignalCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter::SignalCounter")), []() { return SignalCounter(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter
 #endif

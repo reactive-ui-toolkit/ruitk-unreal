@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField
 {
 struct FSimpleTextFieldUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FSimpleTextFieldUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode SimpleTextField(FSimpleTextFieldUetkxProps InProps = FSimpleTextFieldUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField
 {
 static FRuitkNodeArray SimpleTextField_UetkxBody_337F2464(FRuitkContext& Ctx, const FSimpleTextFieldUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -62,13 +62,13 @@ static FRuitkNodeArray SimpleTextField_UetkxImpl(FRuitkContext& Ctx, const FSimp
 {
 	return SimpleTextField_UetkxBody_337F2464(Ctx, Props, children);
 }
-static const FName GSimpleTextFieldUetkxId = Ruitk::RegisterComponentId((void*)&SimpleTextField_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")));
+static const FName GSimpleTextFieldUetkxId = Ruitk::RegisterComponentId((void*)&SimpleTextField_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")));
 static constexpr uint32 SimpleTextField_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode SimpleTextField(FSimpleTextFieldUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleTextField_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleTextFieldUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")), []() { return SimpleTextField(); });
+static const bool GSimpleTextFieldUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")), []() { return SimpleTextField(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleTextField_SimpleTextField
 #endif

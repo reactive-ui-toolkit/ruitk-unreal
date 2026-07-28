@@ -31,8 +31,8 @@ public class RuitkEditor : ModuleRules
 			"RuitkToolchain", // FUetkxDriver / FUetkxCodegen
 			"InputCore",			 // SEditableTextBox in the preview panel
 			"WorkspaceMenuStructure", // group the preview/HMR tabs under Window > Tools (grouped entries)
-			"ToolMenus",			  // the top-level ReactiveUetkx main-menu (HMR v2 Phase 2)
-			"DeveloperSettings",	  // UReactiveUetkxEditorSettings (HMR v2 Phase 3)
+			"ToolMenus",			  // the top-level RuitkUetkx main-menu (HMR v2 Phase 2)
+			"DeveloperSettings",	  // URuitkUetkxEditorSettings (HMR v2 Phase 3)
 			"UnrealEd",				  // FEditorDelegates PIE hooks for "Follow Play" (HMR v2)
 			"DirectoryWatcher",		 // watcher trigger 1
 			"Slate",			 // window-activation trigger

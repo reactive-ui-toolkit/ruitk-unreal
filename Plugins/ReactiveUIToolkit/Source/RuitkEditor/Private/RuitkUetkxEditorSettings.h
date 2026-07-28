@@ -1,22 +1,22 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// HMR v2 Phase 3 (D-HMR settings) — the ReactiveUetkx editor settings, the C++ sibling of the Unity
+// HMR v2 Phase 3 (D-HMR settings) — the RuitkUetkx editor settings, the C++ sibling of the Unity
 // toolkit's HMR window toggles. EditorPerProjectUser (per-user, not committed), surfaced under Project
-// Settings ▸ Plugins ▸ ReactiveUetkx and mirrored by the checkboxes in the HMR window. The watcher +
+// Settings ▸ Plugins ▸ RuitkUetkx and mirrored by the checkboxes in the HMR window. The watcher +
 // controller read these at runtime.
 //
 // NOTE ON SHORTCUTS: the two HMR chords are NOT stored here. Unreal already persists command chords via
 // the input binding manager (EditorKeyBindings.ini), edited from Editor Preferences ▸ Keyboard Shortcuts
-// AND the in-window recorder — one source of truth, nothing to keep in sync. See FReactiveUetkxCommands.
+// AND the in-window recorder — one source of truth, nothing to keep in sync. See FRuitkUetkxCommands.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
-#include "ReactiveUetkxEditorSettings.generated.h"
+#include "RuitkUetkxEditorSettings.generated.h"
 
-UCLASS(config = EditorPerProjectUser, defaultconfig, meta = (DisplayName = "ReactiveUetkx"))
-class UReactiveUetkxEditorSettings : public UDeveloperSettings
+UCLASS(config = EditorPerProjectUser, defaultconfig, meta = (DisplayName = "Reactive UI Toolkit"))
+class URuitkUetkxEditorSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 

@@ -92,7 +92,7 @@ modules. `RuitkInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) ow
 markup lexer/parser (parser-only since HMR v2 — the dev-loop interpreter was deleted);
 `RuitkToolchain` (UncookedOnly) consumes the parser for codegen; `RuitkEditor` (Editor)
 hosts the watcher/commandlets + the Live-Coding HMR controller (`FUetkxHmrController`) and the
-`ReactiveUetkx` menu/window. Full reasoning:
+`RuitkUetkx` menu/window. Full reasoning:
 MASTER_PLAN §1; module table: D-27.
 
 ## Conventions (enforce; don't re-litigate)

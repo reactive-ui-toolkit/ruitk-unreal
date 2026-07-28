@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "SReactiveUetkxHmrPanel.h"
+#include "SRuitkUetkxHmrPanel.h"
 
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Commands/InputBindingManager.h"
 #include "Framework/Commands/UICommandInfo.h"
 #include "HAL/PlatformMemory.h"
 #include "Logging/LogMacros.h"
-#include "ReactiveUetkxCommands.h"
-#include "ReactiveUetkxEditorSettings.h"
+#include "RuitkUetkxCommands.h"
+#include "RuitkUetkxEditorSettings.h"
 #include "Styling/AppStyle.h"
 #include "Styling/CoreStyle.h"
 #include "UetkxHmrController.h"
@@ -32,12 +32,12 @@ namespace
 	}
 } // namespace
 
-void SReactiveUetkxHmrPanel::Construct(const FArguments&)
+void SRuitkUetkxHmrPanel::Construct(const FArguments&)
 {
 	BaselineRamBytes = FPlatformMemory::GetStats().UsedPhysical;
 
 	FUetkxHmrController& Controller = FUetkxHmrController::Get();
-	StatusChangedHandle = Controller.OnStatusChanged.AddRaw(this, &SReactiveUetkxHmrPanel::OnControllerStatusChanged);
+	StatusChangedHandle = Controller.OnStatusChanged.AddRaw(this, &SRuitkUetkxHmrPanel::OnControllerStatusChanged);
 
 	const FSlateFontInfo StatFont = FCoreStyle::GetDefaultFontStyle("Regular", 9);
 	const FSlateFontInfo HeadFont = FCoreStyle::GetDefaultFontStyle("Bold", 11);
@@ -63,10 +63,10 @@ void SReactiveUetkxHmrPanel::Construct(const FArguments&)
 													  .HAlign(HAlign_Center)
 													  .VAlign(VAlign_Center)
 													  .ContentPadding(FMargin(16, 6))
-													  .OnClicked(this, &SReactiveUetkxHmrPanel::OnToggleClicked)
+													  .OnClicked(this, &SRuitkUetkxHmrPanel::OnToggleClicked)
 														  [SNew(STextBlock)
 															   .Font(HeadFont)
-															   .Text(this, &SReactiveUetkxHmrPanel::GetToggleLabel)]]
+															   .Text(this, &SRuitkUetkxHmrPanel::GetToggleLabel)]]
 								// ── ACTIVE / Idle ────────────────────────────────────────────────────────
 								+ SVerticalBox::Slot()
 									  .AutoHeight()
@@ -74,51 +74,51 @@ void SReactiveUetkxHmrPanel::Construct(const FArguments&)
 									  .Padding(0, 0, 0,
 											   10)[SNew(STextBlock)
 													   .Font(HeadFont)
-													   .ColorAndOpacity(this, &SReactiveUetkxHmrPanel::GetStateColor)
-													   .Text(this, &SReactiveUetkxHmrPanel::GetStateText)]
+													   .ColorAndOpacity(this, &SRuitkUetkxHmrPanel::GetStateColor)
+													   .Text(this, &SRuitkUetkxHmrPanel::GetStateText)]
 								// ── stats ────────────────────────────────────────────────────────────────
 								+ SVerticalBox::Slot().AutoHeight().Padding(0, 1)[StatRow(
 									  LOCTEXT("Watched", "Watched"),
 									  FText::FromString(TEXT("Source/**/*.uetkx, Plugins/**/*.uetkx")))] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[StatRow(LOCTEXT("Swaps", "Swaps"),
-												  TAttribute<FText>(this, &SReactiveUetkxHmrPanel::GetSwapsText))] +
+												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetSwapsText))] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[StatRow(LOCTEXT("Errors", "Errors"),
-												  TAttribute<FText>(this, &SReactiveUetkxHmrPanel::GetErrorsText))] +
+												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetErrorsText))] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[StatRow(LOCTEXT("Last", "Last"),
-												  TAttribute<FText>(this, &SReactiveUetkxHmrPanel::GetLastText))] +
+												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetLastText))] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[StatRow(LOCTEXT("Ram", "RAM"),
-												  TAttribute<FText>(this, &SReactiveUetkxHmrPanel::GetRamText))]
+												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetRamText))]
 								// ── settings ─────────────────────────────────────────────────────────────
 								+ SVerticalBox::Slot().AutoHeight().Padding(0, 12, 0, 1)
 									  [SNew(SCheckBox)
-										   .IsChecked(this, &SReactiveUetkxHmrPanel::IsNotificationsChecked)
-										   .OnCheckStateChanged(this, &SReactiveUetkxHmrPanel::OnNotificationsChanged)
+										   .IsChecked(this, &SRuitkUetkxHmrPanel::IsNotificationsChecked)
+										   .OnCheckStateChanged(this, &SRuitkUetkxHmrPanel::OnNotificationsChanged)
 											   [SNew(STextBlock)
 													.Font(StatFont)
 													.Text(LOCTEXT("ShowNotifs", "Show swap notifications"))]] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[SNew(SCheckBox)
-											  .IsChecked(this, &SReactiveUetkxHmrPanel::IsVerboseChecked)
-											  .OnCheckStateChanged(this, &SReactiveUetkxHmrPanel::OnVerboseChanged)
+											  .IsChecked(this, &SRuitkUetkxHmrPanel::IsVerboseChecked)
+											  .OnCheckStateChanged(this, &SRuitkUetkxHmrPanel::OnVerboseChanged)
 												  [SNew(STextBlock)
 													   .Font(StatFont)
 													   .Text(LOCTEXT("Verbose", "Verbose watcher trace"))]] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[SNew(SCheckBox)
-											  .IsChecked(this, &SReactiveUetkxHmrPanel::IsHideConsoleChecked)
-											  .OnCheckStateChanged(this, &SReactiveUetkxHmrPanel::OnHideConsoleChanged)
+											  .IsChecked(this, &SRuitkUetkxHmrPanel::IsHideConsoleChecked)
+											  .OnCheckStateChanged(this, &SRuitkUetkxHmrPanel::OnHideConsoleChanged)
 												  [SNew(STextBlock)
 													   .Font(StatFont)
 													   .Text(LOCTEXT("HideConsole", "Hide the Live Coding console "
 																					"while HMR is active"))]] +
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[SNew(SCheckBox)
-											  .IsChecked(this, &SReactiveUetkxHmrPanel::IsFollowPieChecked)
-											  .OnCheckStateChanged(this, &SReactiveUetkxHmrPanel::OnFollowPieChanged)
+											  .IsChecked(this, &SRuitkUetkxHmrPanel::IsFollowPieChecked)
+											  .OnCheckStateChanged(this, &SRuitkUetkxHmrPanel::OnFollowPieChanged)
 												  [SNew(STextBlock)
 													   .Font(StatFont)
 													   .Text(LOCTEXT("FollowPie", "Follow Play: start HMR on Play, "
@@ -146,7 +146,7 @@ void SReactiveUetkxHmrPanel::Construct(const FArguments&)
 	RebuildErrorList();
 }
 
-SReactiveUetkxHmrPanel::~SReactiveUetkxHmrPanel()
+SRuitkUetkxHmrPanel::~SRuitkUetkxHmrPanel()
 {
 	if (StatusChangedHandle.IsValid())
 	{
@@ -154,7 +154,7 @@ SReactiveUetkxHmrPanel::~SReactiveUetkxHmrPanel()
 	}
 }
 
-FReply SReactiveUetkxHmrPanel::OnToggleClicked()
+FReply SRuitkUetkxHmrPanel::OnToggleClicked()
 {
 	FUetkxHmrController& Controller = FUetkxHmrController::Get();
 	if (Controller.IsActive())
@@ -172,13 +172,13 @@ FReply SReactiveUetkxHmrPanel::OnToggleClicked()
 	return FReply::Handled();
 }
 
-FText SReactiveUetkxHmrPanel::GetToggleLabel() const
+FText SRuitkUetkxHmrPanel::GetToggleLabel() const
 {
 	return FUetkxHmrController::Get().IsActive() ? LOCTEXT("StopHmr", "■  Stop HMR")
 												 : LOCTEXT("StartHmr", "●  Start HMR");
 }
 
-FText SReactiveUetkxHmrPanel::GetStateText() const
+FText SRuitkUetkxHmrPanel::GetStateText() const
 {
 	const FUetkxHmrController& Controller = FUetkxHmrController::Get();
 	if (!Controller.IsActive())
@@ -188,23 +188,23 @@ FText SReactiveUetkxHmrPanel::GetStateText() const
 	return Controller.IsCompiling() ? LOCTEXT("Compiling", "● ACTIVE  (compiling…)") : LOCTEXT("Active", "● ACTIVE");
 }
 
-FSlateColor SReactiveUetkxHmrPanel::GetStateColor() const
+FSlateColor SRuitkUetkxHmrPanel::GetStateColor() const
 {
 	return FUetkxHmrController::Get().IsActive() ? FSlateColor(FLinearColor(0.30f, 0.85f, 0.35f))
 												 : FSlateColor(FLinearColor(0.55f, 0.55f, 0.55f));
 }
 
-FText SReactiveUetkxHmrPanel::GetSwapsText() const
+FText SRuitkUetkxHmrPanel::GetSwapsText() const
 {
 	return FText::AsNumber(FUetkxHmrController::Get().GetStatus().Swaps);
 }
 
-FText SReactiveUetkxHmrPanel::GetErrorsText() const
+FText SRuitkUetkxHmrPanel::GetErrorsText() const
 {
 	return FText::AsNumber(FUetkxHmrController::Get().GetStatus().Errors);
 }
 
-FText SReactiveUetkxHmrPanel::GetLastText() const
+FText SRuitkUetkxHmrPanel::GetLastText() const
 {
 	const FUetkxHmrStatus& Status = FUetkxHmrController::Get().GetStatus();
 	if (Status.LastReason.IsEmpty())
@@ -214,74 +214,74 @@ FText SReactiveUetkxHmrPanel::GetLastText() const
 	return FText::FromString(FString::Printf(TEXT("%s (%.0f ms)"), *Status.LastReason, Status.LastMs));
 }
 
-FText SReactiveUetkxHmrPanel::GetRamText() const
+FText SRuitkUetkxHmrPanel::GetRamText() const
 {
 	const uint64 Now = FPlatformMemory::GetStats().UsedPhysical;
 	const int64 DeltaMB = (static_cast<int64>(Now) - static_cast<int64>(BaselineRamBytes)) / (1024 * 1024);
 	return FText::FromString(FString::Printf(TEXT("%s MB (%+lld since open)"), *RamToText(Now).ToString(), DeltaMB));
 }
 
-// ── settings checkboxes (bound to UReactiveUetkxEditorSettings, persisted immediately) ──────────
-ECheckBoxState SReactiveUetkxHmrPanel::IsNotificationsChecked() const
+// ── settings checkboxes (bound to URuitkUetkxEditorSettings, persisted immediately) ──────────
+ECheckBoxState SRuitkUetkxHmrPanel::IsNotificationsChecked() const
 {
-	return GetDefault<UReactiveUetkxEditorSettings>()->bShowNotifications ? ECheckBoxState::Checked
+	return GetDefault<URuitkUetkxEditorSettings>()->bShowNotifications ? ECheckBoxState::Checked
 																		  : ECheckBoxState::Unchecked;
 }
 
-void SReactiveUetkxHmrPanel::OnNotificationsChanged(ECheckBoxState NewState)
+void SRuitkUetkxHmrPanel::OnNotificationsChanged(ECheckBoxState NewState)
 {
-	UReactiveUetkxEditorSettings* Settings = GetMutableDefault<UReactiveUetkxEditorSettings>();
+	URuitkUetkxEditorSettings* Settings = GetMutableDefault<URuitkUetkxEditorSettings>();
 	Settings->bShowNotifications = (NewState == ECheckBoxState::Checked);
 	Settings->SaveConfig();
 }
 
-ECheckBoxState SReactiveUetkxHmrPanel::IsVerboseChecked() const
+ECheckBoxState SRuitkUetkxHmrPanel::IsVerboseChecked() const
 {
-	return GetDefault<UReactiveUetkxEditorSettings>()->bVerboseWatcher ? ECheckBoxState::Checked
+	return GetDefault<URuitkUetkxEditorSettings>()->bVerboseWatcher ? ECheckBoxState::Checked
 																	   : ECheckBoxState::Unchecked;
 }
 
-void SReactiveUetkxHmrPanel::OnVerboseChanged(ECheckBoxState NewState)
+void SRuitkUetkxHmrPanel::OnVerboseChanged(ECheckBoxState NewState)
 {
-	UReactiveUetkxEditorSettings* Settings = GetMutableDefault<UReactiveUetkxEditorSettings>();
+	URuitkUetkxEditorSettings* Settings = GetMutableDefault<URuitkUetkxEditorSettings>();
 	Settings->bVerboseWatcher = (NewState == ECheckBoxState::Checked);
 	Settings->SaveConfig();
 }
 
-ECheckBoxState SReactiveUetkxHmrPanel::IsHideConsoleChecked() const
+ECheckBoxState SRuitkUetkxHmrPanel::IsHideConsoleChecked() const
 {
-	return GetDefault<UReactiveUetkxEditorSettings>()->bHideLiveCodingConsole ? ECheckBoxState::Checked
+	return GetDefault<URuitkUetkxEditorSettings>()->bHideLiveCodingConsole ? ECheckBoxState::Checked
 																			  : ECheckBoxState::Unchecked;
 }
 
-void SReactiveUetkxHmrPanel::OnHideConsoleChanged(ECheckBoxState NewState)
+void SRuitkUetkxHmrPanel::OnHideConsoleChanged(ECheckBoxState NewState)
 {
-	UReactiveUetkxEditorSettings* Settings = GetMutableDefault<UReactiveUetkxEditorSettings>();
+	URuitkUetkxEditorSettings* Settings = GetMutableDefault<URuitkUetkxEditorSettings>();
 	Settings->bHideLiveCodingConsole = (NewState == ECheckBoxState::Checked);
 	Settings->SaveConfig();
 	FUetkxHmrController::Get().RefreshConsoleHiderState(); // start/stop the window hider immediately if active
 }
 
-ECheckBoxState SReactiveUetkxHmrPanel::IsFollowPieChecked() const
+ECheckBoxState SRuitkUetkxHmrPanel::IsFollowPieChecked() const
 {
-	return GetDefault<UReactiveUetkxEditorSettings>()->bFollowPie ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+	return GetDefault<URuitkUetkxEditorSettings>()->bFollowPie ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
 }
 
-void SReactiveUetkxHmrPanel::OnFollowPieChanged(ECheckBoxState NewState)
+void SRuitkUetkxHmrPanel::OnFollowPieChanged(ECheckBoxState NewState)
 {
-	UReactiveUetkxEditorSettings* Settings = GetMutableDefault<UReactiveUetkxEditorSettings>();
+	URuitkUetkxEditorSettings* Settings = GetMutableDefault<URuitkUetkxEditorSettings>();
 	Settings->bFollowPie = (NewState == ECheckBoxState::Checked);
 	Settings->SaveConfig();
 }
 
 // ── in-window shortcut recorder (edits the command's active chord — the single source of truth) ──
-TSharedPtr<FUICommandInfo> SReactiveUetkxHmrPanel::CommandFor(int32 RecordIndex) const
+TSharedPtr<FUICommandInfo> SRuitkUetkxHmrPanel::CommandFor(int32 RecordIndex) const
 {
-	const FReactiveUetkxCommands& Commands = FReactiveUetkxCommands::Get();
+	const FRuitkUetkxCommands& Commands = FRuitkUetkxCommands::Get();
 	return RecordIndex == 0 ? Commands.ToggleHmr : Commands.ToggleHmrWindow;
 }
 
-FText SReactiveUetkxHmrPanel::GetShortcutText(int32 RecordIndex) const
+FText SRuitkUetkxHmrPanel::GetShortcutText(int32 RecordIndex) const
 {
 	if (RecordingIndex == RecordIndex)
 	{
@@ -292,7 +292,7 @@ FText SReactiveUetkxHmrPanel::GetShortcutText(int32 RecordIndex) const
 	return Chord.IsEmpty() ? LOCTEXT("None", "None") : Chord;
 }
 
-FReply SReactiveUetkxHmrPanel::OnRecordClicked(int32 RecordIndex)
+FReply SRuitkUetkxHmrPanel::OnRecordClicked(int32 RecordIndex)
 {
 	RecordingIndex = RecordIndex;
 	// Route the next key press to this panel so OnKeyDown captures the chord.
@@ -300,7 +300,7 @@ FReply SReactiveUetkxHmrPanel::OnRecordClicked(int32 RecordIndex)
 	return FReply::Handled();
 }
 
-FReply SReactiveUetkxHmrPanel::OnClearShortcut(int32 RecordIndex)
+FReply SRuitkUetkxHmrPanel::OnClearShortcut(int32 RecordIndex)
 {
 	if (TSharedPtr<FUICommandInfo> Command = CommandFor(RecordIndex))
 	{
@@ -314,7 +314,7 @@ FReply SReactiveUetkxHmrPanel::OnClearShortcut(int32 RecordIndex)
 	return FReply::Handled();
 }
 
-FReply SReactiveUetkxHmrPanel::OnKeyDown(const FGeometry& Geometry, const FKeyEvent& KeyEvent)
+FReply SRuitkUetkxHmrPanel::OnKeyDown(const FGeometry& Geometry, const FKeyEvent& KeyEvent)
 {
 	if (RecordingIndex == INDEX_NONE)
 	{
@@ -341,7 +341,7 @@ FReply SReactiveUetkxHmrPanel::OnKeyDown(const FGeometry& Geometry, const FKeyEv
 	return FReply::Handled();
 }
 
-TSharedRef<SWidget> SReactiveUetkxHmrPanel::BuildShortcutRow(int32 RecordIndex, const FText& Label)
+TSharedRef<SWidget> SRuitkUetkxHmrPanel::BuildShortcutRow(int32 RecordIndex, const FText& Label)
 {
 	const FSlateFontInfo Font = FCoreStyle::GetDefaultFontStyle("Regular", 9);
 	return SNew(SHorizontalBox) +
@@ -352,10 +352,10 @@ TSharedRef<SWidget> SReactiveUetkxHmrPanel::BuildShortcutRow(int32 RecordIndex, 
 		   SHorizontalBox::Slot().FillWidth(1.0f).VAlign(
 			   VAlign_Center)[SNew(SButton)
 								  .ToolTipText(LOCTEXT("RecordTip", "Click, then press a key combo (Esc to cancel)."))
-								  .OnClicked(this, &SReactiveUetkxHmrPanel::OnRecordClicked,
+								  .OnClicked(this, &SRuitkUetkxHmrPanel::OnRecordClicked,
 											 RecordIndex)[SNew(STextBlock)
 															  .Font(Font)
-															  .Text(this, &SReactiveUetkxHmrPanel::GetShortcutText,
+															  .Text(this, &SRuitkUetkxHmrPanel::GetShortcutText,
 																	RecordIndex)]] +
 		   SHorizontalBox::Slot()
 			   .AutoWidth()
@@ -363,11 +363,11 @@ TSharedRef<SWidget> SReactiveUetkxHmrPanel::BuildShortcutRow(int32 RecordIndex, 
 			   .Padding(4, 0, 0,
 						0)[SNew(SButton)
 							   .ToolTipText(LOCTEXT("ClearTip", "Clear this shortcut (unbind)."))
-							   .OnClicked(this, &SReactiveUetkxHmrPanel::OnClearShortcut,
+							   .OnClicked(this, &SRuitkUetkxHmrPanel::OnClearShortcut,
 										  RecordIndex)[SNew(STextBlock).Font(Font).Text(LOCTEXT("ClearX", "×"))]];
 }
 
-void SReactiveUetkxHmrPanel::RebuildErrorList()
+void SRuitkUetkxHmrPanel::RebuildErrorList()
 {
 	if (!ErrorListBox.IsValid())
 	{
@@ -395,7 +395,7 @@ void SReactiveUetkxHmrPanel::RebuildErrorList()
 	}
 }
 
-void SReactiveUetkxHmrPanel::OnControllerStatusChanged()
+void SRuitkUetkxHmrPanel::OnControllerStatusChanged()
 {
 	RebuildErrorList();
 }

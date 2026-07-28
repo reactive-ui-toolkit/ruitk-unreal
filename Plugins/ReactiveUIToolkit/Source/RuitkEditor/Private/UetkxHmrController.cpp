@@ -6,7 +6,7 @@
 #include "Framework/Notifications/NotificationManager.h"
 #include "ILiveCodingModule.h"
 #include "Modules/ModuleManager.h"
-#include "ReactiveUetkxEditorSettings.h"
+#include "RuitkUetkxEditorSettings.h"
 #include "RuitkReconciler.h"
 #include "RuitkNode.h"
 #include "Widgets/Notifications/SNotificationList.h"
@@ -108,7 +108,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 void FUetkxHmrController::Stop()
 {
 	// Honour the current setting (the window checkbox / Project Settings drive this).
-	StopInternal(GetDefault<UReactiveUetkxEditorSettings>()->bDisableSessionOnStop);
+	StopInternal(GetDefault<URuitkUetkxEditorSettings>()->bDisableSessionOnStop);
 }
 
 void FUetkxHmrController::StopInternal(bool bForceDisableSession)
@@ -152,7 +152,7 @@ void FUetkxHmrController::Shutdown()
 
 void FUetkxHmrController::StartConsoleHider()
 {
-	if (ConsoleHiderHandle.IsValid() || !GetDefault<UReactiveUetkxEditorSettings>()->bHideLiveCodingConsole)
+	if (ConsoleHiderHandle.IsValid() || !GetDefault<URuitkUetkxEditorSettings>()->bHideLiveCodingConsole)
 	{
 		return;
 	}
@@ -219,7 +219,7 @@ void FUetkxHmrController::RefreshConsoleHiderState()
 	{
 		return; // only manage the console while HMR is running
 	}
-	if (GetDefault<UReactiveUetkxEditorSettings>()->bHideLiveCodingConsole)
+	if (GetDefault<URuitkUetkxEditorSettings>()->bHideLiveCodingConsole)
 	{
 		StartConsoleHider();
 	}
@@ -256,7 +256,7 @@ void FUetkxHmrController::UnregisterPieHooks()
 
 void FUetkxHmrController::OnPiePostStarted(bool /*bSimulating*/)
 {
-	if (!GetDefault<UReactiveUetkxEditorSettings>()->bFollowPie || bActive)
+	if (!GetDefault<URuitkUetkxEditorSettings>()->bFollowPie || bActive)
 	{
 		return;
 	}
@@ -269,7 +269,7 @@ void FUetkxHmrController::OnPiePostStarted(bool /*bSimulating*/)
 
 void FUetkxHmrController::OnPieEnded(bool /*bSimulating*/)
 {
-	if (!GetDefault<UReactiveUetkxEditorSettings>()->bFollowPie || !bActive)
+	if (!GetDefault<URuitkUetkxEditorSettings>()->bFollowPie || !bActive)
 	{
 		return;
 	}
@@ -362,7 +362,7 @@ void FUetkxHmrController::OnPatchComplete()
 	Status.LastMs = (FPlatformTime::Seconds() - CycleStartSeconds) * 1000.0;
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] patch applied — refreshed live UI (%.0f ms), %d total"), Status.LastMs,
 		   Status.Swaps);
-	if (GetDefault<UReactiveUetkxEditorSettings>()->bShowNotifications)
+	if (GetDefault<URuitkUetkxEditorSettings>()->bShowNotifications)
 	{
 		const FText Message = FText::FromString(FString::Printf(
 			TEXT("HMR: patched %s (%.0f ms), %d total"),

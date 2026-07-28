@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 {
 struct FActivationProbeUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FActivationProbeUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode ActivationProbe(FActivationProbeUetkxProps InProps = FActivationProbeUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 {
 static FRuitkNodeArray ActivationProbe_UetkxBody_8B4CBBB7(FRuitkContext& Ctx, const FActivationProbeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -42,13 +42,13 @@ static FRuitkNodeArray ActivationProbe_UetkxImpl(FRuitkContext& Ctx, const FActi
 {
 	return ActivationProbe_UetkxBody_8B4CBBB7(Ctx, Props, children);
 }
-static const FName GActivationProbeUetkxId = Ruitk::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
+static const FName GActivationProbeUetkxId = Ruitk::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
 static constexpr uint32 ActivationProbe_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ActivationProbe(FActivationProbeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ActivationProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GActivationProbeUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")), []() { return ActivationProbe(); });
+static const bool GActivationProbeUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")), []() { return ActivationProbe(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe
 #endif

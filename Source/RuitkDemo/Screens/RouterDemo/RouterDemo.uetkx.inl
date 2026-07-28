@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo
 {
 struct FRouterDemoUetkxProps final : public FRuitkPropsBase
 {
@@ -17,16 +17,16 @@ struct FRouterDemoUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode RouterDemo(FRouterDemoUetkxProps InProps = FRouterDemoUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo
 {
 static FRuitkNodeArray RouterDemo_UetkxBody_2AE4B677(FRuitkContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 8 "Source/RuitkDemo/Screens/RouterDemo/RouterDemo.uetkx"
 	TArray<Ruitk::FRuitkRoute> RouteList;
-		RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/"), RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterHome_RouterHome::RouterHome() });
-		RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/users/:id"), RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser() });
+		RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/"), RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterHome_RouterHome::RouterHome() });
+		RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/users/:id"), RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser() });
 #line 31 "RouterDemo.uetkx.inl"
 	return { [&]() -> FRuitkNode {
 		FRuitkBorderProps P;
@@ -80,13 +80,13 @@ static FRuitkNodeArray RouterDemo_UetkxImpl(FRuitkContext& Ctx, const FRouterDem
 {
 	return RouterDemo_UetkxBody_2AE4B677(Ctx, Props, children);
 }
-static const FName GRouterDemoUetkxId = Ruitk::RegisterComponentId((void*)&RouterDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo::RouterDemo")));
+static const FName GRouterDemoUetkxId = Ruitk::RegisterComponentId((void*)&RouterDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo::RouterDemo")));
 static constexpr uint32 RouterDemo_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode RouterDemo(FRouterDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&RouterDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GRouterDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo::RouterDemo")), []() { return RouterDemo(); });
+static const bool GRouterDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo::RouterDemo")), []() { return RouterDemo(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_RouterDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo
 #endif

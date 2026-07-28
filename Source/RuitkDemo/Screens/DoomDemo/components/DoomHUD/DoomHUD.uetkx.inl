@@ -4,7 +4,7 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 {
 struct FDoomHUDUetkxProps final : public FRuitkPropsBase
 {
@@ -42,9 +42,9 @@ struct FDoomHUDUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomHUD(FDoomHUDUetkxProps InProps = FDoomHUDUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 {
 static FRuitkNodeArray DoomHUD_UetkxBody_F08953EB(FRuitkContext& Ctx, const FDoomHUDUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -319,10 +319,10 @@ static FRuitkNodeArray DoomHUD_UetkxBody_F08953EB(FRuitkContext& Ctx, const FDoo
 		return Ruitk::Slate::Border(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::FDoomFaceUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace::FDoomFaceUetkxProps P;
 		P.Frame = FaceState;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkBorderProps P;
@@ -642,13 +642,13 @@ static FRuitkNodeArray DoomHUD_UetkxImpl(FRuitkContext& Ctx, const FDoomHUDUetkx
 {
 	return DoomHUD_UetkxBody_F08953EB(Ctx, Props, children);
 }
-static const FName GDoomHUDUetkxId = Ruitk::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")));
+static const FName GDoomHUDUetkxId = Ruitk::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")));
 static constexpr uint32 DoomHUD_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomHUD(FDoomHUDUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomHUD_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomHUDUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")), []() { return DoomHUD(); });
+static const bool GDoomHUDUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")), []() { return DoomHUD(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 #endif

@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+namespace RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest
 {
 struct FStressTestUetkxProps final : public FRuitkPropsBase
 {
@@ -18,9 +18,9 @@ struct FStressTestUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode StressTest(FStressTestUetkxProps InProps = FStressTestUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+namespace RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest
 {
 static FRuitkNodeArray StressTest_UetkxBody_59AC27E6(FRuitkContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -253,13 +253,13 @@ static FRuitkNodeArray StressTest_UetkxImpl(FRuitkContext& Ctx, const FStressTes
 {
 	return StressTest_UetkxBody_59AC27E6(Ctx, Props, children);
 }
-static const FName GStressTestUetkxId = Ruitk::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")));
+static const FName GStressTestUetkxId = Ruitk::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest::StressTest")));
 static constexpr uint32 StressTest_RUITK_HOOK_SIG = 0x00ED6E73u;
 inline FRuitkNode StressTest(FStressTestUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&StressTest_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GStressTestUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")), []() { return StressTest(); });
+static const bool GStressTestUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest::StressTest")), []() { return StressTest(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest
 #endif

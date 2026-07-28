@@ -5,7 +5,7 @@
 #include "DemoInteropWidgets.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo
 {
 struct FCommonUiDemoUetkxProps final : public FRuitkPropsBase
 {
@@ -19,9 +19,9 @@ struct FCommonUiDemoUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode CommonUiDemo(FCommonUiDemoUetkxProps InProps = FCommonUiDemoUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo
 {
 static FRuitkNodeArray CommonUiDemo_UetkxBody_64D7ACA7(FRuitkContext& Ctx, const FCommonUiDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -77,9 +77,9 @@ static FRuitkNodeArray CommonUiDemo_UetkxBody_64D7ACA7(FRuitkContext& Ctx, const
 		return __N;
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::FActivationProbeUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::FActivationProbeUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkHorizontalBoxProps P;
@@ -126,13 +126,13 @@ static FRuitkNodeArray CommonUiDemo_UetkxImpl(FRuitkContext& Ctx, const FCommonU
 {
 	return CommonUiDemo_UetkxBody_64D7ACA7(Ctx, Props, children);
 }
-static const FName GCommonUiDemoUetkxId = Ruitk::RegisterComponentId((void*)&CommonUiDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")));
+static const FName GCommonUiDemoUetkxId = Ruitk::RegisterComponentId((void*)&CommonUiDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")));
 static constexpr uint32 CommonUiDemo_RUITK_HOOK_SIG = 0xF574B6D3u;
 inline FRuitkNode CommonUiDemo(FCommonUiDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CommonUiDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCommonUiDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")), []() { return CommonUiDemo(); });
+static const bool GCommonUiDemoUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")), []() { return CommonUiDemo(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CommonUiDemo_CommonUiDemo
 #endif

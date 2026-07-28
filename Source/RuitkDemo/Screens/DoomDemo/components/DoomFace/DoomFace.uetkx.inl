@@ -4,7 +4,7 @@
 #include "Doom/DoomTextures.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 {
 struct FDoomFaceUetkxProps final : public FRuitkPropsBase
 {
@@ -20,9 +20,9 @@ struct FDoomFaceUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomFace(FDoomFaceUetkxProps InProps = FDoomFaceUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 {
 static FRuitkNodeArray DoomFace_UetkxBody_ACE4B2DD(FRuitkContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -107,13 +107,13 @@ static FRuitkNodeArray DoomFace_UetkxImpl(FRuitkContext& Ctx, const FDoomFaceUet
 {
 	return DoomFace_UetkxBody_ACE4B2DD(Ctx, Props, children);
 }
-static const FName GDoomFaceUetkxId = Ruitk::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
+static const FName GDoomFaceUetkxId = Ruitk::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
 static constexpr uint32 DoomFace_RUITK_HOOK_SIG = 0x1676516Fu;
 inline FRuitkNode DoomFace(FDoomFaceUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomFace_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomFaceUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")), []() { return DoomFace(); });
+static const bool GDoomFaceUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")), []() { return DoomFace(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 #endif

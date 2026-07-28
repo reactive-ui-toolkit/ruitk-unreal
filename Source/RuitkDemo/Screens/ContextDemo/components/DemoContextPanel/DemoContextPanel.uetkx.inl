@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 {
 struct FDemoContextPanelUetkxProps final : public FRuitkPropsBase
 {
@@ -20,9 +20,9 @@ struct FDemoContextPanelUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DemoContextPanel(FDemoContextPanelUetkxProps InProps = FDemoContextPanelUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 {
 static FRuitkNodeArray DemoContextPanel_UetkxBody_5E1E4D68(FRuitkContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -49,13 +49,13 @@ static FRuitkNodeArray DemoContextPanel_UetkxImpl(FRuitkContext& Ctx, const FDem
 {
 	return DemoContextPanel_UetkxBody_5E1E4D68(Ctx, Props, children);
 }
-static const FName GDemoContextPanelUetkxId = Ruitk::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
+static const FName GDemoContextPanelUetkxId = Ruitk::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
 static constexpr uint32 DemoContextPanel_RUITK_HOOK_SIG = 0x3A36D564u;
 inline FRuitkNode DemoContextPanel(FDemoContextPanelUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DemoContextPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDemoContextPanelUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")), []() { return DemoContextPanel(); });
+static const bool GDemoContextPanelUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")), []() { return DemoContextPanel(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 #endif

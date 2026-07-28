@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 {
 struct FSignalPanelUetkxProps final : public FRuitkPropsBase
 {
@@ -18,9 +18,9 @@ struct FSignalPanelUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode SignalPanel(FSignalPanelUetkxProps InProps = FSignalPanelUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 {
 static FRuitkNodeArray SignalPanel_UetkxBody_B772CD9A(FRuitkContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -33,13 +33,13 @@ static FRuitkNodeArray SignalPanel_UetkxImpl(FRuitkContext& Ctx, const FSignalPa
 {
 	return SignalPanel_UetkxBody_B772CD9A(Ctx, Props, children);
 }
-static const FName GSignalPanelUetkxId = Ruitk::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")));
+static const FName GSignalPanelUetkxId = Ruitk::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")));
 static constexpr uint32 SignalPanel_RUITK_HOOK_SIG = 0xD50F149Cu;
 inline FRuitkNode SignalPanel(FSignalPanelUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SignalPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSignalPanelUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")), []() { return SignalPanel(); });
+static const bool GSignalPanelUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")), []() { return SignalPanel(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 #endif

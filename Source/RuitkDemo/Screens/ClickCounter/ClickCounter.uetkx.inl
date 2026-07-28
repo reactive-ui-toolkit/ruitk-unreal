@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter
 {
 struct FClickCounterUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FClickCounterUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode ClickCounter(FClickCounterUetkxProps InProps = FClickCounterUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter
 {
 static FRuitkNodeArray ClickCounter_UetkxBody_7278E8E3(FRuitkContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -94,13 +94,13 @@ static FRuitkNodeArray ClickCounter_UetkxImpl(FRuitkContext& Ctx, const FClickCo
 {
 	return ClickCounter_UetkxBody_7278E8E3(Ctx, Props, children);
 }
-static const FName GClickCounterUetkxId = Ruitk::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
+static const FName GClickCounterUetkxId = Ruitk::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
 static constexpr uint32 ClickCounter_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode ClickCounter(FClickCounterUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ClickCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GClickCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter::ClickCounter")), []() { return ClickCounter(); });
+static const bool GClickCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter::ClickCounter")), []() { return ClickCounter(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ClickCounter_ClickCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter
 #endif

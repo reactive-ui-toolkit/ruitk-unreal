@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld
+namespace RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld
 {
 struct FHelloWorldUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FHelloWorldUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode HelloWorld(FHelloWorldUetkxProps InProps = FHelloWorldUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld
+namespace RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld
 {
 static FRuitkNodeArray HelloWorld_UetkxBody_6146BE1F(FRuitkContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -42,13 +42,13 @@ static FRuitkNodeArray HelloWorld_UetkxImpl(FRuitkContext& Ctx, const FHelloWorl
 {
 	return HelloWorld_UetkxBody_6146BE1F(Ctx, Props, children);
 }
-static const FName GHelloWorldUetkxId = Ruitk::RegisterComponentId((void*)&HelloWorld_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
+static const FName GHelloWorldUetkxId = Ruitk::RegisterComponentId((void*)&HelloWorld_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
 static constexpr uint32 HelloWorld_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode HelloWorld(FHelloWorldUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&HelloWorld_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GHelloWorldUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")), []() { return HelloWorld(); });
+static const bool GHelloWorldUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld::HelloWorld")), []() { return HelloWorld(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld
 #endif

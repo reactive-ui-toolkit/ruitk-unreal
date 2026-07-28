@@ -13,7 +13,7 @@
 #include "Misc/Paths.h"
 #include "Modules/ModuleManager.h"
 #include "RuitkCompileCommandlet.h"
-#include "ReactiveUetkxEditorSettings.h"
+#include "RuitkUetkxEditorSettings.h"
 #include "UetkxDriver.h"
 #include "UetkxHmrController.h"
 
@@ -32,13 +32,13 @@ namespace
 	// The quiet window after the last event, from settings (clamped to something sane).
 	double DebounceSeconds()
 	{
-		const int32 Ms = GetDefault<UReactiveUetkxEditorSettings>()->DebounceMs;
+		const int32 Ms = GetDefault<URuitkUetkxEditorSettings>()->DebounceMs;
 		return Ms > 0 ? FMath::Clamp(Ms, 0, 2000) / 1000.0 : DefaultDebounceSeconds;
 	}
 
 	bool VerboseWatcher()
 	{
-		return GetDefault<UReactiveUetkxEditorSettings>()->bVerboseWatcher;
+		return GetDefault<URuitkUetkxEditorSettings>()->bVerboseWatcher;
 	}
 } // namespace
 
@@ -47,7 +47,7 @@ void FUetkxWatcher::Start()
 	// Watched roots: settings.WatchedRoots (project-relative), else the default Source/ + Plugins/.
 	// Read at Start — changing the roots takes effect on the next editor start (they anchor the FS watchers).
 	Roots.Reset();
-	for (const FString& Rel : GetDefault<UReactiveUetkxEditorSettings>()->WatchedRoots)
+	for (const FString& Rel : GetDefault<URuitkUetkxEditorSettings>()->WatchedRoots)
 	{
 		const FString Full = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / Rel);
 		if (IFileManager::Get().DirectoryExists(*Full))

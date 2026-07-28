@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// HMR v2 Phase 2 — the ReactiveUetkx Hot Reload window (nomad tab). The C++ sibling of the Unity
+// HMR v2 Phase 2 — the RuitkUetkx Hot Reload window (nomad tab). The C++ sibling of the Unity
 // toolkit's UitkxHmrWindow: a Start/Stop control over FUetkxHmrController plus a live read-out
 // (ACTIVE/Idle, watched globs, swaps/errors/last, RAM, the "external builds pause" warning, and a
 // recent-errors tail). It only reads the controller — all HMR behaviour lives there. Repaints on the
@@ -13,14 +13,14 @@
 
 class SVerticalBox;
 
-class SReactiveUetkxHmrPanel : public SCompoundWidget
+class SRuitkUetkxHmrPanel : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SReactiveUetkxHmrPanel) {}
+	SLATE_BEGIN_ARGS(SRuitkUetkxHmrPanel) {}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	virtual ~SReactiveUetkxHmrPanel() override;
+	virtual ~SRuitkUetkxHmrPanel() override;
 
 	// Keyboard capture for the in-window shortcut recorder.
 	virtual bool SupportsKeyboardFocus() const override { return true; }

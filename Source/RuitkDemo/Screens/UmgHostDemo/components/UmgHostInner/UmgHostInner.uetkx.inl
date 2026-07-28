@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 {
 struct FUmgHostInnerUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FUmgHostInnerUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode UmgHostInner(FUmgHostInnerUetkxProps InProps = FUmgHostInnerUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 {
 static FRuitkNodeArray UmgHostInner_UetkxBody_494743D1(FRuitkContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -85,13 +85,13 @@ static FRuitkNodeArray UmgHostInner_UetkxImpl(FRuitkContext& Ctx, const FUmgHost
 {
 	return UmgHostInner_UetkxBody_494743D1(Ctx, Props, children);
 }
-static const FName GUmgHostInnerUetkxId = Ruitk::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
+static const FName GUmgHostInnerUetkxId = Ruitk::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
 static constexpr uint32 UmgHostInner_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode UmgHostInner(FUmgHostInnerUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&UmgHostInner_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GUmgHostInnerUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")), []() { return UmgHostInner(); });
+static const bool GUmgHostInnerUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")), []() { return UmgHostInner(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 #endif

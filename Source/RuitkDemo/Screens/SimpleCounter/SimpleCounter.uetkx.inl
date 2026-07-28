@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter
 {
 struct FSimpleCounterUetkxProps final : public FRuitkPropsBase
 {
@@ -17,25 +17,25 @@ struct FSimpleCounterUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode SimpleCounter(FSimpleCounterUetkxProps InProps = FSimpleCounterUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter
 {
 static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 5 "Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx"
 	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, Ruitk::Deps());
-		auto [Count, Increment] = RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_hooks::UseCounter(Ctx, 0);
+		auto [Count, Increment] = RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_hooks::UseCounter(Ctx, 0);
 		auto [Count2, Increment2] = Ctx.UseState<int32>(0);
 #line 31 "SimpleCounter.uetkx.inl"
 	return { [&]() -> FRuitkNode {
 		FRuitkBorderProps P;
-		P.SetPadding((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelPadding()));
+		P.SetPadding((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::PanelPadding()));
 		P.SetBorderImage(FName(TEXT("WhiteBrush")));
-		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
+		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelSlotPadding()));
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::PanelSlotPadding()));
 		if (!__Style->IsEmpty()) { P.Style = __Style; }
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuitkNode> Ch;
@@ -47,7 +47,7 @@ static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, cons
 		Ch.Add(Ruitk::TextBlock((Ruitk::Fmt(TEXT("Count2: {}"), Count2)), FRuitkKey()));
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkSpacerProps P;
-		P.SetSize((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::RowGap()));
+		P.SetSize((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::RowGap()));
 		return Ruitk::Slate::Spacer(MoveTemp(P), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
@@ -56,10 +56,10 @@ static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, cons
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkButtonProps P;
 		P.SetOnClicked(FRuitkCallback::Create([=](const FRuitkValue& Value) { Increment(); }));
-		P.SetContentPadding((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
+		P.SetContentPadding((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
 		if (!__Style->IsEmpty()) { P.Style = __Style; }
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuitkNode> Ch;
@@ -74,10 +74,10 @@ static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, cons
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkButtonProps P;
 		P.SetOnClicked(FRuitkCallback::Create([=](const FRuitkValue& Value) { Increment2([](const int32& Prev) { return Prev + 1; }); }));
-		P.SetContentPadding((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
+		P.SetContentPadding((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonPadding()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
-		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
+		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::ButtonSlotPadding()));
 		if (!__Style->IsEmpty()) { P.Style = __Style; }
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuitkNode> Ch;
@@ -95,13 +95,13 @@ static FRuitkNodeArray SimpleCounter_UetkxImpl(FRuitkContext& Ctx, const FSimple
 {
 	return SimpleCounter_UetkxBody_821B1C34(Ctx, Props, children);
 }
-static const FName GSimpleCounterUetkxId = Ruitk::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
+static const FName GSimpleCounterUetkxId = Ruitk::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
 static constexpr uint32 SimpleCounter_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode SimpleCounter(FSimpleCounterUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")), []() { return SimpleCounter(); });
+static const bool GSimpleCounterUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")), []() { return SimpleCounter(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter
 #endif

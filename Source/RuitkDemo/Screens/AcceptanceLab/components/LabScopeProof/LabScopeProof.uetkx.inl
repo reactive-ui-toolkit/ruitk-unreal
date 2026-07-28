@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 {
 struct FLabScopeProofUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FLabScopeProofUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode LabScopeProof(FLabScopeProofUetkxProps InProps = FLabScopeProofUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 {
 static FRuitkNodeArray LabScopeProof_UetkxBody_62E89A38(FRuitkContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -27,13 +27,13 @@ static FRuitkNodeArray LabScopeProof_UetkxBody_62E89A38(FRuitkContext& Ctx, cons
 		FRuitkVerticalBoxProps P;
 		TArray<FRuitkNode> Ch;
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::FLabScopeBadgeUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::FLabScopeBadgeUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkBorderProps P;
-		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
+		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style::PanelBackground()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,2,0,0")));
@@ -49,7 +49,7 @@ static FRuitkNodeArray LabScopeProof_UetkxBody_62E89A38(FRuitkContext& Ctx, cons
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkBorderProps P;
-		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style::PanelBackground()));
+		P.SetBorderBackgroundColor((RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style::PanelBackground()));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Slot->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,2,0,0")));
@@ -70,13 +70,13 @@ static FRuitkNodeArray LabScopeProof_UetkxImpl(FRuitkContext& Ctx, const FLabSco
 {
 	return LabScopeProof_UetkxBody_62E89A38(Ctx, Props, children);
 }
-static const FName GLabScopeProofUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
+static const FName GLabScopeProofUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
 static constexpr uint32 LabScopeProof_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode LabScopeProof(FLabScopeProofUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&LabScopeProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GLabScopeProofUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")), []() { return LabScopeProof(); });
+static const bool GLabScopeProofUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")), []() { return LabScopeProof(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 #endif

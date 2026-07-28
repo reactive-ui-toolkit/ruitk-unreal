@@ -5,7 +5,7 @@
 #include "DemoUmgWidget.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+namespace RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase
 {
 struct FInteropShowcaseUetkxProps final : public FRuitkPropsBase
 {
@@ -19,9 +19,9 @@ struct FInteropShowcaseUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode InteropShowcase(FInteropShowcaseUetkxProps InProps = FInteropShowcaseUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+namespace RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase
 {
 static FRuitkNodeArray InteropShowcase_UetkxBody_8217024D(FRuitkContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -140,9 +140,9 @@ static FRuitkNodeArray InteropShowcase_UetkxBody_8217024D(FRuitkContext& Ctx, co
 		return __N;
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::FShowcaseProbeUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::FShowcaseProbeUetkxProps P;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_components_ShowcaseProbe_ShowcaseProbe::ShowcaseProbe(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
 		FRuitkButtonProps P;
@@ -161,13 +161,13 @@ static FRuitkNodeArray InteropShowcase_UetkxImpl(FRuitkContext& Ctx, const FInte
 {
 	return InteropShowcase_UetkxBody_8217024D(Ctx, Props, children);
 }
-static const FName GInteropShowcaseUetkxId = Ruitk::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
+static const FName GInteropShowcaseUetkxId = Ruitk::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
 static constexpr uint32 InteropShowcase_RUITK_HOOK_SIG = 0x4EA045DDu;
 inline FRuitkNode InteropShowcase(FInteropShowcaseUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&InteropShowcase_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GInteropShowcaseUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")), []() { return InteropShowcase(); });
+static const bool GInteropShowcaseUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")), []() { return InteropShowcase(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase
 #endif

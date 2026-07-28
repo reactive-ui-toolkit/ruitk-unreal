@@ -21,7 +21,7 @@
 ## 1. The HMR field test — UE 5.6 COMPLETE; 5.7 + 5.8 legs remain (block the release runway)
 
 *(Protocol history in `archive/HMR_FIELD_TEST.md`. HMR v2 is a Start/Stop MODE:
-Window ▸ ReactiveUetkx Hot Reload, or `ReactiveUetkx.HMR.Start`/`.Stop`; status in
+Window ▸ RuitkUetkx Hot Reload, or `RuitkUetkx.HMR.Start`/`.Stop`; status in
 MessageLog ▸ "Reactive UI Toolkit". Owner-only — Live Coding needs a running editor. A failure gets
 ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 
@@ -110,7 +110,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 - **TD-007** on-device remote reload (TCP).
 - **TD-008** scripting adapters (UnrealSharp/AngelScript).
 - **TD-HMR-XPLAT** live HMR is Windows-only (Live Coding); Hot Reload as the potential
-  cross-platform path. **TD-HMR-DEMOS** the `ReactiveUetkx ▸ Demos` launcher submenu.
+  cross-platform path. **TD-HMR-DEMOS** the `RuitkUetkx ▸ Demos` launcher submenu.
 - **VS2022 `.uetkx` file icon** (VSSDK image-manifest; cosmetic).
 - **TD-013 tail** typed authoring API follow-ons; **TD-015** deliberate v1 grammar cuts;
   **TD-016** event payload single-`Value` surface; **TD-019** hook-state value migration

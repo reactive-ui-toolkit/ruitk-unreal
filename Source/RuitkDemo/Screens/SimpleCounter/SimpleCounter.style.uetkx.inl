@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style
 {
 inline FLinearColor PanelBackground()
 {
@@ -59,9 +59,9 @@ TEXT("0,0,6,0")
 ;
 }
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style
 {
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style
 #endif

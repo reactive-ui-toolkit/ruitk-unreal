@@ -295,9 +295,9 @@ export const sections: DocSection[] = [
         canonicalId: 'hmr',
         title: 'Hot Module Replacement',
         path: '/tooling/hmr',
-        keywords: ['hmr', 'hot reload', 'live coding', 'follow play', 'ReactiveUetkx'],
+        keywords: ['hmr', 'hot reload', 'live coding', 'follow play', 'RuitkUetkx'],
         searchContent:
-          'hot module replacement hmr live reload edit .uetkx save running ui updates under a second state preserved no manual rebuild no restart unreal live coding rides c++ hot reload FUetkxHmrController recompiles committed c++ whole-project patches loaded modules reconciler re-renders hook state stored by slot on fibers survive patch counters inputs scroll positions ReactiveUetkx menu window follow play PIE play stop live coding enabled windows editor development-time shipping compiles committed uetkx.inl ahead of time compile error skipped last good build message log',
+          'hot module replacement hmr live reload edit .uetkx save running ui updates under a second state preserved no manual rebuild no restart unreal live coding rides c++ hot reload FUetkxHmrController recompiles committed c++ whole-project patches loaded modules reconciler re-renders hook state stored by slot on fibers survive patch counters inputs scroll positions RuitkUetkx menu window follow play PIE play stop live coding enabled windows editor development-time shipping compiles committed uetkx.inl ahead of time compile error skipped last good build message log',
         element: () => <HmrPage />,
       },
       {

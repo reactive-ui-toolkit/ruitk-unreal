@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+namespace RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff
 {
 struct FKeyedDiffUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FKeyedDiffUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode KeyedDiff(FKeyedDiffUetkxProps InProps = FKeyedDiffUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+namespace RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff
 {
 static FRuitkNodeArray KeyedDiff_UetkxBody_A51DA7A5(FRuitkContext& Ctx, const FKeyedDiffUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -246,13 +246,13 @@ static FRuitkNodeArray KeyedDiff_UetkxImpl(FRuitkContext& Ctx, const FKeyedDiffU
 {
 	return KeyedDiff_UetkxBody_A51DA7A5(Ctx, Props, children);
 }
-static const FName GKeyedDiffUetkxId = Ruitk::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
+static const FName GKeyedDiffUetkxId = Ruitk::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
 static constexpr uint32 KeyedDiff_RUITK_HOOK_SIG = 0xDDEFCD0Cu;
 inline FRuitkNode KeyedDiff(FKeyedDiffUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&KeyedDiff_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GKeyedDiffUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")), []() { return KeyedDiff(); });
+static const bool GKeyedDiffUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")), []() { return KeyedDiff(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_KeyedDiff_KeyedDiff
 #endif

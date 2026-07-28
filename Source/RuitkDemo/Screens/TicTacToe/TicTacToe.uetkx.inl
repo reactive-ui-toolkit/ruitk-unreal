@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+namespace RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe
 {
 struct FTicTacToeUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FTicTacToeUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode TicTacToe(FTicTacToeUetkxProps InProps = FTicTacToeUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+namespace RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe
 {
 static FRuitkNodeArray TicTacToe_UetkxBody_08DE8C5C(FRuitkContext& Ctx, const FTicTacToeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -230,13 +230,13 @@ static FRuitkNodeArray TicTacToe_UetkxImpl(FRuitkContext& Ctx, const FTicTacToeU
 {
 	return TicTacToe_UetkxBody_08DE8C5C(Ctx, Props, children);
 }
-static const FName GTicTacToeUetkxId = Ruitk::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe::TicTacToe")));
+static const FName GTicTacToeUetkxId = Ruitk::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe::TicTacToe")));
 static constexpr uint32 TicTacToe_RUITK_HOOK_SIG = 0x62237E89u;
 inline FRuitkNode TicTacToe(FTicTacToeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&TicTacToe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GTicTacToeUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe::TicTacToe")), []() { return TicTacToe(); });
+static const bool GTicTacToeUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe::TicTacToe")), []() { return TicTacToe(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe
 #endif

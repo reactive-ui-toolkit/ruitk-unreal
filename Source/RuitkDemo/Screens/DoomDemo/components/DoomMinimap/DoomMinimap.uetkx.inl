@@ -4,7 +4,7 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 {
 struct FDoomMinimapUetkxProps final : public FRuitkPropsBase
 {
@@ -22,9 +22,9 @@ struct FDoomMinimapUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomMinimap(FDoomMinimapUetkxProps InProps = FDoomMinimapUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 {
 static FRuitkNodeArray DoomMinimap_UetkxBody_72C99BCC(FRuitkContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -249,13 +249,13 @@ static FRuitkNodeArray DoomMinimap_UetkxImpl(FRuitkContext& Ctx, const FDoomMini
 {
 	return DoomMinimap_UetkxBody_72C99BCC(Ctx, Props, children);
 }
-static const FName GDoomMinimapUetkxId = Ruitk::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")));
+static const FName GDoomMinimapUetkxId = Ruitk::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")));
 static constexpr uint32 DoomMinimap_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomMinimap(FDoomMinimapUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomMinimap_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomMinimapUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")), []() { return DoomMinimap(); });
+static const bool GDoomMinimapUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")), []() { return DoomMinimap(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 #endif

@@ -4,7 +4,7 @@
 #include "RuitkDemoSupport.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw
 {
 struct FCustomDrawUetkxProps final : public FRuitkPropsBase
 {
@@ -18,9 +18,9 @@ struct FCustomDrawUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode CustomDraw(FCustomDrawUetkxProps InProps = FCustomDrawUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+namespace RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw
 {
 static FRuitkNodeArray CustomDraw_UetkxBody_4DE9552F(FRuitkContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -205,13 +205,13 @@ static FRuitkNodeArray CustomDraw_UetkxImpl(FRuitkContext& Ctx, const FCustomDra
 {
 	return CustomDraw_UetkxBody_4DE9552F(Ctx, Props, children);
 }
-static const FName GCustomDrawUetkxId = Ruitk::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
+static const FName GCustomDrawUetkxId = Ruitk::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
 static constexpr uint32 CustomDraw_RUITK_HOOK_SIG = 0x01D624F6u;
 inline FRuitkNode CustomDraw(FCustomDrawUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CustomDraw_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GCustomDrawUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")), []() { return CustomDraw(); });
+static const bool GCustomDrawUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw::CustomDraw")), []() { return CustomDraw(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw
 #endif

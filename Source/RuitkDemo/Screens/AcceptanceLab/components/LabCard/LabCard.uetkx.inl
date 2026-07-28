@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 {
 struct FLabCardUetkxProps final : public FRuitkPropsBase
 {
@@ -21,9 +21,9 @@ struct FLabCardUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode LabCard(FLabCardUetkxProps InProps = FLabCardUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 {
 static FRuitkNodeArray LabCard_UetkxBody_0A2A00D8(FRuitkContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -31,7 +31,7 @@ static FRuitkNodeArray LabCard_UetkxBody_0A2A00D8(FRuitkContext& Ctx, const FLab
 	const auto& Count = Props.Count;
 #line 18 "Source/RuitkDemo/Screens/AcceptanceLab/components/LabCard/LabCard.uetkx"
 	// Simple derived value from a prop — exercises reading component props in the setup block.
-		const FLinearColor Tint = Count > 0 ? RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good() : RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn();
+		const FLinearColor Tint = Count > 0 ? RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Good() : RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Warn();
 #line 36 "LabCard.uetkx.inl"
 	return { [&]() -> FRuitkNode {
 		FRuitkBorderProps P;
@@ -53,7 +53,7 @@ static FRuitkNodeArray LabCard_UetkxBody_0A2A00D8(FRuitkContext& Ctx, const FLab
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();
 		__Style->Add(FName(TEXT("Font.Size")), FRuitkValue(12.0f));
-		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
+		__Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_style::Accent()));
 		if (!__Style->IsEmpty()) { __P->Style = __Style; }
 		if (!__Slot->IsEmpty()) { __P->SlotProps = __Slot; }
 		__N.Props = __P;
@@ -79,13 +79,13 @@ static FRuitkNodeArray LabCard_UetkxImpl(FRuitkContext& Ctx, const FLabCardUetkx
 {
 	return LabCard_UetkxBody_0A2A00D8(Ctx, Props, children);
 }
-static const FName GLabCardUetkxId = Ruitk::RegisterComponentId((void*)&LabCard_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
+static const FName GLabCardUetkxId = Ruitk::RegisterComponentId((void*)&LabCard_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
 static constexpr uint32 LabCard_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode LabCard(FLabCardUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&LabCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GLabCardUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")), []() { return LabCard(); });
+static const bool GLabCardUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")), []() { return LabCard(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 #endif

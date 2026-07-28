@@ -3,13 +3,13 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 {
 inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuitkContext& Ctx, int32 Start);
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 {
 static TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState_RuiBody_9CC78468(FRuitkContext& Ctx, int32 Start)
 {
@@ -26,5 +26,5 @@ inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuitkCon
 	return UseLabState_RuiBody_9CC78468(Ctx, Start);
 }
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 #endif

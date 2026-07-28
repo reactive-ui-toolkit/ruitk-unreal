@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "ReactiveUetkxCommands.h"
+#include "RuitkUetkxCommands.h"
 
 #include "Framework/Docking/TabManager.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Logging/LogMacros.h"
-#include "ReactiveUetkxMenu.h"
+#include "RuitkUetkxMenu.h"
 #include "Styling/AppStyle.h"
 #include "UetkxHmrController.h"
 
@@ -13,22 +13,22 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkCmd, Log, All);
 
-FReactiveUetkxCommands::FReactiveUetkxCommands()
-	: TCommands<FReactiveUetkxCommands>(TEXT("ReactiveUetkx"), LOCTEXT("ContextDesc", "ReactiveUetkx"), NAME_None,
+FRuitkUetkxCommands::FRuitkUetkxCommands()
+	: TCommands<FRuitkUetkxCommands>(TEXT("RuitkUetkx"), LOCTEXT("ContextDesc", "RuitkUetkx"), NAME_None,
 										FAppStyle::GetAppStyleSetName())
 {
 }
 
-void FReactiveUetkxCommands::RegisterCommands()
+void FRuitkUetkxCommands::RegisterCommands()
 {
 	// Default UNBOUND — FInputChord() is empty, so nothing fires until the owner binds it.
-	UI_COMMAND(ToggleHmr, "Toggle HMR", "Start or stop the ReactiveUetkx Hot Reload mode.",
+	UI_COMMAND(ToggleHmr, "Toggle HMR", "Start or stop the RuitkUetkx Hot Reload mode.",
 			   EUserInterfaceActionType::Button, FInputChord());
-	UI_COMMAND(ToggleHmrWindow, "Toggle HMR Window", "Open or close the ReactiveUetkx Hot Reload window.",
+	UI_COMMAND(ToggleHmrWindow, "Toggle HMR Window", "Open or close the RuitkUetkx Hot Reload window.",
 			   EUserInterfaceActionType::Button, FInputChord());
 }
 
-void FReactiveUetkxCommands::ExecuteToggleHmr()
+void FRuitkUetkxCommands::ExecuteToggleHmr()
 {
 	FUetkxHmrController& Controller = FUetkxHmrController::Get();
 	if (Controller.IsActive())
@@ -40,25 +40,25 @@ void FReactiveUetkxCommands::ExecuteToggleHmr()
 		FString Error;
 		if (!Controller.Start(Error))
 		{
-			UE_LOG(LogRuitkCmd, Warning, TEXT("[ReactiveUetkx] Toggle HMR — start failed: %s"), *Error);
+			UE_LOG(LogRuitkCmd, Warning, TEXT("[RuitkUetkx] Toggle HMR — start failed: %s"), *Error);
 		}
 	}
 }
 
-void FReactiveUetkxCommands::ExecuteToggleHmrWindow()
+void FRuitkUetkxCommands::ExecuteToggleHmrWindow()
 {
-	const FTabId TabId(ReactiveUetkxTabs::HmrWindow);
+	const FTabId TabId(RuitkUetkxTabs::HmrWindow);
 	if (TSharedPtr<SDockTab> Existing = FGlobalTabmanager::Get()->FindExistingLiveTab(TabId))
 	{
 		Existing->RequestCloseTab();
 	}
 	else
 	{
-		FGlobalTabmanager::Get()->TryInvokeTab(ReactiveUetkxTabs::HmrWindow);
+		FGlobalTabmanager::Get()->TryInvokeTab(RuitkUetkxTabs::HmrWindow);
 	}
 }
 
-bool FReactiveUetkxInputProcessor::HandleKeyDownEvent(FSlateApplication&, const FKeyEvent& KeyEvent)
+bool FRuitkUetkxInputProcessor::HandleKeyDownEvent(FSlateApplication&, const FKeyEvent& KeyEvent)
 {
 	// Auto-repeat while the chord is held must not re-fire (it would rapid-toggle the mode).
 	if (KeyEvent.IsRepeat())
@@ -74,15 +74,15 @@ bool FReactiveUetkxInputProcessor::HandleKeyDownEvent(FSlateApplication&, const 
 	const FInputChord Chord(Key, KeyEvent.IsShiftDown(), KeyEvent.IsControlDown(), KeyEvent.IsAltDown(),
 							KeyEvent.IsCommandDown());
 
-	const FReactiveUetkxCommands& Commands = FReactiveUetkxCommands::Get();
+	const FRuitkUetkxCommands& Commands = FRuitkUetkxCommands::Get();
 	if (Commands.ToggleHmr.IsValid() && Commands.ToggleHmr->HasActiveChord(Chord))
 	{
-		FReactiveUetkxCommands::ExecuteToggleHmr();
+		FRuitkUetkxCommands::ExecuteToggleHmr();
 		return true; // consume — this was our shortcut
 	}
 	if (Commands.ToggleHmrWindow.IsValid() && Commands.ToggleHmrWindow->HasActiveChord(Chord))
 	{
-		FReactiveUetkxCommands::ExecuteToggleHmrWindow();
+		FRuitkUetkxCommands::ExecuteToggleHmrWindow();
 		return true;
 	}
 	return false;

@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style
 {
 inline FLinearColor CoolTheme()
 {
@@ -32,9 +32,9 @@ inline FLinearColor PanelBackground()
 ;
 }
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style
 {
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo_style
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo_style
 #endif

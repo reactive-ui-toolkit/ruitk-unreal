@@ -6,7 +6,7 @@
 #include "Doom/DoomTypes.h"
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen
 {
 struct FDoomGameScreenUetkxProps final : public FRuitkPropsBase
 {
@@ -26,9 +26,9 @@ struct FDoomGameScreenUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode DoomGameScreen(FDoomGameScreenUetkxProps InProps = FDoomGameScreenUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen
 {
 static FRuitkNodeArray DoomGameScreen_UetkxBody_BDBFD227(FRuitkContext& Ctx, const FDoomGameScreenUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -265,11 +265,11 @@ static FRuitkNodeArray DoomGameScreen_UetkxBody_BDBFD227(FRuitkContext& Ctx, con
 		if (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }
 		TArray<FRuitkNode> Ch;
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::FDoomMinimapUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::FDoomMinimapUetkxProps P;
 		P.State = St;
 		P.Version = View.Version;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		return Ruitk::Slate::Box(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
@@ -489,7 +489,7 @@ static FRuitkNodeArray DoomGameScreen_UetkxBody_BDBFD227(FRuitkContext& Ctx, con
 		return Ruitk::Slate::Overlay(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		Ch.Add([&]() -> FRuitkNode {
-		RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::FDoomHUDUetkxProps P;
+		RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::FDoomHUDUetkxProps P;
 		P.Health = St->Player.Health;
 		P.Armor = St->Player.Armor;
 		P.ArmorClass = St->Player.ArmorClass;
@@ -503,7 +503,7 @@ static FRuitkNodeArray DoomGameScreen_UetkxBody_BDBFD227(FRuitkContext& Ctx, con
 		P.MapName = RuitkDoom::LevelName(ActiveLevel);
 		P.FaceState = St->Player.FaceState;
 		TArray<FRuitkNode> Ch;
-		return RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
+		return RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
 		return Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch), FRuitkKey());
 	}());
@@ -516,13 +516,13 @@ static FRuitkNodeArray DoomGameScreen_UetkxImpl(FRuitkContext& Ctx, const FDoomG
 {
 	return DoomGameScreen_UetkxBody_BDBFD227(Ctx, Props, children);
 }
-static const FName GDoomGameScreenUetkxId = Ruitk::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
+static const FName GDoomGameScreenUetkxId = Ruitk::RegisterComponentId((void*)&DoomGameScreen_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")));
 static constexpr uint32 DoomGameScreen_RUITK_HOOK_SIG = 0x72A626EBu;
 inline FRuitkNode DoomGameScreen(FDoomGameScreenUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomGameScreen_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GDoomGameScreenUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")), []() { return DoomGameScreen(); });
+static const bool GDoomGameScreenUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen::DoomGameScreen")), []() { return DoomGameScreen(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_DoomGameScreen
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGameScreen
 #endif

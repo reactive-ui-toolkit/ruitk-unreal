@@ -979,11 +979,11 @@ component CardStack(Names: TArray<FString>) {
 			TestEqual(TEXT("project-relative path derives the FLAT single-identifier namespace"),
 					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx"),
 													  TEXT("SimpleCounter")),
-					  TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter"));
+					  TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter"));
 			TestEqual(TEXT("companion dots fold to underscores"),
 					  FUetkxCodegen::FileNamespaceFor(
 						  TEXT("Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.style.uetkx"), TEXT("")),
-					  TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter_style"));
+					  TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter_style"));
 			TestEqual(TEXT("leading digit gets an underscore prefix"),
 					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/3D/Hud.uetkx"), TEXT("")),
 					  TEXT("RuitkUetkx_Source__3D_Hud"));

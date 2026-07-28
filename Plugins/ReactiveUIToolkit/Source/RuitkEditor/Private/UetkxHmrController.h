@@ -34,7 +34,7 @@ struct FUetkxHmrError
 };
 
 /** Editor-only HMR controller (singleton). The watcher feeds it codegen results; it drives Live
- *  Coding and the reconciler refresh. Phase 2 adds the ReactiveUetkx window on top of this. */
+ *  Coding and the reconciler refresh. Phase 2 adds the RuitkUetkx window on top of this. */
 class FUetkxHmrController
 {
 public:

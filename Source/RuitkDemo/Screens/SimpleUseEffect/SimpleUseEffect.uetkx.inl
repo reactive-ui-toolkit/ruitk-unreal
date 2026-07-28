@@ -3,7 +3,7 @@
 
 
 #if defined(RUITK_UETKX_DECL_PHASE)
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect
 {
 struct FSimpleUseEffectUetkxProps final : public FRuitkPropsBase
 {
@@ -17,9 +17,9 @@ struct FSimpleUseEffectUetkxProps final : public FRuitkPropsBase
 };
 inline FRuitkNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps = FSimpleUseEffectUetkxProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect
 #else
-namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect
 {
 static FRuitkNodeArray SimpleUseEffect_UetkxBody_2E73F0B0(FRuitkContext& Ctx, const FSimpleUseEffectUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
@@ -46,13 +46,13 @@ static FRuitkNodeArray SimpleUseEffect_UetkxImpl(FRuitkContext& Ctx, const FSimp
 {
 	return SimpleUseEffect_UetkxBody_2E73F0B0(Ctx, Props, children);
 }
-static const FName GSimpleUseEffectUetkxId = Ruitk::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
+static const FName GSimpleUseEffectUetkxId = Ruitk::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
 static constexpr uint32 SimpleUseEffect_RUITK_HOOK_SIG = 0x7B306E79u;
 inline FRuitkNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleUseEffect_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
 }
-static const bool GSimpleUseEffectUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")), []() { return SimpleUseEffect(); });
+static const bool GSimpleUseEffectUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")), []() { return SimpleUseEffect(); });
 
-} // namespace RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect
+} // namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleUseEffect_SimpleUseEffect
 #endif
