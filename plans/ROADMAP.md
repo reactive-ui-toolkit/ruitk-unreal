@@ -124,7 +124,7 @@ ReactiveUI-Godot occupies in Godot.
 
 Four deliverables, independently versioned, one repo (the model proven in the Godot repo):
 
-1. **The runtime plugin** (`Plugins/ReactiveUI/`) — the reconciler, hooks, Slate host, UMG/CommonUI/
+1. **The runtime plugin** (`Plugins/ReactiveUIToolkit/`) — the reconciler, hooks, Slate host, UMG/CommonUI/
    MVVM interop, the `.uetkx` compiler and the in-editor hot-reload loop. Distributed as source on
    GitHub (MIT) and as a free Fab listing, one zip per supported engine version (5.6 / 5.7 / 5.8
    at launch).

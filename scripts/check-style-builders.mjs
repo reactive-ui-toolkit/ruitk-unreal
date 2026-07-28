@@ -15,7 +15,7 @@ const schema = JSON.parse(
   readFileSync(resolve(ROOT, 'ide-extensions/lsp-server/src/uetkx-schema.json'), 'utf8'),
 );
 const header = readFileSync(
-  resolve(ROOT, 'Plugins/ReactiveUI/Source/RuitkSlate/Public/RuiStyle.h'),
+  resolve(ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkSlate/Public/RuiStyle.h'),
   'utf8',
 );
 

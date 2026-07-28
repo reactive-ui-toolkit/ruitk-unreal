@@ -86,7 +86,7 @@ a docs site, with every performance claim measured before it's printed.
 
 | Path | What it is |
 |---|---|
-| `Plugins/ReactiveUI/` | The plugin — the deliverable (self-contained: own README/CHANGELOG/LICENSE) |
+| `Plugins/ReactiveUIToolkit/` | The plugin — the deliverable (self-contained: own README/CHANGELOG/LICENSE) |
 | `Source/`, `Content/` | The demo host project (`ReactiveUIUnrealDemo.uproject` at root) + automation tests |
 | `ide-extensions/` | `.uetkx` IDE tooling (shared family language server; VS Code + VS2022) |
 | `ReactiveUIUnrealDocs~/` | Docs site (React + Vite, the family shell) |

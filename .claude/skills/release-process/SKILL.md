@@ -6,7 +6,7 @@ description: The ReactiveUI-Unreal release runbook — draining the pending chan
 # Release process (ReactiveUI-Unreal)
 
 Everything a release needs, in order. Deliverables version independently — check what actually
-changed with `git diff origin/master --stat` against `Plugins/ReactiveUI/` and `ide-extensions/`
+changed with `git diff origin/master --stat` against `Plugins/ReactiveUIToolkit/` and `ide-extensions/`
 before deciding what bumps.
 
 ## 0. Drain the pending ledger
@@ -31,7 +31,7 @@ and prints the exact follow-up commands. Post-1.0 deprecations follow D-30: `UE_
 1. Write the `## [X.Y.Z] — YYYY-MM-DD` section at the top of **root `CHANGELOG.md`**
    (keep-a-changelog: intro line, then `### Added/Changed/Fixed` with bold-lead bullets naming
    root causes).
-2. Mirror: `cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md` — then `node scripts/verify-mirror.mjs`.
+2. Mirror: `cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md` — then `node scripts/verify-mirror.mjs`.
 3. Entries cover the plugin surface only, never the demo host project.
 
 ### Lane B — the IDE extensions (generated from one json)

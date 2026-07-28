@@ -110,7 +110,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
 ### Identity & naming
 
-- **D-01 — Names & headers.** Plugin folder `Plugins/ReactiveUI/`, descriptor `ReactiveUI.uplugin`,
+- **D-01 — Names & headers.** Plugin folder `Plugins/ReactiveUIToolkit/`, descriptor `ReactiveUIToolkit.uplugin`,
   FriendlyName "Reactive UI Toolkit for Unreal" (final store name is owner's call — §7 Q1, .NET-ReactiveUI
   collision noted). Type prefixes: `FRui*` structs/classes, `SRui*` Slate widgets, `URui*`
   UObjects, `IRui*` interfaces, `TRui*` templates. Free-function factories live in namespace
@@ -509,7 +509,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   integration branch `dev`; campaigns are 1-branch-1-PR `feat/<name>` → `dev`; `master` is
   release-only, fast-forwarded via `git push origin origin/dev:master`. Patch-by-default versioning;
   perf-only changes to shipped bytes still bump. Version sources: plugin →
-  `ReactiveUI.uplugin` `"VersionName"` (+ integer `"Version"` monotonic); VS Code ext →
+  `ReactiveUIToolkit.uplugin` `"VersionName"` (+ integer `"Version"` monotonic); VS Code ext →
   `ide-extensions/vscode-uetkx/package.json`; **lsp-server is a VENDORED copy in this repo**
   (settled): it version-locks to `vscode-uetkx/package.json` and carries no own tag (the Godot
   arrangement); family-shared files (`markup.ts`, `sourceMap.ts`, formatter, corpora) sync across
@@ -523,7 +523,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   notice; the prop-map schema carries a `deprecated` field the LSP surfaces; grammar changes
   always go through the cross-repo corpus procedure (D-22).
 - **D-31 — Changelog system from day zero, no cutover scars.** Lane A (runtime plugin):
-  hand-written root `CHANGELOG.md` + byte-identical mirror at `Plugins/ReactiveUI/CHANGELOG.md`
+  hand-written root `CHANGELOG.md` + byte-identical mirror at `Plugins/ReactiveUIToolkit/CHANGELOG.md`
   (resync via `cp`, tripwire test). Lane B (tooling: extensions): `ide-extensions/changelog.json`
   + `changelog.mjs add --message-file … / extract / verify`, `verify` as a required CI check from
   the first commit; `--message-file` (never `--message`) for anything non-ASCII. Lane B targets:
@@ -555,8 +555,8 @@ ReactiveUI-Unreal/                          # repo root IS the demo host project
     RuiHostTests/                           # ALL automation tests (ReactiveUI.* hierarchy) — not shipped in plugin
   Content/                                  # demo maps + minimal assets
   Config/                                   # DefaultEngine.ini etc.
-  Plugins/ReactiveUI/                       # DELIVERABLE 1 — the plugin (self-contained: own README/CHANGELOG/LICENSE)
-    ReactiveUI.uplugin                      # FileVersion 3; Modules per D-27; VersionName; PlatformAllowList
+  Plugins/ReactiveUIToolkit/                       # DELIVERABLE 1 — the plugin (self-contained: own README/CHANGELOG/LICENSE)
+    ReactiveUIToolkit.uplugin                      # FileVersion 3; Modules per D-27; VersionName; PlatformAllowList
     Config/FilterPlugin.ini                 # packaging allowlist (Docs/, README, LICENSE, templates)
     Source/RuitkCore/                  # D-27 table; each module: Public/, Private/, <Module>.Build.cs
     Source/RuitkSlate/
@@ -596,7 +596,7 @@ ReactiveUI-Unreal/                          # repo root IS the demo host project
                                             # Discord server — add an #unreal channel, never a new server)
   THIRD_PARTY_NOTICES.md                    # demo fonts/assets/tools attribution (D-32; also in FilterPlugin.ini)
   CHANGELOG.md  CLAUDE.md  README.md  LICENSE  icon files
-  Plugins/ReactiveUI/Resources/Icon128.png  # plugin-browser tile (packaged; FilterPlugin-aware)
+  Plugins/ReactiveUIToolkit/Resources/Icon128.png  # plugin-browser tile (packaged; FilterPlugin-aware)
 ```
 
 Generated-per-component (COMMITTED, per D-19): `Foo.uetkx` → `Foo.uetkx.inl` +
@@ -677,7 +677,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      association 5.6), plugin skeleton with all 8 modules compiling EMPTY (each module: Build.cs
      with `PCHUsage = UseExplicitOrSharedPCHs`, IWYU-clean, correct Type per D-27, `_API` macros),
      `.gitignore` (incl. `*.uetkx.diags.json`), `.gitattributes` allowlist,
-     `Config/FilterPlugin.ini`, `Plugins/ReactiveUI/Resources/Icon128.png` (placeholder art —
+     `Config/FilterPlugin.ini`, `Plugins/ReactiveUIToolkit/Resources/Icon128.png` (placeholder art —
      final art is an owner sign-off item in Phase 9), `.clang-format` (Epic style) +
      `.editorconfig`, and the **copyright header line** (D-01 — decided here, applied to every
      scaffolded file, encoded in templates and later in the codegen emitter).
@@ -808,7 +808,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      harness shape (`ReactiveUI.Bench`, not pass/fail) with its first baseline rows committed to
      `plans/BENCH_BASELINES.md`.
   6. StrictMode/hook-order-validation/set-during-render diagnostics behind CVars (D-14).
-- **Files touched:** `Plugins/ReactiveUI/Source/RuitkCore/**`, `Source/RuiHostTests/**`.
+- **Files touched:** `Plugins/ReactiveUIToolkit/Source/RuitkCore/**`, `Source/RuiHostTests/**`.
 - **Verify:** `test-run` skill: build + `Automation RunTests ReactiveUI.Core; ReactiveUI.Update`
   headless (NullRHI) green with per-section markers; bench numbers recorded; boot check
   (`ReactiveUI.Boot` smoke: module starts, root mounts on mock host).

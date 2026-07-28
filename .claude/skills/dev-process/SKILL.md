@@ -47,7 +47,7 @@ commits/pushes beyond what the task established, never auto-commit.
 
 | Artifact | Changelog | How |
 |---|---|---|
-| ReactiveUI plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUI/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
+| ReactiveUI plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUIToolkit/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
 | VS Code + VS2022 extensions | `ide-extensions/changelog.json` | `changelog.mjs add --message-file …` → `extract` each target → commit together; `verify` gates CI |
 | Community | `plans/DISCORD_CHANGELOG.md` | Notable releases; ≤2000 chars/entry; owner pastes |
 | Pending (between releases) | `plans/PENDING_CHANGELOG.md` | `plan-progress` stages bullets; `release-process` drains |

@@ -501,7 +501,7 @@ referenced from plans/PRs.
   full round-trip (Rui writes VM → VM broadcasts → a UseField consumer re-renders). Full suite
   68/68.
 - **Status:** RESOLVED 2026-07-12 — all three plugin-coupled layers shipped after enabling CommonUI
-  + ModelViewViewModel (optional plugin refs in `ReactiveUI.uplugin` per D-27; build deps; both on in
+  + ModelViewViewModel (optional plugin refs in `ReactiveUIToolkit.uplugin` per D-27; build deps; both on in
   the demo host `.uproject`; enablement verified non-destabilizing — full suite stayed 75/75, then
   79/79 with the new suites).
   - **CommonUI activatables: DONE.** `RuiActivation.h/.cpp` is the Rui-side seam — a plain context
@@ -748,7 +748,7 @@ referenced from plans/PRs.
   build/run is unaffected.
 
 ## TD-028 — `URuiHostWidget` has no props/viewmodel channel (audit N1)
-- **Where:** `Plugins/ReactiveUI/Source/RuitkUMG/Public/RuiHostWidget.h`
+- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkUMG/Public/RuiHostWidget.h`
 - **What/why deferred:** the ours-in-theirs UMG door hosts by `ComponentName` only — no
   `SynchronizeProperties` override, no Blueprint-passed initial props, no VM handoff (research
   D_interop b2 promised "BP can pass initial props and a VM"). Shipped minimal in Phase 6;
@@ -770,7 +770,7 @@ referenced from plans/PRs.
   viewmodel from the Designer".
 
 ## TD-029 — `URuiActivatableScreen` lacks `GetDesiredFocusTarget()` (audit N2)
-- **Where:** `Plugins/ReactiveUI/Source/RuitkCommonUI/Public/RuiActivatableScreen.h`
+- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkCommonUI/Public/RuiActivatableScreen.h`
 - **What/why deferred:** CommonUI restores gamepad focus via the activatable's
   `GetDesiredFocusTarget()`; our screen doesn't override it, so focus doesn't land on a designated
   widget on activation (research D_interop c2's `autofocus`). Surfaced by the 2026-07-14 audit

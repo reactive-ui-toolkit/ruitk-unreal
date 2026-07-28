@@ -36,7 +36,7 @@ rounds + audit ledgers).
 
 | Deliverable | Location | Version source | Tag |
 |---|---|---|---|
-| Runtime plugin | `Plugins/ReactiveUI/` | `ReactiveUI.uplugin` → `VersionName` (+ integer `Version`) | `v*` (one tag; per-engine zips as assets) |
+| Runtime plugin | `Plugins/ReactiveUIToolkit/` | `ReactiveUIToolkit.uplugin` → `VersionName` (+ integer `Version`) | `v*` (one tag; per-engine zips as assets) |
 | VS Code extension (Phase 5) | `ide-extensions/vscode-uetkx/` | `package.json` | `vscode-v*` |
 | VS2022 extension (Phase 5) | `ide-extensions/visual-studio/` | `source.extension.vsixmanifest` | `vs2022-v*` |
 | lsp-server (Phase 5) | `ide-extensions/lsp-server/` | vendored; version-locked to vscode-uetkx (no own tag) | — |
@@ -152,7 +152,7 @@ MASTER_PLAN §1; module table: D-27.
   green on 5.6, 5.7, and 5.8 (2026-07-14). The `engine-catchup` skill is the per-version
   runbook, `scripts/engine-api-diff.ps1` the discovery tool. When switching engines on one
   working copy, a stale-UHT clean may be needed (`rm -rf Intermediate/Build
-  Plugins/ReactiveUI/Intermediate Binaries Plugins/ReactiveUI/Binaries`) — a newer engine's
+  Plugins/ReactiveUIToolkit/Intermediate Binaries Plugins/ReactiveUIToolkit/Binaries`) — a newer engine's
   UHT output does not compile on an older one. The SAME clean is MANDATORY after any
   `-DisableUnity`/`-NoPCH` build experiment: mixed unity/non-unity intermediates make
   in-editor Live Coding recompile untouched modules on every fresh boot (TB-21 amendment —

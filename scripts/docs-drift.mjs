@@ -42,7 +42,7 @@ function readUetkxSchema() {
  *  + UseSignal/UseSignalKey (RuiSignal.h) + UsePresence (RuiPresence.h) — the audited 23. */
 function countCoreHooks() {
   const ctx = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkCore/Public/RuiContext.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuiContext.h'),
     'utf8',
   );
   const names = new Set();
@@ -54,7 +54,7 @@ function countCoreHooks() {
 
 /** Wrapped Slate widgets = the public FRuiNode factories in RuitkSlate + core TextBlock. */
 function countWidgetFactories() {
-  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkSlate/Public');
+  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkSlate/Public');
   const names = new Set();
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.h')) continue;
@@ -76,7 +76,7 @@ function countGalleryScreens() {
 /** Router hooks = the RUITKCORE_API Use* free functions in RuiRouter.h. */
 function countRouterHooks() {
   const text = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkCore/Public/RuiRouter.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuiRouter.h'),
     'utf8',
   );
   const names = new Set();

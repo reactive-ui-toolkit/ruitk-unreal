@@ -9,7 +9,7 @@ import path from 'node:path'
 // Like the Godot sibling (whose config reads the bundled ClassDB dump and guitkx
 // schema), this config injects host/widget data as compile-time constants so the
 // docs never drift from the toolchain:
-//   __PACKAGE_VERSION__  — plugin version from Plugins/ReactiveUI/ReactiveUI.uplugin
+//   __PACKAGE_VERSION__  — plugin version from Plugins/ReactiveUIToolkit/ReactiveUIToolkit.uplugin
 //   __UE_MIN__           — the minimum supported Unreal Engine version (floor)
 //   __HOST_ELEMENTS__    — per host tag: { tag, slateClass, factory, events, props[], signals[] }
 //   __HOST_TAGS__        — ordered list of host tags (nav order = schema order)
@@ -18,11 +18,11 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(process.cwd(), '..')
 
-// ── plugin version (ReactiveUI.uplugin: "VersionName": "0.1.0-dev") ──────────
+// ── plugin version (ReactiveUIToolkit.uplugin: "VersionName": "0.1.0-dev") ──────────
 function readPluginVersion(): string {
   try {
     const raw = fs
-      .readFileSync(path.join(repoRoot, 'Plugins', 'ReactiveUI', 'ReactiveUI.uplugin'), 'utf-8')
+      .readFileSync(path.join(repoRoot, 'Plugins', 'ReactiveUIToolkit', 'ReactiveUIToolkit.uplugin'), 'utf-8')
       .replace(/^\uFEFF/, '')
     const uplugin = JSON.parse(raw) as { VersionName?: string }
     return uplugin.VersionName || '0.0.0'

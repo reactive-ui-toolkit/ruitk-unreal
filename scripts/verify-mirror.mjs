@@ -6,7 +6,7 @@
  * headless engine test; here it must be ENGINE-FREE because engine CI is default-unarmed —
  * so it's a five-line node script in the always-on job instead.
  *
- * Resync after editing the root file:  cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md
+ * Resync after editing the root file:  cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md
  * (copy, never re-type — "byte-identical" is literal; .gitattributes pins LF on both).
  */
 import { readFileSync, existsSync } from 'fs';
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT_FILE = resolve(REPO_ROOT, 'CHANGELOG.md');
-const MIRROR_FILE = resolve(REPO_ROOT, 'Plugins/ReactiveUI/CHANGELOG.md');
+const MIRROR_FILE = resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/CHANGELOG.md');
 
 for (const f of [ROOT_FILE, MIRROR_FILE]) {
   if (!existsSync(f)) {
@@ -28,8 +28,8 @@ const root = readFileSync(ROOT_FILE);
 const mirror = readFileSync(MIRROR_FILE);
 
 if (!root.equals(mirror)) {
-  console.error('✗ Plugins/ReactiveUI/CHANGELOG.md is NOT byte-identical to root CHANGELOG.md.');
-  console.error('  Resync it:  cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md');
+  console.error('✗ Plugins/ReactiveUIToolkit/CHANGELOG.md is NOT byte-identical to root CHANGELOG.md.');
+  console.error('  Resync it:  cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md');
   console.error('  (Edit only the root file; the plugin copy is a generated mirror.)');
   process.exit(1);
 }

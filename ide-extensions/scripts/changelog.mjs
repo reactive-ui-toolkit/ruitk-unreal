@@ -4,7 +4,7 @@
  * Centralized changelog management for the UETKX tooling family: the VS Code and VS2022
  * extensions (Lane B of MASTER_PLAN D-31). The ReactiveUI runtime plugin deliberately stays
  * OUT of this system — its changelog is hand-written keep-a-changelog (root CHANGELOG.md,
- * byte-identically mirrored into Plugins/ReactiveUI/; scripts/verify-mirror.mjs enforces the
+ * byte-identically mirrored into Plugins/ReactiveUIToolkit/; scripts/verify-mirror.mjs enforces the
  * mirror in CI).
  *
  * Source of truth: ide-extensions/changelog.json.
@@ -431,7 +431,7 @@ switch (command) {
 
 Targets: vscode, vs2022. The ReactiveUI runtime plugin is NOT managed here — its
 changelog is hand-written (root CHANGELOG.md, mirrored byte-identically into
-Plugins/ReactiveUI/; scripts/verify-mirror.mjs enforces the mirror).
+Plugins/ReactiveUIToolkit/; scripts/verify-mirror.mjs enforces the mirror).
 
 Commands:
   add              Add a changelog entry

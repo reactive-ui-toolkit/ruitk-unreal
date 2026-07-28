@@ -31,7 +31,7 @@ CHANGELOG.md   text eol=lf
 # git archive — it uses RunUAT BuildPlugin + Config/FilterPlugin.ini; this covers
 # GitHub "Download ZIP"-style source exports.
 /** export-ignore
-/Plugins/ReactiveUI/** -export-ignore
+/Plugins/ReactiveUIToolkit/** -export-ignore
 /LICENSE -export-ignore
 /README.md -export-ignore
 /CHANGELOG.md -export-ignore

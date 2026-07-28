@@ -33,7 +33,7 @@ a bandaid.
 3. **Commit** on the feature branch (this loop is a standing ask to commit; author is the owner —
    no Co-Authored-By).
 4. **Apply to the live tree**: if it's clean, fetch + checkout the branch (ask before switching
-   their checkout); otherwise copy the changed `Plugins/ReactiveUI/**` files over. Then tell the
+   their checkout); otherwise copy the changed `Plugins/ReactiveUIToolkit/**` files over. Then tell the
    owner whether **Live Coding suffices** (cpp-body-only change) **or the editor must restart**
    (anything else — when in doubt, restart).
 5. **Owner tests.** Ask for: what they did, what they saw, `Saved/Logs/ReactiveUIUnrealDemo.log`,

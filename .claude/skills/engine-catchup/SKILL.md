@@ -42,7 +42,7 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
 
 ## 3. Implementation checklist (in order; each row names its gate)
 
-1. **Plugin manifest**: the dev repo's `ReactiveUI.uplugin` carries **NO `EngineVersion`
+1. **Plugin manifest**: the dev repo's `ReactiveUIToolkit.uplugin` carries **NO `EngineVersion`
    pin** — that field is a hard per-version compatibility gate, not a floor declaration
    (a 5.6.0 pin made 5.7 show "'ReactiveUI' is Incompatible… Attempt to load anyway?",
    which headless/-unattended auto-answers NO → the plugin silently never loads and every
@@ -109,4 +109,4 @@ every row above names green gates in the PR description.
   output in `Intermediate/` doesn't compile on 5.6 (`ETypeConstructPhase`,
   `UE_WITH_CONSTINIT_UOBJECT`) and UBT does not always invalidate it — a switch-back build
   exploding with hundreds of errors in `*.generated.h` means stale UHT, not broken code:
-  `rm -rf Intermediate/Build Plugins/ReactiveUI/Intermediate Binaries Plugins/ReactiveUI/Binaries`.
+  `rm -rf Intermediate/Build Plugins/ReactiveUIToolkit/Intermediate Binaries Plugins/ReactiveUIToolkit/Binaries`.

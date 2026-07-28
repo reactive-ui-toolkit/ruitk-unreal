@@ -77,7 +77,7 @@ jobs:
           fetch-depth: 0
       - name: Read VersionName
         id: ver
-        run: echo "version=$(jq -r .VersionName Plugins/ReactiveUI/ReactiveUI.uplugin)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(jq -r .VersionName Plugins/ReactiveUIToolkit/ReactiveUIToolkit.uplugin)" >> "$GITHUB_OUTPUT"
       - name: Tag exists? (idempotency gate)
         id: tagcheck
         run: |
@@ -122,9 +122,9 @@ jobs:
             cp -r Plugins/ReactiveUI "$STAGE/ReactiveUI"
             rm -rf "$STAGE/ReactiveUI/Binaries" "$STAGE/ReactiveUI/Intermediate"
             find "$STAGE/ReactiveUI" -name '*.uetkx.diags.json' -delete
-            jq --arg v "$ENG.0" '.EngineVersion = $v' "$STAGE/ReactiveUI/ReactiveUI.uplugin" \
-              > "$STAGE/ReactiveUI/ReactiveUI.uplugin.tmp"
-            mv "$STAGE/ReactiveUI/ReactiveUI.uplugin.tmp" "$STAGE/ReactiveUI/ReactiveUI.uplugin"
+            jq --arg v "$ENG.0" '.EngineVersion = $v' "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin" \
+              > "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin.tmp"
+            mv "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin.tmp" "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin"
             (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip" ReactiveUI)
             rm -rf "$STAGE"
             echo "Packaged: dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip (EngineVersion $ENG.0)"

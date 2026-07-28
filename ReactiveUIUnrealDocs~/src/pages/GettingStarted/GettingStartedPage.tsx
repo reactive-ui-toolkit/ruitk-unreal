@@ -52,7 +52,7 @@ export const GettingStartedPage: FC = () => (
       1. Enable the plugin
     </Typography>
     <Typography variant="body1" paragraph>
-      Drop <code>Plugins/ReactiveUI/</code> into your project (or install it from Fab) and enable{' '}
+      Drop <code>Plugins/ReactiveUIToolkit/</code> into your project (or install it from Fab) and enable{' '}
       <strong>Reactive UI Toolkit for Unreal</strong> under <em>Edit ▸ Plugins</em>. Then add the runtime modules your
       game module builds against:
     </Typography>

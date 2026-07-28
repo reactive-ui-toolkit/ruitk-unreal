@@ -7,7 +7,7 @@
 
 .DESCRIPTION
     For each engine install found (or passed), runs:
-      RunUAT.bat BuildPlugin -Plugin=<ReactiveUI.uplugin> -Package=<staging> -TargetPlatforms=Win64 -Rocket -StrictIncludes
+      RunUAT.bat BuildPlugin -Plugin=<ReactiveUIToolkit.uplugin> -Package=<staging> -TargetPlatforms=Win64 -Rocket -StrictIncludes
     then strips Binaries/ and Intermediate/ (Fab: "Epic's toolchain builds the binaries") and
     zips  dist/ReactiveUI-<VersionName>-UE<major.minor>.zip.
 
@@ -29,7 +29,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$uplugin  = Join-Path $repoRoot 'Plugins\ReactiveUI\ReactiveUI.uplugin'
+$uplugin  = Join-Path $repoRoot 'Plugins\ReactiveUIToolkit\ReactiveUIToolkit.uplugin'
 if (-not (Test-Path $uplugin)) { Write-Error "Not found: $uplugin"; exit 1 }
 $versionName = (Get-Content $uplugin -Raw | ConvertFrom-Json).VersionName
 if ([string]::IsNullOrWhiteSpace($OutDir)) { $OutDir = Join-Path $repoRoot 'dist' }
