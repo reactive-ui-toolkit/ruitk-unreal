@@ -40,7 +40,7 @@ rounds + audit ledgers).
 | VS Code extension (Phase 5) | `ide-extensions/vscode-uetkx/` | `package.json` | `vscode-v*` |
 | VS2022 extension (Phase 5) | `ide-extensions/visual-studio/` | `source.extension.vsixmanifest` | `vs2022-v*` |
 | lsp-server (Phase 5) | `ide-extensions/lsp-server/` | vendored; version-locked to vscode-uetkx (no own tag) | — |
-| Docs site | `ReactiveUIUnrealDocs~/` | not version-gated | — |
+| Docs site | `RuitkUnrealDocs~/` | not version-gated | — |
 
 The demo host project (`RuitkUnrealDemo.uproject` at repo root, modules under `Source/`)
 is **not shipped** — it hosts the automation tests, the demo gallery, and the per-engine example
@@ -80,7 +80,7 @@ Suite filters are prefix-matched: `ReactiveUI.Boot` (the boot check — unit sui
 `.Bugfix*`, `.Acceptance`, `.Editor` — there is no `.Hmr` suite); `ReactiveUI.Bench` is NOT
 pass/fail (numbers go to `plans/BENCH_BASELINES.md` with machine/config context).
 
-Docs site: `cd "ReactiveUIUnrealDocs~" && npm ci && npm run dev` (or `npm run build && npm run lint`).
+Docs site: `cd "RuitkUnrealDocs~" && npm ci && npm run dev` (or `npm run build && npm run lint`).
 
 ## Architecture (one paragraph + pointers)
 

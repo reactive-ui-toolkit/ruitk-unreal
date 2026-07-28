@@ -89,7 +89,7 @@ function countRouterHooks() {
 /** Hook catalog entries by category — the generated per-hook docs pages read this file.
  *  The trailing comma distinguishes data entries from the interface's union-type line. */
 function countHooksCatalog(category) {
-  const text = readFileSync(resolve(REPO_ROOT, 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts'), 'utf8');
+  const text = readFileSync(resolve(REPO_ROOT, 'RuitkUnrealDocs~/src/hooksCatalog.ts'), 'utf8');
   return (text.match(new RegExp(`category: '${category}',`, 'g')) ?? []).length;
 }
 
@@ -114,7 +114,7 @@ const CHECKS = [
   },
   {
     // Docs intro: "UseState, UseEffect, and 21 more" (= the 23 total, 2 named + N more).
-    file: 'ReactiveUIUnrealDocs~/src/pages/Introduction/IntroductionPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/Introduction/IntroductionPage.tsx',
     pattern: /and (\d+) more/,
     source: () => countCoreHooks() - 2,
   },
@@ -144,7 +144,7 @@ const CHECKS = [
   },
   {
     // Components Overview prose: "Markup tags (29 of them)" — must equal the schema exactly.
-    file: 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
     pattern: /\((\d+) of them\)/,
     source: () => Object.keys(readUetkxSchema().elements ?? {}).length,
   },
@@ -152,11 +152,11 @@ const CHECKS = [
     // Components Overview TAG_GROUPS chips: hand-listed, so gate MEMBERSHIP against the schema —
     // every schema tag in exactly one group's `tags:` array (the chips drifted silently once:
     // stuck at the 29-tag era while the schema hit 63). Mismatch returns -1 to fail loud.
-    file: 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
     pattern: /TAG_GROUPS chips: (\d+) tags/,
     source: () => {
       const src = readFileSync(
-        resolve(REPO_ROOT, 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx'),
+        resolve(REPO_ROOT, 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx'),
         'utf8',
       );
       const chips = new Set();
@@ -171,7 +171,7 @@ const CHECKS = [
   {
     // The generated per-hook docs pages: the catalog's CORE entries must cover every core hook.
     // (The claim line lives in the catalog header so the check self-anchors to the data file.)
-    file: 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts',
+    file: 'RuitkUnrealDocs~/src/hooksCatalog.ts',
     pattern: /(\d+) core hook entries/,
     source: () => {
       const registry = countCoreHooks();
@@ -181,7 +181,7 @@ const CHECKS = [
   },
   {
     // ...and the ROUTER entries must cover every RuiRouter.h hook.
-    file: 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts',
+    file: 'RuitkUnrealDocs~/src/hooksCatalog.ts',
     pattern: /(\d+) router hook entries/,
     source: () => {
       const registry = countRouterHooks();

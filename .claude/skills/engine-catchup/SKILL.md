@@ -55,7 +55,7 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
    generated docs Components pages both read it. Gate: `ReactiveUI.Uetkx.Schema` +
    `docs-drift` (the 29-tags check will catch a count change — update the Components
    Overview prose in the same PR).
-4. **Docs version manifest**: `ReactiveUIUnrealDocs~/src/versionManifest.ts` —
+4. **Docs version manifest**: `RuitkUnrealDocs~/src/versionManifest.ts` —
    add the version to `SUPPORTED_VERSIONS`; add `ELEMENT_VERSIONS` entries for new
    widgets (`sinceUE`), `PAGE_VERSIONS` for new pages. The version dropdown, sidebar
    filtering, and the generated pages' `VersionBadge` all key off this file. Gate:
