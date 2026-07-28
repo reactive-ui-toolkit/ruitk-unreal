@@ -6,7 +6,7 @@
     <Description xml:space="preserve">Syntax highlighting and language intelligence for .uetkx markup (Reactive UI Toolkit for Unreal) — completions, hover, diagnostics, formatting from the compiler schema. Fully offline. Discord: discord.gg/Knedqu4Wyv | github.com/reactive-ui-toolkit/ruitk-unreal</Description>
     <License>LICENSE.txt</License>
     <Icon>icon.png</Icon>
-    <Tags>unreal;slate;uetkx;reactiveui;jsx</Tags>
+    <Tags>unreal;slate;uetkx;reactiveui;jsx;reactive ui toolkit;ruitk</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,18.0)">

@@ -21,7 +21,9 @@
     "slate",
     "reactiveui",
     "uetkx",
-    "jsx"
+    "jsx",
+    "reactive ui toolkit",
+    "ruitk"
   ],
   "activationEvents": [
     "onLanguage:uetkx"
