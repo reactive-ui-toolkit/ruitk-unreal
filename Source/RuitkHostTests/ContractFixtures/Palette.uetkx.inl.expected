@@ -18,12 +18,12 @@ inline void UsePrivate(FRuitkContext& Ctx);
 #else
 namespace RuitkUetkx_Palette
 {
-static void UsePrivate_RuiBody_F9FF44E8(FRuitkContext& Ctx)
+static void UsePrivate_RuitkBody_F9FF44E8(FRuitkContext& Ctx)
 {
 }
 inline void UsePrivate(FRuitkContext& Ctx)
 {
-	UsePrivate_RuiBody_F9FF44E8(Ctx);
+	UsePrivate_RuitkBody_F9FF44E8(Ctx);
 }
 
 } // namespace RuitkUetkx_Palette

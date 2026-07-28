@@ -42,7 +42,7 @@ inline FRuitkNode LegacyWrappers(FLegacyWrappersUetkxProps InProps, TArray<FRuit
 }
 static const bool GLegacyWrappersUetkxFactoryReg = Ruitk::RegisterNamedFactory(FName(TEXT("RuitkUetkx_LegacyWrappers::LegacyWrappers")), []() { return LegacyWrappers(); });
 
-static int32 UseLegacyTick_RuiBody_BD48BD3C(FRuitkContext& Ctx, int32 Start)
+static int32 UseLegacyTick_RuitkBody_BD48BD3C(FRuitkContext& Ctx, int32 Start)
 {
 #line 10 "LegacyWrappers.uetkx"
 	return Start;
@@ -50,7 +50,7 @@ static int32 UseLegacyTick_RuiBody_BD48BD3C(FRuitkContext& Ctx, int32 Start)
 }
 inline int32 UseLegacyTick(FRuitkContext& Ctx, int32 Start)
 {
-	return UseLegacyTick_RuiBody_BD48BD3C(Ctx, Start);
+	return UseLegacyTick_RuitkBody_BD48BD3C(Ctx, Start);
 }
 
 } // namespace RuitkUetkx_LegacyWrappers

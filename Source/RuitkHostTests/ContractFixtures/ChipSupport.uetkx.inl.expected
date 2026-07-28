@@ -20,7 +20,7 @@ inline int32 UseChipCount(FRuitkContext& Ctx, int32 Start);
 #else
 namespace RuitkUetkx_ChipSupport
 {
-static int32 UseChipCount_RuiBody_3D545077(FRuitkContext& Ctx, int32 Start)
+static int32 UseChipCount_RuitkBody_3D545077(FRuitkContext& Ctx, int32 Start)
 {
 #line 2 "ChipSupport.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
@@ -29,7 +29,7 @@ static int32 UseChipCount_RuiBody_3D545077(FRuitkContext& Ctx, int32 Start)
 }
 inline int32 UseChipCount(FRuitkContext& Ctx, int32 Start)
 {
-	return UseChipCount_RuiBody_3D545077(Ctx, Start);
+	return UseChipCount_RuitkBody_3D545077(Ctx, Start);
 }
 
 } // namespace RuitkUetkx_ChipSupport

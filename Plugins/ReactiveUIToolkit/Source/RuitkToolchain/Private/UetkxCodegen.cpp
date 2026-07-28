@@ -1286,7 +1286,7 @@ namespace
 	 *  calls in the body Ctx.-prefixed, nested user hooks Ctx-injected). DECL phase = the forward
 	 *  declaration; BODY phase = the definition. FILE_SCOPED_EXPORTS: every decl (exported or
 	 *  private) lives in the FILE namespace — the assembly wrap owns it, nothing per-decl.
-	 *  TB-23: the USER BODY lives in a CONTENT-HASHED static (`<Name>_RuiBody_<hash>`) behind a
+	 *  TB-23: the USER BODY lives in a CONTENT-HASHED static (`<Name>_RuitkBody_<hash>`) behind a
 	 *  stable forwarder — user closures (effects, callbacks stored in cells/props) mangle under
 	 *  the hashed name, so a Live-Coding patch can never redirect an OLD closure's code to a
 	 *  DIFFERENT lambda's layout (the cross-patch ordinal collision). The forwarder keeps the
@@ -1297,7 +1297,7 @@ namespace
 		const FString Ret = Hook.Ret.IsEmpty() ? FString(TEXT("void")) : Hook.Ret;
 		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuitkContext& Ctx%s%s)"), *Ret, *Hook.Name,
 											Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
-		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Hook.Name, *BodyHash);
+		const FString BodyName = FString::Printf(TEXT("%s_RuitkBody_%s"), *Hook.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
 		FString Def = FString::Printf(TEXT("static %s %s(FRuitkContext& Ctx%s%s)\n{\n"), *Ret, *BodyName,
@@ -1377,7 +1377,7 @@ namespace
 		// TB-23: hashed body behind the stable forwarder, exactly like EmitHookInl (a util body
 		// may hand out closures too — e.g. building an FRuitkCallback).
 		const FString Sig = FString::Printf(TEXT("inline %s %s(%s)"), *Util.RetType, *Util.Name, *Util.Params);
-		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Util.Name, *BodyHash);
+		const FString BodyName = FString::Printf(TEXT("%s_RuitkBody_%s"), *Util.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
 		FString Def = FString::Printf(TEXT("static %s %s(%s)\n{\n"), *Util.RetType, *BodyName, *Util.Params);
@@ -2551,7 +2551,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	// with imports) resolution is simply skipped exactly as before.
 	const FString FileNs = FileNamespaceFor(ProjectRelPath, Basename);
 	// TB-23 — the per-generation content hash stamped into every emitted BODY symbol
-	// (`_UetkxImpl_<hash>`, `_RuiBody_<hash>`): any edit re-hashes the file, so anonymous
+	// (`_UetkxImpl_<hash>`, `_RuitkBody_<hash>`): any edit re-hashes the file, so anonymous
 	// lambdas never share a mangled name across Live-Coding patches (a redirected destructor
 	// over a different capture layout was an AV tearing down pre-patch trees). Any stable
 	// content hash works — deliberately NOT the SrcHash cross-tool contract; plain FNV-1a
