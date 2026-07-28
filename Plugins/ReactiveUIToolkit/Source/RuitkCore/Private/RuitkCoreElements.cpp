@@ -40,9 +40,9 @@ namespace Ruitk
 		TFunction<bool()> IsReady = Props.IsReady;
 		IRuitkHostConfig* Host = &Ctx.GetHost();
 		Ctx.UseEffect(
-			[bReady = bReady, SetReady, IsReady, Host]() -> FRuitkEffectCleanup
+			[bWasReady = bReady, SetReady, IsReady, Host]() -> FRuitkEffectCleanup
 			{
-				if (bReady || !IsReady)
+				if (bWasReady || !IsReady)
 				{
 					return FRuitkEffectCleanup();
 				}
