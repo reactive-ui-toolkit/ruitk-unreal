@@ -22,7 +22,7 @@
 
 #define LOCTEXT_NAMESPACE "ReactiveUetkx"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiHmrPanel, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkHmrPanel, Log, All);
 
 namespace
 {
@@ -166,7 +166,7 @@ FReply SReactiveUetkxHmrPanel::OnToggleClicked()
 		FString Error;
 		if (!Controller.Start(Error))
 		{
-			UE_LOG(LogRuiHmrPanel, Warning, TEXT("[RUI HMR] could not start: %s"), *Error);
+			UE_LOG(LogRuitkHmrPanel, Warning, TEXT("[RUI HMR] could not start: %s"), *Error);
 		}
 	}
 	return FReply::Handled();

@@ -3,14 +3,14 @@
 #include "Modules/ModuleManager.h"
 #include "Logging/LogMacros.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCommonUI, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCommonUI, Log, All);
 
 class FRuitkCommonUIModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
 	{
-		UE_LOG(LogRuiCommonUI, Verbose, TEXT("RuitkCommonUI module started"));
+		UE_LOG(LogRuitkCommonUI, Verbose, TEXT("RuitkCommonUI module started"));
 	}
 
 	virtual void ShutdownModule() override {}

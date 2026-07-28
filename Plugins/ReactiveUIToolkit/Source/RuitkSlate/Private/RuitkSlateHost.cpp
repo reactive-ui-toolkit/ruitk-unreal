@@ -86,7 +86,7 @@ FRuitkHostHandle FRuitkSlateHost::CreateInstance(FRuitkElementTypeId Type, const
 	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(Type);
 	if (Adapter == nullptr)
 	{
-		UE_LOG(LogRuiSlate, Error, TEXT("[ReactiveUI] no adapter registered for element '%s' — rendering a null slot"),
+		UE_LOG(LogRuitkSlate, Error, TEXT("[ReactiveUI] no adapter registered for element '%s' — rendering a null slot"),
 			   *Ruitk::GetElementTypeName(Type).ToString());
 		TSharedRef<FRuitkSlateNode> Null = MakeShared<FRuitkSlateNode>();
 		Null->Widget = SNullWidget::NullWidget;
@@ -292,7 +292,7 @@ void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FR
 		if (Existing.IsValid() && Existing != Child->Widget && !Parent->bWarnedCapacity)
 		{
 			Parent->bWarnedCapacity = true;
-			UE_LOG(LogRuiSlate, Warning,
+			UE_LOG(LogRuitkSlate, Warning,
 				   TEXT("[ReactiveUI] '%s' takes ONE child — extra children replace the content (last wins)"),
 				   *Ruitk::GetElementTypeName(Parent->Type).ToString());
 		}
@@ -301,7 +301,7 @@ void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FR
 		break;
 	}
 	case ERuitkChildKind::Leaf:
-		UE_LOG(LogRuiSlate, Warning, TEXT("[ReactiveUI] '%s' is a leaf — child '%s' dropped"),
+		UE_LOG(LogRuitkSlate, Warning, TEXT("[ReactiveUI] '%s' is a leaf — child '%s' dropped"),
 			   *Ruitk::GetElementTypeName(Parent->Type).ToString(), *Ruitk::GetElementTypeName(Child->Type).ToString());
 		return;
 	}
@@ -428,7 +428,7 @@ void FRuitkSlateHost::EnsurePreTickRegistered()
 		if (!bWarnedNoSlateApp)
 		{
 			bWarnedNoSlateApp = true;
-			UE_LOG(LogRuiSlate, Warning,
+			UE_LOG(LogRuitkSlate, Warning,
 				   TEXT("[ReactiveUI] no Slate application — updates queue until PumpFrameQueue()/FlushSync"));
 		}
 		return;
@@ -463,7 +463,7 @@ void FRuitkSlateHost::ReplaceWidget(FRuitkSlateNode& Node, const FRuitkPropsBase
 	{
 		// A host node always has a host parent (the wrapped mount panel or another widget). If it
 		// somehow does not, we cannot swap it into a slot — apply the runtime diff and warn once.
-		UE_LOG(LogRuiSlate, Warning,
+		UE_LOG(LogRuitkSlate, Warning,
 			   TEXT("[ReactiveUI] construct-only change on '%s' could not replace the widget (no host parent) — "
 					"runtime props applied, construct-only props stale"),
 			   *Ruitk::GetElementTypeName(Node.Type).ToString());

@@ -109,8 +109,8 @@ MASTER_PLAN §1; module table: D-27.
   `// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.` (`#` form for `.ps1`).
   Codegen emits it only for THIS repo's files; user-project output gets the neutral
   "belongs to your project" banner (D-32).
-- **Logs:** per-module categories `LogRuiCore`/`LogRuiSlate`/`LogRuiUmg`/`LogRuiInterp`/
-  `LogRuiEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `rui.TimeSlicing`,
+- **Logs:** per-module categories `LogRuitkCore`/`LogRuitkSlate`/`LogRuitkUmg`/`LogRuitkInterp`/
+  `LogRuitkEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `rui.TimeSlicing`,
   `rui.FrameBudgetMs`, `rui.HostNodePool`, `rui.HookValidation`, `rui.StrictDiagnostics`,
   `rui.StrictMode` (runtime stats via `stat ReactiveUI`, not a CVar). **MessageLog page:**
   `"ReactiveUI"`.

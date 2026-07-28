@@ -79,7 +79,7 @@ export function schemaForFile(fileDir: string): UetkxSchema {
 /** R12: the project's engine version from the nearest .uproject's EngineAssociation, as
  *  [major, minor] — null when absent or not a plain "X.Y" (custom-engine GUIDs, source builds).
  *  Drives the sinceUE check: a too-new element renders a NULL SLOT at runtime (the adapter is
- *  compiled out; the tag/factory still compile — LogRuiSlate error at mount is the only
+ *  compiled out; the tag/factory still compile — LogRuitkSlate error at mount is the only
  *  runtime signal). */
 export function engineVersionForFile(fileDir: string): [number, number] | null {
   let dir = fileDir;

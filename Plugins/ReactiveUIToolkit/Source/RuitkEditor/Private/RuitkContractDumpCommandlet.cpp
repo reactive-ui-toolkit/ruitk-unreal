@@ -4,9 +4,9 @@
 
 #include "UetkxContract.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRUIContract, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkContract, Log, All);
 
-int32 URUIContractDumpCommandlet::Main(const FString& Params)
+int32 URuitkContractDumpCommandlet::Main(const FString& Params)
 {
 	TArray<FString> Tokens, Switches;
 	ParseCommandLine(*Params, Tokens, Switches);
@@ -15,15 +15,15 @@ int32 URUIContractDumpCommandlet::Main(const FString& Params)
 	const FUetkxContractResult Result = FUetkxContract::Run(FUetkxContract::DefaultFixtureDir(), /*bWrite*/ !bCheck);
 	for (const FString& Message : Result.Messages)
 	{
-		UE_LOG(LogRUIContract, Error, TEXT("%s"), *Message);
+		UE_LOG(LogRuitkContract, Error, TEXT("%s"), *Message);
 	}
 	if (bCheck)
 	{
-		UE_LOG(LogRUIContract, Display, TEXT("RuitkContractDump -check: %d fixture(s), %d mismatched"), Result.Total,
+		UE_LOG(LogRuitkContract, Display, TEXT("RuitkContractDump -check: %d fixture(s), %d mismatched"), Result.Total,
 			   Result.Mismatched);
 		return Result.Passed() ? 0 : 1;
 	}
-	UE_LOG(LogRUIContract, Display, TEXT("RuitkContractDump: %d golden(s) written for %d fixture(s)"), Result.Written,
+	UE_LOG(LogRuitkContract, Display, TEXT("RuitkContractDump: %d golden(s) written for %d fixture(s)"), Result.Written,
 		   Result.Total);
 	return 0;
 }

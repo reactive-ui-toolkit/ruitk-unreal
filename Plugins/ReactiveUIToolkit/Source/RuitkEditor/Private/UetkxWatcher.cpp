@@ -57,7 +57,7 @@ void FUetkxWatcher::Start()
 	}
 	if (Roots.Num() == 0)
 	{
-		Roots = URUICompileCommandlet::DefaultRoots();
+		Roots = URuitkCompileCommandlet::DefaultRoots();
 	}
 
 	// trigger 1: directory watcher on each sweep root

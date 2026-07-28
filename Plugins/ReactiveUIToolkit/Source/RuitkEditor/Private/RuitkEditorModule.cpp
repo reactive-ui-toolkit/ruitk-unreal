@@ -22,12 +22,12 @@
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiEditor, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkEditor, Log, All);
 
 namespace
 {
-	const FName GRuiPreviewTabId(TEXT("ReactiveUIPreview"));
-	const FName GRuiHmrTabId(TEXT("ReactiveUetkxHmr"));
+	const FName GRuitkPreviewTabId(TEXT("ReactiveUIPreview"));
+	const FName GRuitkHmrTabId(TEXT("ReactiveUetkxHmr"));
 } // namespace
 
 class FRuitkEditorModule : public IModuleInterface
@@ -96,7 +96,7 @@ public:
 		// The main-menu bar isn't up yet at module load — register once ToolMenus is ready.
 		UToolMenus::RegisterStartupCallback(
 			FSimpleMulticastDelegate::FDelegate::CreateStatic(&FReactiveUetkxMenu::Register));
-		UE_LOG(LogRuiEditor, Display,
+		UE_LOG(LogRuitkEditor, Display,
 			   TEXT("RuitkEditor started — .uetkx watcher armed; ReactiveUetkx menu + HMR window; "
 					"console: ReactiveUetkx.HMR.Start/Stop/Toggle"));
 	}
@@ -120,8 +120,8 @@ public:
 		}
 		if (FSlateApplication::IsInitialized())
 		{
-			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuiPreviewTabId);
-			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuiHmrTabId);
+			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuitkPreviewTabId);
+			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuitkHmrTabId);
 		}
 		if (FModuleManager::Get().IsModuleLoaded(TEXT("MessageLog")))
 		{
@@ -143,7 +143,7 @@ private:
 		// ungrouped Enabled tab floated to the top of the Window menu and double-listed. Grouping it
 		// lists it exactly once, in the conventional place, and the redundant Tools-menu entry is gone.
 		FGlobalTabmanager::Get()
-			->RegisterNomadTabSpawner(GRuiPreviewTabId,
+			->RegisterNomadTabSpawner(GRuitkPreviewTabId,
 									  FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnPreviewTab))
 			.SetDisplayName(NSLOCTEXT("ReactiveUI", "PreviewTabTitle", "ReactiveUI Preview"))
 			.SetTooltipText(
@@ -166,7 +166,7 @@ private:
 			return; // headless (commandlet) — no window UI
 		}
 		FGlobalTabmanager::Get()
-			->RegisterNomadTabSpawner(GRuiHmrTabId, FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnHmrTab))
+			->RegisterNomadTabSpawner(GRuitkHmrTabId, FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnHmrTab))
 			.SetDisplayName(NSLOCTEXT("ReactiveUetkx", "HmrTabTitle", "ReactiveUetkx Hot Reload"))
 			.SetTooltipText(
 				NSLOCTEXT("ReactiveUetkx", "HmrTabTooltip", "Start/Stop .uetkx Hot Module Reload (Live Coding)"))
@@ -192,7 +192,7 @@ private:
 					FString Error;
 					if (!FUetkxHmrController::Get().Start(Error))
 					{
-						UE_LOG(LogRuiEditor, Warning, TEXT("[RUI HMR] start failed: %s"), *Error);
+						UE_LOG(LogRuitkEditor, Warning, TEXT("[RUI HMR] start failed: %s"), *Error);
 					}
 				})));
 		HmrCommands.Add(MakeUnique<FAutoConsoleCommand>(
@@ -213,7 +213,7 @@ private:
 						FString Error;
 						if (!Controller.Start(Error))
 						{
-							UE_LOG(LogRuiEditor, Warning, TEXT("[RUI HMR] start failed: %s"), *Error);
+							UE_LOG(LogRuitkEditor, Warning, TEXT("[RUI HMR] start failed: %s"), *Error);
 						}
 					}
 				})));

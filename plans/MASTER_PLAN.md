@@ -248,8 +248,8 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   set-during-render warnings. `rui.Stats` (renders/frame, fibers, patch counts), `rui.DumpTree`,
   `STATGROUP_ReactiveUI`, and the editor Inspector tab (Phase 8) with flash-on-rerender.
   **Conventions (recorded in CLAUDE.md at Phase 0):** CVars are dotted PascalCase after the `rui.`
-  prefix; log categories are per-module `LogRuiCore` / `LogRuiSlate` / `LogRuiUmg` / `LogRuiInterp`
-  / `LogRuiEditor`; the MessageLog page name is `"ReactiveUI"` (used by the D-19 watcher de-dup
+  prefix; log categories are per-module `LogRuitkCore` / `LogRuitkSlate` / `LogRuitkUmg` / `LogRuitkInterp`
+  / `LogRuitkEditor`; the MessageLog page name is `"ReactiveUI"` (used by the D-19 watcher de-dup
   and D-20 interpreter errors).
 - **D-15 — Threading contract** (critique gap 8): every public entry point `checkf(IsInGameThread())`;
   one documented marshaling helper `Ruitk::PostToGameThread(TFunction<void()>)` for async/network
@@ -452,7 +452,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   is the descriptor's per-module `TargetConfigurationDenyList: ["Shipping"]` (Test stays allowed,
   serving the D-21 CVar). The denylist creates a linkage rule: no always-compiled module may
   statically reference Interp symbols — Interp self-registers into Core registries from its
-  `StartupModule`, and any direct cross-module use is gated by a `WITH_RUI_INTERP` define set in
+  `StartupModule`, and any direct cross-module use is gated by a `WITH_RUITK_INTERP` define set in
   the dependent's Build.cs from `Target.Configuration != Shipping` (mirroring the denylist).
   Phase 0's empty-plugin packaged build proves the arrangement.
   **Dedicated servers:** modules stay present on Server targets (NO `TargetDenyList: ["Server"]` —

@@ -8,7 +8,7 @@ using UnrealBuildTool;
 // via the .uplugin module descriptor "TargetConfigurationDenyList": ["Shipping"] (D-27) --
 // there is no module Type for this. Linkage rule that creates: always-compiled modules must
 // never statically reference Interp symbols; Interp self-registers into Core registries from
-// StartupModule, and any direct cross-module use is gated behind a WITH_RUI_INTERP define set
+// StartupModule, and any direct cross-module use is gated behind a WITH_RUITK_INTERP define set
 // in the DEPENDENT module's Build.cs from (Target.Configuration != Shipping).
 // Deps added with the code, per D-27: RuitkCore.
 public class RuitkInterp : ModuleRules

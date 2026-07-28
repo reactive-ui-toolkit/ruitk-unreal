@@ -6,17 +6,17 @@
 #include "Misc/Paths.h"
 #include "UetkxCodegen.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRUIExportSchema, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkExportSchema, Log, All);
 
-int32 URUIExportSchemaCommandlet::Main(const FString& Params)
+int32 URuitkExportSchemaCommandlet::Main(const FString& Params)
 {
 	const FString Path = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("schema.json"));
 	if (!FFileHelper::SaveStringToFile(FUetkxCodegen::ExportSchemaJson(), *Path,
 									   FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 	{
-		UE_LOG(LogRUIExportSchema, Error, TEXT("could not write %s"), *Path);
+		UE_LOG(LogRuitkExportSchema, Error, TEXT("could not write %s"), *Path);
 		return 1;
 	}
-	UE_LOG(LogRUIExportSchema, Display, TEXT("schema exported: %s"), *Path);
+	UE_LOG(LogRuitkExportSchema, Display, TEXT("schema exported: %s"), *Path);
 	return 0;
 }

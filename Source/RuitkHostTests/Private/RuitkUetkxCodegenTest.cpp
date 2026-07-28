@@ -904,7 +904,7 @@ component CardStack(Names: TArray<FString>) {
 				TEXT("import { Cool as Primary } from \"./Palette2\"\n") TEXT("export FRuitkNode ShadowFrag() {\n")
 					TEXT("\tauto Use0 = Primary;\n")
 						TEXT("\tFLinearColor Primary = FLinearColor(1.0f, 0.0f, 0.0f, 1.0f);\n")
-							TEXT("\tFRuiNode Chip = <Spacer />;\n") TEXT("\tauto After = Primary;\n")
+							TEXT("\tFRuitkNode Chip = <Spacer />;\n") TEXT("\tauto After = Primary;\n")
 								TEXT("\treturn ( <VerticalBox>{ Chip }</VerticalBox> );\n}\n"),
 				TEXT("ShadowFrag"), FString(), &AttrResolver);
 			if (TestTrue(TEXT("fragmented-shadow sample compiles"), FragShadow.bOk))

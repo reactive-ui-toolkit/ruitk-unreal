@@ -8,7 +8,7 @@
 #include "RuitkHostConfig.h"
 #include "RuitkPropsBase.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiPresence, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkPresence, Log, All);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // The single context handle both the boundary provides on and UsePresence reads. A file-local
@@ -152,7 +152,7 @@ namespace
 		if (bAnyUnkeyed && !Warned->Current)
 		{
 			Warned->Current = true;
-			UE_LOG(LogRuiPresence, Warning,
+			UE_LOG(LogRuitkPresence, Warning,
 				   TEXT("Ruitk::Presence child without a key: exit tracking falls back to position. "
 						"Key every direct child of <Presence>."));
 		}

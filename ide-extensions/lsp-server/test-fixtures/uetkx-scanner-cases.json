@@ -524,7 +524,7 @@
     },
     {
       "name": "include retirement: a prelude-covered host include is UETKX2317 (hint, not an error)",
-      "input": "import \"@RuiRouter.h\"\ncomponent Foo {\n\treturn ( <Spacer /> );\n}\n",
+      "input": "import \"@RuitkRouter.h\"\ncomponent Foo {\n\treturn ( <Spacer /> );\n}\n",
       "expect": {
         "components": [{ "name": "Foo", "exported": false }],
         "diags": ["UETKX2317", "UETKX2320"],

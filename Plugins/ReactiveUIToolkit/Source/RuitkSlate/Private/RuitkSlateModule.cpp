@@ -4,7 +4,7 @@
 #include "RuitkSlateElements.h"
 #include "RuitkSlateLog.h"
 
-DEFINE_LOG_CATEGORY(LogRuiSlate);
+DEFINE_LOG_CATEGORY(LogRuitkSlate);
 
 class FRuitkSlateModule : public IModuleInterface
 {
@@ -12,7 +12,7 @@ public:
 	virtual void StartupModule() override
 	{
 		Ruitk::Slate::RegisterBuiltinAdapters();
-		UE_LOG(LogRuiSlate, Verbose, TEXT("RuitkSlate module started"));
+		UE_LOG(LogRuitkSlate, Verbose, TEXT("RuitkSlate module started"));
 	}
 
 	virtual void ShutdownModule() override {}

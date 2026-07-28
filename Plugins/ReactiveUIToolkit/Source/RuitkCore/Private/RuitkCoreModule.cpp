@@ -5,7 +5,7 @@
 #include "Logging/LogMacros.h"
 #include "RuitkCultureSync.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCore, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCore, Log, All);
 
 // Phase 1 (MASTER_PLAN §3) fills this module with the reconciler. The startup banner below is
 // load-bearing already: the Ruitk.Boot suite and the packaged-fidelity test (fresh project,
@@ -21,7 +21,7 @@ public:
 		{
 			VersionName = Plugin->GetDescriptor().VersionName;
 		}
-		UE_LOG(LogRuiCore, Display, TEXT("ReactiveUI %s loaded (RuitkCore)"), *VersionName);
+		UE_LOG(LogRuitkCore, Display, TEXT("ReactiveUI %s loaded (RuitkCore)"), *VersionName);
 
 		// Culture-change → root re-render (Phase 7 localization): live roots re-render when the
 		// text revision bumps, healing anything a component baked under the previous culture.

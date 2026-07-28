@@ -307,7 +307,7 @@ test("audit: markup islands see setup locals — no phantom refs (rename must ne
   const src = [
     "export FRuitkNode Panel() {",
     "\tauto Total = Compute();",
-    "\tFRuiNode Chip = <Spacer />;",
+    "\tFRuitkNode Chip = <Spacer />;",
     "\tauto AfterRange = Total;", // post-range fragment still knows Total
     "\treturn (",
     "\t\t<VerticalBox>",

@@ -9,7 +9,7 @@
 #include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiActivatable, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkActivatable, Log, All);
 
 namespace
 {
@@ -56,7 +56,7 @@ FRuitkNode URuitkActivatableScreen::BuildTree() const
 			{
 				List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 			}
-			UE_LOG(LogRuiActivatable, Error, TEXT("ActivatableScreen: '%s' is ambiguous — use a qualified id: %s"),
+			UE_LOG(LogRuitkActivatable, Error, TEXT("ActivatableScreen: '%s' is ambiguous — use a qualified id: %s"),
 				   *ComponentName.ToString(), *List);
 			break;
 		}

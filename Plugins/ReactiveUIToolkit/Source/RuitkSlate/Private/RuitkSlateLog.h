@@ -6,4 +6,4 @@
 
 #include "Logging/LogMacros.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogRuiSlate, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogRuitkSlate, Log, All);

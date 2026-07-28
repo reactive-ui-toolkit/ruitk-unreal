@@ -11,7 +11,7 @@
 
 #define LOCTEXT_NAMESPACE "ReactiveUetkx"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiMenu, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkMenu, Log, All);
 
 namespace ReactiveUetkxTabs
 {
@@ -35,7 +35,7 @@ namespace
 		int32 LiveRoots = 0;
 		FRuitkReconciler::ForEachLive([&LiveRoots](FRuitkReconciler&) { ++LiveRoots; });
 		const FUetkxHmrStatus& Status = Controller.GetStatus();
-		UE_LOG(LogRuiMenu, Display, TEXT("[ReactiveUetkx] HMR %s — live roots: %d, swaps: %d, errors: %d"),
+		UE_LOG(LogRuitkMenu, Display, TEXT("[ReactiveUetkx] HMR %s — live roots: %d, swaps: %d, errors: %d"),
 			   Controller.IsActive() ? TEXT("ACTIVE") : TEXT("idle"), LiveRoots, Status.Swaps, Status.Errors);
 	}
 
@@ -68,7 +68,7 @@ namespace
 								 FToolMenuSection& S = Sub->FindOrAddSection("DebugSection");
 								 S.AddMenuEntry("CheckRegistry", LOCTEXT("CheckRegistry", "Check Registry"),
 												LOCTEXT("CheckRegistryTip",
-														"Log the HMR status + live reconciler roots to LogRuiEditor."),
+														"Log the HMR status + live reconciler roots to LogRuitkEditor."),
 												FSlateIcon(), FUIAction(FExecuteAction::CreateStatic(&CheckRegistry)));
 							 }));
 	}

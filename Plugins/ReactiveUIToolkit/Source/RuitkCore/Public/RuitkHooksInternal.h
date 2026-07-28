@@ -179,7 +179,7 @@ struct IRuitkHookCell
 	 *  variant (TD-019). Only STATE cells whose T is FRuitkValue-constructible answer true; the
 	 *  compiled→interp HMR swap uses this to MIGRATE typed state into the interpreter's
 	 *  FRuitkValue cells instead of hard-resetting it. false = not migratable (re-init from Init). */
-	virtual bool ExportRuiValue(FRuitkValue& Out) const { return false; }
+	virtual bool ExportRuitkValue(FRuitkValue& Out) const { return false; }
 };
 
 template <typename T> struct TRuitkStateCell final : IRuitkHookCell
@@ -189,7 +189,7 @@ template <typename T> struct TRuitkStateCell final : IRuitkHookCell
 	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::State; }
 	RUITK_HOOK_CELL_TYPE()
 
-	virtual bool ExportRuiValue(FRuitkValue& Out) const override
+	virtual bool ExportRuitkValue(FRuitkValue& Out) const override
 	{
 		// Numeric / bool / string / text / vector2 / color state round-trips; container or
 		// opaque state (e.g. TArray<FString>) does not construct an FRuitkValue → stays reset.

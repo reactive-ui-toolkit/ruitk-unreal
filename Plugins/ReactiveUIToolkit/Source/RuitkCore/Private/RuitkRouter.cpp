@@ -5,7 +5,7 @@
 #include "RuitkContext.h"
 #include "RuitkContextHandle.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiRouter, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkRouter, Log, All);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Pure helpers — path matching / parsing (the router_match suite hits these directly)

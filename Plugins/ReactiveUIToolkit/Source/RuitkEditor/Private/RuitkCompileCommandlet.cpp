@@ -6,9 +6,9 @@
 #include "Misc/Paths.h"
 #include "UetkxDriver.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRUICompile, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCompile, Log, All);
 
-TArray<FString> URUICompileCommandlet::DefaultRoots()
+TArray<FString> URuitkCompileCommandlet::DefaultRoots()
 {
 	TArray<FString> Roots;
 	for (const FString& Candidate : {FPaths::ProjectDir() / TEXT("Source"), FPaths::ProjectDir() / TEXT("Plugins")})
@@ -33,7 +33,7 @@ static bool HasSwitch(const TArray<FString>& Switches, const TCHAR* Name)
 	return false;
 }
 
-int32 URUICompileCommandlet::Main(const FString& Params)
+int32 URuitkCompileCommandlet::Main(const FString& Params)
 {
 	TArray<FString> Tokens, Switches;
 	ParseCommandLine(*Params, Tokens, Switches);
@@ -44,9 +44,9 @@ int32 URUICompileCommandlet::Main(const FString& Params)
 		const FUetkxCheckResult Check = FUetkxDriver::CheckDrift(Roots);
 		for (const FString& Message : Check.Messages)
 		{
-			UE_LOG(LogRUICompile, Error, TEXT("%s"), *Message);
+			UE_LOG(LogRuitkCompile, Error, TEXT("%s"), *Message);
 		}
-		UE_LOG(LogRUICompile, Display, TEXT("RuitkCompile -check: %d file(s), %d drifted, %d error(s)"), Check.Total,
+		UE_LOG(LogRuitkCompile, Display, TEXT("RuitkCompile -check: %d file(s), %d drifted, %d error(s)"), Check.Total,
 			   Check.Drift, Check.Errors);
 		return Check.Passed() ? 0 : 1;
 	}
@@ -56,7 +56,7 @@ int32 URUICompileCommandlet::Main(const FString& Params)
 	// collisions error), and the aggregators + orphan sweep + fingerprint cover the combined set.
 	const bool bForce = HasSwitch(Switches, TEXT("full")) || FUetkxDriver::FingerprintMismatch();
 	const FUetkxSweepResult Sweep = FUetkxDriver::CompileAllRoots(Roots, bForce);
-	UE_LOG(LogRUICompile, Display, TEXT("RuitkCompile: %d file(s) — %d compiled, %d up-to-date, %d error(s)"),
+	UE_LOG(LogRuitkCompile, Display, TEXT("RuitkCompile: %d file(s) — %d compiled, %d up-to-date, %d error(s)"),
 		   Sweep.Total, Sweep.Compiled, Sweep.Skipped, Sweep.Errors);
 	return Sweep.Errors == 0 ? 0 : 1;
 }

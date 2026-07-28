@@ -23,12 +23,12 @@
 #include "RuitkMigrateImportsCommandlet.generated.h"
 
 UCLASS()
-class URUIMigrateImportsCommandlet : public UCommandlet
+class URuitkMigrateImportsCommandlet : public UCommandlet
 {
 	GENERATED_BODY()
 
 public:
-	URUIMigrateImportsCommandlet()
+	URuitkMigrateImportsCommandlet()
 	{
 		IsClient = false;
 		IsServer = false;
@@ -54,12 +54,12 @@ public:
  *  files (counted from compile results, NOT the Message Log — the watcher's log path only shows
  *  severity-0). The old `-run=RuitkMigrateImports` stays working, untouched. */
 UCLASS()
-class URUIMigrateEsModulesCommandlet : public UCommandlet
+class URuitkMigrateEsModulesCommandlet : public UCommandlet
 {
 	GENERATED_BODY()
 
 public:
-	URUIMigrateEsModulesCommandlet()
+	URuitkMigrateEsModulesCommandlet()
 	{
 		IsClient = false;
 		IsServer = false;

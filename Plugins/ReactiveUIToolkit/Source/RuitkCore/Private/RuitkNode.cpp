@@ -3,9 +3,9 @@
 #include "RuitkNode.h"
 #include "RuitkElementRegistry.h"
 
-// Per-file static category (the LogRuiCoreHooks pattern) — NEVER a second LogRuiCore: the
+// Per-file static category (the LogRuitkCoreHooks pattern) — NEVER a second LogRuitkCore: the
 // module cpp defines that one, and unity builds merge TUs (a duplicate static is C2011).
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCoreRegistry, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCoreRegistry, Log, All);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Component registry (D-05)
@@ -188,7 +188,7 @@ namespace Ruitk
 				{
 					List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 				}
-				UE_LOG(LogRuiCoreRegistry, Error,
+				UE_LOG(LogRuitkCoreRegistry, Error,
 					   TEXT("Ruitk::Named('%s') is AMBIGUOUS — several files export this name; use a qualified id: %s"),
 					   *Name.ToString(), *List);
 			}

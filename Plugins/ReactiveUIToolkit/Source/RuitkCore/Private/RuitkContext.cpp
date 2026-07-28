@@ -3,7 +3,7 @@
 #include "RuitkContext.h"
 #include "RuitkReconciler.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCoreHooks, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCoreHooks, Log, All);
 
 const TCHAR* RuitkHookKindName(ERuitkHookKind Kind)
 {
@@ -66,7 +66,7 @@ void FRuitkContext::WarnOnce(FName Key, const FString& Msg)
 	}
 	State.DiagWarned.Add(Key);
 	FRuitkDiagnostics::Emit(Msg);
-	UE_LOG(LogRuiCoreHooks, Warning, TEXT("%s"), *Msg);
+	UE_LOG(LogRuitkCoreHooks, Warning, TEXT("%s"), *Msg);
 }
 
 void FRuitkContext::NotifyEffects()

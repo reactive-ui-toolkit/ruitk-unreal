@@ -300,7 +300,7 @@ test("virtual doc: same-file and imported hooks keep source arity (no adapter)",
 test("virtual doc: event-attr lifts sink into (void)(…) — bare callback values never warn", () => {
   const src = [
     "export FRuitkNode Menu() {",
-    "\tFRuiCallback OnStart = UseStableAction([](const FRuitkValue&) {});",
+    "\tFRuitkCallback OnStart = UseStableAction([](const FRuitkValue&) {});",
     "\treturn ( <Button OnClicked={ OnStart }>go</Button> );",
     "}",
     "",

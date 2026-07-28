@@ -399,11 +399,11 @@ referenced from plans/PRs.
   hot-swap of a compiled component therefore RESETS its state (reported honestly as
   "first interp swap (representation)"); interp→interp saves preserve. The family does not
   have this seam (GDScript is engine-interpreted end to end).
-- **Production-grade resolution:** `IRuitkHookCell::ExportRuiValue(FRuitkValue&)` (specialized
+- **Production-grade resolution:** `IRuitkHookCell::ExportRuitkValue(FRuitkValue&)` (specialized
   via `if constexpr (std::is_constructible_v<FRuitkValue, T>)`) + an interp-aware UseState
   path that migrates an exporting cell's value into the fresh FRuitkValue cell when the hook
   signature matches. Numeric/string/bool/text state would then survive the FIRST save too.
-- **Status:** RESOLVED 2026-07-12 — `IRuitkHookCell::ExportRuiValue(FRuitkValue&)` (default false;
+- **Status:** RESOLVED 2026-07-12 — `IRuitkHookCell::ExportRuitkValue(FRuitkValue&)` (default false;
   `TRuitkStateCell<T>` overrides via `if constexpr (std::is_constructible_v<FRuitkValue, const T&>)`);
   `SetComponentOverride` + `FRuitkComponentOverride` gain `bMigrateState`; the reconciler snapshots
   exportable cells into `FRuitkComponentState::MigratedState` (by hook slot) before the reset and

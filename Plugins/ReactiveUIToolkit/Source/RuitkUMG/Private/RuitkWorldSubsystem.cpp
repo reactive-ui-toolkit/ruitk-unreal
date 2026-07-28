@@ -5,7 +5,7 @@
 #include "Engine/World.h"
 #include "RuitkRoot.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiSubsystem, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkSubsystem, Log, All);
 
 int32 URuitkWorldSubsystem::MountNamed(FName ComponentName, int32 ZOrder)
 {
@@ -14,7 +14,7 @@ int32 URuitkWorldSubsystem::MountNamed(FName ComponentName, int32 ZOrder)
 	switch (Ruitk::ResolveNamed(ComponentName, Resolved, &Candidates))
 	{
 	case Ruitk::EResolveNamed::Miss:
-		UE_LOG(LogRuiSubsystem, Error, TEXT("MountNamed: '%s' is not a registered component"),
+		UE_LOG(LogRuitkSubsystem, Error, TEXT("MountNamed: '%s' is not a registered component"),
 			   *ComponentName.ToString());
 		return INDEX_NONE;
 	case Ruitk::EResolveNamed::Ambiguous:
@@ -26,7 +26,7 @@ int32 URuitkWorldSubsystem::MountNamed(FName ComponentName, int32 ZOrder)
 		{
 			List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 		}
-		UE_LOG(LogRuiSubsystem, Error, TEXT("MountNamed: '%s' is ambiguous — use a qualified id: %s"),
+		UE_LOG(LogRuitkSubsystem, Error, TEXT("MountNamed: '%s' is ambiguous — use a qualified id: %s"),
 			   *ComponentName.ToString(), *List);
 		return INDEX_NONE;
 	}
@@ -83,7 +83,7 @@ void URuitkWorldSubsystem::Deinitialize()
 	// refs run before the world's UObjects are GC'd (the family teardown contract).
 	if (Roots.Num() > 0)
 	{
-		UE_LOG(LogRuiSubsystem, Display, TEXT("world teardown: unmounting %d ReactiveUI root(s)"), Roots.Num());
+		UE_LOG(LogRuitkSubsystem, Display, TEXT("world teardown: unmounting %d ReactiveUI root(s)"), Roots.Num());
 	}
 	UnmountAll();
 	Super::Deinitialize();

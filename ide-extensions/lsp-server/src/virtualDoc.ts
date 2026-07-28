@@ -547,7 +547,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
     // the markup neutralized to __rui_rn — under a void signature every early return was a
     // clangd "void function should not return a value". The synthetic tail return keeps the
     // no-early-return shape free of C4715.
-    raw(`\nFRuiNode __rui_setup_${comp.name}(FRuitkContext& Ctx${cppParamList(comp)}) {\n`);
+    raw(`\nFRuitkNode __rui_setup_${comp.name}(FRuitkContext& Ctx${cppParamList(comp)}) {\n`);
     // §4: setup is jsx-aware — value markup neutralizes to __rui_rn (its attr exprs lift as
     // deferred statements below), early-return windows neutralize whole (their roots lift via
     // comp.returns — excludeSpans stops the double-lift).

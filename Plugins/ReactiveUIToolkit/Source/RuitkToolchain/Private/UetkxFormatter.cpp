@@ -727,7 +727,7 @@ namespace
 		FString Out = Decl.bLegacySyntax
 						  ? FString::Printf(TEXT("%scomponent %s%s {\n"), ExportPrefix(Decl.bExported, Decl.ExportAt),
 											*Decl.Name, *FmtParams(Decl.Params))
-						  : FString::Printf(TEXT("%sFRuiNode %s%s {\n"), ExportPrefix(Decl.bExported, Decl.ExportAt),
+						  : FString::Printf(TEXT("%sFRuitkNode %s%s {\n"), ExportPrefix(Decl.bExported, Decl.ExportAt),
 											*Decl.Name, *FmtNewParams(Decl.Params));
 		const FString Setup = Reanchor(Decl.Setup, 1, State.O);
 		if (!Setup.IsEmpty())

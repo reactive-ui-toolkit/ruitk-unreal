@@ -11,12 +11,12 @@
 #include "RuitkContractDumpCommandlet.generated.h"
 
 UCLASS()
-class URUIContractDumpCommandlet : public UCommandlet
+class URuitkContractDumpCommandlet : public UCommandlet
 {
 	GENERATED_BODY()
 
 public:
-	URUIContractDumpCommandlet()
+	URuitkContractDumpCommandlet()
 	{
 		IsClient = false;
 		IsServer = false;

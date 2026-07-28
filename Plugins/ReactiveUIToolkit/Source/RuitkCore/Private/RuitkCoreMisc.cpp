@@ -13,19 +13,19 @@ DEFINE_STAT(STAT_RuiDeletions);
 // ── CVars (rui.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 
 static TAutoConsoleVariable<bool>
-	CVarRuiTimeSlicing(TEXT("rui.TimeSlicing"), false,
+	CVarRuitkTimeSlicing(TEXT("rui.TimeSlicing"), false,
 					   TEXT("Chunk the ReactiveUI render phase across frames on a budget (commit stays atomic)."));
 
 static TAutoConsoleVariable<float>
-	CVarRuiFrameBudgetMs(TEXT("rui.FrameBudgetMs"), 8.0f,
+	CVarRuitkFrameBudgetMs(TEXT("rui.FrameBudgetMs"), 8.0f,
 						 TEXT("Render-phase work per frame before parking, when rui.TimeSlicing is on."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuiHostNodePool(TEXT("rui.HostNodePool"), true,
+	CVarRuitkHostNodePool(TEXT("rui.HostNodePool"), true,
 						TEXT("Recycle childless leaf widgets across keyed-list churn (GO-05). Off to A/B."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuiHookValidation(TEXT("rui.HookValidation"),
+	CVarRuitkHookValidation(TEXT("rui.HookValidation"),
 #if UE_BUILD_SHIPPING
 						  false,
 #else
@@ -34,7 +34,7 @@ static TAutoConsoleVariable<bool>
 						  TEXT("Hook-order mismatch detection (hooks in branches/loops desync slots)."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuiStrictDiagnostics(TEXT("rui.StrictDiagnostics"),
+	CVarRuitkStrictDiagnostics(TEXT("rui.StrictDiagnostics"),
 #if UE_BUILD_SHIPPING
 							 false,
 #else
@@ -42,36 +42,36 @@ static TAutoConsoleVariable<bool>
 #endif
 							 TEXT("Warn on state updates during render and similar misuse."));
 
-static TAutoConsoleVariable<bool> CVarRuiStrictMode(TEXT("rui.StrictMode"), false,
+static TAutoConsoleVariable<bool> CVarRuitkStrictMode(TEXT("rui.StrictMode"), false,
 													TEXT("Dev double-render: render functions run twice, first result "
 														 "discarded (flushes impure renders and stale captures)."));
 
 bool FRuitkConfig::IsTimeSlicing()
 {
-	return CVarRuiTimeSlicing.GetValueOnGameThread();
+	return CVarRuitkTimeSlicing.GetValueOnGameThread();
 }
 float FRuitkConfig::FrameBudgetMs()
 {
-	return CVarRuiFrameBudgetMs.GetValueOnGameThread();
+	return CVarRuitkFrameBudgetMs.GetValueOnGameThread();
 }
 bool FRuitkConfig::IsHostNodePoolEnabled()
 {
-	return CVarRuiHostNodePool.GetValueOnGameThread();
+	return CVarRuitkHostNodePool.GetValueOnGameThread();
 }
 bool FRuitkConfig::IsHookValidationEnabled()
 {
-	return CVarRuiHookValidation.GetValueOnGameThread();
+	return CVarRuitkHookValidation.GetValueOnGameThread();
 }
 bool FRuitkConfig::IsStrictDiagnosticsEnabled()
 {
-	return CVarRuiStrictDiagnostics.GetValueOnGameThread();
+	return CVarRuitkStrictDiagnostics.GetValueOnGameThread();
 }
 bool FRuitkConfig::IsStrictModeEnabled()
 {
 #if UE_BUILD_SHIPPING
 	return false; // never in shipping, regardless of the CVar
 #else
-	return CVarRuiStrictMode.GetValueOnGameThread();
+	return CVarRuitkStrictMode.GetValueOnGameThread();
 #endif
 }
 
@@ -110,33 +110,33 @@ namespace
 {
 	// Game-thread only (checkf'd at the public entry points) — plain statics suffice and
 	// keep the latch visible in a debugger.
-	TOptional<FString> GRuiRenderFailure;
-	bool bGRuiIsRendering = false;
+	TOptional<FString> GRuitkRenderFailure;
+	bool bGRuitkIsRendering = false;
 } // namespace
 
 namespace Ruitk
 {
 	void FailRender(const FString& Reason)
 	{
-		if (!GRuiRenderFailure.IsSet()) // first failure wins (nested failures are fallout)
+		if (!GRuitkRenderFailure.IsSet()) // first failure wins (nested failures are fallout)
 		{
-			GRuiRenderFailure = Reason;
+			GRuitkRenderFailure = Reason;
 		}
 	}
 
 	TOptional<FString> ConsumeRenderFailure()
 	{
-		TOptional<FString> Out = MoveTemp(GRuiRenderFailure);
-		GRuiRenderFailure.Reset();
+		TOptional<FString> Out = MoveTemp(GRuitkRenderFailure);
+		GRuitkRenderFailure.Reset();
 		return Out;
 	}
 
 	bool IsRendering()
 	{
-		return bGRuiIsRendering;
+		return bGRuitkIsRendering;
 	}
 	void SetRendering(bool bInRendering)
 	{
-		bGRuiIsRendering = bInRendering;
+		bGRuitkIsRendering = bInRendering;
 	}
 } // namespace Ruitk

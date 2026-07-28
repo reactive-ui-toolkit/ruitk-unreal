@@ -1051,7 +1051,7 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 			if (const FString* Incumbent = FoldedFqnToFile.Find(Folded))
 			{
 				++Out.Errors;
-				UE_LOG(LogRuiToolchain, Error,
+				UE_LOG(LogRuitkToolchain, Error,
 					   TEXT("%s: UETKX2329: exported binding `%s` case-folds onto one from %s — FName runtime "
 							"identities are case-insensitive; rename one"),
 					   *Path, *Name, **Incumbent);
@@ -1071,14 +1071,14 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 			if (!GReportedStandingErrors.Contains(R.UetkxPath))
 			{
 				GReportedStandingErrors.Add(R.UetkxPath);
-				UE_LOG(LogRuiToolchain, Error,
+				UE_LOG(LogRuitkToolchain, Error,
 					   TEXT("%s: standing compile error (source unchanged since the last failed compile) — fix the "
 							"source, or run -run=RuitkCompile -full to re-surface the diagnostics"),
 					   *R.UetkxPath);
 			}
 			else
 			{
-				UE_LOG(LogRuiToolchain, Verbose, TEXT("%s: standing compile error (unchanged, already reported)"),
+				UE_LOG(LogRuitkToolchain, Verbose, TEXT("%s: standing compile error (unchanged, already reported)"),
 					   *R.UetkxPath);
 			}
 		}
@@ -1105,11 +1105,11 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 			{
 				if (Diag.Severity == 0)
 				{
-					UE_LOG(LogRuiToolchain, Error, TEXT("%s: %s: %s"), *R.UetkxPath, *Diag.Code, *Diag.Message);
+					UE_LOG(LogRuitkToolchain, Error, TEXT("%s: %s: %s"), *R.UetkxPath, *Diag.Code, *Diag.Message);
 				}
 				else
 				{
-					UE_LOG(LogRuiToolchain, Warning, TEXT("%s: %s: %s"), *R.UetkxPath, *Diag.Code, *Diag.Message);
+					UE_LOG(LogRuitkToolchain, Warning, TEXT("%s: %s: %s"), *R.UetkxPath, *Diag.Code, *Diag.Message);
 				}
 			}
 		}
@@ -1120,7 +1120,7 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 	if (const TArray<FString> Cycle = DetectValueImportCycleNames(All, Resolver); Cycle.Num() > 0)
 	{
 		++Out.Errors;
-		UE_LOG(LogRuiToolchain, Error,
+		UE_LOG(LogRuitkToolchain, Error,
 			   TEXT("UETKX2306: value-import cycle: %s (hooks/modules load eagerly — break the chain or move to "
 					"component refs)"),
 			   *FString::Join(Cycle, TEXT(" -> ")));
@@ -1140,7 +1140,7 @@ FUetkxSweepResult FUetkxDriver::CompileAllRoots(const TArray<FString>& Roots, bo
 			{
 				IFileManager::Get().Delete(*Inl, false, true, true);
 				IFileManager::Get().Delete(*SidecarPathFor(SourcePath), false, true, true);
-				UE_LOG(LogRuiToolchain, Display, TEXT("orphan swept: %s (source gone)"), *Inl);
+				UE_LOG(LogRuitkToolchain, Display, TEXT("orphan swept: %s (source gone)"), *Inl);
 			}
 		}
 	}

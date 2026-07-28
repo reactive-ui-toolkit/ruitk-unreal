@@ -12,7 +12,7 @@
 #include "UetkxLexer.h"
 #include "UetkxResolve.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRUIMigrate, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkMigrate, Log, All);
 
 namespace
 {
@@ -140,7 +140,7 @@ namespace
 			{
 				// Something else shares this line (a trailing comment, unusual spacing the trim
 				// didn't normalize) — leave it untouched rather than risk losing that content.
-				UE_LOG(LogRUIMigrate, Warning, TEXT("%s: -tidy left `%s` untouched — its line has other content"),
+				UE_LOG(LogRuitkMigrate, Warning, TEXT("%s: -tidy left `%s` untouched — its line has other content"),
 					   *RelPathForLog, *ConstructText);
 				++OutSkippedShared;
 				return;
@@ -231,7 +231,7 @@ namespace
 				LinesConverted += Converted;
 			}
 		}
-		UE_LOG(LogRUIMigrate, Display,
+		UE_LOG(LogRuitkMigrate, Display,
 			   TEXT("pass 0 (-tidy): %d file(s) rewritten (%d redundant line(s) removed, %d #include(s) converted "
 					"to `import \"@...\"`); %d construct(s) left untouched (shared a line with other content)"),
 			   FilesTidied, LinesRemoved, LinesConverted, ConstructsSkipped);
@@ -273,7 +273,7 @@ namespace
 				ExportsAdded += Ats.Num();
 			}
 		}
-		UE_LOG(LogRUIMigrate, Display, TEXT("pass 1: added `export` to %d declaration(s)"), ExportsAdded);
+		UE_LOG(LogRuitkMigrate, Display, TEXT("pass 1: added `export` to %d declaration(s)"), ExportsAdded);
 	}
 
 	/** Pass 2 (A3): insert the imports each file needs (fresh reference scan). */
@@ -303,7 +303,7 @@ namespace
 			FUetkxResolve::MissingImports(Scan, Tags, Rel, Resolver, BySpec, Cross);
 			for (const FString& Edge : Cross)
 			{
-				UE_LOG(LogRUIMigrate, Error,
+				UE_LOG(LogRuitkMigrate, Error,
 					   TEXT("%s: UETKX2308: import crosses a module/root boundary (%s) — NOT written; move the "
 							"dependency or the file"),
 					   *Rel, *Edge);
@@ -329,7 +329,7 @@ namespace
 			Source = InsertCp(Source, InsertAt, Block + TEXT("\n"));
 			WriteSource(File, Source);
 		}
-		UE_LOG(LogRUIMigrate, Display,
+		UE_LOG(LogRuitkMigrate, Display,
 			   TEXT("pass 2: inserted %d import binding(s); %d cross-module edge(s) left for the owner"), ImportsAdded,
 			   OutCrossModule);
 	}
@@ -359,19 +359,19 @@ namespace
 			{
 				if (Diag.Severity == 0)
 				{
-					UE_LOG(LogRUIMigrate, Error, TEXT("%s: %s: %s"), *Rel, *Diag.Code, *Diag.Message);
+					UE_LOG(LogRuitkMigrate, Error, TEXT("%s: %s: %s"), *Rel, *Diag.Code, *Diag.Message);
 					++Errors;
 				}
 				else if (bRequireZero2320 && Diag.Code == TEXT("UETKX2320") && !SkippedFiles.Contains(File))
 				{
-					UE_LOG(LogRUIMigrate, Error,
+					UE_LOG(LogRuitkMigrate, Error,
 						   TEXT("%s: UETKX2320 survived the migration (wrapper syntax remains) — %s"), *Rel,
 						   *Diag.Message);
 					++Errors;
 				}
 			}
 		}
-		UE_LOG(LogRUIMigrate, Display, TEXT("%s: %d file(s), %d error(s) after migration"), Label, Files.Num(), Errors);
+		UE_LOG(LogRuitkMigrate, Display, TEXT("%s: %d file(s), %d error(s) after migration"), Label, Files.Num(), Errors);
 		return Errors;
 	}
 
@@ -669,14 +669,14 @@ namespace
 	}
 } // namespace
 
-int32 URUIMigrateImportsCommandlet::Main(const FString& Params)
+int32 URuitkMigrateImportsCommandlet::Main(const FString& Params)
 {
 	TArray<FString> Tokens, Switches;
 	ParseCommandLine(*Params, Tokens, Switches);
 	const bool bTidy =
 		Switches.ContainsByPredicate([](const FString& S) { return S.Equals(TEXT("tidy"), ESearchCase::IgnoreCase); });
 
-	const TArray<FString> Roots = URUICompileCommandlet::DefaultRoots();
+	const TArray<FString> Roots = URuitkCompileCommandlet::DefaultRoots();
 	TArray<FString> Files;
 	for (const FString& Root : Roots)
 	{
@@ -700,9 +700,9 @@ int32 URUIMigrateImportsCommandlet::Main(const FString& Params)
 	return Errors == 0 ? 0 : 1;
 }
 
-int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
+int32 URuitkMigrateEsModulesCommandlet::Main(const FString& Params)
 {
-	const TArray<FString> Roots = URUICompileCommandlet::DefaultRoots();
+	const TArray<FString> Roots = URuitkCompileCommandlet::DefaultRoots();
 	TArray<FString> Files;
 	for (const FString& Root : Roots)
 	{
@@ -729,7 +729,7 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 		const FUetkxFileScanResult Scan = FUetkxFileScan::Scan(Source, FPaths::GetBaseFilename(File));
 		if (Scan.HasError())
 		{
-			UE_LOG(LogRUIMigrate, Warning, TEXT("%s: parse error — left unmigrated (the gate reports it)"), *Rel);
+			UE_LOG(LogRuitkMigrate, Warning, TEXT("%s: parse error — left unmigrated (the gate reports it)"), *Rel);
 			SkippedFiles.Add(File);
 			continue;
 		}
@@ -786,7 +786,7 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 				TArray<FString> MemberNames;
 				if (!HoistModuleMembers(D.Body, D.bExported, HoistText, MemberNames))
 				{
-					UE_LOG(LogRUIMigrate, Warning,
+					UE_LOG(LogRuitkMigrate, Warning,
 						   TEXT("%s: module `%s` holds non-simple members (struct/using/static/...) — LEFT WRAPPED; "
 								"migrate it by hand or move the members to a C++ header"),
 						   *Rel, *D.Name);
@@ -822,7 +822,7 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 		}
 		WriteSource(File, Source);
 	}
-	UE_LOG(LogRUIMigrate, Display,
+	UE_LOG(LogRuitkMigrate, Display,
 		   TEXT("pass 3: %d component(s) + %d hook(s) rewritten to plain declarations; %d module(s) hoisted, %d left "
 				"wrapped (reported above)"),
 		   ComponentsRewritten, HooksRewritten, ModulesHoisted, ModulesSkipped);
@@ -896,7 +896,7 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 			}
 			WriteSource(File, Source);
 		}
-		UE_LOG(LogRUIMigrate, Display, TEXT("pass 3.5: %d module import(s) converted to `import * as`"),
+		UE_LOG(LogRuitkMigrate, Display, TEXT("pass 3.5: %d module import(s) converted to `import * as`"),
 			   ImportsConverted);
 	}
 

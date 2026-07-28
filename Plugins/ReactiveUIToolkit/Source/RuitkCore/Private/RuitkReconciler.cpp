@@ -15,7 +15,7 @@
 #include "RuitkContext.h"
 #include "RuitkCoreElements.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiReconciler, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkReconciler, Log, All);
 
 const TArray<FRuitkNode> FRuitkReconciler::EmptyChildren;
 
@@ -96,7 +96,7 @@ void FRuitkReconciler::Render(FRuitkNode RootNode)
 		// update semantics; documented divergence).
 		if (++MountRestarts > MaxRestarts)
 		{
-			UE_LOG(LogRuiReconciler, Error,
+			UE_LOG(LogRuitkReconciler, Error,
 				   TEXT("[ReactiveUI] Too many re-renders during mount (setState during render?). Aborting mount."));
 			bRestart = false;
 			bWorkActive = false;
@@ -227,7 +227,7 @@ void FRuitkReconciler::Tick()
 			++RestartCount;
 			if (RestartCount > MaxRestarts)
 			{
-				UE_LOG(LogRuiReconciler, Error,
+				UE_LOG(LogRuitkReconciler, Error,
 					   TEXT("[ReactiveUI] Too many re-renders (setState during render?). Aborting pass."));
 				bWorkActive = false;
 				bRestart = false;
@@ -459,7 +459,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 								continue;
 							}
 							FRuitkValue Exported;
-							State->MigratedState.Add(State->Hooks[h]->ExportRuiValue(Exported) ? MoveTemp(Exported)
+							State->MigratedState.Add(State->Hooks[h]->ExportRuitkValue(Exported) ? MoveTemp(Exported)
 																							   : FRuitkValue());
 						}
 					}
@@ -523,7 +523,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 					TEXT("[ReactiveUI][HMR] %s: hook shape changed by the edit (%d -> %d hooks) — state reset"),
 					*Fiber->ComponentId.ToString(), State->HmrShapeSnapshot.Num(), State->HookLog.Num());
 				FRuitkDiagnostics::Emit(Msg);
-				UE_LOG(LogRuiReconciler, Display, TEXT("%s"), *Msg);
+				UE_LOG(LogRuitkReconciler, Display, TEXT("%s"), *Msg);
 				State->HmrResetHooks();		  // also un-primes — the re-render primes the NEW shape
 				ScheduleUpdateOnFiber(Fiber); // re-render reads clean defaults
 			}
@@ -541,7 +541,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 								 "the same order every render."),
 							*Fiber->ComponentId.ToString(), i, RuitkHookKindName(Prev[i]), RuitkHookKindName(Now[i]));
 						FRuitkDiagnostics::Emit(Msg);
-						UE_LOG(LogRuiReconciler, Error, TEXT("%s"), *Msg);
+						UE_LOG(LogRuitkReconciler, Error, TEXT("%s"), *Msg);
 						break;
 					}
 				}
@@ -551,7 +551,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 															 "renders — a hook is being called conditionally."),
 														*Fiber->ComponentId.ToString(), Prev.Num(), Now.Num());
 					FRuitkDiagnostics::Emit(Msg);
-					UE_LOG(LogRuiReconciler, Error, TEXT("%s"), *Msg);
+					UE_LOG(LogRuitkReconciler, Error, TEXT("%s"), *Msg);
 				}
 			}
 			State->HmrGenerationStamp = Gen;
@@ -665,11 +665,11 @@ void FRuitkReconciler::HandleRenderFailure(FRuitkFiber* FailedFiber, const FStri
 			// Restart from the root: the boundary renders its fallback next pass; the
 			// poisoned WIP is abandoned (never committed) and reclaimed by BeginRender.
 			bRestart = true;
-			UE_LOG(LogRuiReconciler, Error, TEXT("[ReactiveUI] render failed: %s (caught by error boundary)"), *Reason);
+			UE_LOG(LogRuitkReconciler, Error, TEXT("[ReactiveUI] render failed: %s (caught by error boundary)"), *Reason);
 			return;
 		}
 	}
-	UE_LOG(LogRuiReconciler, Error, TEXT("[ReactiveUI] render failed with no error boundary above: %s"), *Reason);
+	UE_LOG(LogRuitkReconciler, Error, TEXT("[ReactiveUI] render failed with no error boundary above: %s"), *Reason);
 }
 
 void FRuitkReconciler::AdoptPendingEbActivation(FRuitkFiber* BoundaryFiber)

@@ -14,12 +14,12 @@
 #include "RuitkCompileCommandlet.generated.h"
 
 UCLASS()
-class URUICompileCommandlet : public UCommandlet
+class URuitkCompileCommandlet : public UCommandlet
 {
 	GENERATED_BODY()
 
 public:
-	URUICompileCommandlet()
+	URuitkCompileCommandlet()
 	{
 		IsClient = false;
 		IsServer = false;

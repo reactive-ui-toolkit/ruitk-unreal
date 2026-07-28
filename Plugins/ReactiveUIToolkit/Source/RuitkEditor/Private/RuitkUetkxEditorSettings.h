@@ -27,7 +27,7 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Hot Reload", meta = (DisplayName = "Show swap notifications"))
 	bool bShowNotifications = true;
 
-	/** Log every watcher event + sweep decision to LogRuiEditor (noisy; for diagnosing missed reloads). */
+	/** Log every watcher event + sweep decision to LogRuitkEditor (noisy; for diagnosing missed reloads). */
 	UPROPERTY(config, EditAnywhere, Category = "Hot Reload", meta = (DisplayName = "Verbose watcher trace"))
 	bool bVerboseWatcher = false;
 

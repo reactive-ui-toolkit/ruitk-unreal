@@ -11,12 +11,12 @@
 #include "RuitkExportSchemaCommandlet.generated.h"
 
 UCLASS()
-class URUIExportSchemaCommandlet : public UCommandlet
+class URuitkExportSchemaCommandlet : public UCommandlet
 {
 	GENERATED_BODY()
 
 public:
-	URUIExportSchemaCommandlet()
+	URuitkExportSchemaCommandlet()
 	{
 		IsClient = false;
 		IsServer = false;

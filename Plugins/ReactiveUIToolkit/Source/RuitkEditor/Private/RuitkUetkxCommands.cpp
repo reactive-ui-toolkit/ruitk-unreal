@@ -11,7 +11,7 @@
 
 #define LOCTEXT_NAMESPACE "ReactiveUetkx"
 
-DEFINE_LOG_CATEGORY_STATIC(LogRuiCmd, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkCmd, Log, All);
 
 FReactiveUetkxCommands::FReactiveUetkxCommands()
 	: TCommands<FReactiveUetkxCommands>(TEXT("ReactiveUetkx"), LOCTEXT("ContextDesc", "ReactiveUetkx"), NAME_None,
@@ -40,7 +40,7 @@ void FReactiveUetkxCommands::ExecuteToggleHmr()
 		FString Error;
 		if (!Controller.Start(Error))
 		{
-			UE_LOG(LogRuiCmd, Warning, TEXT("[ReactiveUetkx] Toggle HMR — start failed: %s"), *Error);
+			UE_LOG(LogRuitkCmd, Warning, TEXT("[ReactiveUetkx] Toggle HMR — start failed: %s"), *Error);
 		}
 	}
 }

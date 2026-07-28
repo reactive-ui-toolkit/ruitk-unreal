@@ -92,5 +92,5 @@ namespace Ruitk
 } // namespace Ruitk
 
 // Direct registration (the RUITK_COMPONENT macro can't token-paste a qualified name).
-static const FName GRuiSuspenseComponentId =
+static const FName GRuitkSuspenseComponentId =
 	Ruitk::RegisterComponentId((void*)&Ruitk::SuspenseComponent, FName(TEXT("RUI.Suspense")));

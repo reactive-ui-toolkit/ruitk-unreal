@@ -400,7 +400,7 @@ test("virtual doc: value markup in setup neutralizes to __rui_rn and lifts its e
     "export component CardStack {",
     "\tint32 Total = 3;",
     "\tauto Card = (<VerticalBox><TextBlock Text={ FText::AsNumber(Total) } /></VerticalBox>);",
-    "\tFRuiNode Bare = <Spacer />;",
+    "\tFRuitkNode Bare = <Spacer />;",
     "\treturn (",
     "\t\t<Border>",
     "\t\t\t{ Card }",

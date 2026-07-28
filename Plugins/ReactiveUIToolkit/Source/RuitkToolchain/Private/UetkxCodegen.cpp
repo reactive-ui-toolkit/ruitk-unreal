@@ -1819,7 +1819,7 @@ namespace
 				return FString::Printf(TEXT("Ruitk::TextBlock(%s, %s)"), *TextExpr, *Key);
 			}
 			FString Out = TEXT("[&]() -> FRuitkNode {\n");
-			Out += FString::Printf(TEXT("\t\tFRuiNode __N = Ruitk::TextBlock(%s, %s);\n"), *TextExpr, *Key);
+			Out += FString::Printf(TEXT("\t\tFRuitkNode __N = Ruitk::TextBlock(%s, %s);\n"), *TextExpr, *Key);
 			Out += TEXT("\t\tTSharedRef<FRuitkTextBlockProps> __P = "
 						"MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));\n");
 			Out += TEXT("\t\tTSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();\n");
