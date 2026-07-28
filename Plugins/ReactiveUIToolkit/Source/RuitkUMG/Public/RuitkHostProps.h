@@ -3,7 +3,7 @@
 // TD-028 — the designer/Blueprint → component channel for the "ours in theirs" door.
 // URuitkHostWidget publishes its BP-set initial props (a name→string map) and its optional
 // FieldNotify viewmodel into the hosted tree through this context; components read them with
-// the hooks below. Same mechanism as the CommonUI activation seam (plain ReactiveUI context —
+// the hooks below. Same mechanism as the CommonUI activation seam (plain Reactive UI Toolkit context —
 // provider node + Use* hooks), so it is headless-testable without a UMG designer in the loop.
 //
 //   URuitkHostWidget      --provides-->  FRuitkHostPropsState (via HostPropsProvider)

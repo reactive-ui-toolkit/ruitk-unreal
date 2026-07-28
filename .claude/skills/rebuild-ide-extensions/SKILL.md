@@ -5,7 +5,7 @@ description: Rebuild the VS Code and/or VS2022 .uetkx extensions locally for F5 
 
 # Rebuild IDE extensions for F5
 
-Repo root (Windows): `C:\Yanivs\GameDev\ReactiveUI\ReactiveUI-Unreal`. Both IDE clients load
+Repo root (Windows): `C:\Yanivs\GameDev\ReactiveUI\ruitk-unreal`. Both IDE clients load
 the **same bundled Node language server** (`lsp-server/out` + runtime deps copied to a
 `server/` dir); there is no native/.NET piece, so one `.vsix` serves every platform.
 

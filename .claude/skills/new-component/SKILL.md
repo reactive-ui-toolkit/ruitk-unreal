@@ -1,9 +1,9 @@
 ---
 name: new-component
-description: Author a .uetkx component for ReactiveUI-Unreal — file placement, declaration kinds and companion-file layout, props/hooks/events/directives/styling syntax, what the compiler generates, and the done-checklist. Use when writing or reviewing .uetkx markup. (Toolchain lands in Phase 3 — until then this is the authoring contract.)
+description: Author a .uetkx component for ruitk-unreal — file placement, declaration kinds and companion-file layout, props/hooks/events/directives/styling syntax, what the compiler generates, and the done-checklist. Use when writing or reviewing .uetkx markup. (Toolchain lands in Phase 3 — until then this is the authoring contract.)
 ---
 
-# Writing a ReactiveUI-Unreal component (.uetkx)
+# Writing a ruitk-unreal component (.uetkx)
 
 The grammar is **byte-compatible with the family's** `.guitkx` (Godot) / `.uitkx` (Unity) —
 pinned by the shared contract corpus (`grammar-contract` skill). Only the embedded language is

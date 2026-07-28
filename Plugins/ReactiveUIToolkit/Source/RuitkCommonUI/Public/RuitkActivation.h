@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-021 — the CommonUI activation seam, Ruitk side. A ReactiveUI tree hosted inside a CommonUI
+// TD-021 — the CommonUI activation seam, Ruitk side. A Reactive UI Toolkit tree hosted inside a CommonUI
 // activatable needs to REACT to activation (is this screen the active one on the stack?) and to the
 // current input method (mouse/keyboard vs gamepad vs touch — CommonUI's whole reason for being). We
 // surface both through a context the host provides and hooks the tree reads:
@@ -8,7 +8,7 @@
 //   URuitkActivatableScreen  --provides-->  FRuitkActivationState (via ActivationProvider)
 //   your component         --reads----->  UseActivation / UseIsActive / UseInputMethod
 //
-// The mechanism is plain ReactiveUI context (no UObject dependency), so it is fully unit-testable
+// The mechanism is plain Reactive UI Toolkit context (no UObject dependency), so it is fully unit-testable
 // headless; the UObject (RuitkActivatableScreen.h) is only the CommonUI-side data source that flips
 // the state and re-renders.
 
@@ -28,7 +28,7 @@ enum class ERuitkInputMethod : uint8
 	Touch,
 };
 
-/** What a hosted ReactiveUI tree can learn about its CommonUI screen. */
+/** What a hosted Reactive UI Toolkit tree can learn about its CommonUI screen. */
 struct RUITKCOMMONUI_API FRuitkActivationState
 {
 	bool bActive = false; // is this the active screen on its activatable stack?

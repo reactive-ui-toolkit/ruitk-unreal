@@ -464,7 +464,7 @@ referenced from plans/PRs.
     round-trip, forward-to-proxy-over-virtual-uri, markup positions never forwarded, and the
     unavailable-proxy degradation (never queries). LSP suite **27/27**.
   - **VS2022 polish set: DONE 2026-07-12.** `UetkxPackage` (an `AsyncPackage`, background-loaded on
-    solution-exists) + `UetkxOptionsPage` (`DialogPage`) add **Tools > Options > ReactiveUI > UETKX**
+    solution-exists) + `UetkxOptionsPage` (`DialogPage`) add **Tools > Options > Reactive UI Toolkit > UETKX**
     with a **Format on Save** setting; the package's Running-Document-Table `OnBeforeSave` hook runs
     `Edit.FormatDocument` on a saved `.uetkx` (the golden-corpus formatter over LSP) when enabled.
     Brace completion + smart indent ride the shipped `language-configuration.json` (brackets /
@@ -799,7 +799,7 @@ referenced from plans/PRs.
   per-leg payload — a header PATH instead of a namespace — to retire raw `#include` lines from
   `.uetkx` preambles: `import "@Header.h"` emits `#include "Header.h"`, paired with an
   auto-included aggregator prelude (`FUetkxFileScan::AutoIncludedHeaders`) and the family's
-  redundant-import hint (UETKX2317; Unity's UITKX2317 analogue). Godot (`ReactiveUI-Godot`,
+  redundant-import hint (UETKX2317; Unity's UITKX2317 analogue). Godot (`Reactive UI Toolkit for Godot`,
   `.guitkx`) has NOT adopted the `@` form — GDScript resolves globally, so it never needed the
   escape hatch `#include` served here, and no request for one has surfaced there yet.
 - **Production-grade resolution:** if the Godot repo ever needs an equivalent escape hatch (e.g.

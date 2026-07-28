@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-021 — the activation context mechanism. ActivationProvider is a plain ReactiveUI component that
+// TD-021 — the activation context mechanism. ActivationProvider is a plain Reactive UI Toolkit component that
 // provides FRuitkActivationState to its children; the Use* hooks read it. No UObject dependency here —
 // this is the fully headless-testable half of the CommonUI seam.
 

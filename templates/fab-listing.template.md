@@ -28,10 +28,10 @@ shipping.
 **Supported:** UE __ENGINE_VERSIONS__ · Win64 + Linux (tested), Mac (best-effort), consoles &
 mobile compile from source (untested — pure C++/AOT, no JIT requirements).
 
-**Source & license:** ReactiveUI Community License 1.0 on GitHub — __GITHUB_URL__ (free to
+**Source & license:** Reactive UI Toolkit Community License 1.0 on GitHub — __GITHUB_URL__ (free to
 use and ship in your games and projects if your company earned under US $250k in the last
 12 months; above that, shipping needs a commercial license — $2,000/title or
-$2,500/studio/year, see LICENSE-COMMERCIAL.md in the repo; credit "Made with ReactiveUI";
+$2,500/studio/year, see LICENSE-COMMERCIAL.md in the repo; credit "Made with Reactive UI Toolkit";
 not to be redistributed or sold as a competing product; Fab downloads additionally governed
 by the Fab EULA). Code generated from your `.uetkx` files belongs to your project.
 

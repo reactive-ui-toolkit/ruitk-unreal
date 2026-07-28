@@ -3,7 +3,7 @@ import "@DemoInteropWidgets.h"
 
 // The UMG door's SECOND direction + the REVERSE MVVM bridge, in one screen (audit G1 + G3):
 //   · ours-inside-theirs — a UMG UserWidget whose tree contains a URuitkHostWidget mounting the
-//     UmgHostInner component by name (ReactiveUI → UMG → ReactiveUI, the full sandwich);
+//     UmgHostInner component by name (Reactive UI Toolkit → UMG → Reactive UI Toolkit, the full sandwich);
 //   · their-view-on-our-state — a plain UMG TextBlock FieldNotify-bound to OUR
 //     URuitkSignalViewModel; our button writes it, their widget and our UseField both react.
 export FRuitkNode UmgHostDemo() {

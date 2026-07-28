@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // `-run=RuitkExportSchema` — writes the markup vocabulary (elements/attrs/style/slot/hooks) to
-// Saved/ReactiveUI/schema.json for the LSP's local markup intelligence (Phase 5). The schema
+// Saved/Reactive UI Toolkit/schema.json for the LSP's local markup intelligence (Phase 5). The schema
 // content is owned by FUetkxCodegen (the single vocabulary authority); this is CLI glue.
 
 #pragma once

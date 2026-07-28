@@ -66,7 +66,7 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
    the `test-run`/CLAUDE.md environment facts if the owner's local default engine moves.
    Gate: armed engine legs green (or the local battery per engine when CI is unarmed).
 6. **Full battery on the NEW engine**: build + `RuitkCompile -check` + the full
-   `ReactiveUI` suite against the new version (the `test-run` skill's ladder, pointing
+   `Reactive UI Toolkit` suite against the new version (the `test-run` skill's ladder, pointing
    `<Engine>` at the new install). Bench re-run per `plans/BENCH_BASELINES.md` rules if
    perf claims are printed per-engine.
 7. **Packaging/release**: per-engine zip via the `release-process` skill; the Fab

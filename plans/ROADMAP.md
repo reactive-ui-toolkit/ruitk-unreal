@@ -1,4 +1,4 @@
-# ReactiveUI-Unreal — Overview & Roadmap
+# ruitk-unreal — Overview & Roadmap
 
 > **STATUS UPDATE — 2026-07-25 (plans consolidation, `fix/lsp-field-test-false-positives`).**
 > Phase 8 marked COMPLETE: docs site has 34 built-out page sections (guides + generated
@@ -91,8 +91,8 @@ This is the third sibling of a proven family:
 | Sibling | Engine | Language | Status |
 |---|---|---|---|
 | ReactiveUIToolKit | Unity | C# | Shipped, the reference |
-| ReactiveUI-Godot | Godot 4 | GDScript | Shipped (0.8.x), the process template |
-| **ReactiveUI-Unreal** | Unreal 5.6+ | C++ | This plan |
+| Reactive UI Toolkit for Godot | Godot 4 | GDScript | Shipped (0.8.x), the process template |
+| **ruitk-unreal** | Unreal 5.6+ | C++ | This plan |
 
 ## 2. What we are NOT building (and why that's the pitch)
 
@@ -118,7 +118,7 @@ JavaScript VM (dead React-UMG, alpha ReactorUMG, the closed-early-access RNUE �
 JSI/Fabric React Native, but still a JS VM and three tree layers). Commercial middleware (Coherent
 Gameface, NoesisGUI) costs four-to-five figures and renders its own UI stack. We are the only
 pure-C++, zero-VM, native-widget, ahead-of-time-compiled option — the exact position
-ReactiveUI-Godot occupies in Godot.
+Reactive UI Toolkit for Godot occupies in Godot.
 
 ## 3. The product — what ships
 

@@ -56,7 +56,7 @@ void UDemoVmBoundWidget::NativeConstruct()
 	Super::NativeConstruct();
 	URuitkSignalViewModel* Vm = RuitkDemo::GetSharedVm();
 	// Their side of the bridge: a standard FieldNotify subscription on OUR viewmodel — the
-	// same interface any Epic-MVVM binding uses; no ReactiveUI API in sight.
+	// same interface any Epic-MVVM binding uses; no Reactive UI Toolkit API in sight.
 	VmHandle = Vm->AddFieldValueChangedDelegate(URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int,
 												INotifyFieldValueChanged::FFieldValueChangedDelegate::CreateUObject(
 													this, &UDemoVmBoundWidget::OnVmFieldChanged));

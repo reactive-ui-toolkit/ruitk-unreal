@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ReactiveUI widget prop-map entry",
+  "title": "Reactive UI Toolkit widget prop-map entry",
   "description": "The SINGLE SOURCE for each wrapped Slate widget (component-pipeline station 1 writes it; the adapter implementation, the LSP markup vocabulary, and the docs elements page are all generated from / checked against it — MASTER_PLAN D-11/D-23). One JSON file per widget lives next to this schema once Phase 2 starts (templates/prop-map/<Tag>.json); scripts/docs-drift.mjs counts them.",
   "type": "object",
   "required": ["tag", "slateClass", "header", "childKind", "props", "events"],

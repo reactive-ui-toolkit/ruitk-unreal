@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-021 — "our UI as a CommonUI screen". URuitkActivatableScreen is a UCommonActivatableWidget that
-// hosts a ReactiveUI component and publishes its CommonUI activation state (active? input method?)
+// hosts a Reactive UI Toolkit component and publishes its CommonUI activation state (active? input method?)
 // into the tree via ActivationProvider, so the component reacts with UseActivation/UseInputMethod.
 // Push it onto a UCommonActivatableWidgetStack like any other screen; it re-renders on activation and
 // input-method changes, and unmounts (running cleanups) when its Slate resources release.

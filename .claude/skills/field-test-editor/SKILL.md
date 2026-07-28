@@ -11,11 +11,11 @@ a bandaid.
 
 ## Environment facts (verify, don't assume, if anything fails)
 
-- **Live tree** (where the owner tests): `C:\Yanivs\GameDev\ReactiveUI\ReactiveUI-Unreal`.
+- **Live tree** (where the owner tests): `C:\Yanivs\GameDev\ReactiveUI\ruitk-unreal`.
   NEVER edit it while the owner's Unreal editor is open (UE locks module DLLs — your edits +
   rebuild will fail loudly anyway); NEVER kill their editor process.
 - **Work tree** (where you develop): create a git worktree (e.g.
-  `C:\Yanivs\GameDev\ReactiveUI\RUITKU-work`) on first need; branches off `origin/dev`.
+  `C:\Yanivs\GameDev\Reactive UI Toolkit\RUITKU-work`) on first need; branches off `origin/dev`.
 - Engine path: per the `test-run` skill's environment facts. ALWAYS redirect engine output to a
   file.
 - **Live Coding** (Ctrl+Alt+F11) hot-patches `.cpp` function bodies only. Any header change,
@@ -45,7 +45,7 @@ a bandaid.
 ## Packaged-fidelity test (when the change affects packaging)
 
 Test what a store user gets: `scripts/package-plugin.ps1`, unzip
-`ReactiveUI-<ver>-UE<ver>.zip` into a FRESH project's `Plugins/`, open, enable the plugin,
+`Reactive UI Toolkit-<ver>-UE<ver>.zip` into a FRESH project's `Plugins/`, open, enable the plugin,
 expect the log banner `ReactiveUI <ver> loaded` and the demo/gallery to render. A missing banner
 means the plugin is NOT running — silence is never "nothing to do".
 

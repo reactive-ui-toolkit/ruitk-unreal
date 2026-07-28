@@ -4,7 +4,7 @@
 // reads UseIsActive and re-renders when ActivationProvider publishes a new state.
 // Ruitk.CommonUI.Screen — the URuitkActivatableScreen UObject end-to-end in a standalone game
 // instance: activate -> the hosted Ruitk tree shows ACTIVE; deactivate -> INACTIVE (real CommonUI
-// activation driving a real ReactiveUI re-render).
+// activation driving a real Reactive UI Toolkit re-render).
 
 #include "Misc/AutomationTest.h"
 #include "Blueprint/UserWidget.h"

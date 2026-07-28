@@ -6,7 +6,7 @@ repository.
 ## What this repo is
 
 A **React-style reactive UI library for Unreal Engine 5.6+, in pure C++** — the third sibling of
-ReactiveUIToolKit (Unity/C#) and ReactiveUI-Godot (GDScript). Function components return a
+ReactiveUIToolKit (Unity/C#) and Reactive UI Toolkit for Godot (GDScript). Function components return a
 virtual tree; a fiber reconciler patches real **Slate** widgets. `.uetkx` markup (grammar
 byte-compatible with the family's `.guitkx`/`.uitkx`) compiles to C++ for shipping and
 hot-reloads live in dev via **Unreal Live Coding** (whole-project, state preserved; HMR v2 —

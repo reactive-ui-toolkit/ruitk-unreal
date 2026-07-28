@@ -238,7 +238,7 @@ runtime detection — the HMR controller arms `Ruitk::SetHmrHookTracking` for th
 bumps `Ruitk::BumpHmrGeneration()` on every patch-complete; the reconciler records the
 flattened hook sequence per render and, when it differs ACROSS a generation boundary,
 runs `HmrResetHooks()` (effect cleanups included) + re-renders clean, logging
-`[ReactiveUI][HMR] <Comp>: hook shape changed by the edit (N -> M hooks) — state reset`.
+`[Reactive UI Toolkit][HMR] <Comp>: hook shape changed by the edit (N -> M hooks) — state reset`.
 A shape change without a generation bump stays the rules-of-hooks user error. Pinned by
 `Ruitk.Hooks.HmrShapeReset` (preserve-on-stable / reset-on-change / no-reset-without-
 boundary). v2 amendment (2026-07-24): the misaligned render is now MEMORY-SAFE — per-cell TypeHash +
@@ -698,6 +698,6 @@ The header exists identically on 5.6; no version gate needed.
 **Also closed here — TB-29's open verification:** the same packaging run compiles the
 Win64 SHIPPING game config, and 5.7 Shipping built green with the SearchableComboBox
 adapter (ToolWidgets) compiled in — no Developer-module restriction fired on the installed
-engine. Both per-engine zips exist: `dist/ReactiveUI-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
+engine. Both per-engine zips exist: `dist/Reactive UI Toolkit-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
 
 **Status:** FIXED; 5.6 zip rebuilt from the fixed source (identical source in both zips).

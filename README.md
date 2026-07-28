@@ -4,7 +4,7 @@ Questions, feedback, showcase → **[Discord](https://discord.gg/Knedqu4Wyv)** (
 
 A **React-style reactive UI library for Unreal Engine 5.6+, in pure C++** — the Unreal sibling
 of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit) (Unity/C#) and
-[Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot/GDScript).
+[Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/Reactive UI Toolkit for Godot) (Godot/GDScript).
 
 Function components return a virtual tree; a fiber reconciler diffs each render and patches only
 what changed on real **Slate** widgets. State lives in hooks. On top sits `.uetkx` — a JSX-like

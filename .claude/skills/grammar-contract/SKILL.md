@@ -55,7 +55,7 @@ owner decision.
 - **Inbound** (a sibling released a grammar change — they demonstrably still do): import their
   new cases, run both in-repo implementations, reconcile or `.pending`-pin.
 - **Release-time drift check** (`release-process` §3): hash-compare the shared corpus sections
-  against `ReactiveUI-Gadot/ide-extensions/lsp-server/test-fixtures/scanner-cases.json` (and the
+  against `Reactive UI Toolkit-Gadot/ide-extensions/lsp-server/test-fixtures/scanner-cases.json` (and the
   Unity repo's corpus). Host-lexis-specific sections are exempt; structural sections must match.
 - The **vendored lsp-server's family-shared files** (`markup.ts`, `sourceMap.ts`, formatter,
   corpora) sync by the same procedure (D-30): diff against the sibling's copy, port deliberately,

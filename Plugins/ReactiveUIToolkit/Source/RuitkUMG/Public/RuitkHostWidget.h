@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// "Our UI inside theirs": a UMG widget hosting a ReactiveUI tree — drop it into any UMG
+// "Our UI inside theirs": a UMG widget hosting a Reactive UI Toolkit tree — drop it into any UMG
 // hierarchy (Blueprint designer, Editor Utility Widget, CommonUI screen) and point it at a
 // registered component name. Design time shows a placeholder (the designer must never run
 // live component code); ReleaseSlateResources unmounts (cleanups run before the Slate tree

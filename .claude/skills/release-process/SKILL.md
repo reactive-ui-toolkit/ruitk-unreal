@@ -1,9 +1,9 @@
 ---
 name: release-process
-description: The ReactiveUI-Unreal release runbook — draining the pending changelog, version bumps, the two-lane changelog system, packaging per engine version, the merge→fast-forward→Publish flow, and the manual Fab checklist with its compliance items. Use when preparing, staging, or publishing a release of any artifact.
+description: The ruitk-unreal release runbook — draining the pending changelog, version bumps, the two-lane changelog system, packaging per engine version, the merge→fast-forward→Publish flow, and the manual Fab checklist with its compliance items. Use when preparing, staging, or publishing a release of any artifact.
 ---
 
-# Release process (ReactiveUI-Unreal)
+# Release process (ruitk-unreal)
 
 Everything a release needs, in order. Deliverables version independently — check what actually
 changed with `git diff origin/master --stat` against `Plugins/ReactiveUIToolkit/` and `ide-extensions/`

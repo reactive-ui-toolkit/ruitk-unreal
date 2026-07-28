@@ -7,7 +7,7 @@ compiles to native C++ for shipping builds and hot-reloads live in PIE during de
 no script VM in your shipped game.
 
 The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit)
-(Unity) and [Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot).
+(Unity) and [Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/Reactive UI Toolkit for Godot) (Godot).
 
 > **Status: beta — built end to end.** 23 core hooks, 65+ wrapped Slate widgets (including
 > virtualized `ListView`/`TileView`), the `.uetkx` compiler with committed codegen and a CI

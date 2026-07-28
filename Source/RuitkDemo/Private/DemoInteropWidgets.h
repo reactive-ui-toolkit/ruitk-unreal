@@ -5,7 +5,7 @@
 //   UDemoHostUserWidget  — G1, "ours INSIDE theirs": a hand-built UMG UserWidget whose widget
 //                          tree contains a URuitkHostWidget pointing at a registered component.
 //                          Embedded in the gallery it demonstrates the full sandwich:
-//                          ReactiveUI → UMG → ReactiveUI.
+//                          Reactive UI Toolkit → UMG → Reactive UI Toolkit.
 //   UDemoVmBoundWidget   — G3, reverse MVVM: a plain UMG widget that subscribes (FieldNotify)
 //                          to OUR URuitkSignalViewModel and mirrors its Int field — their view,
 //                          our value, no MVVM-plugin dependency.
@@ -26,7 +26,7 @@ class UButton;
 class UCommonActivatableWidgetStack;
 class UTextBlock;
 
-/** G1 — a UMG UserWidget hosting a ReactiveUI component through URuitkHostWidget. */
+/** G1 — a UMG UserWidget hosting a Reactive UI Toolkit component through URuitkHostWidget. */
 UCLASS()
 class UDemoHostUserWidget : public UUserWidget
 {

@@ -32,7 +32,7 @@ private:
 };
 
 /**
- * A mounted ReactiveUI root. Create*() renders synchronously (no empty first frame).
+ * A mounted Reactive UI Toolkit root. Create*() renders synchronously (no empty first frame).
  * Keep the returned shared ref alive for the UI's lifetime; Unmount() (or destruction)
  * tears down: effect cleanups, refs nulled, widgets detached, fibers freed.
  */

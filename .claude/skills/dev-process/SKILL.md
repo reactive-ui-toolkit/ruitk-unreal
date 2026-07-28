@@ -1,9 +1,9 @@
 ---
 name: dev-process
-description: The house development methodology for ReactiveUI-Unreal — the research→develop→test→bughunt→fix→commit loop, the UE gate ladder (compile → suites → boot check → demo), branch/PR model, changelog/version tables, and the laws that never bend. Use for any code change in this repo.
+description: The house development methodology for ruitk-unreal — the research→develop→test→bughunt→fix→commit loop, the UE gate ladder (compile → suites → boot check → demo), branch/PR model, changelog/version tables, and the laws that never bend. Use for any code change in this repo.
 ---
 
-# Development process & methodology (ReactiveUI-Unreal)
+# Development process & methodology (ruitk-unreal)
 
 ## The loop
 
@@ -47,7 +47,7 @@ commits/pushes beyond what the task established, never auto-commit.
 
 | Artifact | Changelog | How |
 |---|---|---|
-| ReactiveUI plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUIToolkit/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
+| Reactive UI Toolkit plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUIToolkit/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
 | VS Code + VS2022 extensions | `ide-extensions/changelog.json` | `changelog.mjs add --message-file …` → `extract` each target → commit together; `verify` gates CI |
 | Community | `plans/DISCORD_CHANGELOG.md` | Notable releases; ≤2000 chars/entry; owner pastes |
 | Pending (between releases) | `plans/PENDING_CHANGELOG.md` | `plan-progress` stages bullets; `release-process` drains |
