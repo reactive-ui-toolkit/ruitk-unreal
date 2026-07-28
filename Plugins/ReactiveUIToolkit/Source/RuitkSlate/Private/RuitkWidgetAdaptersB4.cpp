@@ -271,12 +271,13 @@ public:
 							 const FRuitkStyleDict* SlotProps) override
 	{
 		SSplitter& W = static_cast<SSplitter&>(Parent);
-		SSplitter::FScopedWidgetSlotArguments Slot = W.AddSlot();
-		Slot.AttachWidget(Child);
-		if (SSplitter::FSlot* Live = Slot.GetSlot())
 		{
-			ApplySplitterSlot(*Live, SlotProps);
-		}
+			SSplitter::FScopedWidgetSlotArguments Slot = W.AddSlot();
+			Slot.AttachWidget(Child);
+		} // the scoped-args dtor LANDS the slot (owner widget wired) — UE 5.8's attribute-backed
+		  // slot setters assert "Slot Attributes has to be registered after the FSlot is
+		  // constructed" if touched before this point, so props apply to the LIVE slot below.
+		UpdateChildSlotProps(Parent, Child, SlotProps);
 	}
 
 	virtual void RemoveChild(SWidget& Parent, const TSharedRef<SWidget>& Child) override
@@ -305,10 +306,15 @@ public:
 		{
 			SSplitter::FScopedWidgetSlotArguments Slot = W.AddSlot();
 			Slot.AttachWidget(Child);
-			if (SSplitter::FSlot* Live = Slot.GetSlot())
-			{
-				ApplySplitterSlot(*Live, SlotPropsOf(Child));
-			}
+		} // each scoped-args dtor lands its slot before the next iteration
+		// Apply slot props to the LANDED slots (5.8 slot-attribute contract — see InsertChild);
+		// after the re-add loop, child order matches Ordered index-for-index.
+		FChildren* Children = W.GetChildren();
+		for (int32 i = 0; i < Children->Num() && i < Ordered.Num(); ++i)
+		{
+			ApplySplitterSlot(
+				const_cast<SSplitter::FSlot&>(static_cast<const SSplitter::FSlot&>(Children->GetSlotAt(i))),
+				SlotPropsOf(Ordered[i]));
 		}
 	}
 
