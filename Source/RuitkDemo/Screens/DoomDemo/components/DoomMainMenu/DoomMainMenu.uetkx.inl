@@ -301,7 +301,7 @@ static FRuitkNodeArray DoomMainMenu_UetkxImpl(FRuitkContext& Ctx, const FDoomMai
 	return DoomMainMenu_UetkxBody_F6778A6A(Ctx, Props, children);
 }
 static const FName GDoomMainMenuUetkxId = Ruitk::RegisterComponentId((void*)&DoomMainMenu_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMainMenu_DoomMainMenu::DoomMainMenu")));
-static constexpr uint32 DoomMainMenu_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 DoomMainMenu_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomMainMenu(FDoomMainMenuUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomMainMenu_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

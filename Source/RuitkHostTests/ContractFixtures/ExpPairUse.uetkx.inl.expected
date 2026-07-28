@@ -57,7 +57,7 @@ static FRuitkNodeArray ExpPairUse_UetkxImpl(FRuitkContext& Ctx, const FExpPairUs
 	return ExpPairUse_UetkxBody_6169FAAC(Ctx, Props, children);
 }
 static const FName GExpPairUseUetkxId = Ruitk::RegisterComponentId((void*)&ExpPairUse_UetkxImpl, FName(TEXT("RuitkUetkx_ExpPairUse::ExpPairUse")));
-static constexpr uint32 ExpPairUse_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ExpPairUse_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ExpPairUse(FExpPairUseUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ExpPairUse_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

@@ -24,7 +24,7 @@ namespace Ruitk::Slate
 {
 	void RegisterAdapter(FRuitkElementTypeId Type, TUniquePtr<IRuitkElementAdapter> Adapter)
 	{
-		checkf(Type.IsValid(), TEXT("ReactiveUI: cannot register an adapter for the invalid element type"));
+		checkf(Type.IsValid(), TEXT("Ruitk: cannot register an adapter for the invalid element type"));
 		FScopeLock Lock(&GAdapterLock);
 		GAdapters.Add(Type, MoveTemp(Adapter)); // replace on re-registration (Live Coding)
 	}
@@ -73,7 +73,7 @@ FRuitkSlateHost::~FRuitkSlateHost()
 FRuitkHostHandle FRuitkSlateHost::WrapExternalPanel(const TSharedRef<SWidget>& Panel, FRuitkElementTypeId PanelType)
 {
 	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(PanelType);
-	checkf(Adapter != nullptr, TEXT("ReactiveUI: no adapter registered for the mount panel type"));
+	checkf(Adapter != nullptr, TEXT("Ruitk: no adapter registered for the mount panel type"));
 	TSharedRef<FRuitkSlateNode> Node = MakeShared<FRuitkSlateNode>();
 	Node->Widget = Panel;
 	Node->Adapter = Adapter;
@@ -86,7 +86,7 @@ FRuitkHostHandle FRuitkSlateHost::CreateInstance(FRuitkElementTypeId Type, const
 	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(Type);
 	if (Adapter == nullptr)
 	{
-		UE_LOG(LogRuitkSlate, Error, TEXT("[ReactiveUI] no adapter registered for element '%s' — rendering a null slot"),
+		UE_LOG(LogRuitkSlate, Error, TEXT("[Ruitk] no adapter registered for element '%s' — rendering a null slot"),
 			   *Ruitk::GetElementTypeName(Type).ToString());
 		TSharedRef<FRuitkSlateNode> Null = MakeShared<FRuitkSlateNode>();
 		Null->Widget = SNullWidget::NullWidget;
@@ -293,7 +293,7 @@ void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FR
 		{
 			Parent->bWarnedCapacity = true;
 			UE_LOG(LogRuitkSlate, Warning,
-				   TEXT("[ReactiveUI] '%s' takes ONE child — extra children replace the content (last wins)"),
+				   TEXT("[Ruitk] '%s' takes ONE child — extra children replace the content (last wins)"),
 				   *Ruitk::GetElementTypeName(Parent->Type).ToString());
 		}
 		Parent->Adapter->SetContent(*Parent->Widget, Child->Widget);
@@ -301,7 +301,7 @@ void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FR
 		break;
 	}
 	case ERuitkChildKind::Leaf:
-		UE_LOG(LogRuitkSlate, Warning, TEXT("[ReactiveUI] '%s' is a leaf — child '%s' dropped"),
+		UE_LOG(LogRuitkSlate, Warning, TEXT("[Ruitk] '%s' is a leaf — child '%s' dropped"),
 			   *Ruitk::GetElementTypeName(Parent->Type).ToString(), *Ruitk::GetElementTypeName(Child->Type).ToString());
 		return;
 	}
@@ -429,7 +429,7 @@ void FRuitkSlateHost::EnsurePreTickRegistered()
 		{
 			bWarnedNoSlateApp = true;
 			UE_LOG(LogRuitkSlate, Warning,
-				   TEXT("[ReactiveUI] no Slate application — updates queue until PumpFrameQueue()/FlushSync"));
+				   TEXT("[Ruitk] no Slate application — updates queue until PumpFrameQueue()/FlushSync"));
 		}
 		return;
 	}
@@ -464,7 +464,7 @@ void FRuitkSlateHost::ReplaceWidget(FRuitkSlateNode& Node, const FRuitkPropsBase
 		// A host node always has a host parent (the wrapped mount panel or another widget). If it
 		// somehow does not, we cannot swap it into a slot — apply the runtime diff and warn once.
 		UE_LOG(LogRuitkSlate, Warning,
-			   TEXT("[ReactiveUI] construct-only change on '%s' could not replace the widget (no host parent) — "
+			   TEXT("[Ruitk] construct-only change on '%s' could not replace the widget (no host parent) — "
 					"runtime props applied, construct-only props stale"),
 			   *Ruitk::GetElementTypeName(Node.Type).ToString());
 		Node.Adapter->ApplyDiff(*Node.Widget, nullptr, NewProps);

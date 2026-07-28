@@ -59,7 +59,7 @@ public:
 	 *  FRuitkNode's lifetime note. */
 	FRuitkChildren LastOutput;
 
-	// --- dev diagnostics (rui.HookValidation) ---
+	// --- dev diagnostics (ruitk.HookValidation) ---
 	TArray<ERuitkHookKind> HookLog;  // this render (transient)
 	uint32 HmrGenerationStamp = 0; // TB-13: the HMR generation this state last rendered under
 	TArray<ERuitkHookKind>

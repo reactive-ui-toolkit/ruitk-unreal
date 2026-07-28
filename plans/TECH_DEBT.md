@@ -126,7 +126,7 @@ referenced from plans/PRs.
   → mount it as a live `FRuitkRoot`, collecting parse diagnostics + interpreter fallback notes. Always
   returns a preview — on failure a placeholder widget + messages, never a crash. `SUetkxPreviewPanel`
   is the Slate shell (path box + Load, a live preview area, a scrolling message list); the editor
-  module registers it as a **nomad tab** (`ReactiveUIPreview`) with a Tools-menu entry (guarded to the
+  module registers it as a **nomad tab** (`RuitkPreview`) with a Tools-menu entry (guarded to the
   Slate-app path, so commandlets skip it). Test `Ruitk.Editor.Preview`: a valid component mounts a
   real widget, named-component selection (+ missing-name message), no-component and unterminated-parse
   sources yield a placeholder + surfaced diagnostics. The interactive tab UX is owner-verified in the

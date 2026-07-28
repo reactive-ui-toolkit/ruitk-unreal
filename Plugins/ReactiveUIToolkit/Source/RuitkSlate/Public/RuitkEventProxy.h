@@ -61,7 +61,7 @@ private:
 
 	void EnsureSlot(int32 Slot)
 	{
-		checkf(Slot >= 0 && Slot < 64, TEXT("ReactiveUI: event slot index out of range"));
+		checkf(Slot >= 0 && Slot < 64, TEXT("Ruitk: event slot index out of range"));
 		if (Slots.Num() <= Slot)
 		{
 			Slots.SetNum(Slot + 1);

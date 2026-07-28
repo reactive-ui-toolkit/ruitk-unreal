@@ -247,7 +247,7 @@ static FRuitkNodeArray KeyedDiff_UetkxImpl(FRuitkContext& Ctx, const FKeyedDiffU
 	return KeyedDiff_UetkxBody_A51DA7A5(Ctx, Props, children);
 }
 static const FName GKeyedDiffUetkxId = Ruitk::RegisterComponentId((void*)&KeyedDiff_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_KeyedDiff_KeyedDiff::KeyedDiff")));
-static constexpr uint32 KeyedDiff_RUI_HOOK_SIG = 0xDDEFCD0Cu;
+static constexpr uint32 KeyedDiff_RUITK_HOOK_SIG = 0xDDEFCD0Cu;
 inline FRuitkNode KeyedDiff(FKeyedDiffUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&KeyedDiff_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

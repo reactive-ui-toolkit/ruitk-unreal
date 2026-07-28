@@ -2414,7 +2414,7 @@ namespace
 		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = Ruitk::RegisterComponentId((void*)&%s, "
 									 "FName(TEXT(\"%s\")));\n"),
 								*Decl.Name, *ImplName, *RuntimeId);
-		Impl += FString::Printf(TEXT("static constexpr uint32 %s_RUI_HOOK_SIG = 0x%08Xu;\n"), *Decl.Name,
+		Impl += FString::Printf(TEXT("static constexpr uint32 %s_RUITK_HOOK_SIG = 0x%08Xu;\n"), *Decl.Name,
 								FUetkxFileScan::HookSignature(Decl.HookCalls));
 		Impl += FString::Printf(TEXT("inline FRuitkNode %s(%s InProps, TArray<FRuitkNode> InChildren, FRuitkKey "
 									 "InKey)\n{\n\treturn Ruitk::FC(&%s, MoveTemp(InProps), "

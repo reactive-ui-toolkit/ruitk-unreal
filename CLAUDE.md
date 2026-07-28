@@ -110,10 +110,10 @@ MASTER_PLAN §1; module table: D-27.
   Codegen emits it only for THIS repo's files; user-project output gets the neutral
   "belongs to your project" banner (D-32).
 - **Logs:** per-module categories `LogRuitkCore`/`LogRuitkSlate`/`LogRuitkUmg`/`LogRuitkInterp`/
-  `LogRuitkEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `rui.TimeSlicing`,
-  `rui.FrameBudgetMs`, `rui.HostNodePool`, `rui.HookValidation`, `rui.StrictDiagnostics`,
-  `rui.StrictMode` (runtime stats via `stat ReactiveUI`, not a CVar). **MessageLog page:**
-  `"ReactiveUI"`.
+  `LogRuitkEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `ruitk.TimeSlicing`,
+  `ruitk.FrameBudgetMs`, `ruitk.HostNodePool`, `ruitk.HookValidation`, `ruitk.StrictDiagnostics`,
+  `ruitk.StrictMode` (runtime stats via `stat Ruitk`, not a CVar). **MessageLog page:**
+  `"Ruitk"`.
 - **Line endings:** LF everywhere (`.gitattributes` pins it; two CI gates byte-compare files).
 - **Generated code is COMMITTED** (`*.uetkx.inl`, `<Module>.Uetkx.gen.cpp`) and reflection-free;
   sidecars (`*.uetkx.diags.json`) are machine-local and gitignored.

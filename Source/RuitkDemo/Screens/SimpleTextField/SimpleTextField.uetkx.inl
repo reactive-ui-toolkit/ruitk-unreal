@@ -63,7 +63,7 @@ static FRuitkNodeArray SimpleTextField_UetkxImpl(FRuitkContext& Ctx, const FSimp
 	return SimpleTextField_UetkxBody_337F2464(Ctx, Props, children);
 }
 static const FName GSimpleTextFieldUetkxId = Ruitk::RegisterComponentId((void*)&SimpleTextField_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleTextField_SimpleTextField::SimpleTextField")));
-static constexpr uint32 SimpleTextField_RUI_HOOK_SIG = 0x986DF5F6u;
+static constexpr uint32 SimpleTextField_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode SimpleTextField(FSimpleTextFieldUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleTextField_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

@@ -205,9 +205,9 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
   // Ctx BEFORE the surfaces/adapters — the qualified-hook adapters' decltype references it.
   lines.push("extern FRuitkContext Ctx;");
   // §4 markup-everywhere: the typed placeholder every neutralized markup range lowers to in the
-  // virtual TU (`auto X = (<VerticalBox>…);` reads `auto X = (__rui_rn);` — X types FRuitkNode,
+  // virtual TU (`auto X = (<VerticalBox>…);` reads `auto X = (__ruitk_rn);` — X types FRuitkNode,
   // exactly what codegen produces). Unmapped glue: it can never squiggle user code.
-  lines.push("extern FRuitkNode __rui_rn;");
+  lines.push("extern FRuitkNode __ruitk_rn;");
   const declaredHookShims = new Set<string>();
   if (resolveImport) {
     for (const imp of scan.imports) {
@@ -297,19 +297,19 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
     }
   }
   lines.push("class FRuitkContext;");
-  lines.push("template <typename T> struct __rui_strip { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<T&> { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<T&&> { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<const T> { using type = T; };");
-  lines.push("template <bool B> struct __rui_enable_if {};");
-  lines.push("template <> struct __rui_enable_if<true> { using type = void; };");
-  lines.push("template <typename... T> inline constexpr bool __rui_ctx_first = false;");
-  lines.push("template <typename T0, typename... T> inline constexpr bool __rui_ctx_first<T0, T...> = __is_same(typename __rui_strip<typename __rui_strip<T0>::type>::type, FRuitkContext);");
+  lines.push("template <typename T> struct __ruitk_strip { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<T&> { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<T&&> { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<const T> { using type = T; };");
+  lines.push("template <bool B> struct __ruitk_enable_if {};");
+  lines.push("template <> struct __ruitk_enable_if<true> { using type = void; };");
+  lines.push("template <typename... T> inline constexpr bool __ruitk_ctx_first = false;");
+  lines.push("template <typename T0, typename... T> inline constexpr bool __ruitk_ctx_first<T0, T...> = __is_same(typename __ruitk_strip<typename __ruitk_strip<T0>::type>::type, FRuitkContext);");
   for (const q of scanQualifiedHookCalls(source)) {
     const open = q.namespaces.map((ns) => `namespace ${ns} { `).join("");
     const close = q.namespaces.map(() => "}").join(" ");
     lines.push(
-      `${open}template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
+      `${open}template <typename... TArgs, typename = typename __ruitk_enable_if<!__ruitk_ctx_first<TArgs...>>::type> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
     );
   }
   // Bare hand-header hooks (RuitkRouter.h et al: free functions taking Ctx first) — codegen
@@ -318,7 +318,7 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
   const bareExcluded = new Set<string>([...CTX_MEMBER_HOOKS, "UseSignal", "UseSignalKey", ...scan.hooks.map((h) => h.name), ...declaredHookShims]);
   for (const name of scanBareHookCalls(source)) {
     if (bareExcluded.has(name)) continue;
-    lines.push(`template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${name}(TArgs&&... Args) -> decltype(${name}(Ctx, static_cast<TArgs&&>(Args)...));`);
+    lines.push(`template <typename... TArgs, typename = typename __ruitk_enable_if<!__ruitk_ctx_first<TArgs...>>::type> auto ${name}(TArgs&&... Args) -> decltype(${name}(Ctx, static_cast<TArgs&&>(Args)...));`);
   }
   for (const hook of CTX_MEMBER_HOOKS) {
     lines.push(`#define ${hook} Ctx.${hook}`);
@@ -357,8 +357,8 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   };
 
   // ── §4 markup-everywhere: EVERY code emission is jsx-aware. Markup ranges nested in code
-  // (`auto X = (<VerticalBox>…);`, `cond && <Chip/>`) neutralize to the typed `__rui_rn`
-  // placeholder (short-circuit ops desugar `? __rui_rn : __rui_rn`, mirroring codegen's
+  // (`auto X = (<VerticalBox>…);`, `cond && <Chip/>`) neutralize to the typed `__ruitk_rn`
+  // placeholder (short-circuit ops desugar `? __ruitk_rn : __ruitk_rn`, mirroring codegen's
   // ternary), the code segments around them stay EXACT mapped substrings, and each range's
   // parsed tree is returned for the caller to lift at the nearest STATEMENT context (its attr
   // exprs get their own mapped regions there). `excludeSpans` marks early-return windows in
@@ -407,7 +407,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
       const upTo = r.op !== "" ? r.opPos : r.start;
       const seg = fromCodePoints(cp, cursor, upTo - cursor);
       if (seg.length > 0) emit(seg, srcAt + cursor, "", "");
-      raw(r.op !== "" ? " ? __rui_rn : __rui_rn" : "__rui_rn");
+      raw(r.op !== "" ? " ? __ruitk_rn : __ruitk_rn" : "__ruitk_rn");
       if (r.parse) {
         const parsed = parseMarkup(cp, r.start, r.end);
         if (!parsed.errorCode) {
@@ -544,18 +544,18 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
     // The function scaffold is raw'd (not emit-prefixed) so a return-only component with an
     // EMPTY setup still gets a scope for its lifted markup expressions (HelloWorld shape).
     // Returns FRuitkNode (TB-27): early-return windows keep their real `return ( … )` glue with
-    // the markup neutralized to __rui_rn — under a void signature every early return was a
+    // the markup neutralized to __ruitk_rn — under a void signature every early return was a
     // clangd "void function should not return a value". The synthetic tail return keeps the
     // no-early-return shape free of C4715.
-    raw(`\nFRuitkNode __rui_setup_${comp.name}(FRuitkContext& Ctx${cppParamList(comp)}) {\n`);
-    // §4: setup is jsx-aware — value markup neutralizes to __rui_rn (its attr exprs lift as
+    raw(`\nFRuitkNode __ruitk_setup_${comp.name}(FRuitkContext& Ctx${cppParamList(comp)}) {\n`);
+    // §4: setup is jsx-aware — value markup neutralizes to __ruitk_rn (its attr exprs lift as
     // deferred statements below), early-return windows neutralize whole (their roots lift via
     // comp.returns — excludeSpans stops the double-lift).
     flushDeferred(emitCode(comp.setup, comp.setupAt, "", "\n", comp.returns ?? []));
     for (const span of comp.returns ?? []) {
       if (span.root) liftNode(span.root, comp.setupAt);
     }
-    raw("return __rui_rn;\n}\n");
+    raw("return __ruitk_rn;\n}\n");
   }
   for (const hook of scan.hooks as UetkxHookDecl[]) {
     const ret = hook.ret.trim().length > 0 ? hook.ret.trim() : "void";

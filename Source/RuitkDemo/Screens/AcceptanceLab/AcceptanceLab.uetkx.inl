@@ -566,7 +566,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxImpl(FRuitkContext& Ctx, const FAccept
 	return AcceptanceLab_UetkxBody_24CDEE20(Ctx, Props, children);
 }
 static const FName GAcceptanceLabUetkxId = Ruitk::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
-static constexpr uint32 AcceptanceLab_RUI_HOOK_SIG = 0x49531E04u;
+static constexpr uint32 AcceptanceLab_RUITK_HOOK_SIG = 0x49531E04u;
 inline FRuitkNode AcceptanceLab(FAcceptanceLabUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&AcceptanceLab_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

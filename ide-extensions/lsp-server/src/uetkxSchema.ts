@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 // The markup vocabulary: SHIPPED default (src/uetkx-schema.json — the committed RuitkExportSchema
-// output) overridden by the workspace's live export at <workspace>/Saved/ReactiveUI/schema.json
+// output) overridden by the workspace's live export at <workspace>/Saved/ReactiveUIToolkit/schema.json
 // when present (regenerate with `UnrealEditor-Cmd <proj>.uproject -run=RuitkExportSchema`).
 
 import * as fs from "node:fs";
@@ -49,14 +49,14 @@ export function shippedSchema(): UetkxSchema {
   return shipped;
 }
 
-/** Walk up from fileDir looking for Saved/ReactiveUI/schema.json next to a .uproject. */
+/** Walk up from fileDir looking for Saved/ReactiveUIToolkit/schema.json next to a .uproject. */
 export function schemaForFile(fileDir: string): UetkxSchema {
   let dir = fileDir;
   for (let depth = 0; depth < 32; depth++) {
     try {
       const entries = fs.readdirSync(dir);
       if (entries.some((e) => e.endsWith(".uproject"))) {
-        const live = path.join(dir, "Saved", "ReactiveUI", "schema.json");
+        const live = path.join(dir, "Saved", "ReactiveUIToolkit", "schema.json");
         if (fs.existsSync(live)) {
           try {
             return JSON.parse(fs.readFileSync(live, "utf8")) as UetkxSchema;

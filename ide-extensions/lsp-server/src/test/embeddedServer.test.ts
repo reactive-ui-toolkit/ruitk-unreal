@@ -319,11 +319,11 @@ test("virtual doc: the prelude carries a guarded Engine/Texture2D.h (fwd-declare
 test("virtual doc: hook adapters are recursion-guarded (a TYPO'D hook must not fatal the TU)", async () => {
   // Field test round 4: the unguarded adapter's decltype found ITSELF for a nonexistent
   // hook ('recursive template instantiation exceeded maximum depth' — a FATAL that killed
-  // every other diagnostic in the file). The __rui_ctx_first guard SFINAEs the adapter out
+  // every other diagnostic in the file). The __ruitk_ctx_first guard SFINAEs the adapter out
   // once the decltype re-enters with Ctx first.
   const { buildVirtualCpp } = await import("../virtualDoc");
   const vd = buildVirtualCpp("export FRuitkNode T() {\n\tauto A = UseSsstate<bool>(true);\n\treturn ( <Spacer /> );\n}\n", "T");
-  assert.ok(vd.text.includes("__rui_ctx_first<TArgs...>"), "the guard rides every adapter");
+  assert.ok(vd.text.includes("__ruitk_ctx_first<TArgs...>"), "the guard rides every adapter");
   assert.ok(!/template <typename\.\.\. TArgs> auto UseSsstate/.test(vd.text), "no unguarded adapter shape");
-  assert.ok(vd.text.includes("__is_same(typename __rui_strip"), "the Ctx-first detector glue is emitted");
+  assert.ok(vd.text.includes("__is_same(typename __ruitk_strip"), "the Ctx-first detector glue is emitted");
 });

@@ -2,11 +2,11 @@ import type { FC } from 'react'
 import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 
 const CVARS: Array<[string, string]> = [
-  ['rui.StrictMode', 'Double-invoke render to surface impure components and effect mistakes.'],
-  ['rui.HookValidation', 'Detect hook-order mismatches between renders (on by default in dev).'],
-  ['rui.StrictDiagnostics', 'Warn on misuse such as setting state during render (on by default in dev).'],
-  ['rui.TimeSlicing / rui.FrameBudgetMs', 'Chunk render work across frames / the per-frame budget.'],
-  ['rui.HostNodePool', 'Recycle childless leaf widgets (turn off to bisect pooling suspicions).'],
+  ['ruitk.StrictMode', 'Double-invoke render to surface impure components and effect mistakes.'],
+  ['ruitk.HookValidation', 'Detect hook-order mismatches between renders (on by default in dev).'],
+  ['ruitk.StrictDiagnostics', 'Warn on misuse such as setting state during render (on by default in dev).'],
+  ['ruitk.TimeSlicing / ruitk.FrameBudgetMs', 'Chunk render work across frames / the per-frame budget.'],
+  ['ruitk.HostNodePool', 'Recycle childless leaf widgets (turn off to bisect pooling suspicions).'],
 ]
 
 export const DebuggingPage: FC = () => (
@@ -45,9 +45,9 @@ export const DebuggingPage: FC = () => (
       Runtime CVars &amp; stats
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>stat ReactiveUI</code> shows the live reconciler counters — Renders, Commits,
+      <code>stat Ruitk</code> shows the live reconciler counters — Renders, Commits,
       Placements, Updates, Deletions — the fastest way to see whether a change re-renders more
-      than it should. The <code>rui.*</code> console variables tune behavior:
+      than it should. The <code>ruitk.*</code> console variables tune behavior:
     </Typography>
     <TableContainer sx={{ mb: 2 }}>
       <Table size="small">

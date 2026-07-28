@@ -6,7 +6,7 @@
 // tracking, a component whose FLATTENED hook sequence differs across a generation boundary
 // disposes its cells and re-renders clean — instead of positional reads silently serving a
 // neighbor's value. A shape change WITHOUT a generation bump stays a rules-of-hooks user
-// error (rui.HookValidation) and must NOT reset.
+// error (ruitk.HookValidation) and must NOT reset.
 
 #include "Misc/AutomationTest.h"
 #include "RuitkContext.h"

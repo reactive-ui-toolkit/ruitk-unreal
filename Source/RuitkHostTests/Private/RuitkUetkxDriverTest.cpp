@@ -22,7 +22,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxDriverTest, "Ruitk.Uetkx.Driver",
 bool FRuitkUetkxDriverTest::RunTest(const FString&)
 {
 	IFileManager& FM = IFileManager::Get();
-	const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("DriverTest"));
+	const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("DriverTest"));
 	FM.DeleteDirectory(*Scratch, /*RequireExists*/ false, /*Tree*/ true);
 	FM.MakeDirectory(*Scratch, /*Tree*/ true);
 

@@ -86,7 +86,7 @@ static FRuitkNodeArray UmgHostInner_UetkxImpl(FRuitkContext& Ctx, const FUmgHost
 	return UmgHostInner_UetkxBody_494743D1(Ctx, Props, children);
 }
 static const FName GUmgHostInnerUetkxId = Ruitk::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
-static constexpr uint32 UmgHostInner_RUI_HOOK_SIG = 0x986DF5F6u;
+static constexpr uint32 UmgHostInner_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode UmgHostInner(FUmgHostInnerUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&UmgHostInner_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

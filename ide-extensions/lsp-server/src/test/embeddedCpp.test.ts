@@ -104,13 +104,13 @@ test("virtual C++ doc lifts a component setup block", () => {
   ].join("\n");
   const vd = buildVirtualCpp(source);
   assert.ok(vd.regionCount >= 1, "setup lifted");
-  assert.ok(vd.text.includes("__rui_setup_Counter"), "setup wrapped in a named function");
+  assert.ok(vd.text.includes("__ruitk_setup_Counter"), "setup wrapped in a named function");
   assert.ok(vd.text.includes("Doubled = Count * 2"), "setup body present");
 });
 
 test("TB-27: setup scaffold returns FRuitkNode so early-return windows are legal C++", () => {
   // Under a `void` scaffold EVERY early return (`return ( <X/> );`, `return (<></>);`)
-  // neutralized to `return ( __rui_rn );` — clangd's "void function should not return a
+  // neutralized to `return ( __ruitk_rn );` — clangd's "void function should not return a
   // value" on perfectly valid markup (owner-reported on the fragment shape, F5 round 16).
   const source = [
     "export FRuitkNode SimpleCounter() {",
@@ -126,13 +126,13 @@ test("TB-27: setup scaffold returns FRuitkNode so early-return windows are legal
     "}",
   ].join("\n");
   const vd = buildVirtualCpp(source);
-  assert.ok(vd.text.includes("FRuitkNode __rui_setup_SimpleCounter"), "scaffold returns FRuitkNode, not void");
-  assert.ok(!vd.text.includes("void __rui_setup_"), "no void scaffold remains");
-  assert.ok(vd.text.includes("return (__rui_rn);"), "fragment early return neutralizes IN PLACE (legal now)");
-  assert.ok(/return __rui_rn;\n\}/.test(vd.text), "synthetic tail return closes every control path (no C4715)");
+  assert.ok(vd.text.includes("FRuitkNode __ruitk_setup_SimpleCounter"), "scaffold returns FRuitkNode, not void");
+  assert.ok(!vd.text.includes("void __ruitk_setup_"), "no void scaffold remains");
+  assert.ok(vd.text.includes("return (__ruitk_rn);"), "fragment early return neutralizes IN PLACE (legal now)");
+  assert.ok(/return __ruitk_rn;\n\}/.test(vd.text), "synthetic tail return closes every control path (no C4715)");
 });
 
-test("TB-28: `return null;` neutralizes to __rui_rn inside the setup scaffold", () => {
+test("TB-28: `return null;` neutralizes to __ruitk_rn inside the setup scaffold", () => {
   const source = [
     "export FRuitkNode Gate() {",
     "\tif (Hidden) {",
@@ -142,8 +142,8 @@ test("TB-28: `return null;` neutralizes to __rui_rn inside the setup scaffold", 
     "}",
   ].join("\n");
   const vd = buildVirtualCpp(source);
-  assert.ok(vd.text.includes("FRuitkNode __rui_setup_Gate"), "scaffold returns FRuitkNode");
-  assert.ok(vd.text.includes("return __rui_rn;\n\t}"), "the null token neutralizes in place (typed, legal)");
+  assert.ok(vd.text.includes("FRuitkNode __ruitk_setup_Gate"), "scaffold returns FRuitkNode");
+  assert.ok(vd.text.includes("return __ruitk_rn;\n\t}"), "the null token neutralizes in place (typed, legal)");
   assert.ok(!/\breturn null;/.test(vd.text), "raw `null` never reaches clangd");
 });
 
@@ -295,7 +295,7 @@ test("§2 lifter: markup expressions become mapped code regions (events, directi
   assert.ok(vir !== null && vd.map.virtualToSource(vir) === at, "attr-expr offsets round-trip");
   // Empty-setup components still scaffold (HelloWorld shape).
   const hw = buildVirtualCpp('component Tiny { return ( <Spacer Size={ FVector2D(1.0f, 2.0f) } /> ); }', "Tiny");
-  assert.ok(hw.text.includes("__rui_setup_Tiny"), "empty-setup scaffold present");
+  assert.ok(hw.text.includes("__ruitk_setup_Tiny"), "empty-setup scaffold present");
   assert.ok(hw.text.includes("FVector2D(1.0f, 2.0f)"), "its attr expr lifted");
 });
 
@@ -310,7 +310,7 @@ test("§2 prefix: qualified real-header hooks get decltype adapters; imported co
   ].join("\n");
   const vd = buildVirtualCpp(src, "Q");
   assert.ok(
-    vd.text.includes("namespace RuitkDoom { template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto UseDoomGame(TArgs&&... Args) -> decltype(UseDoomGame(Ctx, static_cast<TArgs&&>(Args)...)); }"),
+    vd.text.includes("namespace RuitkDoom { template <typename... TArgs, typename = typename __ruitk_enable_if<!__ruitk_ctx_first<TArgs...>>::type> auto UseDoomGame(TArgs&&... Args) -> decltype(UseDoomGame(Ctx, static_cast<TArgs&&>(Args)...)); }"),
     "qualified-hook adapter emitted inside its namespace",
   );
   // A comment mentioning a qualified hook must NOT produce an adapter (code-aware scan).
@@ -395,7 +395,7 @@ test("clangd proxy degrades gracefully when clangd is absent", async () => {
 
 // ── §4 markup-everywhere: the virtual doc is jsx-aware everywhere code is emitted ──────────
 
-test("virtual doc: value markup in setup neutralizes to __rui_rn and lifts its expressions", () => {
+test("virtual doc: value markup in setup neutralizes to __ruitk_rn and lifts its expressions", () => {
   const source = [
     "export component CardStack {",
     "\tint32 Total = 3;",
@@ -412,9 +412,9 @@ test("virtual doc: value markup in setup neutralizes to __rui_rn and lifts its e
   const doc = buildVirtualCpp(source, "CardStack");
   assert.ok(!doc.text.includes("<VerticalBox"), "no raw markup reaches the virtual TU");
   assert.ok(!doc.text.includes("<Spacer"), "bare `=` markup neutralized too");
-  assert.ok(doc.text.includes("auto Card = (__rui_rn);"), "paren value markup reads as a typed placeholder");
-  assert.ok(doc.text.includes("FRuitkNode Bare = __rui_rn;"), "bare value markup reads as a typed placeholder");
-  assert.ok(doc.text.includes("extern FRuitkNode __rui_rn;"), "the placeholder is declared in the prelude");
+  assert.ok(doc.text.includes("auto Card = (__ruitk_rn);"), "paren value markup reads as a typed placeholder");
+  assert.ok(doc.text.includes("FRuitkNode Bare = __ruitk_rn;"), "bare value markup reads as a typed placeholder");
+  assert.ok(doc.text.includes("extern FRuitkNode __ruitk_rn;"), "the placeholder is declared in the prelude");
   // the nested attr expr got its own mapped region
   const attrExpr = "\nFText::AsNumber(Total)\n";
   const virAt = doc.text.indexOf(attrExpr);
@@ -434,7 +434,7 @@ test("virtual doc: short-circuit markup in an attr expr desugars to a ternary pl
   ].join("\n");
   const doc = buildVirtualCpp(source, "Gate");
   assert.ok(!doc.text.includes("<TextBlock"), "nested markup neutralized");
-  assert.ok(doc.text.includes("? __rui_rn : __rui_rn"), "short-circuit desugars like codegen's ternary");
+  assert.ok(doc.text.includes("? __ruitk_rn : __ruitk_rn"), "short-circuit desugars like codegen's ternary");
   assert.ok(doc.text.includes("\nGetLabel()\n"), "the nested markup's own attr expr still lifts");
 });
 
@@ -452,7 +452,7 @@ test("virtual doc: statement-level early markup returns neutralize without doubl
   ].join("\n");
   const doc = buildVirtualCpp(source, "Early");
   assert.ok(!doc.text.includes("<TextBlock"), "early-return window neutralized in setup");
-  assert.ok(doc.text.includes("return ( __rui_rn );") || doc.text.includes("return (__rui_rn);"), "the early return still reads as a real return");
+  assert.ok(doc.text.includes("return ( __ruitk_rn );") || doc.text.includes("return (__ruitk_rn);"), "the early return still reads as a real return");
   const first = doc.text.indexOf("FText::AsNumber(1)");
   const second = doc.text.indexOf("FText::AsNumber(1)", first + 1);
   assert.ok(first >= 0, "the early window's attr expr lifts once (via comp.returns)");

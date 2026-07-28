@@ -43,7 +43,7 @@ static FRuitkNodeArray ActivationProbe_UetkxImpl(FRuitkContext& Ctx, const FActi
 	return ActivationProbe_UetkxBody_8B4CBBB7(Ctx, Props, children);
 }
 static const FName GActivationProbeUetkxId = Ruitk::RegisterComponentId((void*)&ActivationProbe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_components_ActivationProbe_ActivationProbe::ActivationProbe")));
-static constexpr uint32 ActivationProbe_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ActivationProbe_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ActivationProbe(FActivationProbeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ActivationProbe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

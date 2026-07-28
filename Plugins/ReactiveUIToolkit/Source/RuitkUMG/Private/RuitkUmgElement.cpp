@@ -51,12 +51,12 @@ namespace
 			UClass* WidgetClass = Props.WidgetClass.Get();
 			if (!World || !WidgetClass)
 			{
-				return SNew(STextBlock).Text(NSLOCTEXT("ReactiveUI", "UmgMissing", "<UMG: class/world unset>"));
+				return SNew(STextBlock).Text(NSLOCTEXT("Ruitk", "UmgMissing", "<UMG: class/world unset>"));
 			}
 			UUserWidget* Widget = ::CreateWidget<UUserWidget>(World, TSubclassOf<UUserWidget>(WidgetClass));
 			if (!Widget)
 			{
-				return SNew(STextBlock).Text(NSLOCTEXT("ReactiveUI", "UmgFailed", "<UMG: CreateWidget failed>"));
+				return SNew(STextBlock).Text(NSLOCTEXT("Ruitk", "UmgFailed", "<UMG: CreateWidget failed>"));
 			}
 			// Apply the initial prop map, then TakeWidget -> SObjectWidget (holds the strong UObject
 			// ref: the hosted widget lives exactly as long as its Slate representation, UMG's contract).

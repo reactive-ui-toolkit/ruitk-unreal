@@ -11,7 +11,7 @@ const ITEMS: Array<[string, ReactNode]> = [
   [
     'Hooks must be unconditional',
     <>Hook state is positional, so a hook inside an <code>@if</code>/<code>@for</code> desyncs the
-      slots. Call every hook at the top level. Enable <code>rui.StrictMode</code> in dev to catch
+      slots. Call every hook at the top level. Enable <code>ruitk.StrictMode</code> in dev to catch
       slip-ups early.</>,
   ],
   [

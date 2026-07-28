@@ -47,7 +47,7 @@ static FRuitkNodeArray CycleA_UetkxImpl(FRuitkContext& Ctx, const FCycleAUetkxPr
 	return CycleA_UetkxBody_4529A4C1(Ctx, Props, children);
 }
 static const FName GCycleAUetkxId = Ruitk::RegisterComponentId((void*)&CycleA_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_CycleProof_CycleA::CycleA")));
-static constexpr uint32 CycleA_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 CycleA_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode CycleA(FCycleAUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CycleA_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

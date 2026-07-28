@@ -285,7 +285,7 @@ void FUetkxHmrController::NotifyCodegen(int32 NumChanged, int32 NumErrors, const
 	Status.Errors = NumErrors;
 	if (NumErrors > 0)
 	{
-		// Keep a short, newest-first tail for the window; the "ReactiveUI" Message Log has the
+		// Keep a short, newest-first tail for the window; the "Ruitk" Message Log has the
 		// detail. A STANDING error re-reports on every sweep (saves of unrelated files, the
 		// stale-poll, every editor-activation poll — the alt-tab storm, TB-14): identical
 		// consecutive reports bump a ×N on the newest row instead of inserting a new one.

@@ -83,7 +83,7 @@ procedure); a drift is a release blocker until reconciled or `.pending`-pinned.
 - Packaging sanity when shipping the plugin: `scripts/package-plugin.ps1` per supported engine
   version (`-StrictIncludes` is what Fab's toolchain effectively does), then the
   **packaged-fidelity test**: unzip into a FRESH project, enable the plugin, expect the
-  `ReactiveUI <ver> loaded` banner + the demo renders (see `field-test-editor`).
+  `Reactive UI Toolkit <ver> loaded` banner + the demo renders (see `field-test-editor`).
 
 ## 5. Commit, merge, fast-forward
 

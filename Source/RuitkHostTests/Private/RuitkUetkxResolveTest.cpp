@@ -51,7 +51,7 @@ bool FRuitkUetkxResolveTest::RunTest(const FString&)
 	{ return TestFalse(FString::Printf(TEXT("diags do NOT contain %s"), Code), C.Contains(FString(Code))); };
 
 	// ── scratch tree (fixture-mode resolver: ~/ = root, flat, no module boundary) ─────────────
-	const FString Root = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("ResolveTest"));
+	const FString Root = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("ResolveTest"));
 	FM.DeleteDirectory(*Root, false, true);
 	FM.MakeDirectory(*(Root / TEXT("Screens")), true);
 	FM.MakeDirectory(*(Root / TEXT("hooks")), true);
@@ -434,7 +434,7 @@ bool FRuitkUetkxResolveTest::RunTest(const FString&)
 	}
 
 	// ── 2308: module boundary (real-mode resolver with *.Build.cs module roots) ────────────────
-	const FString Root2 = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("ResolveTest2"));
+	const FString Root2 = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("ResolveTest2"));
 	FM.DeleteDirectory(*Root2, false, true);
 	FM.MakeDirectory(*(Root2 / TEXT("ModA")), true);
 	FM.MakeDirectory(*(Root2 / TEXT("ModB")), true);

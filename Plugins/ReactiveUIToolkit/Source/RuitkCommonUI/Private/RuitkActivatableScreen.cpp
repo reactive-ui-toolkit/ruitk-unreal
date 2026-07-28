@@ -74,7 +74,7 @@ TSharedRef<SWidget> URuitkActivatableScreen::RebuildWidget()
 	if (IsDesignTime())
 	{
 		return SNew(STextBlock)
-			.Text(FText::Format(NSLOCTEXT("ReactiveUI", "ActivatableDesignTime", "[ReactiveUI screen: {0}]"),
+			.Text(FText::Format(NSLOCTEXT("Ruitk", "ActivatableDesignTime", "[Reactive UI Toolkit screen: {0}]"),
 								FText::FromName(ComponentName.IsNone() ? FName(TEXT("<unset>")) : ComponentName)));
 	}
 	RefreshInputMethod();
@@ -192,6 +192,6 @@ void URuitkActivatableScreen::ReleaseSlateResources(bool bReleaseChildren)
 #if WITH_EDITOR
 const FText URuitkActivatableScreen::GetPaletteCategory()
 {
-	return NSLOCTEXT("ReactiveUI", "PaletteCategory", "ReactiveUI");
+	return NSLOCTEXT("Ruitk", "PaletteCategory", "Reactive UI Toolkit");
 }
 #endif

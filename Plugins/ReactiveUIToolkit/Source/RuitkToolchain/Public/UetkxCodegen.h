@@ -4,7 +4,7 @@
 // committed sibling `Foo.uetkx.inl` — reflection-free C++ (no UCLASS/UPROPERTY, D-19.2):
 // a typed props struct, the component function (setup spliced VERBATIM with hooks
 // auto-prefixed to Ctx.*), the markup lowered to the D-33 builder vocabulary, the baked
-// __RUI_HOOK_SIG constant (state-reset detection, Phase 4), Ruitk::RegisterComponentId, and
+// __RUITK_HOOK_SIG constant (state-reset detection, Phase 4), Ruitk::RegisterComponentId, and
 // an inline wrapper `FRuitkNode <Name>(Props, Children, Key)` for cross-component references.
 // FText string literals emit as NSLOCTEXT (self-namespaced per file — D-32).
 
@@ -65,7 +65,7 @@ public:
 	static FString FileNamespaceFor(const FString& ProjectRelPath, const FString& Basename);
 
 	/** The markup vocabulary as JSON — elements/attrs (typed), style keys, slot keys, hooks.
-	 *  RuitkExportSchema writes this to Saved/ReactiveUI/schema.json for the LSP (Phase 5). */
+	 *  RuitkExportSchema writes this to Saved/ReactiveUIToolkit/schema.json for the LSP (Phase 5). */
 	static FString ExportSchemaJson();
 
 	/** R13 — engine-environment brush names (the FCoreStyle set). The toolchain deliberately

@@ -26,7 +26,7 @@ bool FRuitkBootTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[boot] 1/3 plugin + modules loaded"));
 	TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("ReactiveUIToolkit"));
-	if (!TestTrue(TEXT("ReactiveUI plugin found + enabled"), Plugin.IsValid() && Plugin->IsEnabled()))
+	if (!TestTrue(TEXT("ReactiveUIToolkit plugin found + enabled"), Plugin.IsValid() && Plugin->IsEnabled()))
 	{
 		return false;
 	}

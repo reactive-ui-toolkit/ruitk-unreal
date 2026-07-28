@@ -42,7 +42,7 @@ TSharedRef<FRuitkRoot> FRuitkRoot::CreateInViewport(FRuitkNode RootNode, int32 Z
 	if (Viewport == nullptr)
 	{
 		UE_LOG(LogRuitkSlate, Error,
-			   TEXT("[ReactiveUI] CreateInViewport: no game viewport (PIE not running?) — root left detached"));
+			   TEXT("[Ruitk] CreateInViewport: no game viewport (PIE not running?) — root left detached"));
 		return Root;
 	}
 	Viewport->AddViewportWidgetContent(Root->GetWidget(), ZOrder);

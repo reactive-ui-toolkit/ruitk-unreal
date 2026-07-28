@@ -10,7 +10,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuitkExportSchema, Log, All);
 
 int32 URuitkExportSchemaCommandlet::Main(const FString& Params)
 {
-	const FString Path = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("schema.json"));
+	const FString Path = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("schema.json"));
 	if (!FFileHelper::SaveStringToFile(FUetkxCodegen::ExportSchemaJson(), *Path,
 									   FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 	{

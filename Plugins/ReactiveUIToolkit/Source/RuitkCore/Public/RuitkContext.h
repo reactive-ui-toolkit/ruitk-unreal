@@ -7,7 +7,7 @@
 // the honest limitation the plan records).
 //
 // RULES OF HOOKS: top level of the render function only — stable call order every render.
-// The positional-slot model depends on it; the dev validator (rui.HookValidation) diagnoses
+// The positional-slot model depends on it; the dev validator (ruitk.HookValidation) diagnoses
 // violations.
 
 #pragma once

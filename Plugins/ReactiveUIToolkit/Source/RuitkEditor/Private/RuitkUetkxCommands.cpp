@@ -9,7 +9,7 @@
 #include "Styling/AppStyle.h"
 #include "UetkxHmrController.h"
 
-#define LOCTEXT_NAMESPACE "ReactiveUetkx"
+#define LOCTEXT_NAMESPACE "RuitkUetkx"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkCmd, Log, All);
 

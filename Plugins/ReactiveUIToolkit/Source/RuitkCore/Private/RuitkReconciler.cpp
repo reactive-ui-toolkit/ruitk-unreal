@@ -66,7 +66,7 @@ void FRuitkReconciler::ForEachLive(TFunctionRef<void(FRuitkReconciler&)> Fn)
 
 void FRuitkReconciler::Render(FRuitkNode RootNode)
 {
-	checkf(IsInGameThread(), TEXT("ReactiveUI: Render must run on the game thread (D-15)"));
+	checkf(IsInGameThread(), TEXT("Ruitk: Render must run on the game thread (D-15)"));
 	if (RootCurrent == nullptr)
 	{
 		return; // torn down — a render after unmount is a no-op, not a crash [audit]
@@ -97,7 +97,7 @@ void FRuitkReconciler::Render(FRuitkNode RootNode)
 		if (++MountRestarts > MaxRestarts)
 		{
 			UE_LOG(LogRuitkReconciler, Error,
-				   TEXT("[ReactiveUI] Too many re-renders during mount (setState during render?). Aborting mount."));
+				   TEXT("[Ruitk] Too many re-renders during mount (setState during render?). Aborting mount."));
 			bRestart = false;
 			bWorkActive = false;
 			NextUnit = nullptr;
@@ -115,7 +115,7 @@ void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
 	checkf(
 		IsInGameThread(),
 		TEXT(
-			"ReactiveUI: state updates must run on the game thread (D-15; use Ruitk::PostToGameThread from async code)"));
+			"Ruitk: state updates must run on the game thread (D-15; use Ruitk::PostToGameThread from async code)"));
 	if (RootCurrent == nullptr)
 	{
 		return; // torn down — ignore late setState/effect callbacks [audit]
@@ -228,7 +228,7 @@ void FRuitkReconciler::Tick()
 			if (RestartCount > MaxRestarts)
 			{
 				UE_LOG(LogRuitkReconciler, Error,
-					   TEXT("[ReactiveUI] Too many re-renders (setState during render?). Aborting pass."));
+					   TEXT("[Ruitk] Too many re-renders (setState during render?). Aborting pass."));
 				bWorkActive = false;
 				bRestart = false;
 				RestartCount = 0;
@@ -520,7 +520,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 				// rules-of-hooks violation: dispose the cells (effect cleanups included) and
 				// re-render clean instead of letting positional reads serve a neighbor's value.
 				const FString Msg = FString::Printf(
-					TEXT("[ReactiveUI][HMR] %s: hook shape changed by the edit (%d -> %d hooks) — state reset"),
+					TEXT("[Ruitk][HMR] %s: hook shape changed by the edit (%d -> %d hooks) — state reset"),
 					*Fiber->ComponentId.ToString(), State->HmrShapeSnapshot.Num(), State->HookLog.Num());
 				FRuitkDiagnostics::Emit(Msg);
 				UE_LOG(LogRuitkReconciler, Display, TEXT("%s"), *Msg);
@@ -665,11 +665,11 @@ void FRuitkReconciler::HandleRenderFailure(FRuitkFiber* FailedFiber, const FStri
 			// Restart from the root: the boundary renders its fallback next pass; the
 			// poisoned WIP is abandoned (never committed) and reclaimed by BeginRender.
 			bRestart = true;
-			UE_LOG(LogRuitkReconciler, Error, TEXT("[ReactiveUI] render failed: %s (caught by error boundary)"), *Reason);
+			UE_LOG(LogRuitkReconciler, Error, TEXT("[Ruitk] render failed: %s (caught by error boundary)"), *Reason);
 			return;
 		}
 	}
-	UE_LOG(LogRuitkReconciler, Error, TEXT("[ReactiveUI] render failed with no error boundary above: %s"), *Reason);
+	UE_LOG(LogRuitkReconciler, Error, TEXT("[Ruitk] render failed with no error boundary above: %s"), *Reason);
 }
 
 void FRuitkReconciler::AdoptPendingEbActivation(FRuitkFiber* BoundaryFiber)

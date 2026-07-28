@@ -95,7 +95,7 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 
 	// ── the New Component template compiles through the real pipeline ─────────────────────
 	{
-		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("FileActionsTest"));
+		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("FileActionsTest"));
 		IFileManager::Get().DeleteDirectory(*Scratch, false, true);
 		IFileManager::Get().MakeDirectory(*Scratch, true);
 
@@ -126,7 +126,7 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 			FPaths::NormalizeDirectoryName(P);
 			return P;
 		};
-		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("ConfigWalkTest"));
+		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("ConfigWalkTest"));
 		IFileManager::Get().DeleteDirectory(*Scratch, false, true);
 
 		// A fake module `MyMod` (its *.Build.cs marks the module root), with a root-declaring

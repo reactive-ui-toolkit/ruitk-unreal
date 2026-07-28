@@ -26,7 +26,7 @@ struct FUetkxHmrStatus
 };
 
 /** A recent codegen error, for the HMR window's "Recent Errors" list (full detail is in the
- *  "ReactiveUI" Message Log — this is the at-a-glance tail). */
+ *  "Ruitk" Message Log — this is the at-a-glance tail). */
 struct FUetkxHmrError
 {
 	FString When;	 // HH:MM the error was reported

@@ -206,7 +206,7 @@ static FRuitkNodeArray CustomDraw_UetkxImpl(FRuitkContext& Ctx, const FCustomDra
 	return CustomDraw_UetkxBody_4DE9552F(Ctx, Props, children);
 }
 static const FName GCustomDrawUetkxId = Ruitk::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
-static constexpr uint32 CustomDraw_RUI_HOOK_SIG = 0x01D624F6u;
+static constexpr uint32 CustomDraw_RUITK_HOOK_SIG = 0x01D624F6u;
 inline FRuitkNode CustomDraw(FCustomDrawUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CustomDraw_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

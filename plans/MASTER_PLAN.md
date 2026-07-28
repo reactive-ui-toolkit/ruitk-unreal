@@ -242,14 +242,14 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   per widget. The family's three-layer style model (inline `style` dict → `classes` →
   stylesheet) ships its first two layers in v1; the stylesheet layer is Phase 7+. Removal
   semantics: style/event/ref/draw props reset on removal, plain props don't (family contract).
-- **D-14 — Dev diagnostics & naming conventions:** CVar `rui.StrictMode` (dev/editor only)
+- **D-14 — Dev diagnostics & naming conventions:** CVar `ruitk.StrictMode` (dev/editor only)
   double-invokes render functions discarding the first result (flushes impure renders and
   stale-capture bugs — deadlier in C++), plus the Godot port's hook-order signature validation and
-  set-during-render warnings. `rui.Stats` (renders/frame, fibers, patch counts), `rui.DumpTree`,
-  `STATGROUP_ReactiveUI`, and the editor Inspector tab (Phase 8) with flash-on-rerender.
+  set-during-render warnings. `ruitk.Stats` (renders/frame, fibers, patch counts), `ruitk.DumpTree`,
+  `STATGROUP_Ruitk`, and the editor Inspector tab (Phase 8) with flash-on-rerender.
   **Conventions (recorded in CLAUDE.md at Phase 0):** CVars are dotted PascalCase after the `rui.`
   prefix; log categories are per-module `LogRuitkCore` / `LogRuitkSlate` / `LogRuitkUmg` / `LogRuitkInterp`
-  / `LogRuitkEditor`; the MessageLog page name is `"ReactiveUI"` (used by the D-19 watcher de-dup
+  / `LogRuitkEditor`; the MessageLog page name is `"Ruitk"` (used by the D-19 watcher de-dup
   and D-20 interpreter errors).
 - **D-15 — Threading contract** (critique gap 8): every public entry point `checkf(IsInGameThread())`;
   one documented marshaling helper `Ruitk::PostToGameThread(TFunction<void()>)` for async/network
@@ -290,7 +290,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   mirroring `GUITKX####` — shared-semantics codes keep identical numbers; UE-only diagnostics
   (C++-lexis, aggregator, interp-fallback) are allocated from **UETKX3000+** so they never collide
   with family numbers). Port the entire staleness machinery: error-verdict sidecars, mtime-tie
-  content-hash break, compiler fingerprint file (`Saved/ReactiveUI/compiler.fp`), environment
+  content-hash break, compiler fingerprint file (`Saved/ReactiveUIToolkit/compiler.fp`), environment
   hold (GUITKX2507 analogue), orphaned-output sweep, duplicate-binding incumbent rule.
   **Offset unit (decided — the mismatch that forced Godot's `codePoints.ts` retrofit):** all
   `off`/`len` sidecar fields and all `{input, at, expect}` corpus cases are **Unicode code
@@ -602,7 +602,7 @@ ruitk-unreal/                          # repo root IS the demo host project (God
 Generated-per-component (COMMITTED, per D-19): `Foo.uetkx` → `Foo.uetkx.inl` +
 `Foo.uetkx.diags.json` (sidecar, committed? **No** — sidecars are machine-local, gitignored);
 per module: stable `<Module>.Uetkx.gen.cpp` (committed). Machine-local:
-`Saved/ReactiveUI/compiler.fp`.
+`Saved/ReactiveUIToolkit/compiler.fp`.
 
 ---
 
@@ -851,8 +851,8 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   6. Port `style_test.gd` → `Ruitk.Style`; widget tests under `Ruitk.Widgets.*`; a
      `Ruitk.Demos` suite that mounts every demo screen headlessly (NullRHI) — the analogue of
      `demos_test.gd`; focus capture/restore pre/post-commit per FSlateUser (critique gap 6) with a
-     test; ship the `rui.Stats` console overlay (renders/frame, fibers, patch counts) and the
-     `STATGROUP_ReactiveUI` counters (D-14) — the Doom-demo perf-overlay pattern, needed for every
+     test; ship the `ruitk.Stats` console overlay (renders/frame, fibers, patch counts) and the
+     `STATGROUP_Ruitk` counters (D-14) — the Doom-demo perf-overlay pattern, needed for every
      later benchmark.
   7. Demo screen in the host project (hand-written C++ builder API — markup arrives Phase 3/4):
      a counter + a dynamic keyed list + styled panels. Owner playtests in PIE (**field-test
@@ -975,8 +975,8 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   via Ruitk::Named, fallback notes), FRuitkHmr (swap/link/reset/status line; per-file isolation),
   reconciler seams (Ruitk::SetComponentOverride consulted in RenderComponent, per-state
   HmrGeneration + HmrResetHooks, HmrRefreshAll, ForEachLive), RegisterHookSignature ledger,
-  FUetkxWatcher (three triggers + busy/deadman + proof-of-life + MessageLog "ReactiveUI"
-  dedup + resolved line) and rui.Hmr.AutoLiveCoding (default off). Honest limitations recorded:
+  FUetkxWatcher (three triggers + busy/deadman + proof-of-life + MessageLog "Ruitk"
+  dedup + resolved line) and ruitk.Hmr.AutoLiveCoding (default off). Honest limitations recorded:
   TD-019 (first compiled→interp swap resets — representation change), interp events =
   setter-calls (others noted "rebuild required"), effects/memo not interpreted, params render
   defaults under interp. Deferred to later phases per plan: New Component menu + Content
@@ -993,7 +993,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   1. `cppScanner.ts` (C++ lexis, corpus-pinned against the C++ lexer via
      `uetkx-scanner-cases.json` — run in `node --test` AND the C++ automation suite).
   2. `uetkxSchema.ts`: shipped Slate vocabulary generated FROM the prop-map schema (single
-     source) + `Saved/ReactiveUI/schema.json` reader (RuitkExportSchema output) + pre-generated
+     source) + `Saved/ReactiveUIToolkit/schema.json` reader (RuitkExportSchema output) + pre-generated
      engine-builtin schemas per engine version.
   3. `uetkxVirtualDoc.ts` + `HookStubs.h` (real shipped header; signature parity test vs the
      runtime hooks header); `clangdProxy.ts` (child process, request forwarding through the
@@ -1022,7 +1022,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   degradation contract). Delivered: `ide-extensions/lsp-server` (codePoints, cppScanner,
   uetkxMarkup, uetkxFileScan, formatUetkx — every piece corpus-locked to the C++ side via the
   two shared fixtures + srcHash pins, 7/7 `node --test`), uetkxSchema (shipped RuitkExportSchema
-  copy + Saved/ReactiveUI/schema.json walk-up override), hash-gated sidecar diagnostics, live
+  copy + Saved/ReactiveUIToolkit/schema.json walk-up override), hash-gated sidecar diagnostics, live
   parse diagnostics, completions (tag/attr/style/slot/directive/hook), hover, golden-corpus
   formatting with uetkx.config.json walk-up; `vscode-uetkx` (language id, TextMate grammar with
   embedded source.cpp, IPC client, self-contained JS server bundle — one vsix, all platforms —
@@ -1157,11 +1157,11 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      code catalog — GENERATED from the Phase 3 catalog source, docs-drift-checkable), **Config**
      (`uetkx.config.json`, CVars, settings), **Styling**, **Events**, **Signals**, **Context**,
      **Custom rendering** (`SRuitkCanvas`/draw_fn), **Portals**, **Suspense**, **Assets**
-     (`FRuitkAssetRef`/brush lifetime), **Debugging** (`rui.Stats`/`rui.DumpTree`/Inspector),
+     (`FRuitkAssetRef`/brush lifetime), **Debugging** (`ruitk.Stats`/`ruitk.DumpTree`/Inspector),
      Interop guides (UMG/CommonUI/MVVM), Differences vs siblings, Notes & limitations,
      **Known issues**, FAQ, Roadmap.
   3. Editor Inspector tab (fiber tree, hook slots, render counts, flash-on-rerender,
-     click-through to Widget Reflector) — the `rui.Stats` overlay shipped in Phase 2.
+     click-through to Widget Reflector) — the `ruitk.Stats` overlay shipped in Phase 2.
   4. Benchmarks vs baselines: same screen in pure UMG + MVVM bindings vs ours (update latency,
      memory, widget counts); the reorder-spike and pool numbers consolidated into
      `plans/BENCH_BASELINES.md`. Public marketing numbers come from packaged **Test** builds,

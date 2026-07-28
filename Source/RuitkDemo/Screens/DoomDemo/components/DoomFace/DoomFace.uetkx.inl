@@ -108,7 +108,7 @@ static FRuitkNodeArray DoomFace_UetkxImpl(FRuitkContext& Ctx, const FDoomFaceUet
 	return DoomFace_UetkxBody_ACE4B2DD(Ctx, Props, children);
 }
 static const FName GDoomFaceUetkxId = Ruitk::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
-static constexpr uint32 DoomFace_RUI_HOOK_SIG = 0x1676516Fu;
+static constexpr uint32 DoomFace_RUITK_HOOK_SIG = 0x1676516Fu;
 inline FRuitkNode DoomFace(FDoomFaceUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomFace_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

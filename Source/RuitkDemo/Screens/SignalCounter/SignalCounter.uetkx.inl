@@ -126,7 +126,7 @@ static FRuitkNodeArray SignalCounter_UetkxImpl(FRuitkContext& Ctx, const FSignal
 	return SignalCounter_UetkxBody_F1764063(Ctx, Props, children);
 }
 static const FName GSignalCounterUetkxId = Ruitk::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_SignalCounter::SignalCounter")));
-static constexpr uint32 SignalCounter_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 SignalCounter_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode SignalCounter(FSignalCounterUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SignalCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

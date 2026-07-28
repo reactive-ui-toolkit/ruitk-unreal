@@ -30,5 +30,5 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: "Relevant lines from Saved/Logs/<Project>.log, the Message Log (\"ReactiveUI\" page), or UETKX#### diagnostics"
+      description: "Relevant lines from Saved/Logs/<Project>.log, the Message Log (\"Reactive UI Toolkit\" page), or UETKX#### diagnostics"
       render: text

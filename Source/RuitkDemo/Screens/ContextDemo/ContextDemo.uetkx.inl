@@ -88,7 +88,7 @@ static FRuitkNodeArray ContextDemo_UetkxImpl(FRuitkContext& Ctx, const FContextD
 	return ContextDemo_UetkxBody_73D2053D(Ctx, Props, children);
 }
 static const FName GContextDemoUetkxId = Ruitk::RegisterComponentId((void*)&ContextDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
-static constexpr uint32 ContextDemo_RUI_HOOK_SIG = 0xF574B6D3u;
+static constexpr uint32 ContextDemo_RUITK_HOOK_SIG = 0xF574B6D3u;
 inline FRuitkNode ContextDemo(FContextDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ContextDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

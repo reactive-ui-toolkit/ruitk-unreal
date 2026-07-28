@@ -77,7 +77,7 @@ static FRuitkNodeArray RouterHome_UetkxImpl(FRuitkContext& Ctx, const FRouterHom
 	return RouterHome_UetkxBody_A79A194F(Ctx, Props, children);
 }
 static const FName GRouterHomeUetkxId = Ruitk::RegisterComponentId((void*)&RouterHome_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterHome_RouterHome::RouterHome")));
-static constexpr uint32 RouterHome_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 RouterHome_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode RouterHome(FRouterHomeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&RouterHome_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

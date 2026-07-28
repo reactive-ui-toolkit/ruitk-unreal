@@ -2,7 +2,7 @@
 //
 // Ruitk.Uetkx.Codegen — compiles real .uetkx sources through the full pipeline
 // (file scan → markup parse → C++ emit) and pins the generated shapes: props struct +
-// Equals, hook auto-prefixing (Ctx.*), the baked __RUI_HOOK_SIG, NSLOCTEXT for text,
+// Equals, hook auto-prefixing (Ctx.*), the baked __RUITK_HOOK_SIG, NSLOCTEXT for text,
 // registration, control-flow lowering, and the diagnostics that must fail a compile.
 // (The generated code COMPILING is proven end-to-end by the gallery conversion milestone —
 // its .inl files build into RuitkDemo through the aggregator.)
@@ -151,7 +151,7 @@ export component Counter(StartAt: int32 = 0) {
 							 BodyNameOf(Out.Inl), BodyNameOf(Edited.Inl));
 			}
 		}
-		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUI_HOOK_SIG = 0x")));
+		TestTrue(TEXT("hook sig baked"), Out.Inl.Contains(TEXT("Counter_RUITK_HOOK_SIG = 0x")));
 		TestTrue(TEXT("wrapper for cross-component refs"), Out.Inl.Contains(TEXT("inline FRuitkNode Counter(")));
 		TestTrue(TEXT("event lowered with the Value payload"),
 				 Out.Inl.Contains(

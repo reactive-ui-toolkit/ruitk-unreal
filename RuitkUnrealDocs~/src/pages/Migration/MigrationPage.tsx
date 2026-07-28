@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { Alert, Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const LEAF = `// Stage 1 — in the UMG Designer: drop a "ReactiveUI Host" (URuitkHostWidget)
+const LEAF = `// Stage 1 — in the UMG Designer: drop a "Reactive UI Toolkit Host" (URuitkHostWidget)
 // into your EXISTING UserWidget layout and set ComponentName to a registered
 // component. Nothing else about your screen changes.
 RUITK_COMPONENT(InventoryPanel);   // compiled .uetkx components self-register; short names resolve when unambiguous`

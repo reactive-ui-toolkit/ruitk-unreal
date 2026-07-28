@@ -93,7 +93,7 @@ void FRuitkContext::StubSlot(ERuitkHookKind Kind, const TCHAR* HookName, const T
 	{
 		Cell->bWarned = true;
 		WarnOnce(FName(HookName),
-				 FString::Printf(TEXT("[ReactiveUI] %s is a Phase-owned stub (fully wired in %s; the v1 ship gate "
+				 FString::Printf(TEXT("[Ruitk] %s is a Phase-owned stub (fully wired in %s; the v1 ship gate "
 									  "forbids stubs). It consumes its hook slot but does nothing yet."),
 								 HookName, Owner));
 	}

@@ -17,22 +17,22 @@
 struct FRuitkValue;
 class UGameInstance;
 
-UCLASS(BlueprintType, meta = (DisplayName = "ReactiveUI MVVM ViewModel"))
+UCLASS(BlueprintType, meta = (DisplayName = "Reactive UI Toolkit MVVM ViewModel"))
 class RUITKMVVMBRIDGE_API URuitkMvvmViewModel : public UMVVMViewModelBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "Reactive UI Toolkit")
 	int32 IntValue = 0;
 
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "Reactive UI Toolkit")
 	float FloatValue = 0.0f;
 
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "Reactive UI Toolkit")
 	bool BoolValue = false;
 
-	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, FieldNotify, Category = "Reactive UI Toolkit")
 	FText TextValue;
 
 	void SetInt(int32 InValue);

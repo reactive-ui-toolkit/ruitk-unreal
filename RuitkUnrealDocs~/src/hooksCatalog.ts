@@ -35,7 +35,7 @@ export const CORE_HOOKS: HookEntry[] = [
     gotchas: [
       'Setting a value equal (operator==) to the current one bails out — no re-render.',
       'Use the updater form SetCount([](const int32& Prev) { return Prev + 1; }) to read the freshest value from a stale closure.',
-      'Rules of hooks apply: top level of the render function only, stable call order every render (rui.HookValidation diagnoses violations).',
+      'Rules of hooks apply: top level of the render function only, stable call order every render (ruitk.HookValidation diagnoses violations).',
     ],
   },
   {

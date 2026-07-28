@@ -27,7 +27,7 @@ namespace
 	constexpr double DefaultDebounceSeconds = 0.30; // quiet window after the last .uetkx event (settings override)
 	constexpr double StalePollSeconds = 2.0;		// throttle for the (file-I/O) HasStale fallback
 	constexpr double DeadmanSeconds = 30.0;
-	const FName MessageLogName(TEXT("ReactiveUI"));
+	const FName MessageLogName(TEXT("Ruitk"));
 
 	// The quiet window after the last event, from settings (clamped to something sane).
 	double DebounceSeconds()
@@ -277,7 +277,7 @@ void FUetkxWatcher::ReportDiags(const FString& UetkxPath, const TArray<FString>&
 			FOnActionTokenExecuted::CreateLambda([Path, Line, Col]() { UetkxOpenAtLine(Path, Line, Col); })));
 	}
 	Log.Notify(FText::FromString(
-				   FString::Printf(TEXT("ReactiveUI: %s failed to compile"), *FPaths::GetCleanFilename(UetkxPath))),
+				   FString::Printf(TEXT("Ruitk: %s failed to compile"), *FPaths::GetCleanFilename(UetkxPath))),
 			   EMessageSeverity::Error, /*bForce*/ false);
 }
 

@@ -181,7 +181,7 @@ markup-as-value support recorded as **TD-032** (family RFC — same lane as TD-0
 **RESOLVED by the markup-everywhere campaign (2026-07-17,
 `plans/MARKUP_EVERYWHERE_PLAN.md` §4):** markup-as-value is now FIRST-CLASS — it lowers in
 place at every family boundary position (assignment, call argument, ternary, short-circuit),
-the LSP lifts it (typed `__rui_rn` placeholder + mapped inner expressions), AcceptanceLab §10
+the LSP lifts it (typed `__ruitk_rn` placeholder + mapped inner expressions), AcceptanceLab §10
 demos it, and the corrected owner repro (`auto X = (<VerticalBox>…); … { X }`) compiles and
 renders. `UETKX0114` NARROWED to the one still-illegal spelling: a paren-less statement-level
 markup return (`return <Tag/>;`). Rules-of-hooks landed alongside (UETKX0013-0016 — hooks are
@@ -213,7 +213,7 @@ siblings reset when hook order changes?") — before hitting it live.
 edit that CHANGES THE HOOK LIST (add/remove/reorder a `UseState`/`UseMemo`/… call). After
 the Live Coding patch, cells are read positionally by the NEW hook order: hooks silently
 inherit a NEIGHBOR'S value (plausible-looking wrong state), or read type-punned cells. Only
-signal: `[Hooks][order]` log lines, and only when `rui.HookValidation` is on.
+signal: `[Hooks][order]` log lines, and only when `ruitk.HookValidation` is on.
 
 **Root cause:** the family rule — "state preserved on stable hook shape, RESET on a real
 shape change" — is stated in `plans/archive/HMR_V2_PLAN.md` (line ~122) and was implemented
@@ -614,18 +614,18 @@ crisp toast updating its text.
 ## TB-27 — clangd "void function should not return a value" on EVERY early return
 
 **Found:** 2026-07-25, owner: `return (<></>);` before the main return in SimpleCounter showed
-"Void function '__rui_setup_SimpleCounter' should not return a value". Investigation: NOT a
-fragment bug — the vdoc lifted setup into a `void __rui_setup_<Name>` scaffold while early-
-return windows keep their real `return ( … )` glue with the markup neutralized to `__rui_rn`,
+"Void function '__ruitk_setup_SimpleCounter' should not return a value". Investigation: NOT a
+fragment bug — the vdoc lifted setup into a `void __ruitk_setup_<Name>` scaffold while early-
+return windows keep their real `return ( … )` glue with the markup neutralized to `__ruitk_rn`,
 so EVERY early return (element, fragment, and the excludeSpans directive fallback) was illegal
 C++ inside it. The compiler pipeline was proven clean (the same shape lowers to
 `Ruitk::Fragment` via codegen); the second message the owner saw (0114 "must be parenthesized")
 was transient keystroke state, not reproducible from the committed scanners.
 
-**Fix (vdoc):** the scaffold returns `FRuitkNode` (the prelude's `__rui_rn` type) and closes
-with a synthetic `return __rui_rn;` tail so the no-early-return shape has no C4715. Early
+**Fix (vdoc):** the scaffold returns `FRuitkNode` (the prelude's `__ruitk_rn` type) and closes
+with a synthetic `return __ruitk_rn;` tail so the no-early-return shape has no C4715. Early
 returns are now legal in place. Pinned: embeddedCpp tests (fragment early return + tail;
-no `void __rui_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
+no `void __ruitk_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
 
 **Status:** FIXED (LSP 94/94 + smoke; bundle rebuilt — reload the dev host).
 
@@ -645,7 +645,7 @@ so a mid-edit `null…` identifier prefix stays plain code; `null` is not a C++ 
 there are no false positives). They satisfy 2101, anchor the setup split, terminate 0107
 reachability, and codegen lowers them to `return {};` — an empty node array, the exact state
 the error-boundary path already feeds the reconciler. Formatters canonicalize the final form
-to bare `return null;`; the vdoc neutralizes the token to `__rui_rn` (typed by the TB-27
+to bare `return null;`; the vdoc neutralizes the token to `__ruitk_rn` (typed by the TB-27
 FRuitkNode scaffold). NOT implemented (follow-up if the corpus ever exercises it): Unity's
 `return null` → `continue` rewrite INSIDE @for directive bodies — our directive bodies are
 real C++ loops where authors write `continue;` directly.

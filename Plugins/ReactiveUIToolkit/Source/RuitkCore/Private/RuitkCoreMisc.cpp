@@ -10,22 +10,22 @@ DEFINE_STAT(STAT_RuiPlacements);
 DEFINE_STAT(STAT_RuiUpdates);
 DEFINE_STAT(STAT_RuiDeletions);
 
-// ── CVars (rui.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
+// ── CVars (ruitk.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 
 static TAutoConsoleVariable<bool>
-	CVarRuitkTimeSlicing(TEXT("rui.TimeSlicing"), false,
+	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), false,
 					   TEXT("Chunk the ReactiveUI render phase across frames on a budget (commit stays atomic)."));
 
 static TAutoConsoleVariable<float>
-	CVarRuitkFrameBudgetMs(TEXT("rui.FrameBudgetMs"), 8.0f,
-						 TEXT("Render-phase work per frame before parking, when rui.TimeSlicing is on."));
+	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 8.0f,
+						 TEXT("Render-phase work per frame before parking, when ruitk.TimeSlicing is on."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuitkHostNodePool(TEXT("rui.HostNodePool"), true,
+	CVarRuitkHostNodePool(TEXT("ruitk.HostNodePool"), true,
 						TEXT("Recycle childless leaf widgets across keyed-list churn (GO-05). Off to A/B."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuitkHookValidation(TEXT("rui.HookValidation"),
+	CVarRuitkHookValidation(TEXT("ruitk.HookValidation"),
 #if UE_BUILD_SHIPPING
 						  false,
 #else
@@ -34,7 +34,7 @@ static TAutoConsoleVariable<bool>
 						  TEXT("Hook-order mismatch detection (hooks in branches/loops desync slots)."));
 
 static TAutoConsoleVariable<bool>
-	CVarRuitkStrictDiagnostics(TEXT("rui.StrictDiagnostics"),
+	CVarRuitkStrictDiagnostics(TEXT("ruitk.StrictDiagnostics"),
 #if UE_BUILD_SHIPPING
 							 false,
 #else
@@ -42,7 +42,7 @@ static TAutoConsoleVariable<bool>
 #endif
 							 TEXT("Warn on state updates during render and similar misuse."));
 
-static TAutoConsoleVariable<bool> CVarRuitkStrictMode(TEXT("rui.StrictMode"), false,
+static TAutoConsoleVariable<bool> CVarRuitkStrictMode(TEXT("ruitk.StrictMode"), false,
 													TEXT("Dev double-render: render functions run twice, first result "
 														 "discarded (flushes impure renders and stale captures)."));
 

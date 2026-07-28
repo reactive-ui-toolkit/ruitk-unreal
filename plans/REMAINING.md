@@ -22,7 +22,7 @@
 
 *(Protocol history in `archive/HMR_FIELD_TEST.md`. HMR v2 is a Start/Stop MODE:
 Window ▸ ReactiveUetkx Hot Reload, or `ReactiveUetkx.HMR.Start`/`.Stop`; status in
-MessageLog ▸ "ReactiveUI". Owner-only — Live Coding needs a running editor. A failure gets
+MessageLog ▸ "Reactive UI Toolkit". Owner-only — Live Coding needs a running editor. A failure gets
 ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 
 - [x] **UE 5.6 — the full matrix PASSED** (owner declaration 2026-07-25, after the rounds
@@ -75,7 +75,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 - [ ] **Visual spot-checks** (v2 §D, optional but reassuring): string slot values, dynamic
       `Slot.Column` move, WrapBox no-reorder on slot change, NumericEntryBox clamp, `@theme`
       token restyle-not-rebuild, Separator pooling.
-- [ ] **Interop smoke** (v1 checklist §F): ReactiveUI Host in a Blueprint UserWidget renders;
+- [ ] **Interop smoke** (v1 checklist §F): Reactive UI Toolkit Host in a Blueprint UserWidget renders;
       PIE end leaves no lingering-root warnings; `UseField` re-renders on a FieldNotify VM.
 - [ ] **VS2022 extension hands-on** (v1 §E — never formally verified): `build-local.ps1`,
       F5 → experimental instance, colors/completions/diagnostics on a `.uetkx`.

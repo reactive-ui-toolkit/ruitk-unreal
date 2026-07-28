@@ -5,7 +5,7 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 const OURS_IN_THEIRS = `// 1) Register a component (compiled .uetkx components self-register under a file-qualified id; short names resolve when unambiguous).
 RUITK_COMPONENT(InventoryPanel);   // or: Ruitk::RegisterNamedFactory(TEXT("InventoryPanel"), ...);
 
-// 2) In the UMG Designer: drop a "ReactiveUI Host" (URuitkHostWidget) into any
+// 2) In the UMG Designer: drop a "Reactive UI Toolkit Host" (URuitkHostWidget) into any
 //    UserWidget layout and set its ComponentName to "InventoryPanel".
 //    Design time shows a placeholder — live component code never runs in the Designer.
 //    At runtime RebuildWidget() mounts the tree; ReleaseSlateResources unmounts it

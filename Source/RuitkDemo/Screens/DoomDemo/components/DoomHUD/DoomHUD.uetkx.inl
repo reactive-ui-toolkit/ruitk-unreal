@@ -643,7 +643,7 @@ static FRuitkNodeArray DoomHUD_UetkxImpl(FRuitkContext& Ctx, const FDoomHUDUetkx
 	return DoomHUD_UetkxBody_F08953EB(Ctx, Props, children);
 }
 static const FName GDoomHUDUetkxId = Ruitk::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")));
-static constexpr uint32 DoomHUD_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 DoomHUD_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomHUD(FDoomHUDUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomHUD_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

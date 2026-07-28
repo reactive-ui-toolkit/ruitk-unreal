@@ -162,7 +162,7 @@ static FRuitkNodeArray InteropShowcase_UetkxImpl(FRuitkContext& Ctx, const FInte
 	return InteropShowcase_UetkxBody_8217024D(Ctx, Props, children);
 }
 static const FName GInteropShowcaseUetkxId = Ruitk::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
-static constexpr uint32 InteropShowcase_RUI_HOOK_SIG = 0x4EA045DDu;
+static constexpr uint32 InteropShowcase_RUITK_HOOK_SIG = 0x4EA045DDu;
 inline FRuitkNode InteropShowcase(FInteropShowcaseUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&InteropShowcase_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

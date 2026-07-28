@@ -80,7 +80,7 @@ static FRuitkNodeArray LabCard_UetkxImpl(FRuitkContext& Ctx, const FLabCardUetkx
 	return LabCard_UetkxBody_0A2A00D8(Ctx, Props, children);
 }
 static const FName GLabCardUetkxId = Ruitk::RegisterComponentId((void*)&LabCard_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
-static constexpr uint32 LabCard_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 LabCard_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode LabCard(FLabCardUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&LabCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

@@ -60,7 +60,7 @@ static FRuitkNodeArray ReturnNull_UetkxImpl(FRuitkContext& Ctx, const FReturnNul
 	return ReturnNull_UetkxBody_B891A89E(Ctx, Props, children);
 }
 static const FName GReturnNullUetkxId = Ruitk::RegisterComponentId((void*)&ReturnNull_UetkxImpl, FName(TEXT("RuitkUetkx_ReturnNull::ReturnNull")));
-static constexpr uint32 ReturnNull_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ReturnNull_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ReturnNull(FReturnNullUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ReturnNull_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
@@ -76,7 +76,7 @@ static FRuitkNodeArray ReturnNullOnly_UetkxImpl(FRuitkContext& Ctx, const FRetur
 	return ReturnNullOnly_UetkxBody_B891A89E(Ctx, Props, children);
 }
 static const FName GReturnNullOnlyUetkxId = Ruitk::RegisterComponentId((void*)&ReturnNullOnly_UetkxImpl, FName(TEXT("RuitkUetkx_ReturnNull::ReturnNullOnly")));
-static constexpr uint32 ReturnNullOnly_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ReturnNullOnly_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ReturnNullOnly(FReturnNullOnlyUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ReturnNullOnly_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

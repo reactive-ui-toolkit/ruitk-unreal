@@ -137,7 +137,7 @@ namespace Ruitk
 	//    simply never register anything) ─────────────────────────────────────────────────────
 
 	/** Hook-signature ledger, FName-keyed like every identity map (FILE_SCOPED_EXPORTS: the
-	 *  key is the FQN). Interp-era seam: generated code BAKES `__RUI_HOOK_SIG` constants but
+	 *  key is the FQN). Interp-era seam: generated code BAKES `__RUITK_HOOK_SIG` constants but
 	 *  nothing self-registers them since the interpreter died (HMR v2) — live preserve-vs-reset
 	 *  is decided by the reconciler's hook-shape snapshot (TB-13), not this map. Retained as a
 	 *  per-identity ledger for tooling/tests (per-FILE key independence is pinned in the Driver
@@ -152,7 +152,7 @@ namespace Ruitk
 	 *  sequence that changed across a generation boundary resets that component's hook state
 	 *  (v1's interpreter enforced this via its AST signature; v2 detects it at render time).
 	 *  A shape change WITHOUT a generation bump stays what it always was: a rules-of-hooks
-	 *  user error (rui.HookValidation). */
+	 *  user error (ruitk.HookValidation). */
 	RUITKCORE_API void SetHmrHookTracking(bool bActive);
 	RUITKCORE_API bool IsHmrHookTracking();
 	RUITKCORE_API void BumpHmrGeneration();

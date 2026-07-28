@@ -42,7 +42,7 @@ static FRuitkNodeArray ListedCard_UetkxImpl(FRuitkContext& Ctx, const FListedCar
 	return ListedCard_UetkxBody_4258A54F(Ctx, Props, children);
 }
 static const FName GListedCardUetkxId = Ruitk::RegisterComponentId((void*)&ListedCard_UetkxImpl, FName(TEXT("RuitkUetkx_ExportList::ListedCard")));
-static constexpr uint32 ListedCard_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ListedCard_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ListedCard(FListedCardUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ListedCard_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

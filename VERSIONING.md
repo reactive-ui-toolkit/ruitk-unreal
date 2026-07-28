@@ -29,7 +29,7 @@ Examples of minor changes:
 - New hooks, new host elements (tags), new directives
 - New diagnostic codes (may produce new warnings, but don't break builds)
 - New extension features (completions, hover, formatting improvements)
-- New configuration options (`uetkx.config.json` keys, `rui.*` CVars, editor settings)
+- New configuration options (`uetkx.config.json` keys, `ruitk.*` CVars, editor settings)
 - Supporting a NEW Unreal Engine version (additive — see the `engine-catchup` skill)
 
 ### Patch (X.Y.Z)

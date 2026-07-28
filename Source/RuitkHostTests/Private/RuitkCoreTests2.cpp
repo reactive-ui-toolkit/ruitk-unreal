@@ -469,8 +469,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreTimeSlicingTest, "Ruitk.Core.TimeSlic
 bool FRuitkCoreTimeSlicingTest::RunTest(const FString&)
 {
 	CoreTest2::Reset();
-	IConsoleVariable* Slicing = IConsoleManager::Get().FindConsoleVariable(TEXT("rui.TimeSlicing"));
-	IConsoleVariable* Budget = IConsoleManager::Get().FindConsoleVariable(TEXT("rui.FrameBudgetMs"));
+	IConsoleVariable* Slicing = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSlicing"));
+	IConsoleVariable* Budget = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.FrameBudgetMs"));
 	Slicing->Set(true);
 	Budget->Set(0.0f);
 

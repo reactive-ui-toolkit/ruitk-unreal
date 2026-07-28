@@ -24,7 +24,7 @@ TSharedRef<SWidget> URuitkHostWidget::BuildContent()
 	{
 		// The designer must never run live component code — placeholder only.
 		return SNew(STextBlock)
-			.Text(FText::Format(NSLOCTEXT("ReactiveUI", "HostDesignTime", "[ReactiveUI: {0}]"),
+			.Text(FText::Format(NSLOCTEXT("Ruitk", "HostDesignTime", "[Reactive UI Toolkit: {0}]"),
 								FText::FromName(ComponentName.IsNone() ? FName(TEXT("<unset>")) : ComponentName)));
 	}
 	{
@@ -42,15 +42,15 @@ TSharedRef<SWidget> URuitkHostWidget::BuildContent()
 				List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 			}
 			return SNew(STextBlock)
-				.Text(FText::Format(NSLOCTEXT("ReactiveUI", "HostAmbiguous",
-											  "[ReactiveUI: '{0}' is ambiguous — use a qualified id: {1}]"),
+				.Text(FText::Format(NSLOCTEXT("Ruitk", "HostAmbiguous",
+											  "[Reactive UI Toolkit: '{0}' is ambiguous — use a qualified id: {1}]"),
 									FText::FromName(ComponentName), FText::FromString(List)));
 		}
 		if (Verdict != Ruitk::EResolveNamed::Hit)
 		{
 			return SNew(STextBlock)
 				.Text(FText::Format(
-					NSLOCTEXT("ReactiveUI", "HostUnknown", "[ReactiveUI: '{0}' is not a registered component]"),
+					NSLOCTEXT("Ruitk", "HostUnknown", "[Reactive UI Toolkit: '{0}' is not a registered component]"),
 					FText::FromName(ComponentName)));
 		}
 	}
@@ -107,6 +107,6 @@ void URuitkHostWidget::ReleaseSlateResources(bool bReleaseChildren)
 #if WITH_EDITOR
 const FText URuitkHostWidget::GetPaletteCategory()
 {
-	return NSLOCTEXT("ReactiveUI", "PaletteCategory", "ReactiveUI");
+	return NSLOCTEXT("Ruitk", "PaletteCategory", "Reactive UI Toolkit");
 }
 #endif

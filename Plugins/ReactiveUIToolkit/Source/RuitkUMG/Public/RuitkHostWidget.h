@@ -17,7 +17,7 @@
 
 class FRuitkRoot;
 
-UCLASS(meta = (DisplayName = "ReactiveUI Host"))
+UCLASS(meta = (DisplayName = "Reactive UI Toolkit Host"))
 class RUITKUMG_API URuitkHostWidget : public UWidget
 {
 	GENERATED_BODY()
@@ -25,23 +25,23 @@ class RUITKUMG_API URuitkHostWidget : public UWidget
 public:
 	/** The registered component to mount (a compiled .uetkx component's name, or anything
 	 *  self-registered via Ruitk::RegisterNamedFactory). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reactive UI Toolkit")
 	FName ComponentName;
 
 	/** Initial props for the hosted component (TD-028) — the designer/BP-settable channel.
 	 *  Published into the tree as context; read with Ruitk::Umg::UseHostProp("Name"). Edits
 	 *  re-publish through SynchronizeProperties (or set at runtime and call it yourself). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reactive UI Toolkit")
 	TMap<FName, FString> InitialProps;
 
 	/** Optional FieldNotify viewmodel handed to the hosted tree (TD-028). Components fetch it
 	 *  with Ruitk::Umg::UseHostViewModel and subscribe via Ruitk::Umg::UseField. This UPROPERTY
 	 *  holds the strong ref; the tree sees it weakly (stale-VM policy: quiet default). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reactive UI Toolkit")
 	TScriptInterface<INotifyFieldValueChanged> ViewModel;
 
 	/** Re-mount (e.g. after changing ComponentName at runtime). */
-	UFUNCTION(BlueprintCallable, Category = "ReactiveUI")
+	UFUNCTION(BlueprintCallable, Category = "Reactive UI Toolkit")
 	void Remount();
 
 	// UWidget

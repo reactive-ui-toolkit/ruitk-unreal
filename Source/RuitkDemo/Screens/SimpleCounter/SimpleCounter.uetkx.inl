@@ -96,7 +96,7 @@ static FRuitkNodeArray SimpleCounter_UetkxImpl(FRuitkContext& Ctx, const FSimple
 	return SimpleCounter_UetkxBody_821B1C34(Ctx, Props, children);
 }
 static const FName GSimpleCounterUetkxId = Ruitk::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
-static constexpr uint32 SimpleCounter_RUI_HOOK_SIG = 0x986DF5F6u;
+static constexpr uint32 SimpleCounter_RUITK_HOOK_SIG = 0x986DF5F6u;
 inline FRuitkNode SimpleCounter(FSimpleCounterUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleCounter_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

@@ -47,7 +47,7 @@ static FRuitkNodeArray SimpleUseEffect_UetkxImpl(FRuitkContext& Ctx, const FSimp
 	return SimpleUseEffect_UetkxBody_2E73F0B0(Ctx, Props, children);
 }
 static const FName GSimpleUseEffectUetkxId = Ruitk::RegisterComponentId((void*)&SimpleUseEffect_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SimpleUseEffect_SimpleUseEffect::SimpleUseEffect")));
-static constexpr uint32 SimpleUseEffect_RUI_HOOK_SIG = 0x7B306E79u;
+static constexpr uint32 SimpleUseEffect_RUITK_HOOK_SIG = 0x7B306E79u;
 inline FRuitkNode SimpleUseEffect(FSimpleUseEffectUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SimpleUseEffect_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

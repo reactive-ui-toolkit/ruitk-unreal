@@ -18,18 +18,18 @@ class FRuitkRoot;
 class UCommonInputSubsystem;
 enum class ECommonInputType : uint8;
 
-UCLASS(meta = (DisplayName = "ReactiveUI Activatable Screen"))
+UCLASS(meta = (DisplayName = "Reactive UI Toolkit Activatable Screen"))
 class RUITKCOMMONUI_API URuitkActivatableScreen : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 
 public:
 	/** The registered component to host (a compiled .uetkx component or a Ruitk::RegisterNamedFactory). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reactive UI Toolkit")
 	FName ComponentName;
 
 	/** Is this screen currently active on its stack? (mirrors the state pushed into the tree). */
-	UFUNCTION(BlueprintCallable, Category = "ReactiveUI")
+	UFUNCTION(BlueprintCallable, Category = "Reactive UI Toolkit")
 	bool IsScreenActive() const { return State.bActive; }
 
 	/** The activation state currently published to the hosted tree. */

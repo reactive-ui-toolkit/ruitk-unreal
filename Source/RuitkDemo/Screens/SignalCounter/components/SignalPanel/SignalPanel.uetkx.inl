@@ -34,7 +34,7 @@ static FRuitkNodeArray SignalPanel_UetkxImpl(FRuitkContext& Ctx, const FSignalPa
 	return SignalPanel_UetkxBody_B772CD9A(Ctx, Props, children);
 }
 static const FName GSignalPanelUetkxId = Ruitk::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")));
-static constexpr uint32 SignalPanel_RUI_HOOK_SIG = 0xD50F149Cu;
+static constexpr uint32 SignalPanel_RUITK_HOOK_SIG = 0xD50F149Cu;
 inline FRuitkNode SignalPanel(FSignalPanelUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&SignalPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

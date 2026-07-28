@@ -62,7 +62,7 @@ public:
 
 	bool IsMounted() const { return RootCurrent != nullptr; }
 
-	// --- introspection (tests / rui.Stats / the Inspector) ---
+	// --- introspection (tests / ruitk.Stats / the Inspector) ---
 	FRuitkFiber* GetRootFiber() const { return RootCurrent; }
 	int32 NumLiveFibers() const { return Slab.NumLive(); }
 	IRuitkHostConfig& GetHost() { return Host; }

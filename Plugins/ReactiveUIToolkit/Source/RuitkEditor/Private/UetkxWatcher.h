@@ -7,7 +7,7 @@
 //   3. a standing 2s HasStale poll ("save in VS Code while the editor sits in background" —
 //      a stale file once survived 40 min unnoticed in the field)
 // A sweep compiles stale files (FUetkxDriver), pushes de-duplicated diagnostics to the
-// "ReactiveUI" MessageLog (append-only docks spam — each distinct error set once, a green
+// "Ruitk" MessageLog (append-only docks spam — each distinct error set once, a green
 // resolved line when it heals), then hands the codegen result to FUetkxHmrController
 // (HMR v2, D-HMR-4/8): when the HMR mode is active it triggers a Live Coding compile whose
 // patch-complete refreshes every live root. Busy guard with a 30s deadman (a crashed sweep

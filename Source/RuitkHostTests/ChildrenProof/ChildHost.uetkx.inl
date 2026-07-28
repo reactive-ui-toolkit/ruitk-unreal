@@ -37,7 +37,7 @@ static FRuitkNodeArray ChildHost_UetkxImpl(FRuitkContext& Ctx, const FChildHostU
 	return ChildHost_UetkxBody_82FA7DEF(Ctx, Props, children);
 }
 static const FName GChildHostUetkxId = Ruitk::RegisterComponentId((void*)&ChildHost_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_ChildrenProof_ChildHost::ChildHost")));
-static constexpr uint32 ChildHost_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 ChildHost_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode ChildHost(FChildHostUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&ChildHost_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

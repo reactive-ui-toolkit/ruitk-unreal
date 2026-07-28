@@ -26,7 +26,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuitkEditor, Log, All);
 
 namespace
 {
-	const FName GRuitkPreviewTabId(TEXT("ReactiveUIPreview"));
+	const FName GRuitkPreviewTabId(TEXT("RuitkPreview"));
 	const FName GRuitkHmrTabId(TEXT("ReactiveUetkxHmr"));
 } // namespace
 
@@ -71,8 +71,8 @@ public:
 		FMessageLogInitializationOptions Options;
 		Options.bShowFilters = true;
 		Options.bShowPages = false;
-		MessageLogModule.RegisterLogListing(TEXT("ReactiveUI"),
-											NSLOCTEXT("ReactiveUI", "MessageLogLabel", "ReactiveUI"), Options);
+		MessageLogModule.RegisterLogListing(TEXT("Ruitk"),
+											NSLOCTEXT("Ruitk", "MessageLogLabel", "Reactive UI Toolkit"), Options);
 		Watcher = MakeUnique<FUetkxWatcher>();
 		Watcher->Start();
 
@@ -126,7 +126,7 @@ public:
 		if (FModuleManager::Get().IsModuleLoaded(TEXT("MessageLog")))
 		{
 			FModuleManager::GetModuleChecked<FMessageLogModule>(TEXT("MessageLog"))
-				.UnregisterLogListing(TEXT("ReactiveUI"));
+				.UnregisterLogListing(TEXT("Ruitk"));
 		}
 	}
 
@@ -145,9 +145,9 @@ private:
 		FGlobalTabmanager::Get()
 			->RegisterNomadTabSpawner(GRuitkPreviewTabId,
 									  FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnPreviewTab))
-			.SetDisplayName(NSLOCTEXT("ReactiveUI", "PreviewTabTitle", "ReactiveUI Preview"))
+			.SetDisplayName(NSLOCTEXT("Ruitk", "PreviewTabTitle", "Reactive UI Toolkit Preview"))
 			.SetTooltipText(
-				NSLOCTEXT("ReactiveUI", "PreviewTabTooltip", "Read-only live preview of a .uetkx component"))
+				NSLOCTEXT("Ruitk", "PreviewTabTooltip", "Read-only live preview of a .uetkx component"))
 			.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Viewports"))
 			.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
 			.SetMenuType(ETabSpawnerMenuType::Enabled);
@@ -167,9 +167,9 @@ private:
 		}
 		FGlobalTabmanager::Get()
 			->RegisterNomadTabSpawner(GRuitkHmrTabId, FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnHmrTab))
-			.SetDisplayName(NSLOCTEXT("ReactiveUetkx", "HmrTabTitle", "ReactiveUetkx Hot Reload"))
+			.SetDisplayName(NSLOCTEXT("RuitkUetkx", "HmrTabTitle", "ReactiveUetkx Hot Reload"))
 			.SetTooltipText(
-				NSLOCTEXT("ReactiveUetkx", "HmrTabTooltip", "Start/Stop .uetkx Hot Module Reload (Live Coding)"))
+				NSLOCTEXT("RuitkUetkx", "HmrTabTooltip", "Start/Stop .uetkx Hot Module Reload (Live Coding)"))
 			.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Recompile"))
 			.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
 			.SetMenuType(ETabSpawnerMenuType::Enabled);

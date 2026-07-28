@@ -3,7 +3,7 @@
 // FUetkxFileScan — the .uetkx FILE grammar: preamble directives, `component Name(params) {}`
 // declarations, the body splitter (setup vs the LAST top-level markup `return ( ... )` —
 // family T1.4 useLastReturn parity), and the hook-call sequence (order + kinds) that both the
-// compiler (bakes __RUI_HOOK_SIG) and the Phase 4 interpreter (computes live) hash for the
+// compiler (bakes __RUITK_HOOK_SIG) and the Phase 4 interpreter (computes live) hash for the
 // deliberate state-reset-on-hook-shape-change semantics. Lives in Interp per D-27.
 //
 // Params use the family decl grammar: `Name: Type = Default, ...` (types are C++ type names).

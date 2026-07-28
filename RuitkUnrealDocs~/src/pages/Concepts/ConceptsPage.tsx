@@ -14,12 +14,12 @@ export TTuple<int32, TFunction<void()>> UseCounter(int32 Start) {
 }`
 
 const CVARS: Array<[string, string]> = [
-  ['rui.StrictMode', 'Double-invoke render in dev to surface impure components and effect mistakes (default off).'],
-  ['rui.HookValidation', 'Detect hook-order mismatches between renders (default on in dev, off in shipping).'],
-  ['rui.StrictDiagnostics', 'Warn on misuse such as setting state during render (default on in dev).'],
-  ['rui.TimeSlicing', 'Chunk the render phase across frames (default off).'],
-  ['rui.FrameBudgetMs', 'Per-frame render budget when time-slicing (default 8.0).'],
-  ['rui.HostNodePool', 'Recycle childless leaf widgets instead of reconstructing (default on).'],
+  ['ruitk.StrictMode', 'Double-invoke render in dev to surface impure components and effect mistakes (default off).'],
+  ['ruitk.HookValidation', 'Detect hook-order mismatches between renders (default on in dev, off in shipping).'],
+  ['ruitk.StrictDiagnostics', 'Warn on misuse such as setting state during render (default on in dev).'],
+  ['ruitk.TimeSlicing', 'Chunk the render phase across frames (default off).'],
+  ['ruitk.FrameBudgetMs', 'Per-frame render budget when time-slicing (default 8.0).'],
+  ['ruitk.HostNodePool', 'Recycle childless leaf widgets instead of reconstructing (default on).'],
 ]
 
 export const ConceptsPage: FC = () => (
@@ -82,7 +82,7 @@ export const ConceptsPage: FC = () => (
       The core talks to the engine only through <code>IRuitkHostConfig</code>, so the same runtime
       drives Slate today and the Epic-interop hosts (UMG, CommonUI, MVVM). Behavior is tuned at
       runtime with <code>rui.</code> console variables, and live reconciler counters (renders,
-      commits, placements, updates, deletions) are on <code>stat ReactiveUI</code>:
+      commits, placements, updates, deletions) are on <code>stat Ruitk</code>:
     </Typography>
     <TableContainer sx={{ mb: 2 }}>
       <Table size="small">

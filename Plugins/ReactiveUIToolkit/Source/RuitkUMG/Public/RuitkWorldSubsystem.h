@@ -22,16 +22,16 @@ class RUITKUMG_API URuitkWorldSubsystem : public UWorldSubsystem
 public:
 	/** Mount a registered component over the game viewport. Returns a handle id (for
 	 *  UnmountHandle); INDEX_NONE when the name is unknown. */
-	UFUNCTION(BlueprintCallable, Category = "ReactiveUI")
+	UFUNCTION(BlueprintCallable, Category = "Reactive UI Toolkit")
 	int32 MountNamed(FName ComponentName, int32 ZOrder = 10);
 
 	/** Mount an arbitrary node (C++ callers). */
 	int32 MountNode(FRuitkNode Node, int32 ZOrder = 10);
 
-	UFUNCTION(BlueprintCallable, Category = "ReactiveUI")
+	UFUNCTION(BlueprintCallable, Category = "Reactive UI Toolkit")
 	void UnmountHandle(int32 Handle);
 
-	UFUNCTION(BlueprintCallable, Category = "ReactiveUI")
+	UFUNCTION(BlueprintCallable, Category = "Reactive UI Toolkit")
 	void UnmountAll();
 
 	int32 NumLiveRoots() const { return Roots.Num(); }

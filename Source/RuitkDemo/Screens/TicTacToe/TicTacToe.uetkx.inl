@@ -231,7 +231,7 @@ static FRuitkNodeArray TicTacToe_UetkxImpl(FRuitkContext& Ctx, const FTicTacToeU
 	return TicTacToe_UetkxBody_08DE8C5C(Ctx, Props, children);
 }
 static const FName GTicTacToeUetkxId = Ruitk::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_TicTacToe_TicTacToe::TicTacToe")));
-static constexpr uint32 TicTacToe_RUI_HOOK_SIG = 0x62237E89u;
+static constexpr uint32 TicTacToe_RUITK_HOOK_SIG = 0x62237E89u;
 inline FRuitkNode TicTacToe(FTicTacToeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&TicTacToe_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

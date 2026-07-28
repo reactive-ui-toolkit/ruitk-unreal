@@ -124,5 +124,5 @@ TSharedRef<SWidget> FUetkxPreview::GetWidget() const
 	{
 		return Root->GetWidget();
 	}
-	return SNew(STextBlock).Text(NSLOCTEXT("ReactiveUI", "PreviewUnavailable", "No preview — see the messages below."));
+	return SNew(STextBlock).Text(NSLOCTEXT("Ruitk", "PreviewUnavailable", "No preview — see the messages below."));
 }

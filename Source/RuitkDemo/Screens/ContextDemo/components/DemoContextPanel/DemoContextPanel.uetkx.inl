@@ -50,7 +50,7 @@ static FRuitkNodeArray DemoContextPanel_UetkxImpl(FRuitkContext& Ctx, const FDem
 	return DemoContextPanel_UetkxBody_5E1E4D68(Ctx, Props, children);
 }
 static const FName GDemoContextPanelUetkxId = Ruitk::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
-static constexpr uint32 DemoContextPanel_RUI_HOOK_SIG = 0x3A36D564u;
+static constexpr uint32 DemoContextPanel_RUITK_HOOK_SIG = 0x3A36D564u;
 inline FRuitkNode DemoContextPanel(FDemoContextPanelUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DemoContextPanel_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

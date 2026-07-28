@@ -45,7 +45,7 @@ static FRuitkNodeArray Row_UetkxImpl(FRuitkContext& Ctx, const FRowUetkxProps& P
 	return Row_UetkxBody_0A93FCB4(Ctx, Props, children);
 }
 static const FName GRowUetkxId = Ruitk::RegisterComponentId((void*)&Row_UetkxImpl, FName(TEXT("RuitkUetkx_PrivPairA::Row")));
-static constexpr uint32 Row_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 Row_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode Row(FRowUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&Row_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
@@ -69,7 +69,7 @@ static FRuitkNodeArray PrivPairA_UetkxImpl(FRuitkContext& Ctx, const FPrivPairAU
 	return PrivPairA_UetkxBody_0A93FCB4(Ctx, Props, children);
 }
 static const FName GPrivPairAUetkxId = Ruitk::RegisterComponentId((void*)&PrivPairA_UetkxImpl, FName(TEXT("RuitkUetkx_PrivPairA::PrivPairA")));
-static constexpr uint32 PrivPairA_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 PrivPairA_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode PrivPairA(FPrivPairAUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&PrivPairA_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

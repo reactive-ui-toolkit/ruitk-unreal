@@ -38,7 +38,7 @@ static FRuitkNodeArray HostImportProof_UetkxImpl(FRuitkContext& Ctx, const FHost
 	return HostImportProof_UetkxBody_9F33ABBB(Ctx, Props, children);
 }
 static const FName GHostImportProofUetkxId = Ruitk::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiHostTests_GrammarProof_HostImportProof::HostImportProof")));
-static constexpr uint32 HostImportProof_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 HostImportProof_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode HostImportProof(FHostImportProofUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&HostImportProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

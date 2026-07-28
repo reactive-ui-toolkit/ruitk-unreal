@@ -27,16 +27,16 @@ class RUITKUMG_API URuitkSignalViewModel : public UObject, public INotifyFieldVa
 
 public:
 	// The generic bindable fields (a UMG widget binds to these by name).
-	UPROPERTY(BlueprintReadOnly, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, Category = "Reactive UI Toolkit")
 	int32 Int = 0;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, Category = "Reactive UI Toolkit")
 	float Float = 0.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, Category = "Reactive UI Toolkit")
 	bool Bool = false;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ReactiveUI")
+	UPROPERTY(BlueprintReadOnly, Category = "Reactive UI Toolkit")
 	FText Text;
 
 	/** Typed setters — skip-when-equal, broadcast on change. */

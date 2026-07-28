@@ -68,6 +68,11 @@ namespace
 		// D6 — case-class: PascalCase (commandlet family) first, then ALL-CAPS macros.
 		{ TEXT("\\bRUI(?=[A-Z][a-z])"), TEXT("Ruitk") },
 		{ TEXT("\\bRUI(?!TK)(?=[A-Z_])"), TEXT("RUITK") },
+		// Console variables + baked codegen constants (0.15 identity ruling): user ini/source
+		// lines keep working under the new names; hook-sig constants regenerate via
+		// RuitkCompile anyway — this rule just keeps a not-yet-regenerated tree consistent.
+		{ TEXT("\\brui\\.(?=[A-Z])"), TEXT("ruitk.") },
+		{ TEXT("_RUI_HOOK_SIG"), TEXT("_RUITK_HOOK_SIG") },
 	};
 
 	/** ICU-regex replace-all with a literal replacement. Returns the number of matches. */

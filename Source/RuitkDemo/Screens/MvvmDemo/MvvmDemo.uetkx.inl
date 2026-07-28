@@ -103,7 +103,7 @@ static FRuitkNodeArray MvvmDemo_UetkxImpl(FRuitkContext& Ctx, const FMvvmDemoUet
 	return MvvmDemo_UetkxBody_212F4A7E(Ctx, Props, children);
 }
 static const FName GMvvmDemoUetkxId = Ruitk::RegisterComponentId((void*)&MvvmDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")));
-static constexpr uint32 MvvmDemo_RUI_HOOK_SIG = 0x1676516Fu;
+static constexpr uint32 MvvmDemo_RUITK_HOOK_SIG = 0x1676516Fu;
 inline FRuitkNode MvvmDemo(FMvvmDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&MvvmDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

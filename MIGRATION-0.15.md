@@ -86,10 +86,18 @@ Ordered; all idempotency-guarded. `\b` = word boundary.
 8. Case-class `RUI`: PascalCase `\bRUI(?=[A-Z][a-z])` → `Ruitk` (`RUICompile` →
    `RuitkCompile` — all `-run=` commandlet names follow); ALL-CAPS `\bRUI(?=[A-Z_])` →
    `RUITK` (`RUI_PROP` → `RUITK_PROP`, `RUIBENCH` → `RUITKBENCH`).
+9. Console variables: `rui.<Name>` → `ruitk.<Name>` (`rui.StrictMode` → `ruitk.StrictMode`,
+   `rui.TimeSlicing` → `ruitk.TimeSlicing`, …). **Update any `rui.*` lines in your own
+   `.ini` files, console shortcuts, and docs** — the codemod rewrites source files, not
+   your saved editor console history.
+10. Baked constants: `<Component>_RUI_HOOK_SIG` → `<Component>_RUITK_HOOK_SIG` — running
+    `-run=RuitkCompile` regenerates them anyway; the codemod rule just keeps a
+    not-yet-regenerated tree consistent.
 
-Deliberately unchanged: the `rui.*` console variables (`rui.StrictMode`,
-`rui.TimeSlicing`, …), the lowercase `__rui_*` generated-symbol prefix, and the baked
-`<Component>_RUI_HOOK_SIG` constants — regenerated code keeps matching them.
+Also renamed in-editor: the stats group is now `stat Ruitk` (was `stat ReactiveUI`), the
+Message Log page id is `"Ruitk"` (shown as "Reactive UI Toolkit"), and the preview
+nomad-tab id is `RuitkPreview` — a saved editor layout referencing the old tab id simply
+drops the tab; reopen it from Tools (harmless, one-time).
 
 ## CoreRedirects (paste into Config/DefaultEngine.ini)
 

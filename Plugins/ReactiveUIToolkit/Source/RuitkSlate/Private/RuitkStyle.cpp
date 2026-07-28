@@ -159,7 +159,7 @@ namespace
 		if (!Warned.Contains(Key))
 		{
 			Warned.Add(Key);
-			UE_LOG(LogRuitkSlate, Warning, TEXT("[ReactiveUI] unknown style key '%s' (ignored)"), *Key.ToString());
+			UE_LOG(LogRuitkSlate, Warning, TEXT("[Ruitk] unknown style key '%s' (ignored)"), *Key.ToString());
 		}
 	}
 } // namespace

@@ -68,7 +68,7 @@ namespace
 		default:
 			break;
 		}
-		UE_LOG(LogRuitkSlate, Warning, TEXT("[ReactiveUI] slot.padding: unsupported value shape — using 0"));
+		UE_LOG(LogRuitkSlate, Warning, TEXT("[Ruitk] slot.padding: unsupported value shape — using 0"));
 		return FMargin(0.0f);
 	}
 

@@ -40,7 +40,7 @@ static FRuitkNodeArray StatusChip_UetkxImpl(FRuitkContext& Ctx, const FStatusChi
 	return StatusChip_UetkxBody_F84D153F(Ctx, Props, children);
 }
 static const FName GStatusChipUetkxId = Ruitk::RegisterComponentId((void*)&StatusChip_UetkxImpl, FName(TEXT("RuitkUetkx_StatusChip::StatusChip")));
-static constexpr uint32 StatusChip_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 StatusChip_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode StatusChip(FStatusChipUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&StatusChip_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

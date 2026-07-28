@@ -9,14 +9,14 @@
 #include "ToolMenus.h"
 #include "UetkxHmrController.h"
 
-#define LOCTEXT_NAMESPACE "ReactiveUetkx"
+#define LOCTEXT_NAMESPACE "RuitkUetkx"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkMenu, Log, All);
 
 namespace ReactiveUetkxTabs
 {
 	const FName HmrWindow(TEXT("ReactiveUetkxHmr"));
-	const FName Preview(TEXT("ReactiveUIPreview"));
+	const FName Preview(TEXT("RuitkPreview"));
 } // namespace ReactiveUetkxTabs
 
 namespace
@@ -58,7 +58,7 @@ namespace
 					"Open the ReactiveUI Message Log page (.uetkx compile errors with jump-to-file links)."),
 			FSlateIcon(),
 			FUIAction(FExecuteAction::CreateLambda(
-				[]() { FMessageLog(TEXT("ReactiveUI")).Open(EMessageSeverity::Info, /*bOpenEvenIfEmpty*/ true); })));
+				[]() { FMessageLog(TEXT("Ruitk")).Open(EMessageSeverity::Info, /*bOpenEvenIfEmpty*/ true); })));
 
 		FToolMenuSection& Debug = Menu->FindOrAddSection("Debug");
 		Debug.AddSubMenu("Debug", LOCTEXT("Debug", "Debug"), LOCTEXT("DebugTip", "ReactiveUetkx diagnostics."),

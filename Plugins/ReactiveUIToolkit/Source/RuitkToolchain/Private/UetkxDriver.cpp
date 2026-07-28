@@ -24,7 +24,7 @@ namespace
 
 	FString FingerprintPath()
 	{
-		return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("compiler.fp"));
+		return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("compiler.fp"));
 	}
 
 	FString FingerprintValue()

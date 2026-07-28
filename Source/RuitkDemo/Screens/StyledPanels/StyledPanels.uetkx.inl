@@ -110,7 +110,7 @@ static FRuitkNodeArray StyledPanels_UetkxImpl(FRuitkContext& Ctx, const FStyledP
 	return StyledPanels_UetkxBody_017C6E5E(Ctx, Props, children);
 }
 static const FName GStyledPanelsUetkxId = Ruitk::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
-static constexpr uint32 StyledPanels_RUI_HOOK_SIG = 0x72A626EBu;
+static constexpr uint32 StyledPanels_RUITK_HOOK_SIG = 0x72A626EBu;
 inline FRuitkNode StyledPanels(FStyledPanelsUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&StyledPanels_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

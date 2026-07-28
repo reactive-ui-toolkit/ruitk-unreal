@@ -15,7 +15,7 @@ namespace UetkxVsix
     // slowing startup). Brace completion + smart indent ride language-configuration.json.
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(PackageGuidString)]
-    [ProvideOptionPage(typeof(UetkxOptionsPage), "ReactiveUI", "UETKX", 0, 0, supportsAutomation: true)]
+    [ProvideOptionPage(typeof(UetkxOptionsPage), "Reactive UI Toolkit", "UETKX", 0, 0, supportsAutomation: true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class UetkxPackage : AsyncPackage, IVsRunningDocTableEvents3
     {

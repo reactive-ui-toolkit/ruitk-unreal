@@ -44,7 +44,7 @@ static FRuitkNodeArray HostImport_UetkxImpl(FRuitkContext& Ctx, const FHostImpor
 	return HostImport_UetkxBody_1CDF1546(Ctx, Props, children);
 }
 static const FName GHostImportUetkxId = Ruitk::RegisterComponentId((void*)&HostImport_UetkxImpl, FName(TEXT("RuitkUetkx_HostImport::HostImport")));
-static constexpr uint32 HostImport_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 HostImport_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode HostImport(FHostImportUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&HostImport_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

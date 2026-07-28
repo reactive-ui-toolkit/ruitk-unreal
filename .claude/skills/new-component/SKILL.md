@@ -94,7 +94,7 @@ Rules that matter:
 
 ## Done-checklist
 
-1. Saved → sibling `.inl` regenerated, no `UETKX####` diagnostics (Message Log "ReactiveUI" clean).
+1. Saved → sibling `.inl` regenerated, no `UETKX####` diagnostics (Message Log "Reactive UI Toolkit" clean).
 2. Renders where used (demo mount or another component).
 3. Reusable API surface → doc comment on the component, sensible prop defaults.
 4. Keyed lists have stable `key`s; formatting passes.

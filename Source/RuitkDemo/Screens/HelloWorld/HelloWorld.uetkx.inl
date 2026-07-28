@@ -43,7 +43,7 @@ static FRuitkNodeArray HelloWorld_UetkxImpl(FRuitkContext& Ctx, const FHelloWorl
 	return HelloWorld_UetkxBody_6146BE1F(Ctx, Props, children);
 }
 static const FName GHelloWorldUetkxId = Ruitk::RegisterComponentId((void*)&HelloWorld_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
-static constexpr uint32 HelloWorld_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 HelloWorld_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode HelloWorld(FHelloWorldUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&HelloWorld_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

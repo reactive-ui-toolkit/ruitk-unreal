@@ -20,7 +20,7 @@
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 
-#define LOCTEXT_NAMESPACE "ReactiveUetkx"
+#define LOCTEXT_NAMESPACE "RuitkUetkx"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkHmrPanel, Log, All);
 

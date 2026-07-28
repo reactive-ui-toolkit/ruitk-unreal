@@ -71,7 +71,7 @@ static FRuitkNodeArray LabScopeProof_UetkxImpl(FRuitkContext& Ctx, const FLabSco
 	return LabScopeProof_UetkxBody_62E89A38(Ctx, Props, children);
 }
 static const FName GLabScopeProofUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
-static constexpr uint32 LabScopeProof_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 LabScopeProof_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode LabScopeProof(FLabScopeProofUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&LabScopeProof_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

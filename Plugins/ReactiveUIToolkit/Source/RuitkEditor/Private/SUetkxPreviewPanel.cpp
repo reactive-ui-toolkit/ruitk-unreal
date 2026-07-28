@@ -10,7 +10,7 @@
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 
-#define LOCTEXT_NAMESPACE "ReactiveUIPreview"
+#define LOCTEXT_NAMESPACE "RuitkPreview"
 
 void SUetkxPreviewPanel::Construct(const FArguments&)
 {

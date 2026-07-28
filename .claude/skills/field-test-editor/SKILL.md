@@ -37,7 +37,7 @@ a bandaid.
    owner whether **Live Coding suffices** (cpp-body-only change) **or the editor must restart**
    (anything else — when in doubt, restart).
 5. **Owner tests.** Ask for: what they did, what they saw, `Saved/Logs/RuitkUnrealDemo.log`,
-   the Message Log "ReactiveUI" page, and any scratch error file they pasted into.
+   the Message Log "Reactive UI Toolkit" page, and any scratch error file they pasted into.
 6. **Fixed?** Merge flow per dev-process (PR → dev, owner merges, fast-forward master), changelog +
    bump BEFORE the PR. **Persists?** Back to 1 with the new evidence — never re-try the same
    theory twice; add instrumentation instead.
@@ -46,7 +46,7 @@ a bandaid.
 
 Test what a store user gets: `scripts/package-plugin.ps1`, unzip
 `Reactive UI Toolkit-<ver>-UE<ver>.zip` into a FRESH project's `Plugins/`, open, enable the plugin,
-expect the log banner `ReactiveUI <ver> loaded` and the demo/gallery to render. A missing banner
+expect the log banner `Reactive UI Toolkit <ver> loaded` and the demo/gallery to render. A missing banner
 means the plugin is NOT running — silence is never "nothing to do".
 
 ## Scar tissue (why these steps exist)

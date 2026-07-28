@@ -129,7 +129,7 @@ static FRuitkNodeArray StressTest_UetkxBody_59AC27E6(FRuitkContext& Ctx, const F
 		}
 		else
 		{
-			Status = TEXT("Stress Test -- Ready (open `stat ReactiveUI` to watch the reconciler)");
+			Status = TEXT("Stress Test -- Ready (open `stat Ruitk` to watch the reconciler)");
 		}
 	
 		auto StartRun = [bRunning, SetRunning, SetVersion, Version]() {
@@ -254,7 +254,7 @@ static FRuitkNodeArray StressTest_UetkxImpl(FRuitkContext& Ctx, const FStressTes
 	return StressTest_UetkxBody_59AC27E6(Ctx, Props, children);
 }
 static const FName GStressTestUetkxId = Ruitk::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_StressTest_StressTest::StressTest")));
-static constexpr uint32 StressTest_RUI_HOOK_SIG = 0x00ED6E73u;
+static constexpr uint32 StressTest_RUITK_HOOK_SIG = 0x00ED6E73u;
 inline FRuitkNode StressTest(FStressTestUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&StressTest_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

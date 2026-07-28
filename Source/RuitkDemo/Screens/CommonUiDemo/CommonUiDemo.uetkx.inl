@@ -127,7 +127,7 @@ static FRuitkNodeArray CommonUiDemo_UetkxImpl(FRuitkContext& Ctx, const FCommonU
 	return CommonUiDemo_UetkxBody_64D7ACA7(Ctx, Props, children);
 }
 static const FName GCommonUiDemoUetkxId = Ruitk::RegisterComponentId((void*)&CommonUiDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_CommonUiDemo_CommonUiDemo::CommonUiDemo")));
-static constexpr uint32 CommonUiDemo_RUI_HOOK_SIG = 0xF574B6D3u;
+static constexpr uint32 CommonUiDemo_RUITK_HOOK_SIG = 0xF574B6D3u;
 inline FRuitkNode CommonUiDemo(FCommonUiDemoUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&CommonUiDemo_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

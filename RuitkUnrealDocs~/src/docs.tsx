@@ -121,7 +121,7 @@ export const sections: DocSection[] = [
         path: '/concepts',
         keywords: ['concepts', 'reconciler', 'components', 'hooks', 'values', 'utils', 'companion', 'cvars'],
         searchContent:
-          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuitkNode Use-prefixed value export util function synchronous rendering keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuitkHostConfig umg commonui mvvm rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI console variables cvars',
+          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuitkNode Use-prefixed value export util function synchronous rendering keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuitkHostConfig umg commonui mvvm ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.FrameBudgetMs ruitk.HostNodePool stat Ruitk console variables cvars',
         element: () => <ConceptsPage />,
       },
       {
@@ -131,7 +131,7 @@ export const sections: DocSection[] = [
         path: '/guides/migration',
         keywords: ['migration', 'adoption', 'existing project', 'incremental', 'umg', 'convert'],
         searchContent:
-          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget ReactiveUI Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion ReactiveUI owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
+          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget Reactive UI Toolkit Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion ReactiveUI owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
         element: () => <MigrationPage />,
       },
       {
@@ -343,7 +343,7 @@ export const sections: DocSection[] = [
         path: '/integration/umg',
         keywords: ['umg', 'URuitkHostWidget', 'UserWidget', 'MountNamed', 'prop map', 'designer'],
         searchContent:
-          'umg interop door both directions our ui inside theirs URuitkHostWidget designer-placeable ReactiveUI Host palette ComponentName registered component RebuildWidget mounts ReleaseSlateResources unmounts cleanups Remount design time placeholder never runs live code URuitkWorldSubsystem MountNamed blueprint-callable viewport zorder teardown world death InitialProps ViewModel designer blueprint props channel UseHostProp UseHostProps UseHostViewModel SynchronizeProperties host props context their widgets inside ours Ruitk::Umg::UserWidget UUserWidget expression child owning world SObjectWidget gc-alive strong pointer deletion commit FRuitkStyleDict WidgetProps reflection prop map UPROPERTYs diffing MakeAssetBrush textures materials signal UseField',
+          'umg interop door both directions our ui inside theirs URuitkHostWidget designer-placeable Reactive UI Toolkit Host palette ComponentName registered component RebuildWidget mounts ReleaseSlateResources unmounts cleanups Remount design time placeholder never runs live code URuitkWorldSubsystem MountNamed blueprint-callable viewport zorder teardown world death InitialProps ViewModel designer blueprint props channel UseHostProp UseHostProps UseHostViewModel SynchronizeProperties host props context their widgets inside ours Ruitk::Umg::UserWidget UUserWidget expression child owning world SObjectWidget gc-alive strong pointer deletion commit FRuitkStyleDict WidgetProps reflection prop map UPROPERTYs diffing MakeAssetBrush textures materials signal UseField',
         element: () => <UmgGuidePage />,
       },
       {
@@ -429,7 +429,7 @@ export const sections: DocSection[] = [
         path: '/reference/debugging',
         keywords: ['debugging', 'generated code', 'diags.json', 'message log', 'cvars', 'breakpoints'],
         searchContent:
-          'debugging guide generated code committed uetkx.inl readable c++ Ruitk::FC Ruitk::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
+          'debugging guide generated code committed uetkx.inl readable c++ Ruitk::FC Ruitk::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.FrameBudgetMs ruitk.HostNodePool stat Ruitk counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
         element: () => <DebuggingPage />,
       },
     ],
@@ -532,7 +532,7 @@ export const sections: DocSection[] = [
         path: '/known-issues',
         keywords: ['known issues', 'limitations', 'hmr', 'hooks', 'transitions'],
         searchContent:
-          'known issues limitations beta hot reload windows only live coding shipping unaffected committed uetkx.inl hooks unconditional positional slots @if @for desync rui.StrictMode transitions synchronous UseTransition no concurrent renderer api parity removed plain props do not reset style events refs draw reset intentional semantic c++-only factories no generated pages listview tileview drag-and-drop render-prop specials subsystems in depth decisions not bugs',
+          'known issues limitations beta hot reload windows only live coding shipping unaffected committed uetkx.inl hooks unconditional positional slots @if @for desync ruitk.StrictMode transitions synchronous UseTransition no concurrent renderer api parity removed plain props do not reset style events refs draw reset intentional semantic c++-only factories no generated pages listview tileview drag-and-drop render-prop specials subsystems in depth decisions not bugs',
         element: () => <KnownIssuesPage />,
       },
     ],

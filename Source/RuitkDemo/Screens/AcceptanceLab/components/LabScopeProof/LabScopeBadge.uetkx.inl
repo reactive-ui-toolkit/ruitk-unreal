@@ -30,7 +30,7 @@ static FRuitkNodeArray LabScopeBadge_UetkxImpl(FRuitkContext& Ctx, const FLabSco
 	return LabScopeBadge_UetkxBody_BC1A283F(Ctx, Props, children);
 }
 static const FName GLabScopeBadgeUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeBadge_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge")));
-static constexpr uint32 LabScopeBadge_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 LabScopeBadge_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode LabScopeBadge(FLabScopeBadgeUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&LabScopeBadge_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

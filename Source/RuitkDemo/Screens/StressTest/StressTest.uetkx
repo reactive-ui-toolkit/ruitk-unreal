@@ -105,7 +105,7 @@ export FRuitkNode StressTest() {
 	}
 	else
 	{
-		Status = TEXT("Stress Test -- Ready (open `stat ReactiveUI` to watch the reconciler)");
+		Status = TEXT("Stress Test -- Ready (open `stat Ruitk` to watch the reconciler)");
 	}
 
 	auto StartRun = [bRunning, SetRunning, SetVersion, Version]() {

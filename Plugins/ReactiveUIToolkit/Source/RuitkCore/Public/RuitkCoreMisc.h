@@ -9,18 +9,18 @@
 #include "Stats/Stats.h"
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// STATGROUP_ReactiveUI (D-14) — `stat ReactiveUI` shows per-frame reconciler activity.
+// STATGROUP_Ruitk (D-14) — `stat Ruitk` shows per-frame reconciler activity.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-DECLARE_STATS_GROUP(TEXT("ReactiveUI"), STATGROUP_ReactiveUI, STATCAT_Advanced);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuiRenders, STATGROUP_ReactiveUI, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuiCommits, STATGROUP_ReactiveUI, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuiPlacements, STATGROUP_ReactiveUI, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuiUpdates, STATGROUP_ReactiveUI, RUITKCORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROUP_ReactiveUI, RUITKCORE_API);
+DECLARE_STATS_GROUP(TEXT("Ruitk"), STATGROUP_Ruitk, STATCAT_Advanced);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuiRenders, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuiCommits, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuiPlacements, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuiUpdates, STATGROUP_Ruitk, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROUP_Ruitk, RUITKCORE_API);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// Config (rui.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
+// Config (ruitk.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
 struct RUITKCORE_API FRuitkConfig

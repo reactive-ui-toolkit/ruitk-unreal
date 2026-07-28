@@ -5,7 +5,7 @@
 // src_hash over CODE POINTS — identical constants to the LSP), the error-verdict rule (a
 // failed compile deletes the stale .inl and the sidecar's same-hash error entry means
 // "already compiled and reported broken" -> NOT stale; prevents busy loops), the mtime-tie
-// content-hash break, the compiler fingerprint (Saved/Reactive UI Toolkit/compiler.fp — a codegen
+// content-hash break, the compiler fingerprint (Saved/ReactiveUIToolkit/compiler.fp — a codegen
 // version bump treats every output as stale), and the stable per-module aggregator
 // `<Module>.Uetkx.gen.cpp` whose CONTENTS change while the compiled file SET stays constant
 // (the UBT makefile-caching pitfall, D-19.1).

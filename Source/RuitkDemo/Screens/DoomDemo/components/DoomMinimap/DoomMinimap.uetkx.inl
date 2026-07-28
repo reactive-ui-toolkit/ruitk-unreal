@@ -250,7 +250,7 @@ static FRuitkNodeArray DoomMinimap_UetkxImpl(FRuitkContext& Ctx, const FDoomMini
 	return DoomMinimap_UetkxBody_72C99BCC(Ctx, Props, children);
 }
 static const FName GDoomMinimapUetkxId = Ruitk::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")));
-static constexpr uint32 DoomMinimap_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 DoomMinimap_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode DoomMinimap(FDoomMinimapUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&DoomMinimap_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);

@@ -52,7 +52,7 @@ static FRuitkNodeArray RouterUser_UetkxImpl(FRuitkContext& Ctx, const FRouterUse
 	return RouterUser_UetkxBody_84C60909(Ctx, Props, children);
 }
 static const FName GRouterUserUetkxId = Ruitk::RegisterComponentId((void*)&RouterUser_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuiDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")));
-static constexpr uint32 RouterUser_RUI_HOOK_SIG = 0x811C9DC5u;
+static constexpr uint32 RouterUser_RUITK_HOOK_SIG = 0x811C9DC5u;
 inline FRuitkNode RouterUser(FRouterUserUetkxProps InProps, TArray<FRuitkNode> InChildren, FRuitkKey InKey)
 {
 	return Ruitk::FC(&RouterUser_UetkxImpl, MoveTemp(InProps), MoveTemp(InChildren), InKey);
