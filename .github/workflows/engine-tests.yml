@@ -50,7 +50,7 @@ jobs:
             -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 3. Markup drift gate — the RuitkCompile commandlet + committed *.uetkx.inl / aggregators exist
-      #    (Phase 3+), so this is the SOLE guard that the 25 committed generated files match a fresh
+      #    (Phase 3+), so this is the SOLE guard that the 47 committed generated files match a fresh
       #    compile. Was left commented past its activation point, leaving generated code ungated even
       #    when armed (bughunt BUILD-2).
       - name: Markup drift gate
