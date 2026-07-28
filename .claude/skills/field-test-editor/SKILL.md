@@ -36,7 +36,7 @@ a bandaid.
    their checkout); otherwise copy the changed `Plugins/ReactiveUIToolkit/**` files over. Then tell the
    owner whether **Live Coding suffices** (cpp-body-only change) **or the editor must restart**
    (anything else — when in doubt, restart).
-5. **Owner tests.** Ask for: what they did, what they saw, `Saved/Logs/ReactiveUIUnrealDemo.log`,
+5. **Owner tests.** Ask for: what they did, what they saw, `Saved/Logs/RuitkUnrealDemo.log`,
    the Message Log "ReactiveUI" page, and any scratch error file they pasted into.
 6. **Fixed?** Merge flow per dev-process (PR → dev, owner merges, fast-forward master), changelog +
    bump BEFORE the PR. **Persists?** Back to 1 with the new evidence — never re-try the same

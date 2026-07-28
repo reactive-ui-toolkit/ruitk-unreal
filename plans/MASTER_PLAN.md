@@ -549,7 +549,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
 ```
 ReactiveUI-Unreal/                          # repo root IS the demo host project (Godot-repo pattern)
-  ReactiveUIUnrealDemo.uproject             # host project; enables the plugin; demo maps
+  RuitkUnrealDemo.uproject             # host project; enables the plugin; demo maps
   Source/
     RuiDemo/                                # demo game module (gallery screens, .uetkx demos)
     RuiHostTests/                           # ALL automation tests (ReactiveUI.* hierarchy) — not shipped in plugin
@@ -668,7 +668,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   2026-07-10 (§7):** Q2 → engine CI stays unarmed, everything engine-bound runs locally via
   `test-run` (revisit at release time); Q3 → owner installs **UE 5.6** (none installed today);
   discover the path via `Get-ChildItem "C:\Program Files\Epic Games\UE_5.*"` and record it in the
-  skills' environment-facts section; Q5 → project name `ReactiveUIUnrealDemo`, at the repo root.
+  skills' environment-facts section; Q5 → project name `RuitkUnrealDemo`, at the repo root.
   **Execution note: steps 1–8 are pure text/scaffold work and need NO engine installed; the
   Verify compile (and everything after Phase 0) blocks until the UE 5.6 install finishes — start
   the ~50–100 GB download in parallel with this phase.**
@@ -750,7 +750,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      once the owner approves the plan.)
 - **Files touched:** everything in §2 except module internals; `.github/workflows/*`;
   `.claude/skills/*`; `templates/*`; `ReactiveUIUnrealDocs~/*` shell.
-- **Verify:** `Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>.uproject`
+- **Verify:** `Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>.uproject`
   compiles the empty plugin warning-clean; `node ide-extensions/scripts/changelog.mjs verify`
   green; skills lint (each SKILL.md has frontmatter + scar-tissue section); CI runs green on the
   PR (engine jobs may be unarmed — the armed/unarmed state is recorded in ROADMAP).
@@ -1280,13 +1280,13 @@ When it lands, `router_match_test.gd` + `router_spine_test.gd` port as `Reactive
 
 ```bat
 :: 0. Build (compile step — Godot never had one; UE does)
-<Engine>\Engine\Build\BatchFiles\Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>\ReactiveUIUnrealDemo.uproject -WaitMutex
+<Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (mirror of tests/guitkx_build.gd)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RUICompile -check
 
 :: 2. Suites (headless; ALWAYS redirect output to a file — console buffering lies)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject ^
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject ^
   -ExecCmds="Automation RunTests ReactiveUI; Quit" ^
   -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput ^
   -ReportExportPath=<scratch>\report
@@ -1391,7 +1391,7 @@ Kept as the decision record; new questions get appended below as they arise.
 4. **Fab seller account — ANSWERED: after the core milestone** — when the reconciler/hooks are
    proven working and performant (post Phases 1–2) and what remains is tooling. Trader
    Verification lead time makes that timing comfortable.
-5. **Demo host project — ANSWERED: `ReactiveUIUnrealDemo`, at the repo root** (the repo IS the
+5. **Demo host project — ANSWERED: `RuitkUnrealDemo`, at the repo root** (the repo IS the
    host project — the family's single-repo pattern, and the Fab example-project requirement is
    satisfied from it).
 6. **Byte-compat — ANSWERED: HARD.** The cross-repo corpus machinery (D-22) stays as specified.

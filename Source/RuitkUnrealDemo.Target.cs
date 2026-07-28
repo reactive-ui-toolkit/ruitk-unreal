@@ -3,9 +3,9 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class ReactiveUIUnrealDemoTarget : TargetRules
+public class RuitkUnrealDemoTarget : TargetRules
 {
-	public ReactiveUIUnrealDemoTarget(TargetInfo Target) : base(Target)
+	public RuitkUnrealDemoTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		// Latest, NOT a pinned version — the previous V5 pin had it backwards for installed

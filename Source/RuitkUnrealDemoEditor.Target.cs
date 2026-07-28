@@ -3,9 +3,9 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class ReactiveUIUnrealDemoEditorTarget : TargetRules
+public class RuitkUnrealDemoEditorTarget : TargetRules
 {
-	public ReactiveUIUnrealDemoEditorTarget(TargetInfo Target) : base(Target)
+	public RuitkUnrealDemoEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		// Latest, NOT a pinned version: launcher (installed) engines enforce their SHARED build

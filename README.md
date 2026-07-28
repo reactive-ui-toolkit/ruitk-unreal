@@ -25,7 +25,7 @@ the UI update in under a second, no C++ recompile, no script VM in your shipped 
 > (with embedded-C++ clangd intelligence) are implemented and green under a **100+-test headless
 > automation battery**. The demo gallery's 19 screens all compile from `.uetkx`, and markup text
 > is **localizable through the stock Localization Dashboard** (with live culture switching). Open
-> `ReactiveUIUnrealDemo.uproject` (UE 5.6+; the battery is verified green on 5.6, 5.7, AND 5.8)
+> `RuitkUnrealDemo.uproject` (UE 5.6+; the battery is verified green on 5.6, 5.7, AND 5.8)
 > and press Play. Remaining before v1: the **docs-site content build-out** — tracked in
 > [plans/ROADMAP.md](plans/ROADMAP.md) and [plans/REMAINING.md](plans/REMAINING.md).
 
@@ -87,7 +87,7 @@ a docs site, with every performance claim measured before it's printed.
 | Path | What it is |
 |---|---|
 | `Plugins/ReactiveUIToolkit/` | The plugin — the deliverable (self-contained: own README/CHANGELOG/LICENSE) |
-| `Source/`, `Content/` | The demo host project (`ReactiveUIUnrealDemo.uproject` at root) + automation tests |
+| `Source/`, `Content/` | The demo host project (`RuitkUnrealDemo.uproject` at root) + automation tests |
 | `ide-extensions/` | `.uetkx` IDE tooling (shared family language server; VS Code + VS2022) |
 | `ReactiveUIUnrealDocs~/` | Docs site (React + Vite, the family shell) |
 | `plans/` | ROADMAP (status source of truth), MASTER_PLAN, ledgers |

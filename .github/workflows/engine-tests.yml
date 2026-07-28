@@ -39,15 +39,15 @@ jobs:
       #    class here on clang exactly as MSVC -StrictIncludes does at packaging time.
       - name: Build Development Editor (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoEditor Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
+          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoEditor Linux Development \
+            -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 2. Dedicated-server compile leg — D-27's server policy is CI-verified, not assumed
       #    (modules stay present on Server targets; behavior is gated at runtime instead).
       - name: Build DedicatedServer (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoServer Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
+          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoServer Linux Development \
+            -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 3. Markup drift gate — the RUICompile commandlet + committed *.uetkx.inl / aggregators exist
       #    (Phase 3+), so this is the SOLE guard that the 25 committed generated files match a fresh
@@ -55,7 +55,7 @@ jobs:
       #    when armed (bughunt BUILD-2).
       - name: Markup drift gate
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" \
+          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
             -run=RUICompile -check -unattended -nopause -nullrhi
 
       # 4. Automation suites (headless) — the ReactiveUI.* specs exist (Phase 1+). Pass/fail parses
@@ -63,7 +63,7 @@ jobs:
       #    activation point, so an armed run reported green having run ZERO tests (bughunt BUILD-2).
       - name: Automation suites (headless)
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" \
+          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
             -ExecCmds="Automation RunTests ReactiveUI; Quit" \
             -unattended -nopause -nosplash -nullrhi -stdout -FullStdOutLogOutput \
             -ReportExportPath="$GITHUB_WORKSPACE/test-report"

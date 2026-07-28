@@ -42,7 +42,7 @@ rounds + audit ledgers).
 | lsp-server (Phase 5) | `ide-extensions/lsp-server/` | vendored; version-locked to vscode-uetkx (no own tag) | — |
 | Docs site | `ReactiveUIUnrealDocs~/` | not version-gated | — |
 
-The demo host project (`ReactiveUIUnrealDemo.uproject` at repo root, modules under `Source/`)
+The demo host project (`RuitkUnrealDemo.uproject` at repo root, modules under `Source/`)
 is **not shipped** — it hosts the automation tests, the demo gallery, and the per-engine example
 projects Fab requires.
 
@@ -65,13 +65,13 @@ Engine commands (require UE 5.6+ installed; paths per the `test-run` skill's env
 
 ```bat
 :: 0. Build (there IS a compile step — unlike Godot)
-<Engine>\Engine\Build\BatchFiles\Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>\ReactiveUIUnrealDemo.uproject -WaitMutex
+<Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (Phase 3+)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RUICompile -check
 
 :: 2. Suites — headless; ALWAYS redirect output to a file; parse report\index.json, not the exit code
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -ExecCmds="Automation RunTests ReactiveUI; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -ExecCmds="Automation RunTests ReactiveUI; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
 ```
 
 Suite filters are prefix-matched: `ReactiveUI.Boot` (the boot check — unit suites do NOT run

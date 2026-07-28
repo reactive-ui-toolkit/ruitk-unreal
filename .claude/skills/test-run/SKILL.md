@@ -13,13 +13,13 @@ redirect engine output to a file — piping block-buffers and hides everything (
 
 ```bat
 :: 0. Build (compile step — Development Editor)
-<Engine>\Engine\Build\BatchFiles\Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>\ReactiveUIUnrealDemo.uproject -WaitMutex
+<Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (Phase 3+; skip while no .uetkx exist)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RUICompile -check
 
 :: 2. Suites (headless, no GPU)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject ^
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject ^
   -ExecCmds="Automation RunTests ReactiveUI; Quit" ^
   -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput ^
   -ReportExportPath=<scratch>\report > <scratch>\run.log 2>&1

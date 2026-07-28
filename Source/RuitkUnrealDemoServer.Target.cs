@@ -7,9 +7,9 @@ using System.Collections.Generic;
 // CI-verified: ReactiveUI modules stay present on Server targets (no TargetDenyList — that
 // would break user Build.cs), and runtime behavior is gated instead (URuiSubsystem declines
 // to create on dedicated servers; mounts checkf a non-server world).
-public class ReactiveUIUnrealDemoServerTarget : TargetRules
+public class RuitkUnrealDemoServerTarget : TargetRules
 {
-	public ReactiveUIUnrealDemoServerTarget(TargetInfo Target) : base(Target)
+	public RuitkUnrealDemoServerTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
