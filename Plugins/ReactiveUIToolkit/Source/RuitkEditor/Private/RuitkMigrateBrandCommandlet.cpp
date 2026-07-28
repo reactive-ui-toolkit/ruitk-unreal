@@ -25,54 +25,54 @@ namespace
 	// (`LogRui*` categories, `CVarRui*`/`GRui*` globals) — all idempotency-guarded.
 	static const FBrandRule GBrandRules[] = {
 		// C1 — module tokens, longest first.
-		{ TEXT("\\bReactiveUIMVVMBridge\\b"), TEXT("RuitkMVVMBridge") },
-		{ TEXT("\\bReactiveUICommonUI\\b"), TEXT("RuitkCommonUI") },
-		{ TEXT("\\bReactiveUIToolchain\\b"), TEXT("RuitkToolchain") },
-		{ TEXT("\\bReactiveUIEditor\\b"), TEXT("RuitkEditor") },
-		{ TEXT("\\bReactiveUIInterp\\b"), TEXT("RuitkInterp") },
-		{ TEXT("\\bReactiveUISlate\\b"), TEXT("RuitkSlate") },
-		{ TEXT("\\bReactiveUICore\\b"), TEXT("RuitkCore") },
-		{ TEXT("\\bReactiveUIUMG\\b"), TEXT("RuitkUMG") },
+		{TEXT("\\bReactiveUIMVVMBridge\\b"), TEXT("RuitkMVVMBridge")},
+		{TEXT("\\bReactiveUICommonUI\\b"), TEXT("RuitkCommonUI")},
+		{TEXT("\\bReactiveUIToolchain\\b"), TEXT("RuitkToolchain")},
+		{TEXT("\\bReactiveUIEditor\\b"), TEXT("RuitkEditor")},
+		{TEXT("\\bReactiveUIInterp\\b"), TEXT("RuitkInterp")},
+		{TEXT("\\bReactiveUISlate\\b"), TEXT("RuitkSlate")},
+		{TEXT("\\bReactiveUICore\\b"), TEXT("RuitkCore")},
+		{TEXT("\\bReactiveUIUMG\\b"), TEXT("RuitkUMG")},
 		// C2 — the 9 export macros.
-		{ TEXT("\\bREACTIVEUISLATE_API\\b"), TEXT("RUITKSLATE_API") },
-		{ TEXT("\\bREACTIVEUICORE_API\\b"), TEXT("RUITKCORE_API") },
-		{ TEXT("\\bREACTIVEUIINTERP_API\\b"), TEXT("RUITKINTERP_API") },
-		{ TEXT("\\bREACTIVEUIUMG_API\\b"), TEXT("RUITKUMG_API") },
-		{ TEXT("\\bREACTIVEUITOOLCHAIN_API\\b"), TEXT("RUITKTOOLCHAIN_API") },
-		{ TEXT("\\bREACTIVEUICOMMONUI_API\\b"), TEXT("RUITKCOMMONUI_API") },
-		{ TEXT("\\bREACTIVEUIMVVMBRIDGE_API\\b"), TEXT("RUITKMVVMBRIDGE_API") },
-		{ TEXT("\\bREACTIVEUIEDITOR_API\\b"), TEXT("RUITKEDITOR_API") },
-		{ TEXT("\\bRUIDEMO_API\\b"), TEXT("RUITKDEMO_API") },
+		{TEXT("\\bREACTIVEUISLATE_API\\b"), TEXT("RUITKSLATE_API")},
+		{TEXT("\\bREACTIVEUICORE_API\\b"), TEXT("RUITKCORE_API")},
+		{TEXT("\\bREACTIVEUIINTERP_API\\b"), TEXT("RUITKINTERP_API")},
+		{TEXT("\\bREACTIVEUIUMG_API\\b"), TEXT("RUITKUMG_API")},
+		{TEXT("\\bREACTIVEUITOOLCHAIN_API\\b"), TEXT("RUITKTOOLCHAIN_API")},
+		{TEXT("\\bREACTIVEUICOMMONUI_API\\b"), TEXT("RUITKCOMMONUI_API")},
+		{TEXT("\\bREACTIVEUIMVVMBRIDGE_API\\b"), TEXT("RUITKMVVMBRIDGE_API")},
+		{TEXT("\\bREACTIVEUIEDITOR_API\\b"), TEXT("RUITKEDITOR_API")},
+		{TEXT("\\bRUIDEMO_API\\b"), TEXT("RUITKDEMO_API")},
 		// C5/C6 — plugin paths (both separators), the .uplugin filename, the .uproject ref.
-		{ TEXT("Plugins/ReactiveUI/"), TEXT("Plugins/ReactiveUIToolkit/") },
-		{ TEXT("Plugins\\\\ReactiveUI\\\\"), TEXT("Plugins\\ReactiveUIToolkit\\") },
-		{ TEXT("\\bReactiveUI\\.uplugin\\b"), TEXT("ReactiveUIToolkit.uplugin") },
-		{ TEXT("\"Name\": \"ReactiveUI\""), TEXT("\"Name\": \"ReactiveUIToolkit\"") },
+		{TEXT("Plugins/ReactiveUI/"), TEXT("Plugins/ReactiveUIToolkit/")},
+		{TEXT("Plugins\\\\ReactiveUI\\\\"), TEXT("Plugins\\ReactiveUIToolkit\\")},
+		{TEXT("\\bReactiveUI\\.uplugin\\b"), TEXT("ReactiveUIToolkit.uplugin")},
+		{TEXT("\"Name\": \"ReactiveUI\""), TEXT("\"Name\": \"ReactiveUIToolkit\"")},
 		// D1/D2 — the seven type prefixes.
-		{ TEXT("\\bFRui(?!tk)"), TEXT("FRuitk") },
-		{ TEXT("\\bURui(?!tk)"), TEXT("URuitk") },
-		{ TEXT("\\bSRui(?!tk)"), TEXT("SRuitk") },
-		{ TEXT("\\bTRui(?!tk)"), TEXT("TRuitk") },
-		{ TEXT("\\bIRui(?!tk)"), TEXT("IRuitk") },
-		{ TEXT("\\bERui(?!tk)"), TEXT("ERuitk") },
-		{ TEXT("\\bARui(?!tk)"), TEXT("ARuitk") },
+		{TEXT("\\bFRui(?!tk)"), TEXT("FRuitk")},
+		{TEXT("\\bURui(?!tk)"), TEXT("URuitk")},
+		{TEXT("\\bSRui(?!tk)"), TEXT("SRuitk")},
+		{TEXT("\\bTRui(?!tk)"), TEXT("TRuitk")},
+		{TEXT("\\bIRui(?!tk)"), TEXT("IRuitk")},
+		{TEXT("\\bERui(?!tk)"), TEXT("ERuitk")},
+		{TEXT("\\bARui(?!tk)"), TEXT("ARuitk")},
 		// D3 — the namespace.
-		{ TEXT("\\bRUI::"), TEXT("Ruitk::") },
-		{ TEXT("\\bnamespace RUI\\b"), TEXT("namespace Ruitk") },
+		{TEXT("\\bRUI::"), TEXT("Ruitk::")},
+		{TEXT("\\bnamespace RUI\\b"), TEXT("namespace Ruitk")},
 		// Boundary-blocked families (word-char prefixes defeat \b).
-		{ TEXT("LogRui(?!tk)"), TEXT("LogRuitk") },
-		{ TEXT("CVarRui(?!tk)"), TEXT("CVarRuitk") },
-		{ TEXT("GRui(?!tk)(?=[A-Z])"), TEXT("GRuitk") },
+		{TEXT("LogRui(?!tk)"), TEXT("LogRuitk")},
+		{TEXT("CVarRui(?!tk)"), TEXT("CVarRuitk")},
+		{TEXT("GRui(?!tk)(?=[A-Z])"), TEXT("GRuitk")},
 		// D5 — the bare-Rui blanket.
-		{ TEXT("\\bRui(?!tk)"), TEXT("Ruitk") },
+		{TEXT("\\bRui(?!tk)"), TEXT("Ruitk")},
 		// D6 — case-class: PascalCase (commandlet family) first, then ALL-CAPS macros.
-		{ TEXT("\\bRUI(?=[A-Z][a-z])"), TEXT("Ruitk") },
-		{ TEXT("\\bRUI(?!TK)(?=[A-Z_])"), TEXT("RUITK") },
+		{TEXT("\\bRUI(?=[A-Z][a-z])"), TEXT("Ruitk")},
+		{TEXT("\\bRUI(?!TK)(?=[A-Z_])"), TEXT("RUITK")},
 		// Console variables + baked codegen constants (0.15 identity ruling): user ini/source
 		// lines keep working under the new names; hook-sig constants regenerate via
 		// RuitkCompile anyway — this rule just keeps a not-yet-regenerated tree consistent.
-		{ TEXT("\\brui\\.(?=[A-Z])"), TEXT("ruitk.") },
-		{ TEXT("_RUI_HOOK_SIG"), TEXT("_RUITK_HOOK_SIG") },
+		{TEXT("\\brui\\.(?=[A-Z])"), TEXT("ruitk.")},
+		{TEXT("_RUI_HOOK_SIG"), TEXT("_RUITK_HOOK_SIG")},
 	};
 
 	/** ICU-regex replace-all with a literal replacement. Returns the number of matches. */
@@ -104,8 +104,8 @@ namespace
 	bool ShouldSkip(const FString& Path)
 	{
 		// The 0.15 plugin ships converted; build output and VCS internals are never sources.
-		static const TCHAR* Skips[] = { TEXT("/Plugins/"),	  TEXT("/Binaries/"), TEXT("/Intermediate/"),
-										TEXT("/Saved/"),	  TEXT("/DerivedDataCache/"), TEXT("/.git/") };
+		static const TCHAR* Skips[] = {TEXT("/Plugins/"), TEXT("/Binaries/"),		  TEXT("/Intermediate/"),
+									   TEXT("/Saved/"),	  TEXT("/DerivedDataCache/"), TEXT("/.git/")};
 		for (const TCHAR* Skip : Skips)
 		{
 			if (Path.Contains(Skip))
@@ -124,8 +124,8 @@ int32 URuitkMigrateBrandCommandlet::Main(const FString& Params)
 	FParse::Value(*Params, TEXT("root="), Root);
 	Root = FPaths::ConvertRelativePathToFull(Root);
 
-	static const TCHAR* Extensions[] = { TEXT("*.uetkx"), TEXT("*.h"), TEXT("*.cpp"),
-										 TEXT("*.inl"),	  TEXT("*.cs"), TEXT("*.uproject") };
+	static const TCHAR* Extensions[] = {TEXT("*.uetkx"), TEXT("*.h"),  TEXT("*.cpp"),
+										TEXT("*.inl"),	 TEXT("*.cs"), TEXT("*.uproject")};
 	TArray<FString> Files;
 	for (const TCHAR* Ext : Extensions)
 	{
@@ -163,8 +163,7 @@ int32 URuitkMigrateBrandCommandlet::Main(const FString& Params)
 		{
 			UE_LOG(LogRuitkMigrateBrand, Display, TEXT("[dry] %s: %d rewrite(s)"), *Normalized, FileRewrites);
 		}
-		else if (!FFileHelper::SaveStringToFile(Text, *File,
-												FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+		else if (!FFileHelper::SaveStringToFile(Text, *File, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 		{
 			UE_LOG(LogRuitkMigrateBrand, Error, TEXT("%s: could not write"), *Normalized);
 			return 1;

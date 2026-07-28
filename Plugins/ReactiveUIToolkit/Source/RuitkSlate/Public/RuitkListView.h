@@ -46,7 +46,8 @@ struct RUITKSLATE_API FRuitkListViewProps final : public FRuitkPropsBase
 	RUITK_PROP(TSharedPtr<FRuitkItemRenderer>, RenderItem, 1)
 	RUITK_PROP(FName, SelectionMode, 2) // none (default) | single | singleToggle | multi
 	RUITK_PROP_EVENT(OnSelectionChanged, 3)
-	RUITK_PROPS_BODY(FRuitkListViewProps, RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged))
+	RUITK_PROPS_BODY(FRuitkListViewProps,
+					 RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged))
 };
 
 /** STileView — the same item model laid out as a uniform grid of tiles. ItemWidth / ItemHeight are
@@ -60,7 +61,7 @@ struct RUITKSLATE_API FRuitkTileViewProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, SelectionMode, 4)
 	RUITK_PROP_EVENT(OnSelectionChanged, 5)
 	RUITK_PROPS_BODY(FRuitkTileViewProps, RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(ItemWidth) RUITK_EQ(ItemHeight)
-										  RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged))
+											  RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged))
 };
 
 /**

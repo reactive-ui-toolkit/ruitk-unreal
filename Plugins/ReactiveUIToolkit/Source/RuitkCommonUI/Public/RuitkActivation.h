@@ -70,8 +70,8 @@ namespace Ruitk::CommonUI
 
 	/** Provide `State` to `Children` (what the activatable host wraps the component in). */
 	RUITKCOMMONUI_API FRuitkNode ActivationProvider(FRuitkActivationState State,
-													   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-													   FRuitkKey Key = FRuitkKey());
+													TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+													FRuitkKey Key = FRuitkKey());
 
 	// ── TD-029: desired focus ─────────────────────────────────────────────────────────────
 
@@ -87,6 +87,6 @@ namespace Ruitk::CommonUI
 
 	/** Provide `Registry` to `Children` (what URuitkActivatableScreen wraps the component in). */
 	RUITKCOMMONUI_API FRuitkNode FocusTargetProvider(TSharedPtr<FRuitkFocusTargetRegistry> Registry,
-														TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-														FRuitkKey Key = FRuitkKey());
+													 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+													 FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk::CommonUI

@@ -657,7 +657,8 @@ public:
 	virtual uint64 GetReconstructMask() const override
 	{
 		return (1ull << FRuitkNumericDropDownProps::Values_Bit) | (1ull << FRuitkNumericDropDownProps::Labels_Bit) |
-			   (1ull << FRuitkNumericDropDownProps::Value_Bit) | (1ull << FRuitkNumericDropDownProps::bShowNamedValue_Bit);
+			   (1ull << FRuitkNumericDropDownProps::Value_Bit) |
+			   (1ull << FRuitkNumericDropDownProps::bShowNamedValue_Bit);
 	}
 
 	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
@@ -914,7 +915,8 @@ public:
 	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
 		const FRuitkSearchableComboBoxProps& N = static_cast<const FRuitkSearchableComboBoxProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuitkSearchableComboBoxProps::OnSelectionChanged_Bit), N.OnSelectionChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkSearchableComboBoxProps::OnSelectionChanged_Bit),
+						 N.OnSelectionChanged);
 	}
 
 	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
@@ -1072,7 +1074,8 @@ public:
 	virtual uint64 GetReconstructMask() const override
 	{
 		return (1ull << FRuitkRotatorInputBoxProps::Roll_Bit) | (1ull << FRuitkRotatorInputBoxProps::Pitch_Bit) |
-			   (1ull << FRuitkRotatorInputBoxProps::Yaw_Bit) | (1ull << FRuitkRotatorInputBoxProps::bColorAxisLabels_Bit);
+			   (1ull << FRuitkRotatorInputBoxProps::Yaw_Bit) |
+			   (1ull << FRuitkRotatorInputBoxProps::bColorAxisLabels_Bit);
 	}
 
 	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override

@@ -89,7 +89,7 @@ namespace Ruitk
 
 	/** The in-memory router boundary. `InitialPath` seeds the first location. */
 	RUITKCORE_API FRuitkNode Router(TArray<FRuitkNode> Children, FString InitialPath = TEXT("/"),
-									   FRuitkKey Key = FRuitkKey());
+									FRuitkKey Key = FRuitkKey());
 
 	/** Render the best match for the current location from `RouteList` (nesting via Outlet). */
 	RUITKCORE_API FRuitkNode Routes(TArray<FRuitkRoute> RouteList, FRuitkKey Key = FRuitkKey());
@@ -97,7 +97,7 @@ namespace Ruitk
 	/** A navigation link: renders `Children` and navigates to `To` on click (needs a host
 	 *  wrapper that forwards clicks — the Slate Button/Text `OnClicked`; this is the core node). */
 	RUITKCORE_API FRuitkNode Link(FString To, TArray<FRuitkNode> Children, bool bReplace = false,
-									 FRuitkKey Key = FRuitkKey());
+								  FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -155,5 +155,4 @@ RUITKCORE_API FRuitkNode UseRoutes(FRuitkContext& Ctx, const TArray<Ruitk::FRuit
 
 /** Register a navigation blocker: while `bBlock`, navigations are intercepted and `OnBlocked`
  *  (the attempted href) fires instead of committing. Returns nothing (fire-and-forget guard). */
-RUITKCORE_API void UseBlocker(FRuitkContext& Ctx, bool bBlock,
-								   TFunction<void(const FString& AttemptedHref)> OnBlocked);
+RUITKCORE_API void UseBlocker(FRuitkContext& Ctx, bool bBlock, TFunction<void(const FString& AttemptedHref)> OnBlocked);

@@ -30,7 +30,8 @@ namespace Ruitk
 
 	// ── Suspense (family polyfill: fallback until IsReady, poll-per-frame driver) ────────
 
-	FRuitkNodeArray SuspenseComponent(FRuitkContext& Ctx, const FRuitkSuspenseProps& Props, const TArray<FRuitkNode>& Children)
+	FRuitkNodeArray SuspenseComponent(FRuitkContext& Ctx, const FRuitkSuspenseProps& Props,
+									  const TArray<FRuitkNode>& Children)
 	{
 		auto [bReady, SetReady] = Ctx.UseState<bool>(false);
 

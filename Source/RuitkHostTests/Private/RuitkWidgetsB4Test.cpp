@@ -42,10 +42,10 @@ namespace B4Test
 static FRuitkNodeArray B4GalleryComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	// P5a: two anchored children on a ConstraintCanvas.
-	FRuitkNode Anchored = B4Test::WithSlotDict(Ruitk::TextBlock(TEXT("anchored")),
-											 {{FName(TEXT("Slot.Anchors")), FRuitkValue(FString(TEXT("0.5,0.5")))},
-											  {FName(TEXT("Slot.Offset")), FRuitkValue(FString(TEXT("10,10,100,40")))},
-											  {FName(TEXT("Slot.ZOrder")), FRuitkValue(3.0f)}});
+	FRuitkNode Anchored = B4Test::WithSlotDict(
+		Ruitk::TextBlock(TEXT("anchored")), {{FName(TEXT("Slot.Anchors")), FRuitkValue(FString(TEXT("0.5,0.5")))},
+											 {FName(TEXT("Slot.Offset")), FRuitkValue(FString(TEXT("10,10,100,40")))},
+											 {FName(TEXT("Slot.ZOrder")), FRuitkValue(3.0f)}});
 
 	// P5b: two panes with fractions.
 	FRuitkNode PaneA =
@@ -56,11 +56,11 @@ static FRuitkNodeArray B4GalleryComp(FRuitkContext& Ctx, const FRuitkEmptyProps&
 	// D-W4: quadrants route by slot.role.
 	FRuitkNode QuadTL = Ruitk::TextBlock(TEXT("TL")); // no role -> topLeft default
 	FRuitkNode QuadBR = B4Test::WithSlotDict(Ruitk::TextBlock(TEXT("BR")),
-										   {{FName(TEXT("Slot.Role")), FRuitkValue(FName(TEXT("bottomRight")))}});
+											 {{FName(TEXT("Slot.Role")), FRuitkValue(FName(TEXT("bottomRight")))}});
 
 	// P3: anchor + role="menu" content.
 	FRuitkNode MenuContent = B4Test::WithSlotDict(Ruitk::TextBlock(TEXT("popup")),
-												{{FName(TEXT("Slot.Role")), FRuitkValue(FName(TEXT("menu")))}});
+												  {{FName(TEXT("Slot.Role")), FRuitkValue(FName(TEXT("menu")))}});
 
 	FRuitkNumericDropDownProps DropP;
 	DropP.SetValues({1.0f, 2.0f, 4.0f});
@@ -90,7 +90,8 @@ static FRuitkNodeArray B4GalleryComp(FRuitkContext& Ctx, const FRuitkEmptyProps&
 		 Ruitk::Slate::MenuAnchor(FRuitkMenuAnchorProps(), {Ruitk::TextBlock(TEXT("anchor")), MoveTemp(MenuContent)}),
 		 Ruitk::Slate::WindowTitleBarArea(FRuitkWindowTitleBarAreaProps(), {Ruitk::TextBlock(TEXT("title"))}),
 		 Ruitk::Slate::NumericDropDown(MoveTemp(DropP)), Ruitk::Slate::BreadcrumbTrail(MoveTemp(CrumbP)),
-		 Ruitk::Slate::NotificationList(), Ruitk::Slate::LinkedBox(FRuitkLinkedBoxProps(), {Ruitk::TextBlock(TEXT("linked"))}),
+		 Ruitk::Slate::NotificationList(),
+		 Ruitk::Slate::LinkedBox(FRuitkLinkedBoxProps(), {Ruitk::TextBlock(TEXT("linked"))}),
 		 Ruitk::Slate::VirtualJoystick(), Ruitk::Slate::VectorInputBox(MoveTemp(VecP)),
 		 Ruitk::Slate::RotatorInputBox(MoveTemp(RotP)), Ruitk::Slate::TreeView(MoveTemp(TreeP)),
 		 Ruitk::Slate::Splitter2x2(FRuitkSplitter2x2Props(), {MoveTemp(QuadTL), MoveTemp(QuadBR)})})};

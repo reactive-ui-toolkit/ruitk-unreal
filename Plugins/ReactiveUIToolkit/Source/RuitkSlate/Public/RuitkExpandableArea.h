@@ -69,8 +69,8 @@ namespace Ruitk::Slate
 
 	/** A collapsible section. Give it two children with `slot.role="header"` and `slot.role="body"`. */
 	RUITKSLATE_API FRuitkNode ExpandableArea(FRuitkExpandableAreaProps Props = FRuitkExpandableAreaProps(),
-												TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												FRuitkKey Key = FRuitkKey());
+											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											 FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{

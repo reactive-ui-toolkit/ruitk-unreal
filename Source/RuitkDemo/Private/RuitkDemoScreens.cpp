@@ -109,16 +109,18 @@ static FRuitkNodeArray GalleryShellComp(FRuitkContext& Ctx, const FRuitkEmptyPro
 
 	FRuitkNode BodyRow = Ruitk::Slate::HorizontalBox(
 		FRuitkHorizontalBoxProps(),
-		{Ruitk::Slate::Box(MoveTemp(MenuWidth),
-						 {Ruitk::Slate::Border(MoveTemp(MenuCard),
-											 {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(MenuRows))})}),
+		{Ruitk::Slate::Box(
+			 MoveTemp(MenuWidth),
+			 {Ruitk::Slate::Border(MoveTemp(MenuCard),
+								   {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(MenuRows))})}),
 		 MoveTemp(ContentSlot)});
 	BodyRow = WithSlot(MoveTemp(BodyRow), FName(TEXT("Slot.Fill")), FRuitkValue(1.0f));
 
 	return {Ruitk::Slate::Box(
-		FRuitkBoxProps(), {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
-												 {StyledText(TEXT("Reactive UI Toolkit for Unreal — example gallery"), 20.0f),
-												  Gap(4.0f), MoveTemp(BodyRow)})})};
+		FRuitkBoxProps(),
+		{Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
+								   {StyledText(TEXT("Reactive UI Toolkit for Unreal — example gallery"), 20.0f),
+									Gap(4.0f), MoveTemp(BodyRow)})})};
 }
 RUITK_COMPONENT(GalleryShellComp)
 

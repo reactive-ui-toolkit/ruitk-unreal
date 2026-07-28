@@ -137,8 +137,8 @@ FRuitkHostHandle FRuitkSlateHost::CreateInstance(FRuitkElementTypeId Type, const
 	return Node;
 }
 
-void FRuitkSlateHost::CommitUpdate(const FRuitkHostHandle& Handle, FRuitkElementTypeId Type, const FRuitkPropsBase* OldProps,
-								 const FRuitkPropsBase& NewProps)
+void FRuitkSlateHost::CommitUpdate(const FRuitkHostHandle& Handle, FRuitkElementTypeId Type,
+								   const FRuitkPropsBase* OldProps, const FRuitkPropsBase& NewProps)
 {
 	FRuitkSlateNode* Node = Resolve(Handle);
 	if (Node == nullptr || !Node->Widget.IsValid() || Node->Adapter == nullptr)
@@ -201,7 +201,7 @@ void FRuitkSlateHost::CommitUpdate(const FRuitkHostHandle& Handle, FRuitkElement
 }
 
 void FRuitkSlateHost::ReleaseInstance(const FRuitkHostHandle& Handle, FRuitkElementTypeId Type,
-									const TSharedPtr<const FRuitkPropsBase>& LastProps, bool bWasChildless)
+									  const TSharedPtr<const FRuitkPropsBase>& LastProps, bool bWasChildless)
 {
 	FRuitkSlateNode* Node = Resolve(Handle);
 	if (Node == nullptr)
@@ -271,7 +271,8 @@ int32 FRuitkSlateHost::NumPooled(FRuitkElementTypeId Type) const
 	return Bucket != nullptr ? Bucket->Num() : 0;
 }
 
-void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FRuitkHostHandle& ChildHandle, int32 Index)
+void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FRuitkHostHandle& ChildHandle,
+								  int32 Index)
 {
 	FRuitkSlateNode* Parent = Resolve(ParentHandle);
 	FRuitkSlateNode* Child = Resolve(ChildHandle);
@@ -456,7 +457,8 @@ void FRuitkSlateHost::RemoveChildFromParent(FRuitkSlateNode& Parent, const TShar
 	}
 }
 
-void FRuitkSlateHost::ReplaceWidget(FRuitkSlateNode& Node, const FRuitkPropsBase* OldProps, const FRuitkPropsBase& NewProps)
+void FRuitkSlateHost::ReplaceWidget(FRuitkSlateNode& Node, const FRuitkPropsBase* OldProps,
+									const FRuitkPropsBase& NewProps)
 {
 	TSharedPtr<FRuitkSlateNode> Parent = Node.ParentNode.Pin();
 	if (!Parent.IsValid() || !Parent->Widget.IsValid() || Parent->Adapter == nullptr)

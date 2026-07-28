@@ -99,7 +99,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 	bActive = true;
 	bDirtyAgain = false;
 	Ruitk::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
-	StartConsoleHider();		   // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
+	StartConsoleHider(); // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
 	return true;

@@ -78,8 +78,8 @@ static FRuitkNodeArray WidgetsLayoutComp(FRuitkContext& Ctx, const FRuitkEmptyPr
 		{Ruitk::Slate::Box(
 			MoveTemp(BoxProps),
 			{Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::Slate::Spacer(MoveTemp(SpacerProps)),
-															  Ruitk::Slate::Image(MoveTemp(ImageProps)),
-															  Ruitk::Slate::ProgressBar(MoveTemp(BarProps))})})})};
+																  Ruitk::Slate::Image(MoveTemp(ImageProps)),
+																  Ruitk::Slate::ProgressBar(MoveTemp(BarProps))})})})};
 }
 RUITK_COMPONENT(WidgetsLayoutComp)
 
@@ -133,10 +133,10 @@ static FRuitkNodeArray WidgetsEditComp(FRuitkContext& Ctx, const FRuitkEmptyProp
 	FRuitkEditableTextBoxProps Props;
 	Props.SetText(FText::FromString(Gen == 0 ? TEXT("alpha") : TEXT("beta")));
 	Props.SetHintText(FText::FromString(TEXT("type here")));
-	Props.SetOnTextChanged(
-		FRuitkCallback::Create([Log](const FRuitkValue& V) { *Log += TEXT("chg:") + V.TextValue.ToString() + TEXT(";"); }));
+	Props.SetOnTextChanged(FRuitkCallback::Create([Log](const FRuitkValue& V)
+												  { *Log += TEXT("chg:") + V.TextValue.ToString() + TEXT(";"); }));
 	Props.SetOnTextCommitted(FRuitkCallback::Create([Log](const FRuitkValue& V)
-												  { *Log += TEXT("commit:") + V.TextValue.ToString() + TEXT(";"); }));
+													{ *Log += TEXT("commit:") + V.TextValue.ToString() + TEXT(";"); }));
 	Props.Ref = [](const FRuitkHostHandle& H) { WidgetTest::CapturedNode = H; };
 	return {Ruitk::Slate::EditableTextBox(MoveTemp(Props))};
 }
@@ -201,9 +201,9 @@ static FRuitkNodeArray WidgetsInputComp(FRuitkContext& Ctx, const FRuitkEmptyPro
 	Slide.SetOnValueChanged(
 		FRuitkCallback::Create([Log](const FRuitkValue& V) { *Log += FString::Printf(TEXT("v%.2f;"), V.FloatValue); }));
 
-	return {Ruitk::Slate::VerticalBox(
-		FRuitkVerticalBoxProps(),
-		{Ruitk::Slate::CheckBox(MoveTemp(Check), {Ruitk::TextBlock(TEXT("opt"))}), Ruitk::Slate::Slider(MoveTemp(Slide))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
+									  {Ruitk::Slate::CheckBox(MoveTemp(Check), {Ruitk::TextBlock(TEXT("opt"))}),
+									   Ruitk::Slate::Slider(MoveTemp(Slide))})};
 }
 RUITK_COMPONENT(WidgetsInputComp)
 
@@ -241,7 +241,7 @@ static FRuitkNodeArray WidgetsScrollCanvasComp(FRuitkContext& Ctx, const FRuitkE
 		[]()
 		{
 			return Ruitk::Slate::MakeDrawFn([](const FGeometry&, FSlateWindowElementList&, int32 LayerId) -> int32
-										  { return LayerId; });
+											{ return LayerId; });
 		},
 		Ruitk::Deps());
 
@@ -257,9 +257,9 @@ static FRuitkNodeArray WidgetsScrollCanvasComp(FRuitkContext& Ctx, const FRuitkE
 	{
 		Items.Add(Ruitk::TextBlock(FString::Printf(TEXT("item %d"), i)));
 	}
-	return {
-		Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::Slate::ScrollBox(MoveTemp(ScrollProps), MoveTemp(Items)),
-														 Ruitk::Slate::RuitkCanvas(MoveTemp(CanvasProps))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
+									  {Ruitk::Slate::ScrollBox(MoveTemp(ScrollProps), MoveTemp(Items)),
+									   Ruitk::Slate::RuitkCanvas(MoveTemp(CanvasProps))})};
 }
 RUITK_COMPONENT(WidgetsScrollCanvasComp)
 
@@ -312,8 +312,8 @@ static FRuitkNodeArray WidgetsBatch2Comp(FRuitkContext& Ctx, const FRuitkEmptyPr
 			 {Ruitk::TextBlock(TEXT("page A")), Ruitk::TextBlock(TEXT("page B")), Ruitk::TextBlock(TEXT("page C"))}),
 		 Ruitk::Slate::ScaleBox(MoveTemp(ScaleProps), {Ruitk::TextBlock(TEXT("scaled"))}),
 		 Ruitk::Slate::Throbber(MoveTemp(ThrobProps)),
-		 Ruitk::Slate::WrapBox(MoveTemp(WrapProps),
-							 {Ruitk::TextBlock(TEXT("w0")), Ruitk::TextBlock(TEXT("w1")), Ruitk::TextBlock(TEXT("w2"))})})};
+		 Ruitk::Slate::WrapBox(MoveTemp(WrapProps), {Ruitk::TextBlock(TEXT("w0")), Ruitk::TextBlock(TEXT("w1")),
+													 Ruitk::TextBlock(TEXT("w2"))})})};
 }
 RUITK_COMPONENT(WidgetsBatch2Comp)
 
@@ -381,11 +381,11 @@ static FRuitkNodeArray WidgetsBatch2bComp(FRuitkContext& Ctx, const FRuitkEmptyP
 	SepProps.SetColorAndOpacity(Phase >= 1 ? FLinearColor::Red : FLinearColor::White);
 
 	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
-									{Ruitk::Slate::MultiLineEditableTextBox(MoveTemp(MultiProps)),
-									 Ruitk::Slate::SearchBox(MoveTemp(SearchProps)),
-									 Ruitk::Slate::SafeZone(MoveTemp(SafeProps), {Ruitk::TextBlock(TEXT("safe"))}),
-									 Ruitk::Slate::DPIScaler(MoveTemp(DpiProps), {Ruitk::TextBlock(TEXT("scaled"))}),
-									 Ruitk::Slate::Separator(MoveTemp(SepProps))})};
+									  {Ruitk::Slate::MultiLineEditableTextBox(MoveTemp(MultiProps)),
+									   Ruitk::Slate::SearchBox(MoveTemp(SearchProps)),
+									   Ruitk::Slate::SafeZone(MoveTemp(SafeProps), {Ruitk::TextBlock(TEXT("safe"))}),
+									   Ruitk::Slate::DPIScaler(MoveTemp(DpiProps), {Ruitk::TextBlock(TEXT("scaled"))}),
+									   Ruitk::Slate::Separator(MoveTemp(SepProps))})};
 }
 RUITK_COMPONENT(WidgetsBatch2bComp)
 
@@ -460,11 +460,11 @@ static FRuitkNodeArray WidgetsBatch2cComp(FRuitkContext& Ctx, const FRuitkEmptyP
 		FRuitkVerticalBoxProps(),
 		{Ruitk::Slate::SpinBox(MoveTemp(SpinProps)),
 		 Ruitk::Slate::UniformWrapPanel(FRuitkUniformWrapPanelProps(),
-									  {Ruitk::TextBlock(TEXT("u0")), Ruitk::TextBlock(TEXT("u1"))}),
+										{Ruitk::TextBlock(TEXT("u0")), Ruitk::TextBlock(TEXT("u1"))}),
 		 Ruitk::Slate::RichTextBlock(MoveTemp(RichProps)),
 		 Ruitk::Slate::GridPanel(FRuitkGridPanelProps(), {CellBox(TEXT("g00"), 0, 0), CellBox(TEXT("g11"), 1, 1)}),
 		 Ruitk::Slate::UniformGridPanel(FRuitkUniformGridPanelProps(),
-									  {CellBox(TEXT("c00"), 0, 0), CellBox(TEXT("c01"), 0, 1)})})};
+										{CellBox(TEXT("c00"), 0, 0), CellBox(TEXT("c01"), 0, 1)})})};
 }
 RUITK_COMPONENT(WidgetsBatch2cComp)
 

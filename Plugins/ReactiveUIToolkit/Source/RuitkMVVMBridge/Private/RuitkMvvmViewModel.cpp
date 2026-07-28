@@ -102,7 +102,7 @@ bool Ruitk::Mvvm::RegisterGlobalViewModel(UGameInstance* GameInstance, FName Con
 }
 
 UMVVMViewModelBase* Ruitk::Mvvm::FindGlobalViewModel(UGameInstance* GameInstance, FName ContextName,
-												   TSubclassOf<UMVVMViewModelBase> ContextClass)
+													 TSubclassOf<UMVVMViewModelBase> ContextClass)
 {
 	UMVVMViewModelCollectionObject* Collection = GlobalCollection(GameInstance);
 	if (Collection == nullptr)

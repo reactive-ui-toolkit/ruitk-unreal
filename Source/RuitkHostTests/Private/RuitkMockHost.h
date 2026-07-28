@@ -60,8 +60,8 @@ public:
 		++N->UpdateCount;
 	}
 
-	virtual void ReleaseInstance(const FRuitkHostHandle& Node, FRuitkElementTypeId, const TSharedPtr<const FRuitkPropsBase>&,
-								 bool) override
+	virtual void ReleaseInstance(const FRuitkHostHandle& Node, FRuitkElementTypeId,
+								 const TSharedPtr<const FRuitkPropsBase>&, bool) override
 	{
 		FMockNode* N = Cast(Node);
 		N->bReleased = true;
@@ -212,7 +212,7 @@ namespace RuitkTest
 	}
 
 	inline FRuitkNode Box(FTestBoxProps InProps = FTestBoxProps(), TArray<FRuitkNode> Children = {},
-						FRuitkKey Key = FRuitkKey())
+						  FRuitkKey Key = FRuitkKey())
 	{
 		FRuitkNode Node;
 		Node.Kind = ERuitkNodeKind::Host;

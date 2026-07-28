@@ -104,7 +104,8 @@ static FRuitkNodeArray SlateIdentityComp(FRuitkContext& Ctx, const FRuitkEmptyPr
 {
 	auto [Value, SetValue] = Ctx.UseState<int32>(0);
 	SlateTest::IntSetter = SetValue;
-	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::TextBlock(FString::Printf(TEXT("v=%d"), Value))})};
+	return {
+		Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::TextBlock(FString::Printf(TEXT("v=%d"), Value))})};
 }
 RUITK_COMPONENT(SlateIdentityComp)
 

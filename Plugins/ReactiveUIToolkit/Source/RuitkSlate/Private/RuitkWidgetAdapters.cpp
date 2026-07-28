@@ -75,7 +75,7 @@ namespace
 } // namespace
 
 // Convenience for the repetitive row shape below.
-#define RUITK_ROW(Prop, ApplyExpr)                                                                                       \
+#define RUITK_ROW(Prop, ApplyExpr)                                                                                     \
 	if (N.Has##Prop() && (O == nullptr || !O->Has##Prop() || !(N.Prop == O->Prop)))                                    \
 	{                                                                                                                  \
 		ApplyExpr;                                                                                                     \
@@ -244,11 +244,11 @@ public:
 		const FRuitkScrollBoxProps& N = static_cast<const FRuitkScrollBoxProps&>(New);
 		const FRuitkScrollBoxProps* O = static_cast<const FRuitkScrollBoxProps*>(Old);
 		RUITK_ROW(Orientation,
-				W.SetOrientation(N.Orientation == FName(TEXT("horizontal")) ? Orient_Horizontal : Orient_Vertical))
+				  W.SetOrientation(N.Orientation == FName(TEXT("horizontal")) ? Orient_Horizontal : Orient_Vertical))
 		// TD-012 sweep (WIDGET_COMPLETION_PLAN wave 2). ScrollToEnd-class imperatives ride P2
 		// (WidgetFromHandle<SScrollBox>).
 		RUITK_ROW(bAllowOverscroll,
-				W.SetAllowOverscroll(N.bAllowOverscroll ? EAllowOverscroll::Yes : EAllowOverscroll::No))
+				  W.SetAllowOverscroll(N.bAllowOverscroll ? EAllowOverscroll::Yes : EAllowOverscroll::No))
 		RUITK_ROW(bAnimateWheelScrolling, W.SetAnimateWheelScrolling(N.bAnimateWheelScrolling))
 		RUITK_ROW(WheelScrollMultiplier, W.SetWheelScrollMultiplier(N.WheelScrollMultiplier))
 	}
@@ -463,7 +463,7 @@ public:
 		RUITK_ROW(StepSize, W.SetStepSize(N.StepSize))
 		// TD-012 sweep (WIDGET_COMPLETION_PLAN wave 2): the remaining live setters.
 		RUITK_ROW(Orientation,
-				W.SetOrientation(N.Orientation == FName(TEXT("horizontal")) ? Orient_Horizontal : Orient_Vertical))
+				  W.SetOrientation(N.Orientation == FName(TEXT("horizontal")) ? Orient_Horizontal : Orient_Vertical))
 		RUITK_ROW(bLocked, W.SetLocked(N.bLocked))
 		RUITK_ROW(bIndentHandle, W.SetIndentHandle(N.bIndentHandle))
 		RUITK_ROW(SliderBarColor, W.SetSliderBarColor(FSlateColor(N.SliderBarColor)))
@@ -504,15 +504,16 @@ public:
 		RUITK_ROW(Percent, W.SetPercent(N.Percent))
 		// TD-012 rider (WIDGET_COMPLETION_PLAN wave 1): loyal lowerCamel enum names.
 		RUITK_ROW(BarFillType,
-				W.SetBarFillType(N.BarFillType == FName(TEXT("rightToLeft"))	  ? EProgressBarFillType::RightToLeft
-								 : N.BarFillType == FName(TEXT("fillFromCenter")) ? EProgressBarFillType::FillFromCenter
-								 : N.BarFillType == FName(TEXT("fillFromCenterHorizontal"))
-									 ? EProgressBarFillType::FillFromCenterHorizontal
-								 : N.BarFillType == FName(TEXT("fillFromCenterVertical"))
-									 ? EProgressBarFillType::FillFromCenterVertical
-								 : N.BarFillType == FName(TEXT("topToBottom")) ? EProgressBarFillType::TopToBottom
-								 : N.BarFillType == FName(TEXT("bottomToTop")) ? EProgressBarFillType::BottomToTop
-																			   : EProgressBarFillType::LeftToRight))
+				  W.SetBarFillType(N.BarFillType == FName(TEXT("rightToLeft")) ? EProgressBarFillType::RightToLeft
+								   : N.BarFillType == FName(TEXT("fillFromCenter"))
+									   ? EProgressBarFillType::FillFromCenter
+								   : N.BarFillType == FName(TEXT("fillFromCenterHorizontal"))
+									   ? EProgressBarFillType::FillFromCenterHorizontal
+								   : N.BarFillType == FName(TEXT("fillFromCenterVertical"))
+									   ? EProgressBarFillType::FillFromCenterVertical
+								   : N.BarFillType == FName(TEXT("topToBottom")) ? EProgressBarFillType::TopToBottom
+								   : N.BarFillType == FName(TEXT("bottomToTop")) ? EProgressBarFillType::BottomToTop
+																				 : EProgressBarFillType::LeftToRight))
 	}
 
 	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuitkValue* Value) override

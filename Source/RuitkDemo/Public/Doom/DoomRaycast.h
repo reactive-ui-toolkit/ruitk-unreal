@@ -46,7 +46,7 @@ namespace RuitkDoom
 		// Out: t (ray distance, ≥ 0), u (along segment 0..1), backside (true if ray
 		// hits the segment from the right of V1→V2 direction).
 		RUITKDEMO_API bool RaySegment(const FVector2D& Origin, const FVector2D& Dir, const FVector2D& A,
-									const FVector2D& B, float& OutT, float& OutU, bool& OutBackside);
+									  const FVector2D& B, float& OutT, float& OutU, bool& OutBackside);
 
 		// Polygon containment via crossing-number using a sector's linedefs.
 		// The sector is convex in our generated maps, but this tolerates concave too.
@@ -73,18 +73,19 @@ namespace RuitkDoom
 		// `OutHits` is rewound (Reset) each call — reuse ONE array across rays so
 		// the capacity warm-up happens once (the Godot pool discipline, see above).
 		RUITKDEMO_API void Cast(const FMapData& Map, const FVector2D& Origin, int32 OriginSector, const FVector2D& Dir,
-							  TArray<FWallHit>& OutHits);
+								TArray<FWallHit>& OutHits);
 
 		// ──────────────────────────────────────────────────────────────────────────
 		//  Convenience helpers
 		// ──────────────────────────────────────────────────────────────────────────
 
 		// Distance from point P to segment AB (squared, plus the parameter u).
-		RUITKDEMO_API float DistPointToSegmentSq(const FVector2D& P, const FVector2D& A, const FVector2D& B, float& OutU);
+		RUITKDEMO_API float DistPointToSegmentSq(const FVector2D& P, const FVector2D& A, const FVector2D& B,
+												 float& OutU);
 
 		// Test whether a circle at center with radius collides with any solid
 		// linedef of `SectorId` (or any one-sided line). Used by Phase 5+ collision.
 		RUITKDEMO_API bool CircleHitsSolidLine(const FMapData& Map, int32 SectorId, const FVector2D& Center,
-											 float Radius);
+											   float Radius);
 	} // namespace Raycast
 } // namespace RuitkDoom

@@ -199,7 +199,7 @@ namespace
 } // namespace
 
 // Convenience for the repetitive row shape (mirrors RuitkWidgetAdapters.cpp).
-#define RUITK_ROW(Prop, ApplyExpr)                                                                                       \
+#define RUITK_ROW(Prop, ApplyExpr)                                                                                     \
 	if (N.Has##Prop() && (O == nullptr || !O->Has##Prop() || !(N.Prop == O->Prop)))                                    \
 	{                                                                                                                  \
 		ApplyExpr;                                                                                                     \
@@ -295,14 +295,14 @@ public:
 		RUITK_ROW(Stretch, W.SetStretch(StretchOf(N.Stretch)))
 		RUITK_ROW(StretchDirection, W.SetStretchDirection(StretchDirOf(N.StretchDirection)))
 		// Scaled-content placement inside the box (SScaleBox live setters; default center|center).
-		RUITK_ROW(HAlign, W.SetHAlign(N.HAlign == FName(TEXT("left"))	   ? HAlign_Left
-									: N.HAlign == FName(TEXT("right")) ? HAlign_Right
-									: N.HAlign == FName(TEXT("fill"))  ? HAlign_Fill
-																	   : HAlign_Center))
-		RUITK_ROW(VAlign, W.SetVAlign(N.VAlign == FName(TEXT("top"))		? VAlign_Top
-									: N.VAlign == FName(TEXT("bottom")) ? VAlign_Bottom
-									: N.VAlign == FName(TEXT("fill"))	? VAlign_Fill
-																		: VAlign_Center))
+		RUITK_ROW(HAlign, W.SetHAlign(N.HAlign == FName(TEXT("left"))	 ? HAlign_Left
+									  : N.HAlign == FName(TEXT("right")) ? HAlign_Right
+									  : N.HAlign == FName(TEXT("fill"))	 ? HAlign_Fill
+																		 : HAlign_Center))
+		RUITK_ROW(VAlign, W.SetVAlign(N.VAlign == FName(TEXT("top"))	  ? VAlign_Top
+									  : N.VAlign == FName(TEXT("bottom")) ? VAlign_Bottom
+									  : N.VAlign == FName(TEXT("fill"))	  ? VAlign_Fill
+																		  : VAlign_Center))
 	}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
@@ -355,7 +355,7 @@ public:
 		const FRuitkWrapBoxProps& N = static_cast<const FRuitkWrapBoxProps&>(New);
 		const FRuitkWrapBoxProps* O = static_cast<const FRuitkWrapBoxProps*>(Old);
 		RUITK_ROW(Orientation,
-				W.SetOrientation(N.Orientation == FName(TEXT("vertical")) ? Orient_Vertical : Orient_Horizontal))
+				  W.SetOrientation(N.Orientation == FName(TEXT("vertical")) ? Orient_Vertical : Orient_Horizontal))
 		RUITK_ROW(bUseAllottedSize, W.SetUseAllottedSize(N.bUseAllottedSize))
 		RUITK_ROW(WrapSize, W.SetWrapSize(N.WrapSize))
 		RUITK_ROW(InnerSlotPadding, W.SetInnerSlotPadding(N.InnerSlotPadding))
@@ -425,9 +425,9 @@ public:
 			.OnTextChanged(
 				FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleText,
 										 static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextChanged_Bit)))
-			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit)));
+			.OnTextCommitted(FOnTextCommitted::CreateSP(
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+				static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit)));
 	}
 
 	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
@@ -451,7 +451,8 @@ public:
 	{
 		const FRuitkMultiLineEditableTextBoxProps& N = static_cast<const FRuitkMultiLineEditableTextBoxProps&>(New);
 		Proxy.SetHandler(static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextChanged_Bit), N.OnTextChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		Proxy.SetHandler(static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit),
+						 N.OnTextCommitted);
 	}
 };
 

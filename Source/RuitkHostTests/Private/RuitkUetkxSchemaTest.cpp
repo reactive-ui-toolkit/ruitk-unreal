@@ -54,7 +54,8 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 		TestEqual(TEXT("WidgetIndex is int"),
 				  Switcher->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("WidgetIndex")), FString(TEXT("int")));
 		const TSharedPtr<FJsonObject> Button = Elements->GetObjectField(TEXT("Button"));
-		TestEqual(TEXT("Button factory"), Button->GetStringField(TEXT("factory")), FString(TEXT("Ruitk::Slate::Button")));
+		TestEqual(TEXT("Button factory"), Button->GetStringField(TEXT("factory")),
+				  FString(TEXT("Ruitk::Slate::Button")));
 		TestTrue(TEXT("Button takes children"), Button->GetBoolField(TEXT("children")));
 		TestEqual(TEXT("OnClicked is an event"),
 				  Button->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("OnClicked")), FString(TEXT("event")));
@@ -62,10 +63,11 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 			TEXT("TextBlock Text is text"),
 			Elements->GetObjectField(TEXT("TextBlock"))->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("Text")),
 			FString(TEXT("text")));
-		TestEqual(
-			TEXT("DrawFn is expression-only"),
-			Elements->GetObjectField(TEXT("RuitkCanvas"))->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("DrawFn")),
-			FString(TEXT("expr")));
+		TestEqual(TEXT("DrawFn is expression-only"),
+				  Elements->GetObjectField(TEXT("RuitkCanvas"))
+					  ->GetObjectField(TEXT("attrs"))
+					  ->GetStringField(TEXT("DrawFn")),
+				  FString(TEXT("expr")));
 		TestFalse(TEXT("Spacer is childless"),
 				  Elements->GetObjectField(TEXT("Spacer"))->GetBoolField(TEXT("children")));
 
@@ -95,7 +97,8 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 
 	// ── the New Component template compiles through the real pipeline ─────────────────────
 	{
-		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("FileActionsTest"));
+		const FString Scratch =
+			FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("FileActionsTest"));
 		IFileManager::Get().DeleteDirectory(*Scratch, false, true);
 		IFileManager::Get().MakeDirectory(*Scratch, true);
 
@@ -126,7 +129,8 @@ bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 			FPaths::NormalizeDirectoryName(P);
 			return P;
 		};
-		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("ConfigWalkTest"));
+		const FString Scratch =
+			FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("ConfigWalkTest"));
 		IFileManager::Get().DeleteDirectory(*Scratch, false, true);
 
 		// A fake module `MyMod` (its *.Build.cs marks the module root), with a root-declaring

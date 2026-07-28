@@ -50,10 +50,9 @@ namespace Ruitk::Mvvm
 	 *  (context class = the viewmodel's class). Any UMG view can then bind it globally. False if the
 	 *  MVVM game subsystem is unavailable or the add was rejected (duplicate context). */
 	RUITKMVVMBRIDGE_API bool RegisterGlobalViewModel(UGameInstance* GameInstance, FName ContextName,
-														  UMVVMViewModelBase* ViewModel);
+													 UMVVMViewModelBase* ViewModel);
 
 	/** Resolve a globally-registered viewmodel by context name (+ optional class); null if absent. */
-	RUITKMVVMBRIDGE_API UMVVMViewModelBase*
-	FindGlobalViewModel(UGameInstance* GameInstance, FName ContextName,
-						TSubclassOf<UMVVMViewModelBase> ContextClass = nullptr);
+	RUITKMVVMBRIDGE_API UMVVMViewModelBase* FindGlobalViewModel(UGameInstance* GameInstance, FName ContextName,
+																TSubclassOf<UMVVMViewModelBase> ContextClass = nullptr);
 } // namespace Ruitk::Mvvm

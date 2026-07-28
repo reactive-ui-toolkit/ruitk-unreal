@@ -24,10 +24,10 @@ namespace Ruitk::Umg
 	 * `ImageSize` is the brush's desired size (0 = use the resource's native size). While the
 	 * returned brush is alive, its resource object is kept referenced against GC.
 	 */
-	RUITKUMG_API TSharedPtr<FSlateBrush>
-	MakeAssetBrush(UObject* ResourceObject, FVector2D ImageSize = FVector2D::ZeroVector,
-				   FLinearColor Tint = FLinearColor::White,
-				   ESlateBrushDrawType::Type DrawAs = ESlateBrushDrawType::Image);
+	RUITKUMG_API TSharedPtr<FSlateBrush> MakeAssetBrush(UObject* ResourceObject,
+														FVector2D ImageSize = FVector2D::ZeroVector,
+														FLinearColor Tint = FLinearColor::White,
+														ESlateBrushDrawType::Type DrawAs = ESlateBrushDrawType::Image);
 
 	/** How many live asset brushes the GC root currently tracks (test/diagnostic). */
 	RUITKUMG_API int32 NumTrackedAssetBrushes();

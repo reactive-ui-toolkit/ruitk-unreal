@@ -76,7 +76,8 @@ static FRuitkNodeArray StyleModesComp(FRuitkContext& Ctx, const FRuitkEmptyProps
 			Style->Add(FName(TEXT("ToolTipText")), FRuitkValue(FText::FromString(TEXT("hover me"))));
 		}
 	}
-	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {StyleTest::StyledText(TEXT("styled"), MoveTemp(Style))})};
+	return {
+		Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {StyleTest::StyledText(TEXT("styled"), MoveTemp(Style))})};
 }
 RUITK_COMPONENT(StyleModesComp)
 
@@ -165,7 +166,7 @@ static FRuitkNodeArray StyleClassesComp(FRuitkContext& Ctx, const FRuitkEmptyPro
 		Inline->Add(FName(TEXT("RenderOpacity")), FRuitkValue(0.9f)); // inline beats the class
 	}
 	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
-									{StyleTest::StyledText(TEXT("classy"), Inline, {FName(TEXT("rui-test-dim"))})})};
+									  {StyleTest::StyledText(TEXT("classy"), Inline, {FName(TEXT("rui-test-dim"))})})};
 }
 RUITK_COMPONENT(StyleClassesComp)
 
@@ -279,8 +280,8 @@ static FRuitkNodeArray StyleTintLeavesComp(FRuitkContext& Ctx, const FRuitkEmpty
 		SepStyle->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(SepTint));
 		SepProps.Style = SepStyle;
 	}
-	return {Ruitk::Slate::VerticalBox(
-		FRuitkVerticalBoxProps(), {Ruitk::Slate::Image(MoveTemp(ImageProps)), Ruitk::Slate::Separator(MoveTemp(SepProps))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::Slate::Image(MoveTemp(ImageProps)),
+																 Ruitk::Slate::Separator(MoveTemp(SepProps))})};
 }
 RUITK_COMPONENT(StyleTintLeavesComp)
 

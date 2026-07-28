@@ -276,9 +276,9 @@ void FUetkxWatcher::ReportDiags(const FString& UetkxPath, const TArray<FString>&
 			FText::FromString(TEXT("Open this file at the error line in your editor")),
 			FOnActionTokenExecuted::CreateLambda([Path, Line, Col]() { UetkxOpenAtLine(Path, Line, Col); })));
 	}
-	Log.Notify(FText::FromString(
-				   FString::Printf(TEXT("Ruitk: %s failed to compile"), *FPaths::GetCleanFilename(UetkxPath))),
-			   EMessageSeverity::Error, /*bForce*/ false);
+	Log.Notify(
+		FText::FromString(FString::Printf(TEXT("Ruitk: %s failed to compile"), *FPaths::GetCleanFilename(UetkxPath))),
+		EMessageSeverity::Error, /*bForce*/ false);
 }
 
 int32 FUetkxWatcher::Sweep(const TCHAR* Reason)

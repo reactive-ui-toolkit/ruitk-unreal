@@ -45,7 +45,8 @@ public:
 	 *  CreateSP + slot-index payload (many Slate events are construct-time SLATE_EVENT args,
 	 *  which is why the proxy arrives here; it is non-null iff HasEvents()). The host follows
 	 *  with ApplyDiff(W, nullptr, Props). */
-	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>& Proxy) = 0;
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) = 0;
 
 	/** Memberwise compare-and-set. Old == nullptr means "apply everything set" (fresh widget
 	 *  or pool reuse without stashed props). */
@@ -98,7 +99,8 @@ public:
 	}
 
 	/** Re-apply a child's slot.* props after they changed (v1 may remove+reinsert). */
-	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child, const FRuitkStyleDict* SlotProps)
+	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
+									  const FRuitkStyleDict* SlotProps)
 	{
 	}
 

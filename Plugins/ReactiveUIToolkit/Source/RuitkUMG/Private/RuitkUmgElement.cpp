@@ -122,7 +122,7 @@ namespace Ruitk::Umg
 	}
 
 	static FRuitkNode MakeUmgNode(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps,
-								FRuitkKey Key)
+								  FRuitkKey Key)
 	{
 		RegisterUmgAdapters();
 		FRuitkUmgProps Props;
@@ -145,7 +145,8 @@ namespace Ruitk::Umg
 		return MakeUmgNode(MoveTemp(WidgetClass), World, FRuitkStyleDict(), Key);
 	}
 
-	FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps, FRuitkKey Key)
+	FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps,
+						  FRuitkKey Key)
 	{
 		return MakeUmgNode(MoveTemp(WidgetClass), World, MoveTemp(WidgetProps), Key);
 	}

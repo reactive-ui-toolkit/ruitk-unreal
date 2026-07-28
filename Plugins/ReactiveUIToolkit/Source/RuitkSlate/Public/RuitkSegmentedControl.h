@@ -20,7 +20,7 @@ template <typename OptionType> class SSegmentedControl;
 struct RUITKSLATE_API FRuitkSegmentedControlProps final : public FRuitkPropsBase
 {
 	RUITK_PROP(TArray<FString>, Labels, 0) // construct-only (segments bake)
-	RUITK_PROP(int32, SelectedIndex, 1)	 // controlled runtime
+	RUITK_PROP(int32, SelectedIndex, 1)	   // controlled runtime
 	RUITK_PROP_EVENT(OnSelectionChanged, 2)
 	RUITK_PROPS_BODY(FRuitkSegmentedControlProps, RUITK_EQ(Labels) RUITK_EQ(SelectedIndex) RUITK_EQ(OnSelectionChanged))
 };
@@ -54,7 +54,7 @@ namespace Ruitk::Slate
 
 	/** A labelled segmented selector (tab bar). Labels bake the segments; SelectedIndex is controlled. */
 	RUITKSLATE_API FRuitkNode SegmentedControl(FRuitkSegmentedControlProps Props = FRuitkSegmentedControlProps(),
-												  FRuitkKey Key = FRuitkKey());
+											   FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{

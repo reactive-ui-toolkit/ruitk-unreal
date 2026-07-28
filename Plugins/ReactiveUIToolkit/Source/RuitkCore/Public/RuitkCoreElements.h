@@ -139,9 +139,9 @@ namespace Ruitk
 
 	/** The Suspense component function (registered; use via Ruitk::Suspense below). */
 	RUITKCORE_API FRuitkNodeArray SuspenseComponent(FRuitkContext& Ctx, const FRuitkSuspenseProps& Props,
-													   const TArray<FRuitkNode>& Children);
+													const TArray<FRuitkNode>& Children);
 
 	/** Declarative boundary: fallback until IsReady() flips true, then the children. */
 	RUITKCORE_API FRuitkNode Suspense(TFunction<bool()> IsReady, FRuitkNode Fallback, TArray<FRuitkNode> Children,
-										 FRuitkKey Key = FRuitkKey());
+									  FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk

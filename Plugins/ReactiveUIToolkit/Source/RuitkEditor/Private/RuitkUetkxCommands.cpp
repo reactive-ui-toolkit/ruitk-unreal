@@ -15,7 +15,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuitkCmd, Log, All);
 
 FRuitkUetkxCommands::FRuitkUetkxCommands()
 	: TCommands<FRuitkUetkxCommands>(TEXT("RuitkUetkx"), LOCTEXT("ContextDesc", "RuitkUetkx"), NAME_None,
-										FAppStyle::GetAppStyleSetName())
+									 FAppStyle::GetAppStyleSetName())
 {
 }
 

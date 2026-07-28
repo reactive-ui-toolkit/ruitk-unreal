@@ -293,7 +293,7 @@ static FRuitkNodeArray SuspenseHostComp(FRuitkContext&, const FRuitkEmptyProps&,
 {
 	TSharedPtr<bool> Flag = GReadyFlag;
 	return {Ruitk::Suspense([Flag]() { return Flag.IsValid() && *Flag; }, Ruitk::TextBlock(TEXT("loading")),
-						  {Ruitk::TextBlock(TEXT("loaded"))})};
+							{Ruitk::TextBlock(TEXT("loaded"))})};
 }
 RUITK_COMPONENT(SuspenseHostComp)
 
@@ -336,13 +336,13 @@ static FRuitkNodeArray BoundaryHostComp(FRuitkContext& Ctx, const FRuitkEmptyPro
 	auto [ResetKey, SetResetKey] = Ctx.UseState<int32>(0);
 	CoreTest2::IntSetter = SetResetKey;
 	return {Ruitk::ErrorBoundary(Ruitk::TextBlock(TEXT("fallback")), {Ruitk::FC(&FailingComp)}, FRuitkKey(ResetKey),
-							   [](const FString& Reason)
-							   {
-								   if (GCaught.IsValid())
-								   {
-									   *GCaught = Reason;
-								   }
-							   })};
+								 [](const FString& Reason)
+								 {
+									 if (GCaught.IsValid())
+									 {
+										 *GCaught = Reason;
+									 }
+								 })};
 }
 RUITK_COMPONENT(BoundaryHostComp)
 
@@ -376,11 +376,11 @@ bool FRuitkCoreErrorBoundaryTest::RunTest(const FString&)
 static FRuitkNodeArray FragmentComp(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	return {RuitkTest::Box(RuitkTest::BoxProps(TEXT("list")),
-						 {
-							 Ruitk::TextBlock(TEXT("a")),
-							 Ruitk::Fragment({Ruitk::TextBlock(TEXT("b")), Ruitk::TextBlock(TEXT("c"))}),
-							 Ruitk::TextBlock(TEXT("d")),
-						 })};
+						   {
+							   Ruitk::TextBlock(TEXT("a")),
+							   Ruitk::Fragment({Ruitk::TextBlock(TEXT("b")), Ruitk::TextBlock(TEXT("c"))}),
+							   Ruitk::TextBlock(TEXT("d")),
+						   })};
 }
 RUITK_COMPONENT(FragmentComp)
 
@@ -415,7 +415,7 @@ static FRuitkNodeArray ReuseBySlotComp(FRuitkContext& Ctx, const FRuitkEmptyProp
 	{
 		// EVERY key changes every render â€” the keyed path would delete+recreate all 5.
 		Items.Add(RuitkTest::Box(RuitkTest::BoxProps(FString::Printf(TEXT("v%d"), i + Frame), i + Frame), {},
-							   FRuitkKey(FString::Printf(TEXT("k%d_%d"), i, Frame))));
+								 FRuitkKey(FString::Printf(TEXT("k%d_%d"), i, Frame))));
 	}
 	FTestBoxProps ContainerProps = RuitkTest::BoxProps(TEXT("container"));
 	ContainerProps.bReuseBySlot = true;

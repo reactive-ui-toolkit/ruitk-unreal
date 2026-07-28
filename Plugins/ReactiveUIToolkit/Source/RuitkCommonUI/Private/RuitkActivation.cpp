@@ -30,7 +30,7 @@ namespace
 	};
 
 	FRuitkNodeArray ActivationProviderComp(FRuitkContext& Ctx, const FRuitkActivationProviderProps& Props,
-										 const TArray<FRuitkNode>& Children)
+										   const TArray<FRuitkNode>& Children)
 	{
 		Ctx.ProvideContext(Ruitk::CommonUI::ActivationContext(), Props.State);
 		return FRuitkNodeArray(Children);
@@ -65,7 +65,7 @@ FRuitkNode Ruitk::CommonUI::ActivationProvider(FRuitkActivationState State, TArr
 TRuitkContext<TSharedPtr<FRuitkFocusTargetRegistry>>& Ruitk::CommonUI::FocusTargetContext()
 {
 	static TRuitkContext<TSharedPtr<FRuitkFocusTargetRegistry>> Ctx(TSharedPtr<FRuitkFocusTargetRegistry>(),
-																FName(TEXT("RuitkFocusTarget")));
+																	FName(TEXT("RuitkFocusTarget")));
 	return Ctx;
 }
 
@@ -83,7 +83,7 @@ namespace
 	};
 
 	FRuitkNodeArray FocusTargetProviderComp(FRuitkContext& Ctx, const FRuitkFocusTargetProviderProps& Props,
-										  const TArray<FRuitkNode>& Children)
+											const TArray<FRuitkNode>& Children)
 	{
 		Ctx.ProvideContext(Ruitk::CommonUI::FocusTargetContext(), Props.Registry);
 		return FRuitkNodeArray(Children);
@@ -116,8 +116,8 @@ void Ruitk::CommonUI::UseDesiredFocus(FRuitkContext& Ctx, TFunction<void()> Focu
 		Ruitk::EveryCommit());
 }
 
-FRuitkNode Ruitk::CommonUI::FocusTargetProvider(TSharedPtr<FRuitkFocusTargetRegistry> Registry, TArray<FRuitkNode> Children,
-											FRuitkKey Key)
+FRuitkNode Ruitk::CommonUI::FocusTargetProvider(TSharedPtr<FRuitkFocusTargetRegistry> Registry,
+												TArray<FRuitkNode> Children, FRuitkKey Key)
 {
 	FRuitkFocusTargetProviderProps Props;
 	Props.Registry = MoveTemp(Registry);

@@ -34,13 +34,13 @@ namespace Ruitk::Slate
 	/** Build the effective dict: classes in order, then inline style overrides. Returns
 	 *  null when nothing contributes. */
 	RUITKSLATE_API TSharedPtr<FRuitkStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
-																	  const TSharedPtr<FRuitkStyleDict>& InlineStyle);
+																   const TSharedPtr<FRuitkStyleDict>& InlineStyle);
 
 	/** Diff-apply Old -> New on the widget: changed/new keys apply; keys present in Old but
 	 *  absent in New RESET to their defaults. Unknown keys warn once per key name. Adapter
 	 *  handles widget-specific keys first (may be null). */
 	RUITKSLATE_API void ApplyStyleDiff(SWidget& Widget, IRuitkElementAdapter* Adapter, const FRuitkStyleDict* Old,
-											const FRuitkStyleDict* New);
+									   const FRuitkStyleDict* New);
 
 	// ── TD-002: the THIRD layer — @theme tokens + @uss stylesheets ─────────────────────────
 	//
@@ -151,7 +151,10 @@ namespace Ruitk
 			return Set(FName(TEXT("slot.valign")), FRuitkValue(VAlignName(V)));
 		}
 		FRuitkSlotBuilder& Fill(float Coefficient) { return Set(FName(TEXT("slot.fill")), FRuitkValue(Coefficient)); }
-		FRuitkSlotBuilder& ZOrder(int32 Z) { return Set(FName(TEXT("Slot.ZOrder")), FRuitkValue(static_cast<int64>(Z))); }
+		FRuitkSlotBuilder& ZOrder(int32 Z)
+		{
+			return Set(FName(TEXT("Slot.ZOrder")), FRuitkValue(static_cast<int64>(Z)));
+		}
 		FRuitkSlotBuilder& Position(const FVector2D& V) { return Set(FName(TEXT("Slot.Position")), FRuitkValue(V)); }
 		FRuitkSlotBuilder& Size(const FVector2D& V) { return Set(FName(TEXT("Slot.Size")), FRuitkValue(V)); }
 		FRuitkSlotBuilder& Offset(const FMargin& M)
@@ -167,7 +170,10 @@ namespace Ruitk
 		FRuitkSlotBuilder& AutoSize(bool V) { return Set(FName(TEXT("Slot.AutoSize")), FRuitkValue(V)); }
 		// R12: GridPanel/UniformGridPanel placement — these were consumed by the adapters all
 		// along but missing from the exported canon (the LSP flagged them as unknown).
-		FRuitkSlotBuilder& Column(int32 V) { return Set(FName(TEXT("Slot.Column")), FRuitkValue(static_cast<int64>(V))); }
+		FRuitkSlotBuilder& Column(int32 V)
+		{
+			return Set(FName(TEXT("Slot.Column")), FRuitkValue(static_cast<int64>(V)));
+		}
 		FRuitkSlotBuilder& Row(int32 V) { return Set(FName(TEXT("Slot.Row")), FRuitkValue(static_cast<int64>(V))); }
 		FRuitkSlotBuilder& Role(FName V) { return Set(FName(TEXT("Slot.Role")), FRuitkValue(V)); }
 		FRuitkSlotBuilder& SizeRule(FName V) { return Set(FName(TEXT("Slot.SizeRule")), FRuitkValue(V)); }

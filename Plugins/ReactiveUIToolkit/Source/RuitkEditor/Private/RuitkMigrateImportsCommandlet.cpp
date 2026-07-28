@@ -371,7 +371,8 @@ namespace
 				}
 			}
 		}
-		UE_LOG(LogRuitkMigrate, Display, TEXT("%s: %d file(s), %d error(s) after migration"), Label, Files.Num(), Errors);
+		UE_LOG(LogRuitkMigrate, Display, TEXT("%s: %d file(s), %d error(s) after migration"), Label, Files.Num(),
+			   Errors);
 		return Errors;
 	}
 

@@ -118,8 +118,8 @@ bool FRuitkListViewTest::RunTest(const FString&)
 		SP.SetItems(SelItems);
 		SP.SetRenderItem(R3);
 		SP.SetSelectionMode(FName(TEXT("single")));
-		SP.SetOnSelectionChanged(
-			FRuitkCallback::Create([](const FRuitkValue& Arg) { GLastSelectedIndex = static_cast<int32>(Arg.IntValue); }));
+		SP.SetOnSelectionChanged(FRuitkCallback::Create([](const FRuitkValue& Arg)
+														{ GLastSelectedIndex = static_cast<int32>(Arg.IntValue); }));
 
 		TSharedRef<FRuitkRoot> SRoot = FRuitkRoot::Create(ListView(SP));
 		SRoot->FlushSync();

@@ -40,11 +40,11 @@ bool FRuitkDragDropTest::RunTest(const FString&)
 		GDragEnded = -1;
 		int32 EndCalls = 0;
 		TSharedRef<FRuitkDragDropOp> Op = FRuitkDragDropOp::New(FName(TEXT("card")), FRuitkValue(7),
-															[&EndCalls](bool bHandled)
-															{
-																++EndCalls;
-																GDragEnded = bHandled ? 1 : 0;
-															});
+																[&EndCalls](bool bHandled)
+																{
+																	++EndCalls;
+																	GDragEnded = bHandled ? 1 : 0;
+																});
 		TestEqual(TEXT("op carries the type"), Op->DragType, FName(TEXT("card")));
 		TestEqual(TEXT("op carries the payload"), static_cast<int32>(Op->Payload.IntValue), 7);
 
@@ -60,7 +60,8 @@ bool FRuitkDragDropTest::RunTest(const FString&)
 		GDropped = -99;
 		TSharedRef<SRuitkDropTarget> Target = SNew(SRuitkDropTarget);
 		Target->SetAcceptTypes({FName(TEXT("card"))});
-		Target->SetOnDrop(FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
+		Target->SetOnDrop(
+			FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
 
 		FPointerEvent Pointer;
 		FDragDropEvent Accepted(Pointer, FRuitkDragDropOp::New(FName(TEXT("card")), FRuitkValue(42)));
@@ -74,7 +75,8 @@ bool FRuitkDragDropTest::RunTest(const FString&)
 		GDropped = -99;
 		TSharedRef<SRuitkDropTarget> Target = SNew(SRuitkDropTarget);
 		Target->SetAcceptTypes({FName(TEXT("card"))});
-		Target->SetOnDrop(FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
+		Target->SetOnDrop(
+			FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
 
 		FPointerEvent Pointer;
 		FDragDropEvent Rejected(Pointer, FRuitkDragDropOp::New(FName(TEXT("token")), FRuitkValue(99)));

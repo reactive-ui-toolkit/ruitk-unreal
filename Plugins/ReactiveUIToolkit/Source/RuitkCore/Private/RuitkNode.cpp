@@ -383,7 +383,7 @@ namespace Ruitk
 	}
 
 	FRuitkNode ErrorBoundary(FRuitkNode Fallback, TArray<FRuitkNode> Children, FRuitkKey ResetKey,
-						   TFunction<void(const FString&)> OnError, FRuitkKey Key)
+							 TFunction<void(const FString&)> OnError, FRuitkKey Key)
 	{
 		FRuitkNode Node;
 		Node.Kind = ERuitkNodeKind::ErrorBoundary;

@@ -8,10 +8,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuitkCommonUI, Log, All);
 class FRuitkCommonUIModule : public IModuleInterface
 {
 public:
-	virtual void StartupModule() override
-	{
-		UE_LOG(LogRuitkCommonUI, Verbose, TEXT("RuitkCommonUI module started"));
-	}
+	virtual void StartupModule() override { UE_LOG(LogRuitkCommonUI, Verbose, TEXT("RuitkCommonUI module started")); }
 
 	virtual void ShutdownModule() override {}
 };

@@ -32,7 +32,8 @@ namespace
 	class FRuitkShortcutProcessor : public IInputProcessor
 	{
 	public:
-		FRuitkShortcutProcessor(const Ruitk::Slate::FRuitkShortcut& InChord, TSharedRef<TRuitkRef<TFunction<void()>>> InBox)
+		FRuitkShortcutProcessor(const Ruitk::Slate::FRuitkShortcut& InChord,
+								TSharedRef<TRuitkRef<TFunction<void()>>> InBox)
 			: Chord(InChord), Box(MoveTemp(InBox))
 		{
 		}

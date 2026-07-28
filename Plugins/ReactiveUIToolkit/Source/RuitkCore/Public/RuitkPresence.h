@@ -51,7 +51,7 @@ namespace Ruitk
 	 * child that never calls NotifyDone — a missing NotifyDone costs an animation, not a leak.
 	 */
 	RUITKCORE_API FRuitkNode Presence(TArray<FRuitkNode> Children, float MaxExitSeconds = 2.0f,
-										 FRuitkKey Key = FRuitkKey());
+									  FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk
 
 /** Read the nearest <Presence> boundary's signal for THIS child. Safe anywhere (see default). */

@@ -89,9 +89,8 @@ void SRuitkUetkxHmrPanel::Construct(const FArguments&)
 								SVerticalBox::Slot().AutoHeight().Padding(
 									0, 1)[StatRow(LOCTEXT("Last", "Last"),
 												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetLastText))] +
-								SVerticalBox::Slot().AutoHeight().Padding(
-									0, 1)[StatRow(LOCTEXT("Ram", "RAM"),
-												  TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetRamText))]
+								SVerticalBox::Slot().AutoHeight().Padding(0, 1)[StatRow(
+									LOCTEXT("Ram", "RAM"), TAttribute<FText>(this, &SRuitkUetkxHmrPanel::GetRamText))]
 								// ── settings ─────────────────────────────────────────────────────────────
 								+ SVerticalBox::Slot().AutoHeight().Padding(0, 12, 0, 1)
 									  [SNew(SCheckBox)
@@ -225,7 +224,7 @@ FText SRuitkUetkxHmrPanel::GetRamText() const
 ECheckBoxState SRuitkUetkxHmrPanel::IsNotificationsChecked() const
 {
 	return GetDefault<URuitkUetkxEditorSettings>()->bShowNotifications ? ECheckBoxState::Checked
-																		  : ECheckBoxState::Unchecked;
+																	   : ECheckBoxState::Unchecked;
 }
 
 void SRuitkUetkxHmrPanel::OnNotificationsChanged(ECheckBoxState NewState)
@@ -238,7 +237,7 @@ void SRuitkUetkxHmrPanel::OnNotificationsChanged(ECheckBoxState NewState)
 ECheckBoxState SRuitkUetkxHmrPanel::IsVerboseChecked() const
 {
 	return GetDefault<URuitkUetkxEditorSettings>()->bVerboseWatcher ? ECheckBoxState::Checked
-																	   : ECheckBoxState::Unchecked;
+																	: ECheckBoxState::Unchecked;
 }
 
 void SRuitkUetkxHmrPanel::OnVerboseChanged(ECheckBoxState NewState)
@@ -251,7 +250,7 @@ void SRuitkUetkxHmrPanel::OnVerboseChanged(ECheckBoxState NewState)
 ECheckBoxState SRuitkUetkxHmrPanel::IsHideConsoleChecked() const
 {
 	return GetDefault<URuitkUetkxEditorSettings>()->bHideLiveCodingConsole ? ECheckBoxState::Checked
-																			  : ECheckBoxState::Unchecked;
+																		   : ECheckBoxState::Unchecked;
 }
 
 void SRuitkUetkxHmrPanel::OnHideConsoleChanged(ECheckBoxState NewState)
@@ -349,14 +348,11 @@ TSharedRef<SWidget> SRuitkUetkxHmrPanel::BuildShortcutRow(int32 RecordIndex, con
 			   .AutoWidth()
 			   .VAlign(VAlign_Center)
 			   .Padding(0, 0, 8, 0)[SNew(SBox).WidthOverride(84)[SNew(STextBlock).Font(Font).Text(Label)]] +
-		   SHorizontalBox::Slot().FillWidth(1.0f).VAlign(
-			   VAlign_Center)[SNew(SButton)
-								  .ToolTipText(LOCTEXT("RecordTip", "Click, then press a key combo (Esc to cancel)."))
-								  .OnClicked(this, &SRuitkUetkxHmrPanel::OnRecordClicked,
-											 RecordIndex)[SNew(STextBlock)
-															  .Font(Font)
-															  .Text(this, &SRuitkUetkxHmrPanel::GetShortcutText,
-																	RecordIndex)]] +
+		   SHorizontalBox::Slot().FillWidth(1.0f).VAlign(VAlign_Center)
+			   [SNew(SButton)
+					.ToolTipText(LOCTEXT("RecordTip", "Click, then press a key combo (Esc to cancel)."))
+					.OnClicked(this, &SRuitkUetkxHmrPanel::OnRecordClicked, RecordIndex)
+						[SNew(STextBlock).Font(Font).Text(this, &SRuitkUetkxHmrPanel::GetShortcutText, RecordIndex)]] +
 		   SHorizontalBox::Slot()
 			   .AutoWidth()
 			   .VAlign(VAlign_Center)

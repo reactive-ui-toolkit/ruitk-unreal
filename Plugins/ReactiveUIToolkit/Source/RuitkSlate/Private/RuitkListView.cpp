@@ -279,7 +279,8 @@ public:
 	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SRuitkListView& W = static_cast<SRuitkListView&>(Widget);
-		ApplyItemViewShared(W, static_cast<const FRuitkListViewProps*>(Old), static_cast<const FRuitkListViewProps&>(New));
+		ApplyItemViewShared(W, static_cast<const FRuitkListViewProps*>(Old),
+							static_cast<const FRuitkListViewProps&>(New));
 	}
 };
 
@@ -317,7 +318,8 @@ public:
 	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SRuitkListView& W = static_cast<SRuitkListView&>(Widget);
-		ApplyItemViewShared(W, static_cast<const FRuitkTileViewProps*>(Old), static_cast<const FRuitkTileViewProps&>(New));
+		ApplyItemViewShared(W, static_cast<const FRuitkTileViewProps*>(Old),
+							static_cast<const FRuitkTileViewProps&>(New));
 	}
 };
 

@@ -19,8 +19,8 @@
 // ── props struct (one RUITK_PROP row per prop-map "props" entry) ──────────────────────────
 struct FRuitk__TAG__Props : public FRuitkPropsBase
 {
-	RUITK_PROP(FText, __PROP1__, 0)		  // kind=attribute, setter=Set__PROP1__
-	RUITK_PROP(bool, __PROP2__, 1)		  // ...
+	RUITK_PROP(FText, __PROP1__, 0)			  // kind=attribute, setter=Set__PROP1__
+	RUITK_PROP(bool, __PROP2__, 1)			  // ...
 	RUITK_PROP(FRuitkCallback, __EVENT1__, 2) // event slot — diffed by proxy swap, never compared
 	// SetBits semantics: bit set = this render specified the field. Removed PLAIN props are
 	// ignored (family semantic); removed style/event/ref bits ARE cleaned up.

@@ -32,7 +32,7 @@ class RUITKCORE_API FRuitkContext
 {
 public:
 	FRuitkContext(const TSharedRef<FRuitkComponentState>& InState, FRuitkFiber& InFiber, FRuitkReconciler& InReconciler,
-				IRuitkHostConfig& InHost)
+				  IRuitkHostConfig& InHost)
 		: StateShared(InState), State(InState.Get()), Fiber(InFiber), Reconciler(InReconciler), Host(InHost)
 	{
 	}
@@ -88,7 +88,7 @@ public:
 			if (!S.IsValid() || i >= S->Hooks.Num() ||
 				S->Hooks[i]->TypeHash() !=
 					TRuitkReducerCell<T,
-									TAction>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late dispatch
+									  TAction>::StaticTypeHash()) // torn down / reshaped (TB-13) — ignore late dispatch
 			{
 				return;
 			}
@@ -156,7 +156,8 @@ public:
 	 *  default-constructible (the cleared state). Both siblings ship this hook; Unity's
 	 *  media controllers (Play/Pause/Seek) are the canonical use. */
 	template <typename THandle>
-	void UseImperativeHandle(const TSharedRef<TRuitkRef<THandle>>& TargetRef, TFunction<THandle()> Factory, FRuitkDeps Deps)
+	void UseImperativeHandle(const TSharedRef<TRuitkRef<THandle>>& TargetRef, TFunction<THandle()> Factory,
+							 FRuitkDeps Deps)
 	{
 		const THandle& Handle = UseMemo<THandle>(MoveTemp(Factory), Deps); // copy of Deps — Effect owns the move
 		THandle Copy = Handle;
@@ -398,7 +399,8 @@ public:
 	 * use UseAnimate for enter transitions). Time comes from the host clock (deterministic
 	 * under the mock host).
 	 */
-	template <typename T> T UseTweenValue(const T& Target, float DurationSec = 0.25f, ERuitkEase Ease = ERuitkEase::InOut)
+	template <typename T>
+	T UseTweenValue(const T& Target, float DurationSec = 0.25f, ERuitkEase Ease = ERuitkEase::InOut)
 	{
 		return TweenSlot<T>(ERuitkHookKind::TweenValue, Target, DurationSec, Ease);
 	}

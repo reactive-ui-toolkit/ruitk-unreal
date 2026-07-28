@@ -44,8 +44,7 @@ namespace
 		FToolMenuSection& Main = Menu->FindOrAddSection("Main");
 		Main.AddMenuEntry("HmrMode", LOCTEXT("HmrMode", "HMR Mode"),
 						  LOCTEXT("HmrModeTip", "Open the Reactive UI Toolkit Hot Reload window (Start/Stop HMR)."),
-						  FSlateIcon(),
-						  FUIAction(FExecuteAction::CreateStatic(&InvokeTab, RuitkUetkxTabs::HmrWindow)));
+						  FSlateIcon(), FUIAction(FExecuteAction::CreateStatic(&InvokeTab, RuitkUetkxTabs::HmrWindow)));
 		Main.AddMenuEntry("Preview", LOCTEXT("Preview", "Preview"),
 						  LOCTEXT("PreviewTip", "Open the read-only .uetkx component preview."), FSlateIcon(),
 						  FUIAction(FExecuteAction::CreateStatic(&InvokeTab, RuitkUetkxTabs::Preview)));
@@ -61,16 +60,17 @@ namespace
 				[]() { FMessageLog(TEXT("Ruitk")).Open(EMessageSeverity::Info, /*bOpenEvenIfEmpty*/ true); })));
 
 		FToolMenuSection& Debug = Menu->FindOrAddSection("Debug");
-		Debug.AddSubMenu("Debug", LOCTEXT("Debug", "Debug"), LOCTEXT("DebugTip", "Reactive UI Toolkit diagnostics."),
-						 FNewToolMenuDelegate::CreateLambda(
-							 [](UToolMenu* Sub)
-							 {
-								 FToolMenuSection& S = Sub->FindOrAddSection("DebugSection");
-								 S.AddMenuEntry("CheckRegistry", LOCTEXT("CheckRegistry", "Check Registry"),
-												LOCTEXT("CheckRegistryTip",
-														"Log the HMR status + live reconciler roots to LogRuitkEditor."),
-												FSlateIcon(), FUIAction(FExecuteAction::CreateStatic(&CheckRegistry)));
-							 }));
+		Debug.AddSubMenu(
+			"Debug", LOCTEXT("Debug", "Debug"), LOCTEXT("DebugTip", "Reactive UI Toolkit diagnostics."),
+			FNewToolMenuDelegate::CreateLambda(
+				[](UToolMenu* Sub)
+				{
+					FToolMenuSection& S = Sub->FindOrAddSection("DebugSection");
+					S.AddMenuEntry(
+						"CheckRegistry", LOCTEXT("CheckRegistry", "Check Registry"),
+						LOCTEXT("CheckRegistryTip", "Log the HMR status + live reconciler roots to LogRuitkEditor."),
+						FSlateIcon(), FUIAction(FExecuteAction::CreateStatic(&CheckRegistry)));
+				}));
 	}
 } // namespace
 

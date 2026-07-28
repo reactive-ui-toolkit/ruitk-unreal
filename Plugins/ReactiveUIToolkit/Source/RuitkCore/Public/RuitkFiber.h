@@ -52,8 +52,8 @@ struct RUITKCORE_API FRuitkFiber
 	// --- identity ---
 	ERuitkFiberTag Tag = ERuitkFiberTag::Host;
 	FRuitkKey Key;
-	FRuitkElementTypeId ElementType;			// HOST
-	FName ComponentId;						// FUNCTION (registry identity, D-05)
+	FRuitkElementTypeId ElementType;		  // HOST
+	FName ComponentId;						  // FUNCTION (registry identity, D-05)
 	TSharedPtr<FRuitkComponentInvoke> Invoke; // FUNCTION
 
 	// --- props ---
@@ -79,8 +79,8 @@ struct RUITKCORE_API FRuitkFiber
 	FRuitkFiber* Alternate = nullptr;
 	uint8 EffectTag = RuitkEffect_None;
 	FRuitkFiber* NextEffect = nullptr; // singly-linked post-order effect list
-	bool bHasDeletions = false;		 // this fiber recorded deletions this pass
-	bool bMatchedPass = false;		 // full-keyed mark-and-sweep (GO-08)
+	bool bHasDeletions = false;		   // this fiber recorded deletions this pass
+	bool bMatchedPass = false;		   // full-keyed mark-and-sweep (GO-08)
 
 	// --- context ---
 	/** Values THIS fiber provides (keyed by context-handle identity). Type-erased holder +

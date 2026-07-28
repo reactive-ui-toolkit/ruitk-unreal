@@ -91,7 +91,8 @@ private:
 	FRuitkFiber* ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber, const FRuitkNode& VNode, int32 Index);
 	/** Returns true when the fast-leaf-list path fully handled the children in place. */
 	bool ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirst, const FRuitkChildren& ChildVNodes);
-	bool TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirst, const TArray<FRuitkNode>& VNodes, bool bIgnoreKeys);
+	bool TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirst, const TArray<FRuitkNode>& VNodes,
+						 bool bIgnoreKeys);
 	bool KeysStable(FRuitkFiber* OldFirst, const TArray<FRuitkNode>& VNodes) const;
 	void DeleteFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber);
 	void MarkReorder(FRuitkFiber* ParentFiber);

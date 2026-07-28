@@ -12,39 +12,40 @@ DEFINE_STAT(STAT_RuiDeletions);
 
 // ── CVars (ruitk.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 
-static TAutoConsoleVariable<bool>
-	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), false,
-					   TEXT("Chunk the Reactive UI Toolkit render phase across frames on a budget (commit stays atomic)."));
+static TAutoConsoleVariable<bool> CVarRuitkTimeSlicing(
+	TEXT("ruitk.TimeSlicing"), false,
+	TEXT("Chunk the Reactive UI Toolkit render phase across frames on a budget (commit stays atomic)."));
 
 static TAutoConsoleVariable<float>
 	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 8.0f,
-						 TEXT("Render-phase work per frame before parking, when ruitk.TimeSlicing is on."));
+						   TEXT("Render-phase work per frame before parking, when ruitk.TimeSlicing is on."));
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkHostNodePool(TEXT("ruitk.HostNodePool"), true,
-						TEXT("Recycle childless leaf widgets across keyed-list churn (GO-05). Off to A/B."));
+						  TEXT("Recycle childless leaf widgets across keyed-list churn (GO-05). Off to A/B."));
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkHookValidation(TEXT("ruitk.HookValidation"),
 #if UE_BUILD_SHIPPING
-						  false,
+							false,
 #else
-						  true,
+							true,
 #endif
-						  TEXT("Hook-order mismatch detection (hooks in branches/loops desync slots)."));
+							TEXT("Hook-order mismatch detection (hooks in branches/loops desync slots)."));
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkStrictDiagnostics(TEXT("ruitk.StrictDiagnostics"),
 #if UE_BUILD_SHIPPING
-							 false,
+							   false,
 #else
-							 true,
+							   true,
 #endif
-							 TEXT("Warn on state updates during render and similar misuse."));
+							   TEXT("Warn on state updates during render and similar misuse."));
 
-static TAutoConsoleVariable<bool> CVarRuitkStrictMode(TEXT("ruitk.StrictMode"), false,
-													TEXT("Dev double-render: render functions run twice, first result "
-														 "discarded (flushes impure renders and stale captures)."));
+static TAutoConsoleVariable<bool>
+	CVarRuitkStrictMode(TEXT("ruitk.StrictMode"), false,
+						TEXT("Dev double-render: render functions run twice, first result "
+							 "discarded (flushes impure renders and stale captures)."));
 
 bool FRuitkConfig::IsTimeSlicing()
 {

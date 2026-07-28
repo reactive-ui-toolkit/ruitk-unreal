@@ -38,7 +38,7 @@
 namespace
 {
 	// One compare-and-set row (the B2 convention).
-#define RUITK_ROW(Prop, ApplyExpr)                                                                                       \
+#define RUITK_ROW(Prop, ApplyExpr)                                                                                     \
 	if (N.Has##Prop() && (O == nullptr || !O->Has##Prop() || !(N.Prop == O->Prop)))                                    \
 	{                                                                                                                  \
 		ApplyExpr;                                                                                                     \
@@ -377,7 +377,8 @@ public:
 	virtual uint64 GetReconstructMask() const override
 	{
 		return (1ull << FRuitkTextScrollerProps::Speed_Bit) | (1ull << FRuitkTextScrollerProps::StartDelay_Bit) |
-			   (1ull << FRuitkTextScrollerProps::EndDelay_Bit) | (1ull << FRuitkTextScrollerProps::ScrollOrientation_Bit);
+			   (1ull << FRuitkTextScrollerProps::EndDelay_Bit) |
+			   (1ull << FRuitkTextScrollerProps::ScrollOrientation_Bit);
 	}
 
 	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
@@ -774,15 +775,16 @@ public:
 		const FRuitkInlineEditableTextBlockProps& P = static_cast<const FRuitkInlineEditableTextBlockProps&>(Props);
 		return SNew(SInlineEditableTextBlock)
 			.MultiLine(P.HasbMultiLine() && P.bMultiLine)
-			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit)));
+			.OnTextCommitted(FOnTextCommitted::CreateSP(
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+				static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit)));
 	}
 
 	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
 		const FRuitkInlineEditableTextBlockProps& N = static_cast<const FRuitkInlineEditableTextBlockProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		Proxy.SetHandler(static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit),
+						 N.OnTextCommitted);
 	}
 
 	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override

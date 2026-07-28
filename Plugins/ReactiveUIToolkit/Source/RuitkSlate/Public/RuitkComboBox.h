@@ -30,7 +30,7 @@ struct RUITKSLATE_API FRuitkComboBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(int32, SelectedIndex, 2)
 	RUITK_PROP_EVENT(OnSelectionChanged, 3)
 	RUITK_PROPS_BODY(FRuitkComboBoxProps,
-				   RUITK_EQ(Options) RUITK_EQ(RenderOption) RUITK_EQ(SelectedIndex) RUITK_EQ(OnSelectionChanged))
+					 RUITK_EQ(Options) RUITK_EQ(RenderOption) RUITK_EQ(SelectedIndex) RUITK_EQ(OnSelectionChanged))
 };
 
 /** Wraps SComboBox<TSharedPtr<FRuitkValue>> with the render-prop plumbing + controlled selection. */

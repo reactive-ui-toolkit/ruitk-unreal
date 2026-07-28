@@ -8,10 +8,7 @@ DEFINE_LOG_CATEGORY(LogRuitkToolchain);
 class FRuitkToolchainModule : public IModuleInterface
 {
 public:
-	virtual void StartupModule() override
-	{
-		UE_LOG(LogRuitkToolchain, Verbose, TEXT("RuitkToolchain module started"));
-	}
+	virtual void StartupModule() override { UE_LOG(LogRuitkToolchain, Verbose, TEXT("RuitkToolchain module started")); }
 
 	virtual void ShutdownModule() override {}
 };

@@ -63,7 +63,7 @@ namespace
 } // namespace
 
 TSharedPtr<FSlateBrush> Ruitk::Umg::MakeAssetBrush(UObject* ResourceObject, FVector2D ImageSize, FLinearColor Tint,
-												 ESlateBrushDrawType::Type DrawAs)
+												   ESlateBrushDrawType::Type DrawAs)
 {
 	TSharedRef<FSlateBrush> Brush = MakeShared<FSlateBrush>();
 	Brush->SetResourceObject(ResourceObject);

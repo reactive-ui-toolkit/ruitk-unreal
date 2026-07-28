@@ -53,6 +53,6 @@ namespace Ruitk::Umg
 
 	/** Provide `State` to `Children` (what URuitkHostWidget wraps the hosted component in). */
 	RUITKUMG_API FRuitkNode HostPropsProvider(FRuitkHostPropsState State,
-												 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												 FRuitkKey Key = FRuitkKey());
+											  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											  FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk::Umg

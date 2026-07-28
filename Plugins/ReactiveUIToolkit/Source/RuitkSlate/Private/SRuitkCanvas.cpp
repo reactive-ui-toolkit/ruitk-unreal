@@ -34,7 +34,7 @@ void SRuitkCanvas::SetCanvasDesiredSize(FVector2D InSize)
 }
 
 int32 SRuitkCanvas::OnPaint(const FPaintArgs&, const FGeometry& AllottedGeometry, const FSlateRect&,
-						  FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle&, bool) const
+							FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle&, bool) const
 {
 	if (DrawFn.IsValid() && *DrawFn)
 	{

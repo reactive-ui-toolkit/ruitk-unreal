@@ -65,8 +65,8 @@ FRuitkNode URuitkActivatableScreen::BuildTree() const
 		}
 	}
 	// Activation state outside, focus registry inside — components read both from context.
-	return Ruitk::CommonUI::ActivationProvider(State,
-											 {Ruitk::CommonUI::FocusTargetProvider(FocusRegistry, MoveTemp(Children))});
+	return Ruitk::CommonUI::ActivationProvider(
+		State, {Ruitk::CommonUI::FocusTargetProvider(FocusRegistry, MoveTemp(Children))});
 }
 
 TSharedRef<SWidget> URuitkActivatableScreen::RebuildWidget()

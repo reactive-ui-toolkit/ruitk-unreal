@@ -27,7 +27,7 @@ namespace
 	};
 
 	FRuitkNodeArray HostPropsProviderComp(FRuitkContext& Ctx, const FRuitkHostPropsProviderProps& Props,
-										const TArray<FRuitkNode>& Children)
+										  const TArray<FRuitkNode>& Children)
 	{
 		Ctx.ProvideContext(Ruitk::Umg::HostPropsContext(), Props.State);
 		return FRuitkNodeArray(Children);

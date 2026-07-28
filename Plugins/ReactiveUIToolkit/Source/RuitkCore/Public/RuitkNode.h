@@ -28,7 +28,8 @@ using FRuitkNodeArray = TArray<FRuitkNode>;
  * IDENTITY for reconciliation is the registered FName (D-05 — raw fn pointers break across
  * Live Coding relocations, so identity lives in the registry, never in the pointer).
  */
-using FRuitkComponentInvoke = TFunction<FRuitkNodeArray(FRuitkContext&, const FRuitkPropsBase*, const TArray<FRuitkNode>&)>;
+using FRuitkComponentInvoke =
+	TFunction<FRuitkNodeArray(FRuitkContext&, const FRuitkPropsBase*, const TArray<FRuitkNode>&)>;
 
 /** The five node kinds (family parity). */
 enum class ERuitkNodeKind : uint8
@@ -119,8 +120,7 @@ namespace Ruitk
 		Miss,
 		Ambiguous
 	};
-	RUITKCORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey,
-												  TArray<FName>* OutCandidates = nullptr);
+	RUITKCORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey, TArray<FName>* OutCandidates = nullptr);
 
 	/** Every registered factory id, lexically sorted — the first enumeration surface (dropdown
 	 *  pickers, diagnostics, tests). */
@@ -165,7 +165,7 @@ namespace Ruitk
 	 *  zero it — used for the compiled→interp representation swap where the shape is unchanged.
 	 *  Clear returns the component to its compiled definition. */
 	RUITKCORE_API void SetComponentOverride(FName ComponentId, TSharedPtr<FRuitkComponentInvoke> Invoke,
-												 bool bResetState, bool bMigrateState = false);
+											bool bResetState, bool bMigrateState = false);
 	RUITKCORE_API void ClearComponentOverride(FName ComponentId);
 
 	struct FRuitkComponentOverride
@@ -189,7 +189,7 @@ namespace Ruitk
  * The .uetkx codegen emits the same macro; hand-written and generated components are
  * indistinguishable to the reconciler.
  */
-#define RUITK_COMPONENT(FnName)                                                                                          \
+#define RUITK_COMPONENT(FnName)                                                                                        \
 	static const FName FnName##_RuiId = Ruitk::RegisterComponentId((void*)&FnName, FName(TEXT(#FnName)));
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -205,8 +205,8 @@ namespace Ruitk
 
 	/** Function component node from a typed free function (identity = registered FName). */
 	template <typename TProps>
-	FRuitkNode FC(TRuitkComponentFn<TProps> Fn, TProps InProps = TProps(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(),
-				FRuitkKey InKey = FRuitkKey())
+	FRuitkNode FC(TRuitkComponentFn<TProps> Fn, TProps InProps = TProps(),
+				  TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey())
 	{
 		static_assert(std::is_base_of_v<FRuitkPropsBase, TProps>, "component props must derive FRuitkPropsBase");
 		FRuitkNode Node;
@@ -222,7 +222,8 @@ namespace Ruitk
 		TSharedRef<const TProps> Shared = MakeShared<const TProps>(MoveTemp(InProps));
 		Node.Props = Shared;
 		Node.Invoke = MakeShared<FRuitkComponentInvoke>(
-			[Fn](FRuitkContext& Ctx, const FRuitkPropsBase* Props, const TArray<FRuitkNode>& Children) -> FRuitkNodeArray
+			[Fn](FRuitkContext& Ctx, const FRuitkPropsBase* Props,
+				 const TArray<FRuitkNode>& Children) -> FRuitkNodeArray
 			{
 				// Invariant: the reconciler only pairs a fiber with vnodes of the SAME
 				// ComponentId, and FC always stores TProps for that id — the cast is sound.
@@ -235,7 +236,8 @@ namespace Ruitk
 
 	RUITKCORE_API FRuitkNode Fragment(TArray<FRuitkNode> Children, FRuitkKey Key = FRuitkKey());
 
-	RUITKCORE_API FRuitkNode Portal(FRuitkPortalHandle Target, TArray<FRuitkNode> Children, FRuitkKey Key = FRuitkKey());
+	RUITKCORE_API FRuitkNode Portal(FRuitkPortalHandle Target, TArray<FRuitkNode> Children,
+									FRuitkKey Key = FRuitkKey());
 
 	/**
 	 * Structural error boundary (family semantics, D-10): renders Fallback when activated —
@@ -243,7 +245,7 @@ namespace Ruitk
 	 * ResetKey changes. Not a markup tag (family convention): an escape-hatch call.
 	 */
 	RUITKCORE_API FRuitkNode ErrorBoundary(FRuitkNode Fallback, TArray<FRuitkNode> Children,
-											  FRuitkKey ResetKey = FRuitkKey(),
-											  TFunction<void(const FString&)> OnError = nullptr,
-											  FRuitkKey Key = FRuitkKey());
+										   FRuitkKey ResetKey = FRuitkKey(),
+										   TFunction<void(const FString&)> OnError = nullptr,
+										   FRuitkKey Key = FRuitkKey());
 } // namespace Ruitk

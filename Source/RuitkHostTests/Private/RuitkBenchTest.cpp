@@ -70,8 +70,8 @@ static FRuitkNodeArray BenchLeafList(FRuitkContext& Ctx, const FRuitkEmptyProps&
 	for (int32 i = 0; i < RuitkBench::LeafCount; ++i)
 	{
 		const bool bChanged = (i == RuitkBench::ChangedIndex);
-		Leaves.Add(
-			RuitkTest::Box(RuitkTest::BoxProps(bChanged ? FString::Printf(TEXT("leaf %d f%d"), i, Frame) : Labels[i], i)));
+		Leaves.Add(RuitkTest::Box(
+			RuitkTest::BoxProps(bChanged ? FString::Printf(TEXT("leaf %d f%d"), i, Frame) : Labels[i], i)));
 	}
 	return {RuitkTest::Box(RuitkTest::BoxProps(TEXT("list")), MoveTemp(Leaves))};
 }

@@ -122,10 +122,10 @@ namespace
 			// Universal tooltip (P1, WIDGET_COMPLETION_PLAN): the family contract is a PROP on
 			// every element, never a wrapper widget — SWidget::SetToolTipText is the loyal
 			// setter. Reset = empty text (Slate shows no tooltip for empty).
-			const FText Text = Value == nullptr						   ? FText::GetEmpty()
+			const FText Text = Value == nullptr							 ? FText::GetEmpty()
 							   : Value->Kind == FRuitkValue::EKind::Text ? Value->TextValue
 							   : Value->Kind == FRuitkValue::EKind::Name ? FText::FromName(Value->NameValue)
-																	   : FText::FromString(Value->StringValue);
+																		 : FText::FromString(Value->StringValue);
 			W.SetToolTipText(Text);
 			return true;
 		}
@@ -236,7 +236,7 @@ namespace Ruitk::Slate
 	}
 
 	TSharedPtr<FRuitkStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
-												  const TSharedPtr<FRuitkStyleDict>& InlineStyle)
+													const TSharedPtr<FRuitkStyleDict>& InlineStyle)
 	{
 		if (Classes.IsEmpty())
 		{

@@ -43,7 +43,7 @@ public:
 	 *  hook slot). Each entry re-checks "did my context change?" against the live tree. */
 	struct FContextDep
 	{
-		const void* Key = nullptr;					  // context handle identity
+		const void* Key = nullptr;						// context handle identity
 		TFunction<bool(const FRuitkFiber*)> HasChanged; // resolve + compare captured value
 	};
 	TArray<FContextDep> ContextDeps;
@@ -60,8 +60,8 @@ public:
 	FRuitkChildren LastOutput;
 
 	// --- dev diagnostics (ruitk.HookValidation) ---
-	TArray<ERuitkHookKind> HookLog;  // this render (transient)
-	uint32 HmrGenerationStamp = 0; // TB-13: the HMR generation this state last rendered under
+	TArray<ERuitkHookKind> HookLog; // this render (transient)
+	uint32 HmrGenerationStamp = 0;	// TB-13: the HMR generation this state last rendered under
 	TArray<ERuitkHookKind>
 		HmrShapeSnapshot; // TB-13: the PREVIOUS render's shape (validation's
 						  // HookSignatures stays first-primed to keep nagging — two consumers, two baselines)

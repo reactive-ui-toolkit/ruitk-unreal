@@ -424,7 +424,8 @@ bool FRuitkMarshalTest::RunTest(const FString&)
 	TestTrue(TEXT("text read"), Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("Text")), Out));
 	TestTrue(TEXT("text kind + value"),
 			 Out.Kind == FRuitkValue::EKind::Text && Out.TextValue.ToString() == TEXT("hello"));
-	TestFalse(TEXT("missing property read refuses"), Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("NoSuchProp")), Out));
+	TestFalse(TEXT("missing property read refuses"),
+			  Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("NoSuchProp")), Out));
 
 	Vm->RemoveFromRoot();
 	return true;
@@ -500,7 +501,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUmgHostPropsTest, "Ruitk.Umg.HostProps",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FRuitkUmgHostPropsTest::RunTest(const FString&)
 {
-	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkHostPropReader")), []() { return Ruitk::FC(&UmgTest::HostPropReaderComp); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkHostPropReader")),
+								[]() { return Ruitk::FC(&UmgTest::HostPropReaderComp); });
 
 	URuitkSignalViewModel* Vm = NewObject<URuitkSignalViewModel>();
 	Vm->AddToRoot();

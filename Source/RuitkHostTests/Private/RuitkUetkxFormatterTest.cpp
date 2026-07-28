@@ -100,7 +100,8 @@ bool FRuitkUetkxFormatterTest::RunTest(const FString&)
 	// ── uetkx.config.json walk-up ──────────────────────────────────────────────────────────
 	{
 		IFileManager& FM = IFileManager::Get();
-		const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("FmtCfgTest"));
+		const FString Scratch =
+			FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUIToolkit"), TEXT("FmtCfgTest"));
 		FM.DeleteDirectory(*Scratch, false, true);
 		FM.MakeDirectory(*(Scratch / TEXT("Sub/Deeper")), true);
 		FFileHelper::SaveStringToFile(TEXT("{\"indentStyle\":\"space\",\"indentSize\":4,\"printWidth\":80}"),

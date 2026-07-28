@@ -251,7 +251,8 @@ namespace
 			return N.HasColumns() && (!O.HasColumns() || !(O.Columns == N.Columns));
 		}
 
-		virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
+		virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+												 const TSharedPtr<FRuitkEventProxy>&) override
 		{
 			const FRuitkTreeViewProps& P = static_cast<const FRuitkTreeViewProps&>(Props);
 			return SNew(SRuitkTreeView).Columns(P.Columns);

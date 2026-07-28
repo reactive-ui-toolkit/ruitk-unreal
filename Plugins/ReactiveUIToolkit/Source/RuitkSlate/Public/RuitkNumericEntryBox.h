@@ -25,8 +25,8 @@ struct RUITKSLATE_API FRuitkNumericEntryBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(float, MaxValue, 2)
 	RUITK_PROP_EVENT(OnValueChanged, 3)
 	RUITK_PROP_EVENT(OnValueCommitted, 4)
-	RUITK_PROPS_BODY(FRuitkNumericEntryBoxProps,
-				   RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(OnValueChanged) RUITK_EQ(OnValueCommitted))
+	RUITK_PROPS_BODY(FRuitkNumericEntryBoxProps, RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue)
+													 RUITK_EQ(OnValueChanged) RUITK_EQ(OnValueCommitted))
 };
 
 /** Wraps SNumericEntryBox<float> with the controlled-value member the widget's Value attribute reads. */
@@ -70,7 +70,7 @@ namespace Ruitk::Slate
 
 	/** A controlled numeric field. Drive `Value` from state; OnValueChanged fires as the user types. */
 	RUITKSLATE_API FRuitkNode NumericEntryBox(FRuitkNumericEntryBoxProps Props = FRuitkNumericEntryBoxProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{

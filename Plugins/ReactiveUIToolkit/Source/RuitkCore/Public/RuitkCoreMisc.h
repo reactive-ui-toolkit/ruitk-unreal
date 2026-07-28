@@ -124,5 +124,5 @@ namespace Ruitk
 	RUITKCORE_API void SetRendering(bool bInRendering);
 } // namespace Ruitk
 
-#define RUITK_RENDER_FAIL(Fmt, ...)                                                                                      \
+#define RUITK_RENDER_FAIL(Fmt, ...)                                                                                    \
 	Ruitk::FailRender(FString::Printf(TEXT("%s(%d): ") Fmt, TEXT(__FILE__), __LINE__, ##__VA_ARGS__))

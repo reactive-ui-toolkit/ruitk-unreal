@@ -114,8 +114,7 @@ void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
 {
 	checkf(
 		IsInGameThread(),
-		TEXT(
-			"Ruitk: state updates must run on the game thread (D-15; use Ruitk::PostToGameThread from async code)"));
+		TEXT("Ruitk: state updates must run on the game thread (D-15; use Ruitk::PostToGameThread from async code)"));
 	if (RootCurrent == nullptr)
 	{
 		return; // torn down — ignore late setState/effect callbacks [audit]
@@ -460,7 +459,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 							}
 							FRuitkValue Exported;
 							State->MigratedState.Add(State->Hooks[h]->ExportRuitkValue(Exported) ? MoveTemp(Exported)
-																							   : FRuitkValue());
+																								 : FRuitkValue());
 						}
 					}
 					State->HmrResetHooks(); // reset (family rule); MigratedState survives for re-seed
@@ -498,7 +497,7 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 		FRuitkContext Ctx(State.ToSharedRef(), *Fiber, *this, Host);
 		const FRuitkComponentInvoke& InvokeFn = InvokeOverride.IsValid() ? *InvokeOverride : *Fiber->Invoke;
 		FRuitkNodeArray Result = InvokeFn(Ctx, Fiber->PendingProps.Get(),
-										Fiber->InputChildren.IsValid() ? *Fiber->InputChildren : EmptyChildren);
+										  Fiber->InputChildren.IsValid() ? *Fiber->InputChildren : EmptyChildren);
 
 		// _end
 		Ruitk::SetRendering(false);
@@ -721,7 +720,7 @@ void FRuitkReconciler::PopProvidedContext(FRuitkFiber* Fiber)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
 FRuitkFiber* FRuitkReconciler::ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber, const FRuitkNode& VNode,
-										  int32 Index)
+											  int32 Index)
 {
 	const bool bReuse = (OldFiber != nullptr) && OldFiber->Matches(VNode);
 	FRuitkFiber* Fiber;
@@ -840,7 +839,7 @@ FRuitkFiber* FRuitkReconciler::ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFi
 }
 
 bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirstFiber,
-									   const FRuitkChildren& ChildVNodes)
+										 const FRuitkChildren& ChildVNodes)
 {
 	const TArray<FRuitkNode>& VNodes = NormalizedChildren(ChildVNodes);
 
@@ -985,8 +984,8 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 	return false;
 }
 
-bool FRuitkReconciler::TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirstFiber, const TArray<FRuitkNode>& VNodes,
-									 bool bIgnoreKeys)
+bool FRuitkReconciler::TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirstFiber,
+									   const TArray<FRuitkNode>& VNodes, bool bIgnoreKeys)
 {
 	const int32 N = VNodes.Num();
 	// 1. Eligibility scan (read-only).
@@ -998,8 +997,8 @@ bool FRuitkReconciler::TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* Ol
 			return false;
 		}
 		const FRuitkNode& Vn = VNodes[i];
-		if (Vn.Kind != ERuitkNodeKind::Host || Oc->Tag != ERuitkFiberTag::Host || !(Oc->ElementType == Vn.ElementType) ||
-			(!bIgnoreKeys && !(Oc->Key == Vn.Key)))
+		if (Vn.Kind != ERuitkNodeKind::Host || Oc->Tag != ERuitkFiberTag::Host ||
+			!(Oc->ElementType == Vn.ElementType) || (!bIgnoreKeys && !(Oc->Key == Vn.Key)))
 		{
 			return false;
 		}
@@ -1488,7 +1487,8 @@ void FRuitkReconciler::ReleaseHostNodes(FRuitkFiber* Fiber)
 	}
 }
 
-FRuitkHostHandle FRuitkReconciler::HostParentNode(FRuitkFiber* Fiber, bool& bOutViaPortal, FRuitkPortalHandle& OutPortal) const
+FRuitkHostHandle FRuitkReconciler::HostParentNode(FRuitkFiber* Fiber, bool& bOutViaPortal,
+												  FRuitkPortalHandle& OutPortal) const
 {
 	bOutViaPortal = false;
 	for (FRuitkFiber* P = Fiber->Parent; P != nullptr; P = P->Parent)

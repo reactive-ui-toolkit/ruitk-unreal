@@ -68,8 +68,8 @@ namespace Ruitk::Slate
 	/** An expanding button. Optional children carry `slot.role="collapsed"` / `"expanded"`
 	 *  (button faces); any other child is the expanded body content. */
 	RUITKSLATE_API FRuitkNode ExpandableButton(FRuitkExpandableButtonProps Props = FRuitkExpandableButtonProps(),
-												  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												  FRuitkKey Key = FRuitkKey());
+											   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											   FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{

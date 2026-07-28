@@ -44,11 +44,12 @@ namespace Ruitk::Umg
 {
 	/** A UMG widget as a Ruitk node. The widget is created against World (its owning player
 	 *  context); replacing WidgetClass replaces the widget. */
-	RUITKUMG_API FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkKey Key = FRuitkKey());
+	RUITKUMG_API FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World,
+									   FRuitkKey Key = FRuitkKey());
 
 	/** As above, plus a declarative prop map applied to the hosted widget's UPROPERTYs. */
-	RUITKUMG_API FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World,
-										  FRuitkStyleDict WidgetProps, FRuitkKey Key = FRuitkKey());
+	RUITKUMG_API FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps,
+									   FRuitkKey Key = FRuitkKey());
 
 	/** Apply a prop map to a widget's UPROPERTYs by reflection (int/float/bool/string/text/name,
 	 *  type-matched to the FRuitkValue kind). Unknown names and type mismatches are skipped. Returns

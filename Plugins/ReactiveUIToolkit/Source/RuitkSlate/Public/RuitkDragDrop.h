@@ -47,7 +47,8 @@ public:
 
 	virtual TSharedPtr<SWidget> GetDefaultDecorator() const override; // simple type-label (defined in .cpp)
 
-	static TSharedRef<FRuitkDragDropOp> New(FName InType, FRuitkValue InPayload, TFunction<void(bool)> InOnEnded = nullptr)
+	static TSharedRef<FRuitkDragDropOp> New(FName InType, FRuitkValue InPayload,
+											TFunction<void(bool)> InOnEnded = nullptr)
 	{
 		TSharedRef<FRuitkDragDropOp> Op = MakeShared<FRuitkDragDropOp>();
 		Op->DragType = InType;
@@ -91,13 +92,13 @@ public:
 	{
 		const FRuitkCallback EndCb = OnDragEnd;
 		TSharedRef<FRuitkDragDropOp> Op = FRuitkDragDropOp::New(DragType, Payload,
-															[EndCb](bool bHandled)
-															{
-																if (EndCb.IsBound())
+																[EndCb](bool bHandled)
 																{
-																	EndCb.Execute(FRuitkValue(bHandled));
-																}
-															});
+																	if (EndCb.IsBound())
+																	{
+																		EndCb.Execute(FRuitkValue(bHandled));
+																	}
+																});
 		if (OnDragStart.IsBound())
 		{
 			OnDragStart.Execute(Payload);
@@ -213,7 +214,8 @@ struct RUITKSLATE_API FRuitkDragSourceProps final : public FRuitkPropsBase
 	RUITK_PROP(FRuitkValue, Payload, 1)
 	RUITK_PROP_EVENT(OnDragStart, 2)
 	RUITK_PROP_EVENT(OnDragEnd, 3)
-	RUITK_PROPS_BODY(FRuitkDragSourceProps, RUITK_EQ(DragType) RUITK_EQ(Payload) RUITK_EQ(OnDragStart) RUITK_EQ(OnDragEnd))
+	RUITK_PROPS_BODY(FRuitkDragSourceProps,
+					 RUITK_EQ(DragType) RUITK_EQ(Payload) RUITK_EQ(OnDragStart) RUITK_EQ(OnDragEnd))
 };
 
 /** A drop zone (SingleContent): accepts operations whose DragType is in `AcceptTypes` (empty = accept
@@ -225,7 +227,8 @@ struct RUITKSLATE_API FRuitkDropTargetProps final : public FRuitkPropsBase
 	RUITK_PROP_EVENT(OnDrop, 1)
 	RUITK_PROP_EVENT(OnDragEnter, 2)
 	RUITK_PROP_EVENT(OnDragLeave, 3)
-	RUITK_PROPS_BODY(FRuitkDropTargetProps, RUITK_EQ(AcceptTypes) RUITK_EQ(OnDrop) RUITK_EQ(OnDragEnter) RUITK_EQ(OnDragLeave))
+	RUITK_PROPS_BODY(FRuitkDropTargetProps,
+					 RUITK_EQ(AcceptTypes) RUITK_EQ(OnDrop) RUITK_EQ(OnDragEnter) RUITK_EQ(OnDragLeave))
 };
 
 namespace Ruitk::Slate
@@ -235,11 +238,13 @@ namespace Ruitk::Slate
 
 	/** Wrap draggable content. The child is grabbed on a left-drag; the operation carries `Payload`. */
 	RUITKSLATE_API FRuitkNode DragSource(FRuitkDragSourceProps Props = FRuitkDragSourceProps(),
-											TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										 FRuitkKey Key = FRuitkKey());
 
 	/** Wrap a drop zone. Accepted operations dropped here fire OnDrop with their payload. */
 	RUITKSLATE_API FRuitkNode DropTarget(FRuitkDropTargetProps Props = FRuitkDropTargetProps(),
-											TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										 FRuitkKey Key = FRuitkKey());
 
 	/** Register the DragSource/DropTarget adapters (called from RegisterBuiltinAdapters; idempotent). */
 	namespace Detail

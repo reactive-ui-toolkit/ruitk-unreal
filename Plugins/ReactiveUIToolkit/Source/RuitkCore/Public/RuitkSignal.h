@@ -117,9 +117,11 @@ namespace Ruitk
 {
 	/** UseSignal with selector: re-renders when the SELECTED slice changes. */
 	template <typename T, typename TSelected>
-	TSelected UseSignal(FRuitkContext& Ctx, const TSharedRef<TRuitkSignal<T>>& Sig, TFunction<TSelected(const T&)> Selector)
+	TSelected UseSignal(FRuitkContext& Ctx, const TSharedRef<TRuitkSignal<T>>& Sig,
+						TFunction<TSelected(const T&)> Selector)
 	{
-		TRuitkSignalCell<TSelected>* Cell = Ctx.template AcquireCell<TRuitkSignalCell<TSelected>>(ERuitkHookKind::Signal);
+		TRuitkSignalCell<TSelected>* Cell =
+			Ctx.template AcquireCell<TRuitkSignalCell<TSelected>>(ERuitkHookKind::Signal);
 		const bool bFirst = (Cell->BoundSignal == nullptr);
 
 		// Render reads the snapshot directly from the store (never stale).
@@ -142,7 +144,8 @@ namespace Ruitk
 					{
 						return;
 					}
-					TRuitkSignalCell<TSelected>* C = static_cast<TRuitkSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
+					TRuitkSignalCell<TSelected>* C =
+						static_cast<TRuitkSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
 					TSelected Now = SelCopy(SigCopy->Get());
 					if (!(C->Value == Now))
 					{

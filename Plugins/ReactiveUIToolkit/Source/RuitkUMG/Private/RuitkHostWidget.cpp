@@ -30,8 +30,9 @@ TSharedRef<SWidget> URuitkHostWidget::BuildContent()
 	{
 		FName Resolved;
 		TArray<FName> Candidates;
-		const Ruitk::EResolveNamed Verdict =
-			ComponentName.IsNone() ? Ruitk::EResolveNamed::Miss : Ruitk::ResolveNamed(ComponentName, Resolved, &Candidates);
+		const Ruitk::EResolveNamed Verdict = ComponentName.IsNone()
+												 ? Ruitk::EResolveNamed::Miss
+												 : Ruitk::ResolveNamed(ComponentName, Resolved, &Candidates);
 		if (Verdict == Ruitk::EResolveNamed::Ambiguous)
 		{
 			// FILE_SCOPED_EXPORTS (FS-05): several files export this short name — name the

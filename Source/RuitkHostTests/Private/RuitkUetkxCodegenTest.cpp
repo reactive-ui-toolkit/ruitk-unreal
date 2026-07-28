@@ -129,10 +129,9 @@ export component Counter(StartAt: int32 = 0) {
 		TestTrue(TEXT("STABLE impl shim (TB-23 — the registered/redirect anchor must never rename)"),
 				 Out.Inl.Contains(TEXT("static FRuitkNodeArray Counter_UetkxImpl(FRuitkContext& Ctx, "
 									   "const FCounterUetkxProps& Props")));
-		TestTrue(
-			TEXT("registration emitted (FQN runtime identity via the STABLE shim, FS-04)"),
-			Out.Inl.Contains(TEXT(
-				"Ruitk::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT(\"RuitkUetkx_Counter::Counter\")))")));
+		TestTrue(TEXT("registration emitted (FQN runtime identity via the STABLE shim, FS-04)"),
+				 Out.Inl.Contains(TEXT("Ruitk::RegisterComponentId((void*)&Counter_UetkxImpl, "
+									   "FName(TEXT(\"RuitkUetkx_Counter::Counter\")))")));
 		// TB-23 invariant: an EDIT re-hashes the body but the registered pointer symbol stays
 		// stable — Live Coding redirection (HMR's engine) rides the stable name; the first-cut
 		// hashed impl froze HMR (old fibers invoked dead code forever). Pinned both ways.
@@ -158,10 +157,12 @@ export component Counter(StartAt: int32 = 0) {
 					 TEXT("P.SetOnClicked(FRuitkCallback::Create([=](const FRuitkValue& Value) { Set(Now + 1); }))")));
 		TestTrue(TEXT("text child NSLOCTEXT"), Out.Inl.Contains(TEXT("NSLOCTEXT(\"Uetkx.Counter\"")));
 		TestTrue(TEXT("@if lowered to if"), Out.Inl.Contains(TEXT("if (Count > 3)")));
-		TestTrue(TEXT("factory targeted"), Out.Inl.Contains(TEXT("Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch)")));
-		TestTrue(TEXT("named factory self-registers under the FQN"),
-				 Out.Inl.Contains(TEXT("Ruitk::RegisterNamedFactory(FName(TEXT(\"RuitkUetkx_Counter::Counter\")), []() { "
-									   "return Counter(); })")));
+		TestTrue(TEXT("factory targeted"),
+				 Out.Inl.Contains(TEXT("Ruitk::Slate::VerticalBox(MoveTemp(P), MoveTemp(Ch)")));
+		TestTrue(
+			TEXT("named factory self-registers under the FQN"),
+			Out.Inl.Contains(TEXT("Ruitk::RegisterNamedFactory(FName(TEXT(\"RuitkUetkx_Counter::Counter\")), []() { "
+								  "return Counter(); })")));
 		TestEqual(TEXT("hook sig from one UseState"), Out.HookSig, FUetkxFileScan::HookSignature({TEXT("UseState")}));
 	}
 
@@ -508,10 +509,9 @@ component CardStack(Names: TArray<FString>) {
 		if (TestTrue(TEXT("privacy sample compiles"), Out.bOk))
 		{
 			// exported component: FQN named factory.
-			TestTrue(
-				TEXT("exported component registers a named factory under the FQN"),
-				Out.Inl.Contains(TEXT(
-					"Ruitk::RegisterNamedFactory(FName(TEXT(\"RuitkUetkx_Panel::Panel\")), []() { return Panel(); })")));
+			TestTrue(TEXT("exported component registers a named factory under the FQN"),
+					 Out.Inl.Contains(TEXT("Ruitk::RegisterNamedFactory(FName(TEXT(\"RuitkUetkx_Panel::Panel\")), []() "
+										   "{ return Panel(); })")));
 			TestTrue(TEXT("only exported decls in the export surface"),
 					 Out.ExportedNames.Num() == 1 && Out.ExportedNames[0] == TEXT("Panel"));
 			// EVERYTHING wraps in the file namespace; RuitkPriv_ is retired.
@@ -544,9 +544,9 @@ component CardStack(Names: TArray<FString>) {
 			TestTrue(TEXT("decl phase has the complete props struct"),
 					 Out.Inl.Contains(TEXT("struct FTwoPhaseUetkxProps final : public FRuitkPropsBase")));
 			TestTrue(TEXT("decl-phase wrapper is a DEFAULTED forward declaration"),
-					 Out.Inl.Contains(
-						 TEXT("inline FRuitkNode TwoPhase(FTwoPhaseUetkxProps InProps = FTwoPhaseUetkxProps(), "
-							  "TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());")));
+					 Out.Inl.Contains(TEXT(
+						 "inline FRuitkNode TwoPhase(FTwoPhaseUetkxProps InProps = FTwoPhaseUetkxProps(), "
+						 "TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey InKey = FRuitkKey());")));
 			// The BODY phase repeats the signature WITHOUT defaults (C++ redefinition rule).
 			TestTrue(TEXT("body-phase wrapper definition drops the defaults"),
 					 Out.Inl.Contains(TEXT("inline FRuitkNode TwoPhase(FTwoPhaseUetkxProps InProps, TArray<FRuitkNode> "
@@ -977,8 +977,8 @@ component CardStack(Names: TArray<FString>) {
 			TestEqual(TEXT("fixture fallback (empty ProjRel)"),
 					  FUetkxCodegen::FileNamespaceFor(FString(), TEXT("Counter")), TEXT("RuitkUetkx_Counter"));
 			TestEqual(TEXT("project-relative path derives the FLAT single-identifier namespace"),
-					  FUetkxCodegen::FileNamespaceFor(TEXT("Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx"),
-													  TEXT("SimpleCounter")),
+					  FUetkxCodegen::FileNamespaceFor(
+						  TEXT("Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx"), TEXT("SimpleCounter")),
 					  TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter"));
 			TestEqual(TEXT("companion dots fold to underscores"),
 					  FUetkxCodegen::FileNamespaceFor(

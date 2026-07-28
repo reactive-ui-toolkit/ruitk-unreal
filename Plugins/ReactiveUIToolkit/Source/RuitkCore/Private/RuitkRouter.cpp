@@ -479,7 +479,8 @@ namespace
 		{
 			Ranked.Add(&R);
 		}
-		Ranked.Sort([](const FRuitkRoute& A, const FRuitkRoute& B) { return SpecificityScore(A) > SpecificityScore(B); });
+		Ranked.Sort([](const FRuitkRoute& A, const FRuitkRoute& B)
+					{ return SpecificityScore(A) > SpecificityScore(B); });
 
 		const bool bAtEnd = Segments(RemainingPath).Num() == 0;
 		for (const FRuitkRoute* Route : Ranked)

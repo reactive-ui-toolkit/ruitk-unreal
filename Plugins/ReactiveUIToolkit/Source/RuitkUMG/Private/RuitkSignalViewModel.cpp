@@ -3,7 +3,8 @@
 #include "RuitkSignalViewModel.h"
 
 const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int(TEXT("Int"), 0);
-const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Float(TEXT("Float"), 1);
+const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Float(TEXT("Float"),
+																										1);
 const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Bool(TEXT("Bool"), 2);
 const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Text(TEXT("Text"), 3);
 
@@ -80,13 +81,13 @@ void URuitkSignalViewModel::Set(const FRuitkValue& Value)
 }
 
 FDelegateHandle URuitkSignalViewModel::AddFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
-																  FFieldValueChangedDelegate InNewDelegate)
+																	FFieldValueChangedDelegate InNewDelegate)
 {
 	return Delegates.Add(this, InFieldId, MoveTemp(InNewDelegate));
 }
 
 bool URuitkSignalViewModel::RemoveFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
-														  FDelegateHandle InHandle)
+															FDelegateHandle InHandle)
 {
 	return Delegates.RemoveFrom(this, InFieldId, InHandle).bRemoved;
 }
@@ -97,7 +98,7 @@ int32 URuitkSignalViewModel::RemoveAllFieldValueChangedDelegates(FDelegateUserOb
 }
 
 int32 URuitkSignalViewModel::RemoveAllFieldValueChangedDelegates(::UE::FieldNotification::FFieldId InFieldId,
-															   FDelegateUserObjectConst InUserObject)
+																 FDelegateUserObjectConst InUserObject)
 {
 	return Delegates.RemoveAll(this, InFieldId, InUserObject).RemoveCount;
 }

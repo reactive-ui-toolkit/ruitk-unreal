@@ -126,7 +126,7 @@ bool FRuitkAcceptanceTest::RunTest(const FString&)
 	//    resident, a code patch cannot reset them; this asserts that invariant without the compiler.
 	{
 		Ruitk::RegisterNamedFactory(FName(TEXT("RefreshCounterAcc")),
-								  []() { return Ruitk::FC(&AcceptanceTest::RefreshCounter); });
+									[]() { return Ruitk::FC(&AcceptanceTest::RefreshCounter); });
 		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("RefreshCounterAcc"))));
 		Root->FlushSync();
 		TestTrue(TEXT("5. counter mounts at 0"),

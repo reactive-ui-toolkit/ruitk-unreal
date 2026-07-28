@@ -107,7 +107,7 @@ protected:
 // (events deliberately absent from the rows — see FRuitkPropsBase::Equals doc).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-#define RUITK_PROP(Type, Name, Bit)                                                                                      \
+#define RUITK_PROP(Type, Name, Bit)                                                                                    \
 	Type Name{};                                                                                                       \
 	static constexpr uint32 Name##_Bit = (Bit);                                                                        \
 	void Set##Name(Type InValue)                                                                                       \
@@ -120,10 +120,10 @@ protected:
 		return Has(Name##_Bit);                                                                                        \
 	}
 
-#define RUITK_PROP_EVENT(Name, Bit)                                                                                      \
-	FRuitkCallback Name;                                                                                                 \
+#define RUITK_PROP_EVENT(Name, Bit)                                                                                    \
+	FRuitkCallback Name;                                                                                               \
 	static constexpr uint32 Name##_Bit = (Bit);                                                                        \
-	void Set##Name(FRuitkCallback InValue)                                                                               \
+	void Set##Name(FRuitkCallback InValue)                                                                             \
 	{                                                                                                                  \
 		Name = MoveTemp(InValue);                                                                                      \
 		SetBits |= (1ull << Name##_Bit);                                                                               \
@@ -134,14 +134,14 @@ protected:
 	}
 
 /** One comparison row inside RUITK_PROPS_BODY. */
-#define RUITK_EQ(Name)                                                                                                   \
+#define RUITK_EQ(Name)                                                                                                 \
 	if (!(Name == Typed->Name))                                                                                        \
 	{                                                                                                                  \
 		return false;                                                                                                  \
 	}
 
-#define RUITK_PROPS_BODY(StructType, EqRows)                                                                             \
-	virtual bool Equals(const FRuitkPropsBase& Other) const override                                                     \
+#define RUITK_PROPS_BODY(StructType, EqRows)                                                                           \
+	virtual bool Equals(const FRuitkPropsBase& Other) const override                                                   \
 	{                                                                                                                  \
 		const StructType* Typed = static_cast<const StructType*>(&Other);                                              \
 		if (!BaseFieldsEqual(Other))                                                                                   \

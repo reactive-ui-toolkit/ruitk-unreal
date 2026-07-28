@@ -71,8 +71,8 @@ public:
 		FMessageLogInitializationOptions Options;
 		Options.bShowFilters = true;
 		Options.bShowPages = false;
-		MessageLogModule.RegisterLogListing(TEXT("Ruitk"),
-											NSLOCTEXT("Ruitk", "MessageLogLabel", "Reactive UI Toolkit"), Options);
+		MessageLogModule.RegisterLogListing(TEXT("Ruitk"), NSLOCTEXT("Ruitk", "MessageLogLabel", "Reactive UI Toolkit"),
+											Options);
 		Watcher = MakeUnique<FUetkxWatcher>();
 		Watcher->Start();
 
@@ -125,8 +125,7 @@ public:
 		}
 		if (FModuleManager::Get().IsModuleLoaded(TEXT("MessageLog")))
 		{
-			FModuleManager::GetModuleChecked<FMessageLogModule>(TEXT("MessageLog"))
-				.UnregisterLogListing(TEXT("Ruitk"));
+			FModuleManager::GetModuleChecked<FMessageLogModule>(TEXT("MessageLog")).UnregisterLogListing(TEXT("Ruitk"));
 		}
 	}
 
@@ -146,8 +145,7 @@ private:
 			->RegisterNomadTabSpawner(GRuitkPreviewTabId,
 									  FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnPreviewTab))
 			.SetDisplayName(NSLOCTEXT("Ruitk", "PreviewTabTitle", "Reactive UI Toolkit Preview"))
-			.SetTooltipText(
-				NSLOCTEXT("Ruitk", "PreviewTabTooltip", "Read-only live preview of a .uetkx component"))
+			.SetTooltipText(NSLOCTEXT("Ruitk", "PreviewTabTooltip", "Read-only live preview of a .uetkx component"))
 			.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "LevelEditor.Tabs.Viewports"))
 			.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
 			.SetMenuType(ETabSpawnerMenuType::Enabled);
@@ -220,7 +218,7 @@ private:
 	}
 
 	TUniquePtr<FUetkxWatcher> Watcher;
-	TArray<TUniquePtr<FAutoConsoleCommand>> HmrCommands;	 // RuitkUetkx.HMR.Start/Stop/Toggle
+	TArray<TUniquePtr<FAutoConsoleCommand>> HmrCommands;  // RuitkUetkx.HMR.Start/Stop/Toggle
 	TSharedPtr<FRuitkUetkxInputProcessor> InputProcessor; // global shortcut handler (Phase 3)
 };
 

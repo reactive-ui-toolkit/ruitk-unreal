@@ -20,7 +20,7 @@ namespace
 	const TRuitkContext<FRuitkPresenceState>& PresenceContext()
 	{
 		static const TRuitkContext<FRuitkPresenceState> Handle(FRuitkPresenceState{true, FRuitkCallback()},
-														   FName(TEXT("RuitkPresence")));
+															   FName(TEXT("RuitkPresence")));
 		return Handle;
 	}
 
@@ -63,7 +63,7 @@ namespace
 	}
 
 	FRuitkNodeArray PresenceChildComp(FRuitkContext& Ctx, const FRuitkPresenceChildProps& Props,
-									const TArray<FRuitkNode>& Children)
+									  const TArray<FRuitkNode>& Children)
 	{
 		const bool bPresent = Props.bPresent;
 		const FRuitkCallback OnExited = Props.OnExited;
@@ -127,7 +127,8 @@ namespace
 		bool bExiting = false;
 	};
 
-	FRuitkNodeArray PresenceComp(FRuitkContext& Ctx, const FRuitkPresenceProps& Props, const TArray<FRuitkNode>& Children)
+	FRuitkNodeArray PresenceComp(FRuitkContext& Ctx, const FRuitkPresenceProps& Props,
+								 const TArray<FRuitkNode>& Children)
 	{
 		TSharedRef<TRuitkRef<TArray<FPresenceSlot>>> SlotsRef = Ctx.UseRef<TArray<FPresenceSlot>>();
 		// A version bump is the ONLY reason Presence itself re-renders (a completed exit drops a
@@ -213,7 +214,7 @@ namespace
 				}));
 
 			Out.Add(Ruitk::FC<FRuitkPresenceChildProps>(&PresenceChildComp, MoveTemp(ChildProps),
-													TArray<FRuitkNode>{Slot.Vnode}, Key));
+														TArray<FRuitkNode>{Slot.Vnode}, Key));
 		}
 		return Out;
 	}

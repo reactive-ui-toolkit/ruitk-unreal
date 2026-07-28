@@ -149,10 +149,10 @@ RUITKCORE_API const TCHAR* RuitkHookKindName(ERuitkHookKind Kind);
 #else
 #define RUITK_CELL_SIG __PRETTY_FUNCTION__
 #endif
-#define RUITK_HOOK_CELL_TYPE()                                                                                           \
+#define RUITK_HOOK_CELL_TYPE()                                                                                         \
 	static uint32 StaticTypeHash()                                                                                     \
 	{                                                                                                                  \
-		static const uint32 CellTypeHash = FCrc::StrCrc32(RUITK_CELL_SIG);                                               \
+		static const uint32 CellTypeHash = FCrc::StrCrc32(RUITK_CELL_SIG);                                             \
 		return CellTypeHash;                                                                                           \
 	}                                                                                                                  \
 	virtual uint32 TypeHash() const override                                                                           \
@@ -350,7 +350,7 @@ using FRuitkEffectCleanup = TFunction<void()>;
 struct FRuitkEffect
 {
 	TFunction<FRuitkEffectCleanup()> Factory;
-	FRuitkDeps Deps;	   // this render's deps
+	FRuitkDeps Deps;	 // this render's deps
 	FRuitkDeps LastDeps; // deps at last run (unset = never ran)
 	FRuitkEffectCleanup Cleanup;
 	bool bEverRan = false;

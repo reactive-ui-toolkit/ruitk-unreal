@@ -70,7 +70,10 @@ public:
 	 *  reconciler can parent top-level children into it. */
 	FRuitkHostHandle WrapExternalPanel(const TSharedRef<SWidget>& Panel, FRuitkElementTypeId PanelType);
 
-	static FRuitkSlateNode* Resolve(const FRuitkHostHandle& Handle) { return static_cast<FRuitkSlateNode*>(Handle.Get()); }
+	static FRuitkSlateNode* Resolve(const FRuitkHostHandle& Handle)
+	{
+		return static_cast<FRuitkSlateNode*>(Handle.Get());
+	}
 
 	// ── IRuitkHostConfig ────────────────────────────────────────────────────────────────────
 	virtual FRuitkHostHandle CreateInstance(FRuitkElementTypeId Type, const FRuitkPropsBase& Props) override;

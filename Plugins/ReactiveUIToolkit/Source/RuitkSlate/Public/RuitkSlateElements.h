@@ -14,7 +14,7 @@
 #include "RuitkCoreElements.h"
 #include "RuitkNode.h"
 #include "RuitkPropsBase.h"
-#include "SRuitkCanvas.h"			// FRuitkDrawFn
+#include "SRuitkCanvas.h"		// FRuitkDrawFn
 #include "Styling/SlateBrush.h" // FSlateBrush (asset brushes, D-17)
 
 /** SVerticalBox (MultiSlot). Layout comes from the children's slot.* props. */
@@ -38,7 +38,8 @@ struct RUITKSLATE_API FRuitkButtonProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bEnabled, 1)
 	RUITK_PROP(FMargin, ContentPadding, 2)
 	RUITK_PROP(bool, bIsFocusable, 3)
-	RUITK_PROPS_BODY(FRuitkButtonProps, RUITK_EQ(OnClicked) RUITK_EQ(bEnabled) RUITK_EQ(ContentPadding) RUITK_EQ(bIsFocusable))
+	RUITK_PROPS_BODY(FRuitkButtonProps,
+					 RUITK_EQ(OnClicked) RUITK_EQ(bEnabled) RUITK_EQ(ContentPadding) RUITK_EQ(bIsFocusable))
 };
 
 /** SOverlay (MultiSlot; also the SRuitkRoot inner panel). slot.zorder orders the slots. */
@@ -74,7 +75,7 @@ struct RUITKSLATE_API FRuitkSplitterProps final : public FRuitkPropsBase
 	RUITK_PROP(float, PhysicalSplitterHandleSize, 1)
 	RUITK_PROP_EVENT(OnSplitterFinishedResizing, 2)
 	RUITK_PROPS_BODY(FRuitkSplitterProps,
-				   RUITK_EQ(Orientation) RUITK_EQ(PhysicalSplitterHandleSize) RUITK_EQ(OnSplitterFinishedResizing))
+					 RUITK_EQ(Orientation) RUITK_EQ(PhysicalSplitterHandleSize) RUITK_EQ(OnSplitterFinishedResizing))
 };
 
 /** SSplitter2x2 (MultiSlot, D-W4) - four resizable quadrants; children route by
@@ -99,7 +100,7 @@ struct RUITKSLATE_API FRuitkMenuAnchorProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bFitInWindow, 2)
 	RUITK_PROP_EVENT(OnMenuOpenChanged, 3)
 	RUITK_PROPS_BODY(FRuitkMenuAnchorProps,
-				   RUITK_EQ(bIsOpen) RUITK_EQ(Placement) RUITK_EQ(bFitInWindow) RUITK_EQ(OnMenuOpenChanged))
+					 RUITK_EQ(bIsOpen) RUITK_EQ(Placement) RUITK_EQ(bFitInWindow) RUITK_EQ(OnMenuOpenChanged))
 };
 
 /** SWindowTitleBarArea (SingleContent): a custom title-bar strip — drag zone + OS window
@@ -112,7 +113,7 @@ struct RUITKSLATE_API FRuitkWindowTitleBarAreaProps final : public FRuitkPropsBa
 	RUITK_PROP(FMargin, Padding, 2)
 	RUITK_PROP_EVENT(RequestToggleFullscreen, 3)
 	RUITK_PROPS_BODY(FRuitkWindowTitleBarAreaProps,
-				   RUITK_EQ(HAlign) RUITK_EQ(VAlign) RUITK_EQ(Padding) RUITK_EQ(RequestToggleFullscreen))
+					 RUITK_EQ(HAlign) RUITK_EQ(VAlign) RUITK_EQ(Padding) RUITK_EQ(RequestToggleFullscreen))
 };
 
 /** SNumericDropDown<float> (Leaf): numeric preset dropdown. Values+Labels zip into the
@@ -125,8 +126,8 @@ struct RUITKSLATE_API FRuitkNumericDropDownProps final : public FRuitkPropsBase
 	RUITK_PROP(float, Value, 2)
 	RUITK_PROP(bool, bShowNamedValue, 3)
 	RUITK_PROP_EVENT(OnValueChanged, 4)
-	RUITK_PROPS_BODY(FRuitkNumericDropDownProps,
-				   RUITK_EQ(Values) RUITK_EQ(Labels) RUITK_EQ(Value) RUITK_EQ(bShowNamedValue) RUITK_EQ(OnValueChanged))
+	RUITK_PROPS_BODY(FRuitkNumericDropDownProps, RUITK_EQ(Values) RUITK_EQ(Labels) RUITK_EQ(Value)
+													 RUITK_EQ(bShowNamedValue) RUITK_EQ(OnValueChanged))
 };
 
 /** SBreadcrumbTrail<FString> (Leaf): declarative crumbs over the engine's imperative stack -
@@ -137,7 +138,8 @@ struct RUITKSLATE_API FRuitkBreadcrumbTrailProps final : public FRuitkPropsBase
 	RUITK_PROP(TArray<FString>, Crumbs, 0)
 	RUITK_PROP(bool, bShowLeadingDelimiter, 1)
 	RUITK_PROP_EVENT(OnCrumbClicked, 2)
-	RUITK_PROPS_BODY(FRuitkBreadcrumbTrailProps, RUITK_EQ(Crumbs) RUITK_EQ(bShowLeadingDelimiter) RUITK_EQ(OnCrumbClicked))
+	RUITK_PROPS_BODY(FRuitkBreadcrumbTrailProps,
+					 RUITK_EQ(Crumbs) RUITK_EQ(bShowLeadingDelimiter) RUITK_EQ(OnCrumbClicked))
 };
 
 /** SNotificationList (Leaf, P4): a toast mount point. The engine API is imperative-only, so
@@ -195,8 +197,8 @@ struct RUITKSLATE_API FRuitkVectorInputBoxProps final : public FRuitkPropsBase
 	RUITK_PROP_EVENT(OnXChanged, 4)
 	RUITK_PROP_EVENT(OnYChanged, 5)
 	RUITK_PROP_EVENT(OnZChanged, 6)
-	RUITK_PROPS_BODY(FRuitkVectorInputBoxProps, RUITK_EQ(X) RUITK_EQ(Y) RUITK_EQ(Z) RUITK_EQ(bColorAxisLabels) RUITK_EQ(OnXChanged)
-												RUITK_EQ(OnYChanged) RUITK_EQ(OnZChanged))
+	RUITK_PROPS_BODY(FRuitkVectorInputBoxProps, RUITK_EQ(X) RUITK_EQ(Y) RUITK_EQ(Z) RUITK_EQ(bColorAxisLabels)
+													RUITK_EQ(OnXChanged) RUITK_EQ(OnYChanged) RUITK_EQ(OnZChanged))
 };
 
 /** SRotatorInputBox (= SNumericRotatorInputBox<float>, Leaf): Roll/Pitch/Yaw row - same
@@ -210,8 +212,9 @@ struct RUITKSLATE_API FRuitkRotatorInputBoxProps final : public FRuitkPropsBase
 	RUITK_PROP_EVENT(OnRollChanged, 4)
 	RUITK_PROP_EVENT(OnPitchChanged, 5)
 	RUITK_PROP_EVENT(OnYawChanged, 6)
-	RUITK_PROPS_BODY(FRuitkRotatorInputBoxProps, RUITK_EQ(Roll) RUITK_EQ(Pitch) RUITK_EQ(Yaw) RUITK_EQ(bColorAxisLabels)
-												 RUITK_EQ(OnRollChanged) RUITK_EQ(OnPitchChanged) RUITK_EQ(OnYawChanged))
+	RUITK_PROPS_BODY(FRuitkRotatorInputBoxProps,
+					 RUITK_EQ(Roll) RUITK_EQ(Pitch) RUITK_EQ(Yaw) RUITK_EQ(bColorAxisLabels) RUITK_EQ(OnRollChanged)
+						 RUITK_EQ(OnPitchChanged) RUITK_EQ(OnYawChanged))
 };
 
 /** SBorder (SingleContent). Alignment values: fill|left|center|right / fill|top|center|bottom.
@@ -226,8 +229,8 @@ struct RUITKSLATE_API FRuitkBorderProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, VAlign, 3)
 	RUITK_PROP(FName, BorderImage, 4)
 	RUITK_PROP(TSharedPtr<FSlateBrush>, BorderImageBrush, 5) // asset brush (D-17); wins over BorderImage name
-	RUITK_PROPS_BODY(FRuitkBorderProps, RUITK_EQ(Padding) RUITK_EQ(BorderBackgroundColor) RUITK_EQ(HAlign) RUITK_EQ(VAlign)
-										RUITK_EQ(BorderImage) RUITK_EQ(BorderImageBrush))
+	RUITK_PROPS_BODY(FRuitkBorderProps, RUITK_EQ(Padding) RUITK_EQ(BorderBackgroundColor) RUITK_EQ(HAlign)
+											RUITK_EQ(VAlign) RUITK_EQ(BorderImage) RUITK_EQ(BorderImageBrush))
 };
 
 /** SBox (SingleContent): size overrides + content alignment. Overrides are settable, not
@@ -242,9 +245,9 @@ struct RUITKSLATE_API FRuitkBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(float, MaxDesiredHeight, 5)
 	RUITK_PROP(FName, HAlign, 6)
 	RUITK_PROP(FName, VAlign, 7)
-	RUITK_PROPS_BODY(FRuitkBoxProps,
-				   RUITK_EQ(WidthOverride) RUITK_EQ(HeightOverride) RUITK_EQ(MinDesiredWidth) RUITK_EQ(MinDesiredHeight)
-					   RUITK_EQ(MaxDesiredWidth) RUITK_EQ(MaxDesiredHeight) RUITK_EQ(HAlign) RUITK_EQ(VAlign))
+	RUITK_PROPS_BODY(FRuitkBoxProps, RUITK_EQ(WidthOverride) RUITK_EQ(HeightOverride) RUITK_EQ(MinDesiredWidth)
+										 RUITK_EQ(MinDesiredHeight) RUITK_EQ(MaxDesiredWidth) RUITK_EQ(MaxDesiredHeight)
+											 RUITK_EQ(HAlign) RUITK_EQ(VAlign))
 };
 
 /** SImage (Leaf): tint + desired size + an optional asset brush (D-17). The field is `Image` —
@@ -263,12 +266,12 @@ struct RUITKSLATE_API FRuitkImageProps final : public FRuitkPropsBase
 /** SScrollBox (MultiSlot). Orientation is runtime-settable (header-sweep verified). */
 struct RUITKSLATE_API FRuitkScrollBoxProps final : public FRuitkPropsBase
 {
-	RUITK_PROP(FName, Orientation, 0)			  // "vertical" (default) | "horizontal"
-	RUITK_PROP(bool, bAllowOverscroll, 1)		  // TD-012 sweep: live SetAllowOverscroll
+	RUITK_PROP(FName, Orientation, 0)			// "vertical" (default) | "horizontal"
+	RUITK_PROP(bool, bAllowOverscroll, 1)		// TD-012 sweep: live SetAllowOverscroll
 	RUITK_PROP(bool, bAnimateWheelScrolling, 2) // live SetAnimateWheelScrolling
 	RUITK_PROP(float, WheelScrollMultiplier, 3) // live SetWheelScrollMultiplier
-	RUITK_PROPS_BODY(FRuitkScrollBoxProps, RUITK_EQ(Orientation) RUITK_EQ(bAllowOverscroll) RUITK_EQ(bAnimateWheelScrolling)
-										   RUITK_EQ(WheelScrollMultiplier))
+	RUITK_PROPS_BODY(FRuitkScrollBoxProps, RUITK_EQ(Orientation) RUITK_EQ(bAllowOverscroll)
+											   RUITK_EQ(bAnimateWheelScrolling) RUITK_EQ(WheelScrollMultiplier))
 };
 
 /** SSpacer (Leaf). */
@@ -314,14 +317,15 @@ struct RUITKSLATE_API FRuitkSliderProps final : public FRuitkPropsBase
 	RUITK_PROP(float, MaxValue, 2)
 	RUITK_PROP_EVENT(OnValueChanged, 3)
 	RUITK_PROP(float, StepSize, 4)
-	RUITK_PROP(FName, Orientation, 5)				 // TD-012 sweep: live SetOrientation
-	RUITK_PROP(bool, bLocked, 6)					 // live SetLocked
-	RUITK_PROP(bool, bIndentHandle, 7)			 // live SetIndentHandle
-	RUITK_PROP(FLinearColor, SliderBarColor, 8)	 // live SetSliderBarColor
+	RUITK_PROP(FName, Orientation, 5)			   // TD-012 sweep: live SetOrientation
+	RUITK_PROP(bool, bLocked, 6)				   // live SetLocked
+	RUITK_PROP(bool, bIndentHandle, 7)			   // live SetIndentHandle
+	RUITK_PROP(FLinearColor, SliderBarColor, 8)	   // live SetSliderBarColor
 	RUITK_PROP(FLinearColor, SliderHandleColor, 9) // live SetSliderHandleColor
-	RUITK_PROPS_BODY(FRuitkSliderProps, RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(OnValueChanged)
-										RUITK_EQ(StepSize) RUITK_EQ(Orientation) RUITK_EQ(bLocked) RUITK_EQ(bIndentHandle)
-											RUITK_EQ(SliderBarColor) RUITK_EQ(SliderHandleColor))
+	RUITK_PROPS_BODY(FRuitkSliderProps,
+					 RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(OnValueChanged) RUITK_EQ(StepSize)
+						 RUITK_EQ(Orientation) RUITK_EQ(bLocked) RUITK_EQ(bIndentHandle) RUITK_EQ(SliderBarColor)
+							 RUITK_EQ(SliderHandleColor))
 };
 
 /** SProgressBar (Leaf). */
@@ -360,7 +364,8 @@ struct RUITKSLATE_API FRuitkScaleBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, StretchDirection, 1)
 	RUITK_PROP(FName, HAlign, 2)
 	RUITK_PROP(FName, VAlign, 3)
-	RUITK_PROPS_BODY(FRuitkScaleBoxProps, RUITK_EQ(Stretch) RUITK_EQ(StretchDirection) RUITK_EQ(HAlign) RUITK_EQ(VAlign))
+	RUITK_PROPS_BODY(FRuitkScaleBoxProps,
+					 RUITK_EQ(Stretch) RUITK_EQ(StretchDirection) RUITK_EQ(HAlign) RUITK_EQ(VAlign))
 };
 
 /** SThrobber (Leaf): a busy indicator. Animate = all|vertical|horizontal|opacity|
@@ -381,7 +386,7 @@ struct RUITKSLATE_API FRuitkWrapBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(FVector2D, InnerSlotPadding, 2)
 	RUITK_PROP(bool, bUseAllottedSize, 3)
 	RUITK_PROPS_BODY(FRuitkWrapBoxProps,
-				   RUITK_EQ(Orientation) RUITK_EQ(WrapSize) RUITK_EQ(InnerSlotPadding) RUITK_EQ(bUseAllottedSize))
+					 RUITK_EQ(Orientation) RUITK_EQ(WrapSize) RUITK_EQ(InnerSlotPadding) RUITK_EQ(bUseAllottedSize))
 };
 
 /** SMultiLineEditableTextBox (Leaf) — multi-line controlled input; same D-16 caret rule as
@@ -433,8 +438,8 @@ struct RUITKSLATE_API FRuitkSafeZoneProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bPadRight, 2)
 	RUITK_PROP(bool, bPadTop, 3)
 	RUITK_PROP(bool, bPadBottom, 4)
-	RUITK_PROPS_BODY(FRuitkSafeZoneProps,
-				   RUITK_EQ(bIsTitleSafe) RUITK_EQ(bPadLeft) RUITK_EQ(bPadRight) RUITK_EQ(bPadTop) RUITK_EQ(bPadBottom))
+	RUITK_PROPS_BODY(FRuitkSafeZoneProps, RUITK_EQ(bIsTitleSafe) RUITK_EQ(bPadLeft) RUITK_EQ(bPadRight)
+											  RUITK_EQ(bPadTop) RUITK_EQ(bPadBottom))
 };
 
 /** SDPIScaler (SingleContent): scales its content by a DPI factor. */
@@ -449,8 +454,8 @@ struct RUITKSLATE_API FRuitkDPIScalerProps final : public FRuitkPropsBase
  *  mask, the first shipped widget to exercise it). ColorAndOpacity is a live setter. */
 struct RUITKSLATE_API FRuitkSeparatorProps final : public FRuitkPropsBase
 {
-	RUITK_PROP(FName, Orientation, 0)			   // construct-only
-	RUITK_PROP(float, Thickness, 1)			   // construct-only
+	RUITK_PROP(FName, Orientation, 0)			 // construct-only
+	RUITK_PROP(float, Thickness, 1)				 // construct-only
 	RUITK_PROP(FLinearColor, ColorAndOpacity, 2) // runtime
 	RUITK_PROPS_BODY(FRuitkSeparatorProps, RUITK_EQ(Orientation) RUITK_EQ(Thickness) RUITK_EQ(ColorAndOpacity))
 };
@@ -465,7 +470,7 @@ struct RUITKSLATE_API FRuitkSpinBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(float, Delta, 3)
 	RUITK_PROP_EVENT(OnValueChanged, 4)
 	RUITK_PROPS_BODY(FRuitkSpinBoxProps,
-				   RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(Delta) RUITK_EQ(OnValueChanged))
+					 RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(Delta) RUITK_EQ(OnValueChanged))
 };
 
 /** SUniformWrapPanel (MultiSlot): a wrap panel that gives every child the same cell size. */
@@ -504,7 +509,7 @@ struct RUITKSLATE_API FRuitkUniformGridPanelProps final : public FRuitkPropsBase
 	RUITK_PROP(float, MinDesiredSlotWidth, 1)
 	RUITK_PROP(float, MinDesiredSlotHeight, 2)
 	RUITK_PROPS_BODY(FRuitkUniformGridPanelProps,
-				   RUITK_EQ(SlotPadding) RUITK_EQ(MinDesiredSlotWidth) RUITK_EQ(MinDesiredSlotHeight))
+					 RUITK_EQ(SlotPadding) RUITK_EQ(MinDesiredSlotWidth) RUITK_EQ(MinDesiredSlotHeight))
 };
 
 // ── Batch 3 wave 1 (WIDGET_COMPLETION_PLAN) ────────────────────────────────────────────────
@@ -520,8 +525,9 @@ struct RUITKSLATE_API FRuitkColorBlockProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bShowBackgroundForAlpha, 3)
 	RUITK_PROP(bool, bColorIsHSV, 4)
 	RUITK_PROP(FName, AlphaDisplayMode, 5)
-	RUITK_PROPS_BODY(FRuitkColorBlockProps, RUITK_EQ(Color) RUITK_EQ(Size) RUITK_EQ(bUseSRGB) RUITK_EQ(bShowBackgroundForAlpha)
-											RUITK_EQ(bColorIsHSV) RUITK_EQ(AlphaDisplayMode))
+	RUITK_PROPS_BODY(FRuitkColorBlockProps,
+					 RUITK_EQ(Color) RUITK_EQ(Size) RUITK_EQ(bUseSRGB) RUITK_EQ(bShowBackgroundForAlpha)
+						 RUITK_EQ(bColorIsHSV) RUITK_EQ(AlphaDisplayMode))
 };
 
 /** SSimpleGradient (Leaf-ish paint widget): two-stop gradient. Construct-only (no setters) —
@@ -533,7 +539,7 @@ struct RUITKSLATE_API FRuitkSimpleGradientProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, Orientation, 2)
 	RUITK_PROP(bool, bHasAlphaBackground, 3)
 	RUITK_PROPS_BODY(FRuitkSimpleGradientProps,
-				   RUITK_EQ(StartColor) RUITK_EQ(EndColor) RUITK_EQ(Orientation) RUITK_EQ(bHasAlphaBackground))
+					 RUITK_EQ(StartColor) RUITK_EQ(EndColor) RUITK_EQ(Orientation) RUITK_EQ(bHasAlphaBackground))
 };
 
 /** SComplexGradient (Leaf-ish paint widget): N-stop gradient. Construct-only — fully masked. */
@@ -543,8 +549,8 @@ struct RUITKSLATE_API FRuitkComplexGradientProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, Orientation, 1)
 	RUITK_PROP(bool, bHasAlphaBackground, 2)
 	RUITK_PROP(FVector2D, DesiredSizeOverride, 3)
-	RUITK_PROPS_BODY(FRuitkComplexGradientProps,
-				   RUITK_EQ(GradientColors) RUITK_EQ(Orientation) RUITK_EQ(bHasAlphaBackground) RUITK_EQ(DesiredSizeOverride))
+	RUITK_PROPS_BODY(FRuitkComplexGradientProps, RUITK_EQ(GradientColors) RUITK_EQ(Orientation)
+													 RUITK_EQ(bHasAlphaBackground) RUITK_EQ(DesiredSizeOverride))
 };
 
 /** SHyperlink (Leaf): a link. Text/Padding are construct-only (the inner text block bakes at
@@ -591,7 +597,7 @@ struct RUITKSLATE_API FRuitkBackgroundBlurProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bApplyAlphaToBlur, 2)
 	RUITK_PROP(FMargin, Padding, 3)
 	RUITK_PROPS_BODY(FRuitkBackgroundBlurProps,
-				   RUITK_EQ(BlurStrength) RUITK_EQ(BlurRadius) RUITK_EQ(bApplyAlphaToBlur) RUITK_EQ(Padding))
+					 RUITK_EQ(BlurStrength) RUITK_EQ(BlurRadius) RUITK_EQ(bApplyAlphaToBlur) RUITK_EQ(Padding))
 };
 
 /** SInvalidationPanel (SingleContent): opt-in retained-paint cache around static subtrees. */
@@ -612,7 +618,8 @@ struct RUITKSLATE_API FRuitkVolumeControlProps final : public FRuitkPropsBase
 	RUITK_PROP(bool, bMuted, 1)
 	RUITK_PROP_EVENT(OnVolumeChanged, 2)
 	RUITK_PROP_EVENT(OnMuteChanged, 3)
-	RUITK_PROPS_BODY(FRuitkVolumeControlProps, RUITK_EQ(Volume) RUITK_EQ(bMuted) RUITK_EQ(OnVolumeChanged) RUITK_EQ(OnMuteChanged))
+	RUITK_PROPS_BODY(FRuitkVolumeControlProps,
+					 RUITK_EQ(Volume) RUITK_EQ(bMuted) RUITK_EQ(OnVolumeChanged) RUITK_EQ(OnMuteChanged))
 };
 
 /** STextScroller (SingleContent): marquee auto-scroll around single-line text. Options are
@@ -623,7 +630,8 @@ struct RUITKSLATE_API FRuitkTextScrollerProps final : public FRuitkPropsBase
 	RUITK_PROP(float, StartDelay, 1)
 	RUITK_PROP(float, EndDelay, 2)
 	RUITK_PROP(FName, ScrollOrientation, 3)
-	RUITK_PROPS_BODY(FRuitkTextScrollerProps, RUITK_EQ(Speed) RUITK_EQ(StartDelay) RUITK_EQ(EndDelay) RUITK_EQ(ScrollOrientation))
+	RUITK_PROPS_BODY(FRuitkTextScrollerProps,
+					 RUITK_EQ(Speed) RUITK_EQ(StartDelay) RUITK_EQ(EndDelay) RUITK_EQ(ScrollOrientation))
 };
 
 /** SRadialBox (MultiSlot, bare slots — children place around the arc in declaration order).
@@ -637,8 +645,8 @@ struct RUITKSLATE_API FRuitkRadialBoxProps final : public FRuitkPropsBase
 	RUITK_PROP(float, AngleBetweenItems, 4)
 	RUITK_PROP(float, SectorCentralAngle, 5)
 	RUITK_PROPS_BODY(FRuitkRadialBoxProps,
-				   RUITK_EQ(PreferredWidth) RUITK_EQ(bUseAllottedWidth) RUITK_EQ(StartingAngle) RUITK_EQ(bDistributeItemsEvenly)
-					   RUITK_EQ(AngleBetweenItems) RUITK_EQ(SectorCentralAngle))
+					 RUITK_EQ(PreferredWidth) RUITK_EQ(bUseAllottedWidth) RUITK_EQ(StartingAngle)
+						 RUITK_EQ(bDistributeItemsEvenly) RUITK_EQ(AngleBetweenItems) RUITK_EQ(SectorCentralAngle))
 };
 
 /** SColorWheel (Leaf): HSV wheel. SelectedColor is HSV-space, attribute-only (no setter) —
@@ -649,8 +657,8 @@ struct RUITKSLATE_API FRuitkColorWheelProps final : public FRuitkPropsBase
 	RUITK_PROP_EVENT(OnValueChanged, 1)
 	RUITK_PROP_EVENT(OnMouseCaptureBegin, 2)
 	RUITK_PROP_EVENT(OnMouseCaptureEnd, 3)
-	RUITK_PROPS_BODY(FRuitkColorWheelProps,
-				   RUITK_EQ(SelectedColor) RUITK_EQ(OnValueChanged) RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
+	RUITK_PROPS_BODY(FRuitkColorWheelProps, RUITK_EQ(SelectedColor) RUITK_EQ(OnValueChanged)
+												RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
 };
 
 /** SColorSpectrum (Leaf): saturation/value box — same controlled contract as ColorWheel. */
@@ -660,8 +668,8 @@ struct RUITKSLATE_API FRuitkColorSpectrumProps final : public FRuitkPropsBase
 	RUITK_PROP_EVENT(OnValueChanged, 1)
 	RUITK_PROP_EVENT(OnMouseCaptureBegin, 2)
 	RUITK_PROP_EVENT(OnMouseCaptureEnd, 3)
-	RUITK_PROPS_BODY(FRuitkColorSpectrumProps,
-				   RUITK_EQ(SelectedColor) RUITK_EQ(OnValueChanged) RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
+	RUITK_PROPS_BODY(FRuitkColorSpectrumProps, RUITK_EQ(SelectedColor) RUITK_EQ(OnValueChanged)
+												   RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
 };
 
 /** SLayeredImage (Leaf): SImage + N overlay layers, all live (RemoveAllLayers + AddLayer on a
@@ -673,7 +681,7 @@ struct RUITKSLATE_API FRuitkLayeredImageProps final : public FRuitkPropsBase
 	RUITK_PROP(TSharedPtr<FSlateBrush>, Image, 2)
 	RUITK_PROP(TArray<TSharedPtr<FSlateBrush>>, Layers, 3)
 	RUITK_PROPS_BODY(FRuitkLayeredImageProps,
-				   RUITK_EQ(ColorAndOpacity) RUITK_EQ(DesiredSizeOverride) RUITK_EQ(Image) RUITK_EQ(Layers))
+					 RUITK_EQ(ColorAndOpacity) RUITK_EQ(DesiredSizeOverride) RUITK_EQ(Image) RUITK_EQ(Layers))
 };
 
 /** SInputKeySelector (Leaf composite): key-binding capture. SelectedKey is a live setter (key
@@ -740,7 +748,8 @@ struct RUITKSLATE_API FRuitkInlineEditableTextBlockProps final : public FRuitkPr
 
 	virtual bool Equals(const FRuitkPropsBase& OtherBase) const override
 	{
-		const FRuitkInlineEditableTextBlockProps& Other = static_cast<const FRuitkInlineEditableTextBlockProps&>(OtherBase);
+		const FRuitkInlineEditableTextBlockProps& Other =
+			static_cast<const FRuitkInlineEditableTextBlockProps&>(OtherBase);
 		auto TextEq = [](const FText& A, const FText& B) { return A.IdenticalTo(B) || A.ToString() == B.ToString(); };
 		return BaseFieldsEqual(Other) && TextEq(Text, Other.Text) && TextEq(HintText, Other.HintText) &&
 			   bIsReadOnly == Other.bIsReadOnly && WrapTextAt == Other.WrapTextAt && bMultiLine == Other.bMultiLine &&
@@ -780,8 +789,8 @@ struct RUITKSLATE_API FRuitkColorGradingWheelProps final : public FRuitkPropsBas
 	RUITK_PROP_EVENT(OnMouseCaptureBegin, 4)
 	RUITK_PROP_EVENT(OnMouseCaptureEnd, 5)
 	RUITK_PROPS_BODY(FRuitkColorGradingWheelProps,
-				   RUITK_EQ(SelectedColor) RUITK_EQ(DesiredWheelSize) RUITK_EQ(ExponentDisplacement) RUITK_EQ(OnValueChanged)
-					   RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
+					 RUITK_EQ(SelectedColor) RUITK_EQ(DesiredWheelSize) RUITK_EQ(ExponentDisplacement)
+						 RUITK_EQ(OnValueChanged) RUITK_EQ(OnMouseCaptureBegin) RUITK_EQ(OnMouseCaptureEnd))
 };
 
 namespace Ruitk::Slate
@@ -793,132 +802,148 @@ namespace Ruitk::Slate
 	RUITKSLATE_API FRuitkElementTypeId CanvasType();
 
 	RUITKSLATE_API FRuitkNode VerticalBox(FRuitkVerticalBoxProps Props = FRuitkVerticalBoxProps(),
-											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode HorizontalBox(FRuitkHorizontalBoxProps Props = FRuitkHorizontalBoxProps(),
-											   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+											TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Button(FRuitkButtonProps Props = FRuitkButtonProps(),
-										TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Overlay(FRuitkOverlayProps Props = FRuitkOverlayProps(),
-										 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Canvas(FRuitkCanvasPanelProps Props = FRuitkCanvasPanelProps(),
-										TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 
 	RUITKSLATE_API FRuitkNode Border(FRuitkBorderProps Props = FRuitkBorderProps(),
-										TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode Box(FRuitkBoxProps Props = FRuitkBoxProps(),
 									 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode Box(FRuitkBoxProps Props = FRuitkBoxProps(),
+								  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Image(FRuitkImageProps Props = FRuitkImageProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ScrollBox(FRuitkScrollBoxProps Props = FRuitkScrollBoxProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Spacer(FRuitkSpacerProps Props = FRuitkSpacerProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode EditableTextBox(FRuitkEditableTextBoxProps Props = FRuitkEditableTextBoxProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode CheckBox(FRuitkCheckBoxProps Props = FRuitkCheckBoxProps(),
-										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Slider(FRuitkSliderProps Props = FRuitkSliderProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ProgressBar(FRuitkProgressBarProps Props = FRuitkProgressBarProps(),
-											 FRuitkKey Key = FRuitkKey());
+										  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode RuitkCanvas(FRuitkCanvasProps Props = FRuitkCanvasProps(), FRuitkKey Key = FRuitkKey());
 
 	// ── Batch 2 (Phase 7 step 8) factories ────────────────────────────────────────────────
 	RUITKSLATE_API FRuitkNode WidgetSwitcher(FRuitkWidgetSwitcherProps Props = FRuitkWidgetSwitcherProps(),
-												TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												FRuitkKey Key = FRuitkKey());
+											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ScaleBox(FRuitkScaleBoxProps Props = FRuitkScaleBoxProps(),
-										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Throbber(FRuitkThrobberProps Props = FRuitkThrobberProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode WrapBox(FRuitkWrapBoxProps Props = FRuitkWrapBoxProps(),
-										 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode MultiLineEditableTextBox(
 		FRuitkMultiLineEditableTextBoxProps Props = FRuitkMultiLineEditableTextBoxProps(), FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode SearchBox(FRuitkSearchBoxProps Props = FRuitkSearchBoxProps(), FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode SearchBox(FRuitkSearchBoxProps Props = FRuitkSearchBoxProps(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode SafeZone(FRuitkSafeZoneProps Props = FRuitkSafeZoneProps(),
-										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode DPIScaler(FRuitkDPIScalerProps Props = FRuitkDPIScalerProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode Separator(FRuitkSeparatorProps Props = FRuitkSeparatorProps(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode Separator(FRuitkSeparatorProps Props = FRuitkSeparatorProps(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode SpinBox(FRuitkSpinBoxProps Props = FRuitkSpinBoxProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode UniformWrapPanel(FRuitkUniformWrapPanelProps Props = FRuitkUniformWrapPanelProps(),
-												  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												  FRuitkKey Key = FRuitkKey());
+											   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode RichTextBlock(FRuitkRichTextBlockProps Props = FRuitkRichTextBlockProps(),
-											   FRuitkKey Key = FRuitkKey());
+											FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode GridPanel(FRuitkGridPanelProps Props = FRuitkGridPanelProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode ColorBlock(FRuitkColorBlockProps Props = FRuitkColorBlockProps(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode ColorBlock(FRuitkColorBlockProps Props = FRuitkColorBlockProps(),
+										 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode SimpleGradient(FRuitkSimpleGradientProps Props = FRuitkSimpleGradientProps(),
-												FRuitkKey Key = FRuitkKey());
+											 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ComplexGradient(FRuitkComplexGradientProps Props = FRuitkComplexGradientProps(),
-												 FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode Hyperlink(FRuitkHyperlinkProps Props = FRuitkHyperlinkProps(), FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode Hyperlink(FRuitkHyperlinkProps Props = FRuitkHyperlinkProps(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode EnableBox(FRuitkEnableBoxProps Props = FRuitkEnableBoxProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ScissorRectBox(FRuitkScissorRectBoxProps Props = FRuitkScissorRectBoxProps(),
-												TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												FRuitkKey Key = FRuitkKey());
+											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode BackgroundBlur(FRuitkBackgroundBlurProps Props = FRuitkBackgroundBlurProps(),
+											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											 FRuitkKey Key = FRuitkKey());
+	RUITKSLATE_API FRuitkNode InvalidationPanel(FRuitkInvalidationPanelProps Props = FRuitkInvalidationPanelProps(),
 												TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
 												FRuitkKey Key = FRuitkKey());
-	RUITKSLATE_API FRuitkNode InvalidationPanel(FRuitkInvalidationPanelProps Props = FRuitkInvalidationPanelProps(),
-												   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode VolumeControl(FRuitkVolumeControlProps Props = FRuitkVolumeControlProps(),
-											   FRuitkKey Key = FRuitkKey());
+											FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode TextScroller(FRuitkTextScrollerProps Props = FRuitkTextScrollerProps(),
-											  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode RadialBox(FRuitkRadialBoxProps Props = FRuitkRadialBoxProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ConstraintCanvas(FRuitkConstraintCanvasProps Props = FRuitkConstraintCanvasProps(),
-												  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												  FRuitkKey Key = FRuitkKey());
+											   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Splitter(FRuitkSplitterProps Props = FRuitkSplitterProps(),
-										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+									   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode Splitter2x2(FRuitkSplitter2x2Props Props = FRuitkSplitter2x2Props(),
-											 TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode MenuAnchor(FRuitkMenuAnchorProps Props = FRuitkMenuAnchorProps(),
-											TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode WindowTitleBarArea(FRuitkWindowTitleBarAreaProps Props = FRuitkWindowTitleBarAreaProps(),
-													TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-													FRuitkKey Key = FRuitkKey());
+												 TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+												 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode NumericDropDown(FRuitkNumericDropDownProps Props = FRuitkNumericDropDownProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode BreadcrumbTrail(FRuitkBreadcrumbTrailProps Props = FRuitkBreadcrumbTrailProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode NotificationList(FRuitkNotificationListProps Props = FRuitkNotificationListProps(),
-												  FRuitkKey Key = FRuitkKey());
+											   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode SearchableComboBox(FRuitkSearchableComboBoxProps Props = FRuitkSearchableComboBoxProps(),
-													FRuitkKey Key = FRuitkKey()); // sinceUE 5.7
+												 FRuitkKey Key = FRuitkKey()); // sinceUE 5.7
 	RUITKSLATE_API FRuitkNode LinkedBox(FRuitkLinkedBoxProps Props = FRuitkLinkedBoxProps(),
-										   TArray<FRuitkNode> Children = TArray<FRuitkNode>(), FRuitkKey Key = FRuitkKey());
+										TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+										FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode VirtualJoystick(FRuitkVirtualJoystickProps Props = FRuitkVirtualJoystickProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode VectorInputBox(FRuitkVectorInputBoxProps Props = FRuitkVectorInputBoxProps(),
-												FRuitkKey Key = FRuitkKey());
+											 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode RotatorInputBox(FRuitkRotatorInputBoxProps Props = FRuitkRotatorInputBoxProps(),
-												 FRuitkKey Key = FRuitkKey());
+											  FRuitkKey Key = FRuitkKey());
 
 	/** P4 command: push a toast onto a Ref-captured <NotificationList> (no-op on a dead/wrong
 	 *  handle). The full FNotificationInfo surface stays reachable via WidgetFromHandle. */
 	RUITKSLATE_API void PushNotification(const FRuitkHostHandle& Handle, const FText& Text,
-											  float ExpireDuration = 4.0f);
-	RUITKSLATE_API FRuitkNode ColorWheel(FRuitkColorWheelProps Props = FRuitkColorWheelProps(), FRuitkKey Key = FRuitkKey());
+										 float ExpireDuration = 4.0f);
+	RUITKSLATE_API FRuitkNode ColorWheel(FRuitkColorWheelProps Props = FRuitkColorWheelProps(),
+										 FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ColorSpectrum(FRuitkColorSpectrumProps Props = FRuitkColorSpectrumProps(),
-											   FRuitkKey Key = FRuitkKey());
+											FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode LayeredImage(FRuitkLayeredImageProps Props = FRuitkLayeredImageProps(),
-											  FRuitkKey Key = FRuitkKey());
+										   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode InputKeySelector(FRuitkInputKeySelectorProps Props = FRuitkInputKeySelectorProps(),
-												  FRuitkKey Key = FRuitkKey());
+											   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode EditableText(FRuitkEditableTextProps Props = FRuitkEditableTextProps(),
-											  FRuitkKey Key = FRuitkKey());
+										   FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode InlineEditableTextBlock(
 		FRuitkInlineEditableTextBlockProps Props = FRuitkInlineEditableTextBlockProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode VirtualKeyboardEntry(
 		FRuitkVirtualKeyboardEntryProps Props = FRuitkVirtualKeyboardEntryProps(), FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode ColorGradingWheel(FRuitkColorGradingWheelProps Props = FRuitkColorGradingWheelProps(),
-												   FRuitkKey Key = FRuitkKey());
+												FRuitkKey Key = FRuitkKey());
 	RUITKSLATE_API FRuitkNode UniformGridPanel(FRuitkUniformGridPanelProps Props = FRuitkUniformGridPanelProps(),
-												  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
-												  FRuitkKey Key = FRuitkKey());
+											   TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+											   FRuitkKey Key = FRuitkKey());
 
 	/** Wrap a paint lambda ONCE (UseMemo/UseRef it) — the canvas repaints on identity change. */
 	RUITKSLATE_API TSharedPtr<FRuitkDrawFn> MakeDrawFn(FRuitkDrawFn Fn);

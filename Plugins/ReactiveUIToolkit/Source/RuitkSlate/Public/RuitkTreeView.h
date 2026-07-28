@@ -51,9 +51,9 @@ struct RUITKSLATE_API FRuitkTreeViewProps final : public FRuitkPropsBase
 	RUITK_PROP(FName, SelectionMode, 5)
 	RUITK_PROP_EVENT(OnSelectionChanged, 6)
 	RUITK_PROP_EVENT(OnExpansionChanged, 7)
-	RUITK_PROPS_BODY(FRuitkTreeViewProps,
-				   RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(GetChildren) RUITK_EQ(ExpandedItems) RUITK_EQ(Columns)
-					   RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged) RUITK_EQ(OnExpansionChanged))
+	RUITK_PROPS_BODY(FRuitkTreeViewProps, RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(GetChildren)
+											  RUITK_EQ(ExpandedItems) RUITK_EQ(Columns) RUITK_EQ(SelectionMode)
+												  RUITK_EQ(OnSelectionChanged) RUITK_EQ(OnExpansionChanged))
 };
 
 /** The concrete tree widget (adapter-driven via the Set*() surface; headless helpers mirror

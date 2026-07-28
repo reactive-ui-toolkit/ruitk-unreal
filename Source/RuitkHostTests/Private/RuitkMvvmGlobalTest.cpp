@@ -38,9 +38,9 @@ bool FRuitkMvvmGlobalTest::RunTest(const FString&)
 		Ruitk::Mvvm::FindGlobalViewModel(GameInstance, FName(TEXT("PlayerStats")), URuitkMvvmViewModel::StaticClass());
 	TestTrue(TEXT("resolves back the SAME instance by context name"), Found == Vm);
 
-	TestNull(
-		TEXT("an unregistered context name resolves to null"),
-		Ruitk::Mvvm::FindGlobalViewModel(GameInstance, FName(TEXT("NoSuchContext")), URuitkMvvmViewModel::StaticClass()));
+	TestNull(TEXT("an unregistered context name resolves to null"),
+			 Ruitk::Mvvm::FindGlobalViewModel(GameInstance, FName(TEXT("NoSuchContext")),
+											  URuitkMvvmViewModel::StaticClass()));
 
 	// ── Ruitk writes route by kind + broadcast a FieldNotify change ────────────────────────────────
 	int32 Broadcasts = 0;

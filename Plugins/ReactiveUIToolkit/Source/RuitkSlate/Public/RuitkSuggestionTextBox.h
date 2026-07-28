@@ -73,7 +73,7 @@ namespace Ruitk::Slate
 
 	/** A text field with a substring-matched suggestion dropdown. */
 	RUITKSLATE_API FRuitkNode SuggestionTextBox(FRuitkSuggestionTextBoxProps Props = FRuitkSuggestionTextBoxProps(),
-												   FRuitkKey Key = FRuitkKey());
+												FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{

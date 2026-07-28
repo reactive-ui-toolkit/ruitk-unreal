@@ -46,7 +46,7 @@ namespace CommonUITest
 		const ERuitkInputMethod M = Ruitk::CommonUI::UseInputMethod(Ctx);
 		const TCHAR* S = M == ERuitkInputMethod::Gamepad ? TEXT("GAMEPAD")
 						 : M == ERuitkInputMethod::Touch ? TEXT("TOUCH")
-													   : TEXT("MK");
+														 : TEXT("MK");
 		return {Ruitk::TextBlock(FString(S))};
 	}
 	RUITK_COMPONENT(InputProbe)
