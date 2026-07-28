@@ -21,7 +21,7 @@ inline FRuitkNode NamespaceImport(FNamespaceImportUetkxProps InProps = FNamespac
 #else
 namespace RuitkUetkx_NamespaceImport
 {
-static FRuitkNodeArray NamespaceImport_UetkxBody_B9CB109A(FRuitkContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray NamespaceImport_UetkxBody_99A4F2AF(FRuitkContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "NamespaceImport.uetkx"
 	const FLinearColor Tint = RuitkUetkx_ValueExports::Cool();
@@ -40,7 +40,7 @@ static FRuitkNodeArray NamespaceImport_UetkxBody_B9CB109A(FRuitkContext& Ctx, co
 }
 static FRuitkNodeArray NamespaceImport_UetkxImpl(FRuitkContext& Ctx, const FNamespaceImportUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return NamespaceImport_UetkxBody_B9CB109A(Ctx, Props, children);
+	return NamespaceImport_UetkxBody_99A4F2AF(Ctx, Props, children);
 }
 static const FName GNamespaceImportUetkxId = Ruitk::RegisterComponentId((void*)&NamespaceImport_UetkxImpl, FName(TEXT("RuitkUetkx_NamespaceImport::NamespaceImport")));
 static constexpr uint32 NamespaceImport_RUITK_HOOK_SIG = 0x811C9DC5u;

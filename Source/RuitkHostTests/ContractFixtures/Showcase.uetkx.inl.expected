@@ -21,7 +21,7 @@ inline FRuitkNode Showcase(FShowcaseUetkxProps InProps = FShowcaseUetkxProps(), 
 #else
 namespace RuitkUetkx_Showcase
 {
-static FRuitkNodeArray Showcase_UetkxBody_F59D400F(FRuitkContext& Ctx, const FShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray Showcase_UetkxBody_62423A6D(FRuitkContext& Ctx, const FShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Showcase.uetkx"
 	auto [Mode, SetMode] = Ctx.UseState<int32>(0);
@@ -116,7 +116,7 @@ static FRuitkNodeArray Showcase_UetkxBody_F59D400F(FRuitkContext& Ctx, const FSh
 }
 static FRuitkNodeArray Showcase_UetkxImpl(FRuitkContext& Ctx, const FShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return Showcase_UetkxBody_F59D400F(Ctx, Props, children);
+	return Showcase_UetkxBody_62423A6D(Ctx, Props, children);
 }
 static const FName GShowcaseUetkxId = Ruitk::RegisterComponentId((void*)&Showcase_UetkxImpl, FName(TEXT("RuitkUetkx_Showcase::Showcase")));
 static constexpr uint32 Showcase_RUITK_HOOK_SIG = 0x986DF5F6u;

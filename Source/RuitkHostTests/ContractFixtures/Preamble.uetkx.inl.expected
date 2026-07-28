@@ -22,13 +22,13 @@ inline FRuitkNode Preamble(FPreambleUetkxProps InProps = FPreambleUetkxProps(), 
 #else
 namespace RuitkUetkx_Preamble
 {
-static FRuitkNodeArray Preamble_UetkxBody_1474125B(FRuitkContext& Ctx, const FPreambleUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray Preamble_UetkxBody_A669AC16(FRuitkContext& Ctx, const FPreambleUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { Ruitk::TextBlock(NSLOCTEXT("Uetkx.Preamble", "Preamble_1", "préamble with non-ASCII → and non-BMP 🎮"), FRuitkKey()) };
 }
 static FRuitkNodeArray Preamble_UetkxImpl(FRuitkContext& Ctx, const FPreambleUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return Preamble_UetkxBody_1474125B(Ctx, Props, children);
+	return Preamble_UetkxBody_A669AC16(Ctx, Props, children);
 }
 static const FName GPreambleUetkxId = Ruitk::RegisterComponentId((void*)&Preamble_UetkxImpl, FName(TEXT("RuitkUetkx_Preamble::Preamble")));
 static constexpr uint32 Preamble_RUITK_HOOK_SIG = 0x811C9DC5u;

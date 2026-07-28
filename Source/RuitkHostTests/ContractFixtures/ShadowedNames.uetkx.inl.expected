@@ -32,7 +32,7 @@ inline FRuitkNode ShadowedNames(FShadowedNamesUetkxProps InProps = FShadowedName
 #else
 namespace RuitkUetkx_ShadowedNames
 {
-static FRuitkNodeArray ShadowedNames_UetkxBody_987A9346(FRuitkContext& Ctx, const FShadowedNamesUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray ShadowedNames_UetkxBody_C809BB96(FRuitkContext& Ctx, const FShadowedNamesUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Tint = Props.Tint;
 #line 10 "ShadowedNames.uetkx"
@@ -68,7 +68,7 @@ static FRuitkNodeArray ShadowedNames_UetkxBody_987A9346(FRuitkContext& Ctx, cons
 }
 static FRuitkNodeArray ShadowedNames_UetkxImpl(FRuitkContext& Ctx, const FShadowedNamesUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return ShadowedNames_UetkxBody_987A9346(Ctx, Props, children);
+	return ShadowedNames_UetkxBody_C809BB96(Ctx, Props, children);
 }
 static const FName GShadowedNamesUetkxId = Ruitk::RegisterComponentId((void*)&ShadowedNames_UetkxImpl, FName(TEXT("RuitkUetkx_ShadowedNames::ShadowedNames")));
 static constexpr uint32 ShadowedNames_RUITK_HOOK_SIG = 0x986DF5F6u;

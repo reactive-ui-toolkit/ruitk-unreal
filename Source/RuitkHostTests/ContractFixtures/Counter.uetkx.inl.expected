@@ -23,7 +23,7 @@ inline FRuitkNode Counter(FCounterUetkxProps InProps = FCounterUetkxProps(), TAr
 #else
 namespace RuitkUetkx_Counter
 {
-static FRuitkNodeArray Counter_UetkxBody_2F197C91(FRuitkContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray Counter_UetkxBody_E8EFCAE6(FRuitkContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& StartAt = Props.StartAt;
 #line 2 "Counter.uetkx"
@@ -55,7 +55,7 @@ static FRuitkNodeArray Counter_UetkxBody_2F197C91(FRuitkContext& Ctx, const FCou
 }
 static FRuitkNodeArray Counter_UetkxImpl(FRuitkContext& Ctx, const FCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return Counter_UetkxBody_2F197C91(Ctx, Props, children);
+	return Counter_UetkxBody_E8EFCAE6(Ctx, Props, children);
 }
 static const FName GCounterUetkxId = Ruitk::RegisterComponentId((void*)&Counter_UetkxImpl, FName(TEXT("RuitkUetkx_Counter::Counter")));
 static constexpr uint32 Counter_RUITK_HOOK_SIG = 0x986DF5F6u;

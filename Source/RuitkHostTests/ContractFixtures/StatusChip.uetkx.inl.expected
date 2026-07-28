@@ -23,7 +23,7 @@ inline FRuitkNode StatusChip(FStatusChipUetkxProps InProps = FStatusChipUetkxPro
 #else
 namespace RuitkUetkx_StatusChip
 {
-static FRuitkNodeArray StatusChip_UetkxBody_F84D153F(FRuitkContext& Ctx, const FStatusChipUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray StatusChip_UetkxBody_62E826F6(FRuitkContext& Ctx, const FStatusChipUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Label = Props.Label;
 	return { [&]() -> FRuitkNode {
@@ -37,7 +37,7 @@ static FRuitkNodeArray StatusChip_UetkxBody_F84D153F(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray StatusChip_UetkxImpl(FRuitkContext& Ctx, const FStatusChipUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return StatusChip_UetkxBody_F84D153F(Ctx, Props, children);
+	return StatusChip_UetkxBody_62E826F6(Ctx, Props, children);
 }
 static const FName GStatusChipUetkxId = Ruitk::RegisterComponentId((void*)&StatusChip_UetkxImpl, FName(TEXT("RuitkUetkx_StatusChip::StatusChip")));
 static constexpr uint32 StatusChip_RUITK_HOOK_SIG = 0x811C9DC5u;
