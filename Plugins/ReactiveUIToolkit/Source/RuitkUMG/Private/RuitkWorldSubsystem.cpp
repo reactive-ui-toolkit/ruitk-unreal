@@ -83,7 +83,7 @@ void URuitkWorldSubsystem::Deinitialize()
 	// refs run before the world's UObjects are GC'd (the family teardown contract).
 	if (Roots.Num() > 0)
 	{
-		UE_LOG(LogRuitkSubsystem, Display, TEXT("world teardown: unmounting %d ReactiveUI root(s)"), Roots.Num());
+		UE_LOG(LogRuitkSubsystem, Display, TEXT("world teardown: unmounting %d Reactive UI Toolkit root(s)"), Roots.Num());
 	}
 	UnmountAll();
 	Super::Deinitialize();

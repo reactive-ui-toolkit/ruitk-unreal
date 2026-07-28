@@ -55,7 +55,7 @@ namespace
 		Main.AddMenuEntry(
 			"MessageLog", LOCTEXT("MessageLog", "Message Log"),
 			LOCTEXT("MessageLogTip",
-					"Open the ReactiveUI Message Log page (.uetkx compile errors with jump-to-file links)."),
+					"Open the Reactive UI Toolkit Message Log page (.uetkx compile errors with jump-to-file links)."),
 			FSlateIcon(),
 			FUIAction(FExecuteAction::CreateLambda(
 				[]() { FMessageLog(TEXT("Ruitk")).Open(EMessageSeverity::Info, /*bOpenEvenIfEmpty*/ true); })));
@@ -90,7 +90,7 @@ void FReactiveUetkxMenu::Register()
 	}
 	FToolMenuSection& Section = MainMenu->FindOrAddSection("ReactiveUetkx");
 	Section.AddSubMenu("ReactiveUetkx", LOCTEXT("MenuLabel", "ReactiveUetkx"),
-					   LOCTEXT("MenuTip", "ReactiveUI (.uetkx) — Hot Reload, preview, diagnostics."),
+					   LOCTEXT("MenuTip", "Reactive UI Toolkit (.uetkx) — Hot Reload, preview, diagnostics."),
 					   FNewToolMenuDelegate::CreateStatic(&FillRootMenu));
 }
 

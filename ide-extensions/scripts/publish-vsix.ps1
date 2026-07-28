@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Build, package, and publish the UETKX Visual Studio 2022 extension.
-    LOCAL mirror of publish.yml's vs2022 leg — ported from the ReactiveUI-Godot repo's
+    LOCAL mirror of publish.yml's vs2022 leg — ported from the Godot sibling's
     publish-vsix.ps1; unusable until Phase 5 creates ide-extensions/visual-studio/UetkxVsix/.
 
 .DESCRIPTION

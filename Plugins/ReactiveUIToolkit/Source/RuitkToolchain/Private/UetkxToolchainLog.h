@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// The module-wide log category. DECLARE here + DEFINE once in ReactiveUIToolchainModule.cpp —
+// The module-wide log category. DECLARE here + DEFINE once in RuitkToolchainModule.cpp —
 // per-file DEFINE_LOG_CATEGORY_STATIC collides under unity builds (same pitfall as the shared
 // UetkxChars.h constants).
 

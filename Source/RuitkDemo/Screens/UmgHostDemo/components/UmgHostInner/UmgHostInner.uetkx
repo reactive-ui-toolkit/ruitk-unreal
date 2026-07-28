@@ -11,7 +11,7 @@ export FRuitkNode UmgHostInner() {
 		>
 			<VerticalBox>
 				<TextBlock
-					Text="▼ ReactiveUI again — mounted INSIDE that UMG widget by URuitkHostWidget"
+					Text="▼ Reactive UI Toolkit again — mounted INSIDE that UMG widget by URuitkHostWidget"
 					Font.Size={ 11.0f }
 					ColorAndOpacity={ FLinearColor(0.6f, 1.0f, 0.7f) } />
 				<HorizontalBox>

@@ -1711,7 +1711,7 @@ connection.onHover(async (params) => {
 
   if (schema.hooks.includes(word)) {
     return md(
-      `**\`${word}\`** — ReactiveUI hook (a member of \`FRuitkContext\`; markup calls it bare and the compiler prefixes \`Ctx.\`). Hook rules apply: unconditional call order, setup-only.`,
+      `**\`${word}\`** — Reactive UI Toolkit hook (a member of \`FRuitkContext\`; markup calls it bare and the compiler prefixes \`Ctx.\`). Hook rules apply: unconditional call order, setup-only.`,
     );
   }
   if (schema.styleKeys.includes(word)) {

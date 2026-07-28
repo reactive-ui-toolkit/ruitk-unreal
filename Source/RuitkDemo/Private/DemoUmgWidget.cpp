@@ -17,5 +17,5 @@ TSharedRef<SWidget> UDemoUmgWidget::RebuildWidget()
 			0.15f, 0.35f, 0.55f,
 			1.0f))[SNew(STextBlock)
 					   .Text(NSLOCTEXT("RuitkDemo", "UmgInner",
-									   "▲ This is a real UMG UserWidget, hosted inside the ReactiveUI tree"))];
+									   "▲ This is a real UMG UserWidget, hosted inside the Reactive UI Toolkit tree"))];
 }

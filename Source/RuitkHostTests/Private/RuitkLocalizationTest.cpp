@@ -114,8 +114,8 @@ bool FRuitkLocGatherManifestTest::RunTest(const FString&)
 	TestTrue(TEXT("manifest gathered markup text (the 'Uetkx' namespace is present)"),
 			 Manifest.Contains(TEXT("\"Uetkx\"")));
 	// And the plugin's own runtime strings gather too (palette category, design-time labels).
-	TestTrue(TEXT("manifest gathered plugin strings (the 'ReactiveUI' namespace is present)"),
-			 Manifest.Contains(TEXT("\"ReactiveUI\"")));
+	TestTrue(TEXT("manifest gathered plugin strings (the 'Ruitk' namespace is present)"),
+			 Manifest.Contains(TEXT("\"Ruitk\"")));
 	return true;
 }
 

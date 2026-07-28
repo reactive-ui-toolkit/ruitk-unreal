@@ -36,7 +36,7 @@ static FRuitkNodeArray UmgHostInner_UetkxBody_494743D1(FRuitkContext& Ctx, const
 		FRuitkVerticalBoxProps P;
 		TArray<FRuitkNode> Ch;
 		Ch.Add([&]() -> FRuitkNode {
-		FRuitkNode __N = Ruitk::TextBlock(NSLOCTEXT("Uetkx.UmgHostInner", "UmgHostInner_1", "▼ ReactiveUI again — mounted INSIDE that UMG widget by URuitkHostWidget"), FRuitkKey());
+		FRuitkNode __N = Ruitk::TextBlock(NSLOCTEXT("Uetkx.UmgHostInner", "UmgHostInner_1", "▼ Reactive UI Toolkit again — mounted INSIDE that UMG widget by URuitkHostWidget"), FRuitkKey());
 		TSharedRef<FRuitkTextBlockProps> __P = MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));
 		TSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();
 		TSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();

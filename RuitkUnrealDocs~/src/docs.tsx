@@ -131,7 +131,7 @@ export const sections: DocSection[] = [
         path: '/guides/migration',
         keywords: ['migration', 'adoption', 'existing project', 'incremental', 'umg', 'convert'],
         searchContent:
-          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget Reactive UI Toolkit Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion ReactiveUI owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
+          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget Reactive UI Toolkit Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion Reactive UI Toolkit owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
         element: () => <MigrationPage />,
       },
       {

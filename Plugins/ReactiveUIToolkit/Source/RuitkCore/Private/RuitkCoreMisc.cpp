@@ -14,7 +14,7 @@ DEFINE_STAT(STAT_RuiDeletions);
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), false,
-					   TEXT("Chunk the ReactiveUI render phase across frames on a budget (commit stays atomic)."));
+					   TEXT("Chunk the Reactive UI Toolkit render phase across frames on a budget (commit stays atomic)."));
 
 static TAutoConsoleVariable<float>
 	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 8.0f,

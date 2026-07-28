@@ -11,7 +11,7 @@
 
 namespace ReactiveUetkxTabs
 {
-	// Shared with ReactiveUIEditorModule's nomad-tab registrations.
+	// Shared with RuitkEditorModule's nomad-tab registrations.
 	extern const FName HmrWindow;
 	extern const FName Preview;
 } // namespace ReactiveUetkxTabs

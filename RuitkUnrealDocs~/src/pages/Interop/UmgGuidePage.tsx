@@ -52,7 +52,7 @@ export const UmgGuidePage: FC = () => (
       Our UI inside theirs — <code>URuitkHostWidget</code>
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>URuitkHostWidget</code> is a designer-placeable <code>UWidget</code> (&quot;ReactiveUI
+      <code>URuitkHostWidget</code> is a designer-placeable <code>UWidget</code> (&quot;Reactive UI Toolkit
       Host&quot; in the palette). Point it at a registered component name; it mounts the tree when
       the widget builds and unmounts — running effect cleanups — when Slate resources release. For
       HUD-style overlays with no UMG wrapper at all, <code>URuitkWorldSubsystem::MountNamed</code>{' '}
