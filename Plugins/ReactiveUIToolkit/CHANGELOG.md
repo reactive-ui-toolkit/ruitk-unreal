@@ -1,11 +1,49 @@
 # Changelog
 
-All notable changes to the **ReactiveUI plugin** (`Plugins/ReactiveUI/`) are documented here,
-keep-a-changelog style; versions are the plugin's `VersionName`. This file is mirrored
-**byte-identically** into `Plugins/ReactiveUI/CHANGELOG.md` — edit only this root file, then
-resync with `cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md` (CI byte-compares them via
-`scripts/verify-mirror.mjs`). The IDE extensions are NOT covered here — they use
-`ide-extensions/changelog.json` (Lane B; see the release-process skill).
+All notable changes to the **Reactive UI Toolkit plugin** (`Plugins/ReactiveUIToolkit/`) are
+documented here, keep-a-changelog style; versions are the plugin's `VersionName`. This file is
+mirrored **byte-identically** into `Plugins/ReactiveUIToolkit/CHANGELOG.md` — edit only this
+root file, then resync with `cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md` (CI
+byte-compares them via `scripts/verify-mirror.mjs`). The IDE extensions are NOT covered here —
+they use `ide-extensions/changelog.json` (Lane B; see the release-process skill). Entries below
+0.15.0 predate the rebrand and keep their original wording.
+
+## [0.15.0] — 2026-07-28
+
+The family rebrand release: the umbrella is now **Reactive UI Toolkit** (org
+`reactive-ui-toolkit`, repo `ruitk-unreal`), and every public identifier follows one
+abbreviation system — `Ruitk` / `RUITK`. Behaviorally this is 0.14.0 with new names; it is
+nonetheless **BREAKING** for every user project. `MIGRATION-0.15.md` + the shipped codemod
+make the migration mechanical.
+
+### Changed
+
+- **BREAKING — full identifier rebrand.** Plugin folder + descriptor:
+  `Plugins/ReactiveUIToolkit/` + `ReactiveUIToolkit.uplugin` (plugin name
+  `ReactiveUIToolkit`). Modules: `ReactiveUI<Mod>` → `Ruitk<Mod>` (8; export macros
+  `RUITK<MOD>_API`). Type prefixes: `FRui*`/`URui*`/`SRui*`/`TRui*`/`IRui*`/`ERui*`/`ARui*`
+  → `FRuitk*`/…/`ARuitk*` (`FRuiNode` → `FRuitkNode`). Namespace: `RUI::` → `Ruitk::`.
+  Public macros: `RUI_*` → `RUITK_*` (`RUI_PROP` → `RUITK_PROP`, codegen-emitted
+  `RUITK_UETKX_DECL_PHASE`). Bare `Rui*` identifiers and brand-named source files →
+  `Ruitk*`. Automation specs: `ReactiveUI.<Suite>.<Test>` → `Ruitk.<Suite>.<Test>` (CI
+  filter `Automation RunTests Ruitk`). Commandlets: `-run=RUI*` → `-run=Ruitk*`. Release
+  zips: `ReactiveUIToolkit-<ver>[.zip|-UE<eng>.zip]`. Unchanged by design: `rui.*` console
+  variables, the `__rui_*` generated-symbol prefix, and baked `*_RUI_HOOK_SIG` constants.
+- **License**: the ReactiveUI Community License 1.0 is retitled **Reactive UI Toolkit
+  Community License 1.1** — terms unchanged, credit line now "Made with Reactive UI
+  Toolkit"; licensees under 1.0 keep 1.0. SPDX ref:
+  `LicenseRef-Reactive-UI-Toolkit-Community-1.1`.
+- **URLs**: repo `https://github.com/reactive-ui-toolkit/ruitk-unreal`, docs
+  `https://reactive-ui-toolkit.github.io/ruitk-unreal/` (old GitHub URLs redirect; the old
+  Pages URL does not).
+
+### Added
+
+- **`-run=RuitkMigrateBrand`** — record-driven, idempotent user-project codemod applying the
+  full rename rule set (`.uetkx` heads + embedded C++, `Build.cs` deps, `#include` paths,
+  `.uproject` plugin name). Ships with `MIGRATION-0.15.md`, which includes a verbatim
+  `[CoreRedirects]` block (8 renamed `URui*` classes + `ARuiDemoGameMode`) so existing
+  assets load and resave cleanly.
 
 ## [0.14.0] — 2026-07-25
 
