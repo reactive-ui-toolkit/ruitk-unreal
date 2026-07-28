@@ -22,7 +22,7 @@ inline FRuitkNode SignalCounter(FSignalCounterUetkxProps InProps = FSignalCounte
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter
 {
-static FRuitkNodeArray SignalCounter_UetkxBody_F1764063(FRuitkContext& Ctx, const FSignalCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray SignalCounter_UetkxBody_AA1DC15A(FRuitkContext& Ctx, const FSignalCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 5 "Source/RuitkDemo/Screens/SignalCounter/SignalCounter.uetkx"
 	TSharedRef<TRuitkSignal<int32>> Signal = Ruitk::GetOrCreateSignal<int32>(RuitkDemo::GDemoCounterSignal, 0);
@@ -123,7 +123,7 @@ static FRuitkNodeArray SignalCounter_UetkxBody_F1764063(FRuitkContext& Ctx, cons
 }
 static FRuitkNodeArray SignalCounter_UetkxImpl(FRuitkContext& Ctx, const FSignalCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return SignalCounter_UetkxBody_F1764063(Ctx, Props, children);
+	return SignalCounter_UetkxBody_AA1DC15A(Ctx, Props, children);
 }
 static const FName GSignalCounterUetkxId = Ruitk::RegisterComponentId((void*)&SignalCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_SignalCounter::SignalCounter")));
 static constexpr uint32 SignalCounter_RUITK_HOOK_SIG = 0x811C9DC5u;

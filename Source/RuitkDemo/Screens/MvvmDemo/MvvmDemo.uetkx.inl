@@ -21,7 +21,7 @@ inline FRuitkNode MvvmDemo(FMvvmDemoUetkxProps InProps = FMvvmDemoUetkxProps(), 
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_MvvmDemo_MvvmDemo
 {
-static FRuitkNodeArray MvvmDemo_UetkxBody_212F4A7E(FRuitkContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray MvvmDemo_UetkxBody_93BC29C6(FRuitkContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 3 "Source/RuitkDemo/Screens/MvvmDemo/MvvmDemo.uetkx"
 	// A viewmodel we own: created once (UseMemo, empty deps), GC-rooted by the strong ptr, released on unmount.
@@ -100,7 +100,7 @@ static FRuitkNodeArray MvvmDemo_UetkxBody_212F4A7E(FRuitkContext& Ctx, const FMv
 }
 static FRuitkNodeArray MvvmDemo_UetkxImpl(FRuitkContext& Ctx, const FMvvmDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return MvvmDemo_UetkxBody_212F4A7E(Ctx, Props, children);
+	return MvvmDemo_UetkxBody_93BC29C6(Ctx, Props, children);
 }
 static const FName GMvvmDemoUetkxId = Ruitk::RegisterComponentId((void*)&MvvmDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_MvvmDemo_MvvmDemo::MvvmDemo")));
 static constexpr uint32 MvvmDemo_RUITK_HOOK_SIG = 0x1676516Fu;

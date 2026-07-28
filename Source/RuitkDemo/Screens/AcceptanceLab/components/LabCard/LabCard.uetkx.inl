@@ -25,7 +25,7 @@ inline FRuitkNode LabCard(FLabCardUetkxProps InProps = FLabCardUetkxProps(), TAr
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard
 {
-static FRuitkNodeArray LabCard_UetkxBody_0A2A00D8(FRuitkContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray LabCard_UetkxBody_C5880F62(FRuitkContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Label = Props.Label;
 	const auto& Count = Props.Count;
@@ -77,7 +77,7 @@ static FRuitkNodeArray LabCard_UetkxBody_0A2A00D8(FRuitkContext& Ctx, const FLab
 }
 static FRuitkNodeArray LabCard_UetkxImpl(FRuitkContext& Ctx, const FLabCardUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return LabCard_UetkxBody_0A2A00D8(Ctx, Props, children);
+	return LabCard_UetkxBody_C5880F62(Ctx, Props, children);
 }
 static const FName GLabCardUetkxId = Ruitk::RegisterComponentId((void*)&LabCard_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabCard_LabCard::LabCard")));
 static constexpr uint32 LabCard_RUITK_HOOK_SIG = 0x811C9DC5u;

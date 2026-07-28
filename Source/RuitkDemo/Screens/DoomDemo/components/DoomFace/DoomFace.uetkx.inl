@@ -24,7 +24,7 @@ inline FRuitkNode DoomFace(FDoomFaceUetkxProps InProps = FDoomFaceUetkxProps(), 
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace
 {
-static FRuitkNodeArray DoomFace_UetkxBody_ACE4B2DD(FRuitkContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray DoomFace_UetkxBody_E0AA4BE4(FRuitkContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Frame = Props.Frame;
 #line 7 "Source/RuitkDemo/Screens/DoomDemo/components/DoomFace/DoomFace.uetkx"
@@ -105,7 +105,7 @@ static FRuitkNodeArray DoomFace_UetkxBody_ACE4B2DD(FRuitkContext& Ctx, const FDo
 }
 static FRuitkNodeArray DoomFace_UetkxImpl(FRuitkContext& Ctx, const FDoomFaceUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return DoomFace_UetkxBody_ACE4B2DD(Ctx, Props, children);
+	return DoomFace_UetkxBody_E0AA4BE4(Ctx, Props, children);
 }
 static const FName GDoomFaceUetkxId = Ruitk::RegisterComponentId((void*)&DoomFace_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomFace_DoomFace::DoomFace")));
 static constexpr uint32 DoomFace_RUITK_HOOK_SIG = 0x1676516Fu;

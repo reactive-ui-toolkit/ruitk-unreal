@@ -23,7 +23,7 @@ inline FRuitkNode UmgHostDemo(FUmgHostDemoUetkxProps InProps = FUmgHostDemoUetkx
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_UmgHostDemo
 {
-static FRuitkNodeArray UmgHostDemo_UetkxBody_08102C9D(FRuitkContext& Ctx, const FUmgHostDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray UmgHostDemo_UetkxBody_3C7E9889(FRuitkContext& Ctx, const FUmgHostDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 10 "Source/RuitkDemo/Screens/UmgHostDemo/UmgHostDemo.uetkx"
 	UWorld* World = RuitkDemo::GetDemoWorld();
@@ -117,7 +117,7 @@ static FRuitkNodeArray UmgHostDemo_UetkxBody_08102C9D(FRuitkContext& Ctx, const 
 }
 static FRuitkNodeArray UmgHostDemo_UetkxImpl(FRuitkContext& Ctx, const FUmgHostDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return UmgHostDemo_UetkxBody_08102C9D(Ctx, Props, children);
+	return UmgHostDemo_UetkxBody_3C7E9889(Ctx, Props, children);
 }
 static const FName GUmgHostDemoUetkxId = Ruitk::RegisterComponentId((void*)&UmgHostDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_UmgHostDemo::UmgHostDemo")));
 static constexpr uint32 UmgHostDemo_RUITK_HOOK_SIG = 0x811C9DC5u;

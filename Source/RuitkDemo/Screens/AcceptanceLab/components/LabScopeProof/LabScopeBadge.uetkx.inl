@@ -21,13 +21,13 @@ inline FRuitkNode LabScopeBadge(FLabScopeBadgeUetkxProps InProps = FLabScopeBadg
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge
 {
-static FRuitkNodeArray LabScopeBadge_UetkxBody_BC1A283F(FRuitkContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray LabScopeBadge_UetkxBody_7135B06C(FRuitkContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { Ruitk::TextBlock(NSLOCTEXT("Uetkx.LabScopeBadge", "LabScopeBadge_1", "scope-proof"), FRuitkKey()) };
 }
 static FRuitkNodeArray LabScopeBadge_UetkxImpl(FRuitkContext& Ctx, const FLabScopeBadgeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return LabScopeBadge_UetkxBody_BC1A283F(Ctx, Props, children);
+	return LabScopeBadge_UetkxBody_7135B06C(Ctx, Props, children);
 }
 static const FName GLabScopeBadgeUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeBadge_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeBadge::LabScopeBadge")));
 static constexpr uint32 LabScopeBadge_RUITK_HOOK_SIG = 0x811C9DC5u;

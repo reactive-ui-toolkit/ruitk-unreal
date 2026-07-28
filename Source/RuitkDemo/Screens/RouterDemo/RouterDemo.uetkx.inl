@@ -21,7 +21,7 @@ inline FRuitkNode RouterDemo(FRouterDemoUetkxProps InProps = FRouterDemoUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo
 {
-static FRuitkNodeArray RouterDemo_UetkxBody_2AE4B677(FRuitkContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray RouterDemo_UetkxBody_1BBCCB42(FRuitkContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 8 "Source/RuitkDemo/Screens/RouterDemo/RouterDemo.uetkx"
 	TArray<Ruitk::FRuitkRoute> RouteList;
@@ -78,7 +78,7 @@ static FRuitkNodeArray RouterDemo_UetkxBody_2AE4B677(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray RouterDemo_UetkxImpl(FRuitkContext& Ctx, const FRouterDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return RouterDemo_UetkxBody_2AE4B677(Ctx, Props, children);
+	return RouterDemo_UetkxBody_1BBCCB42(Ctx, Props, children);
 }
 static const FName GRouterDemoUetkxId = Ruitk::RegisterComponentId((void*)&RouterDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_RouterDemo::RouterDemo")));
 static constexpr uint32 RouterDemo_RUITK_HOOK_SIG = 0x811C9DC5u;

@@ -21,7 +21,7 @@ inline FRuitkNode RouterHome(FRouterHomeUetkxProps InProps = FRouterHomeUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterHome_RouterHome
 {
-static FRuitkNodeArray RouterHome_UetkxBody_A79A194F(FRuitkContext& Ctx, const FRouterHomeUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray RouterHome_UetkxBody_85C2C783(FRuitkContext& Ctx, const FRouterHomeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 3 "Source/RuitkDemo/Screens/RouterDemo/components/RouterHome/RouterHome.uetkx"
 	auto Navigate = UseNavigate(Ctx);
@@ -74,7 +74,7 @@ static FRuitkNodeArray RouterHome_UetkxBody_A79A194F(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray RouterHome_UetkxImpl(FRuitkContext& Ctx, const FRouterHomeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return RouterHome_UetkxBody_A79A194F(Ctx, Props, children);
+	return RouterHome_UetkxBody_85C2C783(Ctx, Props, children);
 }
 static const FName GRouterHomeUetkxId = Ruitk::RegisterComponentId((void*)&RouterHome_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterHome_RouterHome::RouterHome")));
 static constexpr uint32 RouterHome_RUITK_HOOK_SIG = 0x811C9DC5u;

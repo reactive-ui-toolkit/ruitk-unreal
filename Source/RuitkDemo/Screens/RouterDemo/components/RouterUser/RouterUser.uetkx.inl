@@ -21,7 +21,7 @@ inline FRuitkNode RouterUser(FRouterUserUetkxProps InProps = FRouterUserUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterUser_RouterUser
 {
-static FRuitkNodeArray RouterUser_UetkxBody_84C60909(FRuitkContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray RouterUser_UetkxBody_72CDD625(FRuitkContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 3 "Source/RuitkDemo/Screens/RouterDemo/components/RouterUser/RouterUser.uetkx"
 	const TMap<FString, FString>& Params = UseParams(Ctx);
@@ -49,7 +49,7 @@ static FRuitkNodeArray RouterUser_UetkxBody_84C60909(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray RouterUser_UetkxImpl(FRuitkContext& Ctx, const FRouterUserUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return RouterUser_UetkxBody_84C60909(Ctx, Props, children);
+	return RouterUser_UetkxBody_72CDD625(Ctx, Props, children);
 }
 static const FName GRouterUserUetkxId = Ruitk::RegisterComponentId((void*)&RouterUser_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_RouterDemo_components_RouterUser_RouterUser::RouterUser")));
 static constexpr uint32 RouterUser_RUITK_HOOK_SIG = 0x811C9DC5u;

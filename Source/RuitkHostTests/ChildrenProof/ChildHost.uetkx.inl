@@ -21,7 +21,7 @@ inline FRuitkNode ChildHost(FChildHostUetkxProps InProps = FChildHostUetkxProps(
 #else
 namespace RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost
 {
-static FRuitkNodeArray ChildHost_UetkxBody_82FA7DEF(FRuitkContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray ChildHost_UetkxBody_8ACBBD66(FRuitkContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { [&]() -> FRuitkNode {
 		FRuitkVerticalBoxProps P;
@@ -34,7 +34,7 @@ static FRuitkNodeArray ChildHost_UetkxBody_82FA7DEF(FRuitkContext& Ctx, const FC
 }
 static FRuitkNodeArray ChildHost_UetkxImpl(FRuitkContext& Ctx, const FChildHostUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return ChildHost_UetkxBody_82FA7DEF(Ctx, Props, children);
+	return ChildHost_UetkxBody_8ACBBD66(Ctx, Props, children);
 }
 static const FName GChildHostUetkxId = Ruitk::RegisterComponentId((void*)&ChildHost_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_ChildrenProof_ChildHost::ChildHost")));
 static constexpr uint32 ChildHost_RUITK_HOOK_SIG = 0x811C9DC5u;

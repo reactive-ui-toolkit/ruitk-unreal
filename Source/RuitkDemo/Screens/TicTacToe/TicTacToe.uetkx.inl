@@ -21,7 +21,7 @@ inline FRuitkNode TicTacToe(FTicTacToeUetkxProps InProps = FTicTacToeUetkxProps(
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe
 {
-static FRuitkNodeArray TicTacToe_UetkxBody_08DE8C5C(FRuitkContext& Ctx, const FTicTacToeUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray TicTacToe_UetkxBody_2E72F193(FRuitkContext& Ctx, const FTicTacToeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 2 "Source/RuitkDemo/Screens/TicTacToe/TicTacToe.uetkx"
 	auto EmptyGrid = []() {
@@ -228,7 +228,7 @@ static FRuitkNodeArray TicTacToe_UetkxBody_08DE8C5C(FRuitkContext& Ctx, const FT
 }
 static FRuitkNodeArray TicTacToe_UetkxImpl(FRuitkContext& Ctx, const FTicTacToeUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return TicTacToe_UetkxBody_08DE8C5C(Ctx, Props, children);
+	return TicTacToe_UetkxBody_2E72F193(Ctx, Props, children);
 }
 static const FName GTicTacToeUetkxId = Ruitk::RegisterComponentId((void*)&TicTacToe_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_TicTacToe_TicTacToe::TicTacToe")));
 static constexpr uint32 TicTacToe_RUITK_HOOK_SIG = 0x62237E89u;

@@ -11,7 +11,7 @@ inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuitkCon
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks
 {
-static TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState_RuiBody_9CC78468(FRuitkContext& Ctx, int32 Start)
+static TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState_RuiBody_9A978405(FRuitkContext& Ctx, int32 Start)
 {
 #line 19 "Source/RuitkDemo/Screens/AcceptanceLab/AcceptanceLab.hooks.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(Start);
@@ -23,7 +23,7 @@ static TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState_RuiBody_9
 }
 inline TTuple<int32, TFunction<void()>, TFunction<void()>> UseLabState(FRuitkContext& Ctx, int32 Start)
 {
-	return UseLabState_RuiBody_9CC78468(Ctx, Start);
+	return UseLabState_RuiBody_9A978405(Ctx, Start);
 }
 
 } // namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab_hooks

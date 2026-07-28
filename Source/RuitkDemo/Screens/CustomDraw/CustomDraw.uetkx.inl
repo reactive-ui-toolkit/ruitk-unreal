@@ -22,7 +22,7 @@ inline FRuitkNode CustomDraw(FCustomDrawUetkxProps InProps = FCustomDrawUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw
 {
-static FRuitkNodeArray CustomDraw_UetkxBody_4DE9552F(FRuitkContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray CustomDraw_UetkxBody_5AC1BB06(FRuitkContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Source/RuitkDemo/Screens/CustomDraw/CustomDraw.uetkx"
 	auto [Sides, SetSides] = Ctx.UseState<int32>(3);
@@ -203,7 +203,7 @@ static FRuitkNodeArray CustomDraw_UetkxBody_4DE9552F(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray CustomDraw_UetkxImpl(FRuitkContext& Ctx, const FCustomDrawUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return CustomDraw_UetkxBody_4DE9552F(Ctx, Props, children);
+	return CustomDraw_UetkxBody_5AC1BB06(Ctx, Props, children);
 }
 static const FName GCustomDrawUetkxId = Ruitk::RegisterComponentId((void*)&CustomDraw_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_CustomDraw_CustomDraw::CustomDraw")));
 static constexpr uint32 CustomDraw_RUITK_HOOK_SIG = 0x01D624F6u;

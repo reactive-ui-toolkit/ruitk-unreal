@@ -26,7 +26,7 @@ inline FRuitkNode DoomMinimap(FDoomMinimapUetkxProps InProps = FDoomMinimapUetkx
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap
 {
-static FRuitkNodeArray DoomMinimap_UetkxBody_72C99BCC(FRuitkContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray DoomMinimap_UetkxBody_B6B48A73(FRuitkContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& State = Props.State;
 	const auto& Version = Props.Version;
@@ -247,7 +247,7 @@ static FRuitkNodeArray DoomMinimap_UetkxBody_72C99BCC(FRuitkContext& Ctx, const 
 }
 static FRuitkNodeArray DoomMinimap_UetkxImpl(FRuitkContext& Ctx, const FDoomMinimapUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return DoomMinimap_UetkxBody_72C99BCC(Ctx, Props, children);
+	return DoomMinimap_UetkxBody_B6B48A73(Ctx, Props, children);
 }
 static const FName GDoomMinimapUetkxId = Ruitk::RegisterComponentId((void*)&DoomMinimap_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomMinimap_DoomMinimap::DoomMinimap")));
 static constexpr uint32 DoomMinimap_RUITK_HOOK_SIG = 0x811C9DC5u;

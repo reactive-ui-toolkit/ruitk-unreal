@@ -22,7 +22,7 @@ inline FRuitkNode HostImportProof(FHostImportProofUetkxProps InProps = FHostImpo
 #else
 namespace RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof
 {
-static FRuitkNodeArray HostImportProof_UetkxBody_9F33ABBB(FRuitkContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray HostImportProof_UetkxBody_92A6E256(FRuitkContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Source/RuitkHostTests/GrammarProof/HostImportProof.uetkx"
 	// FDateTime lives in Misc/DateTime.h — NOT on the auto-included prelude list
@@ -35,7 +35,7 @@ static FRuitkNodeArray HostImportProof_UetkxBody_9F33ABBB(FRuitkContext& Ctx, co
 }
 static FRuitkNodeArray HostImportProof_UetkxImpl(FRuitkContext& Ctx, const FHostImportProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return HostImportProof_UetkxBody_9F33ABBB(Ctx, Props, children);
+	return HostImportProof_UetkxBody_92A6E256(Ctx, Props, children);
 }
 static const FName GHostImportProofUetkxId = Ruitk::RegisterComponentId((void*)&HostImportProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_GrammarProof_HostImportProof::HostImportProof")));
 static constexpr uint32 HostImportProof_RUITK_HOOK_SIG = 0x811C9DC5u;

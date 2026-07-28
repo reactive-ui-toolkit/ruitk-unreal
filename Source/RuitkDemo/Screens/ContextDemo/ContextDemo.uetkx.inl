@@ -22,7 +22,7 @@ inline FRuitkNode ContextDemo(FContextDemoUetkxProps InProps = FContextDemoUetkx
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo
 {
-static FRuitkNodeArray ContextDemo_UetkxBody_73D2053D(FRuitkContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray ContextDemo_UetkxBody_EB63BD12(FRuitkContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 6 "Source/RuitkDemo/Screens/ContextDemo/ContextDemo.uetkx"
 	auto [bPrimary, SetPrimary] = Ctx.UseState<bool>(true);
@@ -85,7 +85,7 @@ static FRuitkNodeArray ContextDemo_UetkxBody_73D2053D(FRuitkContext& Ctx, const 
 }
 static FRuitkNodeArray ContextDemo_UetkxImpl(FRuitkContext& Ctx, const FContextDemoUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return ContextDemo_UetkxBody_73D2053D(Ctx, Props, children);
+	return ContextDemo_UetkxBody_EB63BD12(Ctx, Props, children);
 }
 static const FName GContextDemoUetkxId = Ruitk::RegisterComponentId((void*)&ContextDemo_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_ContextDemo::ContextDemo")));
 static constexpr uint32 ContextDemo_RUITK_HOOK_SIG = 0xF574B6D3u;

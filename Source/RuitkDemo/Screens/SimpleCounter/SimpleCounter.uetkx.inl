@@ -21,7 +21,7 @@ inline FRuitkNode SimpleCounter(FSimpleCounterUetkxProps InProps = FSimpleCounte
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter
 {
-static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray SimpleCounter_UetkxBody_1E28A11A(FRuitkContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 5 "Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx"
 	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, Ruitk::Deps());
@@ -93,7 +93,7 @@ static FRuitkNodeArray SimpleCounter_UetkxBody_821B1C34(FRuitkContext& Ctx, cons
 }
 static FRuitkNodeArray SimpleCounter_UetkxImpl(FRuitkContext& Ctx, const FSimpleCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return SimpleCounter_UetkxBody_821B1C34(Ctx, Props, children);
+	return SimpleCounter_UetkxBody_1E28A11A(Ctx, Props, children);
 }
 static const FName GSimpleCounterUetkxId = Ruitk::RegisterComponentId((void*)&SimpleCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SimpleCounter_SimpleCounter::SimpleCounter")));
 static constexpr uint32 SimpleCounter_RUITK_HOOK_SIG = 0x986DF5F6u;

@@ -21,7 +21,7 @@ inline FRuitkNode UmgHostInner(FUmgHostInnerUetkxProps InProps = FUmgHostInnerUe
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner
 {
-static FRuitkNodeArray UmgHostInner_UetkxBody_494743D1(FRuitkContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray UmgHostInner_UetkxBody_A66E539F(FRuitkContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Source/RuitkDemo/Screens/UmgHostDemo/components/UmgHostInner/UmgHostInner.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
@@ -83,7 +83,7 @@ static FRuitkNodeArray UmgHostInner_UetkxBody_494743D1(FRuitkContext& Ctx, const
 }
 static FRuitkNodeArray UmgHostInner_UetkxImpl(FRuitkContext& Ctx, const FUmgHostInnerUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return UmgHostInner_UetkxBody_494743D1(Ctx, Props, children);
+	return UmgHostInner_UetkxBody_A66E539F(Ctx, Props, children);
 }
 static const FName GUmgHostInnerUetkxId = Ruitk::RegisterComponentId((void*)&UmgHostInner_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_UmgHostDemo_components_UmgHostInner_UmgHostInner::UmgHostInner")));
 static constexpr uint32 UmgHostInner_RUITK_HOOK_SIG = 0x986DF5F6u;

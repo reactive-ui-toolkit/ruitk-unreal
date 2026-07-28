@@ -24,7 +24,7 @@ inline FRuitkNode DemoContextPanel(FDemoContextPanelUetkxProps InProps = FDemoCo
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel
 {
-static FRuitkNodeArray DemoContextPanel_UetkxBody_5E1E4D68(FRuitkContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray DemoContextPanel_UetkxBody_F64552EB(FRuitkContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Label = Props.Label;
 #line 4 "Source/RuitkDemo/Screens/ContextDemo/components/DemoContextPanel/DemoContextPanel.uetkx"
@@ -47,7 +47,7 @@ static FRuitkNodeArray DemoContextPanel_UetkxBody_5E1E4D68(FRuitkContext& Ctx, c
 }
 static FRuitkNodeArray DemoContextPanel_UetkxImpl(FRuitkContext& Ctx, const FDemoContextPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return DemoContextPanel_UetkxBody_5E1E4D68(Ctx, Props, children);
+	return DemoContextPanel_UetkxBody_F64552EB(Ctx, Props, children);
 }
 static const FName GDemoContextPanelUetkxId = Ruitk::RegisterComponentId((void*)&DemoContextPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ContextDemo_components_DemoContextPanel_DemoContextPanel::DemoContextPanel")));
 static constexpr uint32 DemoContextPanel_RUITK_HOOK_SIG = 0x3A36D564u;

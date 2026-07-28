@@ -22,7 +22,7 @@ inline FRuitkNode StressTest(FStressTestUetkxProps InProps = FStressTestUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest
 {
-static FRuitkNodeArray StressTest_UetkxBody_59AC27E6(FRuitkContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray StressTest_UetkxBody_34F71691(FRuitkContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Source/RuitkDemo/Screens/StressTest/StressTest.uetkx"
 	auto [CountText, SetCountText] = Ctx.UseState<FString>(FString(TEXT("300")));
@@ -251,7 +251,7 @@ static FRuitkNodeArray StressTest_UetkxBody_59AC27E6(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray StressTest_UetkxImpl(FRuitkContext& Ctx, const FStressTestUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return StressTest_UetkxBody_59AC27E6(Ctx, Props, children);
+	return StressTest_UetkxBody_34F71691(Ctx, Props, children);
 }
 static const FName GStressTestUetkxId = Ruitk::RegisterComponentId((void*)&StressTest_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StressTest_StressTest::StressTest")));
 static constexpr uint32 StressTest_RUITK_HOOK_SIG = 0x00ED6E73u;

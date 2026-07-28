@@ -21,7 +21,7 @@ inline FRuitkNode ClickCounter(FClickCounterUetkxProps InProps = FClickCounterUe
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter
 {
-static FRuitkNodeArray ClickCounter_UetkxBody_7278E8E3(FRuitkContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray ClickCounter_UetkxBody_003F9495(FRuitkContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 2 "Source/RuitkDemo/Screens/ClickCounter/ClickCounter.uetkx"
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
@@ -92,7 +92,7 @@ static FRuitkNodeArray ClickCounter_UetkxBody_7278E8E3(FRuitkContext& Ctx, const
 }
 static FRuitkNodeArray ClickCounter_UetkxImpl(FRuitkContext& Ctx, const FClickCounterUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return ClickCounter_UetkxBody_7278E8E3(Ctx, Props, children);
+	return ClickCounter_UetkxBody_003F9495(Ctx, Props, children);
 }
 static const FName GClickCounterUetkxId = Ruitk::RegisterComponentId((void*)&ClickCounter_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_ClickCounter_ClickCounter::ClickCounter")));
 static constexpr uint32 ClickCounter_RUITK_HOOK_SIG = 0x986DF5F6u;

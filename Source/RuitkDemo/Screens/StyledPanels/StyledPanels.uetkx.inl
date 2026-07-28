@@ -21,7 +21,7 @@ inline FRuitkNode StyledPanels(FStyledPanelsUetkxProps InProps = FStyledPanelsUe
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels
 {
-static FRuitkNodeArray StyledPanels_UetkxBody_017C6E5E(FRuitkContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray StyledPanels_UetkxBody_9093C619(FRuitkContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 2 "Source/RuitkDemo/Screens/StyledPanels/StyledPanels.uetkx"
 	auto [bDim, SetDim] = Ctx.UseState<bool>(false);
@@ -107,7 +107,7 @@ static FRuitkNodeArray StyledPanels_UetkxBody_017C6E5E(FRuitkContext& Ctx, const
 }
 static FRuitkNodeArray StyledPanels_UetkxImpl(FRuitkContext& Ctx, const FStyledPanelsUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return StyledPanels_UetkxBody_017C6E5E(Ctx, Props, children);
+	return StyledPanels_UetkxBody_9093C619(Ctx, Props, children);
 }
 static const FName GStyledPanelsUetkxId = Ruitk::RegisterComponentId((void*)&StyledPanels_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_StyledPanels_StyledPanels::StyledPanels")));
 static constexpr uint32 StyledPanels_RUITK_HOOK_SIG = 0x72A626EBu;

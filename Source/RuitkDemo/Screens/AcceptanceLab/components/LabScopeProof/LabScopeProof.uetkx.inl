@@ -21,7 +21,7 @@ inline FRuitkNode LabScopeProof(FLabScopeProofUetkxProps InProps = FLabScopeProo
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof
 {
-static FRuitkNodeArray LabScopeProof_UetkxBody_62E89A38(FRuitkContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray LabScopeProof_UetkxBody_680F6C6D(FRuitkContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { [&]() -> FRuitkNode {
 		FRuitkVerticalBoxProps P;
@@ -68,7 +68,7 @@ static FRuitkNodeArray LabScopeProof_UetkxBody_62E89A38(FRuitkContext& Ctx, cons
 }
 static FRuitkNodeArray LabScopeProof_UetkxImpl(FRuitkContext& Ctx, const FLabScopeProofUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return LabScopeProof_UetkxBody_62E89A38(Ctx, Props, children);
+	return LabScopeProof_UetkxBody_680F6C6D(Ctx, Props, children);
 }
 static const FName GLabScopeProofUetkxId = Ruitk::RegisterComponentId((void*)&LabScopeProof_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_components_LabScopeProof_LabScopeProof::LabScopeProof")));
 static constexpr uint32 LabScopeProof_RUITK_HOOK_SIG = 0x811C9DC5u;

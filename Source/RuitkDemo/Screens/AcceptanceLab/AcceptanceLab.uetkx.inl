@@ -21,7 +21,7 @@ inline FRuitkNode AcceptanceLab(FAcceptanceLabUetkxProps InProps = FAcceptanceLa
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab
 {
-static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray AcceptanceLab_UetkxBody_E0BD28DD(FRuitkContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 21 "Source/RuitkDemo/Screens/AcceptanceLab/AcceptanceLab.uetkx"
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
@@ -563,7 +563,7 @@ static FRuitkNodeArray AcceptanceLab_UetkxBody_24CDEE20(FRuitkContext& Ctx, cons
 }
 static FRuitkNodeArray AcceptanceLab_UetkxImpl(FRuitkContext& Ctx, const FAcceptanceLabUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return AcceptanceLab_UetkxBody_24CDEE20(Ctx, Props, children);
+	return AcceptanceLab_UetkxBody_E0BD28DD(Ctx, Props, children);
 }
 static const FName GAcceptanceLabUetkxId = Ruitk::RegisterComponentId((void*)&AcceptanceLab_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_AcceptanceLab_AcceptanceLab::AcceptanceLab")));
 static constexpr uint32 AcceptanceLab_RUITK_HOOK_SIG = 0x49531E04u;

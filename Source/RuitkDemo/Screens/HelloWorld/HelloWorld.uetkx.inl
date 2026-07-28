@@ -21,7 +21,7 @@ inline FRuitkNode HelloWorld(FHelloWorldUetkxProps InProps = FHelloWorldUetkxPro
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld
 {
-static FRuitkNodeArray HelloWorld_UetkxBody_6146BE1F(FRuitkContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray HelloWorld_UetkxBody_4DB33FD2(FRuitkContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	return { [&]() -> FRuitkNode {
 		FRuitkBorderProps P;
@@ -40,7 +40,7 @@ static FRuitkNodeArray HelloWorld_UetkxBody_6146BE1F(FRuitkContext& Ctx, const F
 }
 static FRuitkNodeArray HelloWorld_UetkxImpl(FRuitkContext& Ctx, const FHelloWorldUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return HelloWorld_UetkxBody_6146BE1F(Ctx, Props, children);
+	return HelloWorld_UetkxBody_4DB33FD2(Ctx, Props, children);
 }
 static const FName GHelloWorldUetkxId = Ruitk::RegisterComponentId((void*)&HelloWorld_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_HelloWorld_HelloWorld::HelloWorld")));
 static constexpr uint32 HelloWorld_RUITK_HOOK_SIG = 0x811C9DC5u;

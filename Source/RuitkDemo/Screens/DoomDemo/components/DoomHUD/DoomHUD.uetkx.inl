@@ -46,7 +46,7 @@ inline FRuitkNode DoomHUD(FDoomHUDUetkxProps InProps = FDoomHUDUetkxProps(), TAr
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD
 {
-static FRuitkNodeArray DoomHUD_UetkxBody_F08953EB(FRuitkContext& Ctx, const FDoomHUDUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray DoomHUD_UetkxBody_028C5E33(FRuitkContext& Ctx, const FDoomHUDUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Health = Props.Health;
 	const auto& Armor = Props.Armor;
@@ -640,7 +640,7 @@ static FRuitkNodeArray DoomHUD_UetkxBody_F08953EB(FRuitkContext& Ctx, const FDoo
 }
 static FRuitkNodeArray DoomHUD_UetkxImpl(FRuitkContext& Ctx, const FDoomHUDUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return DoomHUD_UetkxBody_F08953EB(Ctx, Props, children);
+	return DoomHUD_UetkxBody_028C5E33(Ctx, Props, children);
 }
 static const FName GDoomHUDUetkxId = Ruitk::RegisterComponentId((void*)&DoomHUD_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_components_DoomHUD_DoomHUD::DoomHUD")));
 static constexpr uint32 DoomHUD_RUITK_HOOK_SIG = 0x811C9DC5u;

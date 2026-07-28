@@ -21,7 +21,7 @@ inline FRuitkNode DoomGame(FDoomGameUetkxProps InProps = FDoomGameUetkxProps(), 
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame
 {
-static FRuitkNodeArray DoomGame_UetkxBody_8E8CD597(FRuitkContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray DoomGame_UetkxBody_BE4B2B72(FRuitkContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 8 "Source/RuitkDemo/Screens/DoomDemo/DoomGame.uetkx"
 	auto [bInGame, SetInGame] = Ctx.UseState<bool>(false);
@@ -70,7 +70,7 @@ static FRuitkNodeArray DoomGame_UetkxBody_8E8CD597(FRuitkContext& Ctx, const FDo
 }
 static FRuitkNodeArray DoomGame_UetkxImpl(FRuitkContext& Ctx, const FDoomGameUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return DoomGame_UetkxBody_8E8CD597(Ctx, Props, children);
+	return DoomGame_UetkxBody_BE4B2B72(Ctx, Props, children);
 }
 static const FName GDoomGameUetkxId = Ruitk::RegisterComponentId((void*)&DoomGame_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_DoomDemo_DoomGame::DoomGame")));
 static constexpr uint32 DoomGame_RUITK_HOOK_SIG = 0x7810B479u;

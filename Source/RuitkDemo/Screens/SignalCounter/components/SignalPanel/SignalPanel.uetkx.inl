@@ -22,7 +22,7 @@ inline FRuitkNode SignalPanel(FSignalPanelUetkxProps InProps = FSignalPanelUetkx
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel
 {
-static FRuitkNodeArray SignalPanel_UetkxBody_B772CD9A(FRuitkContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray SignalPanel_UetkxBody_BF98A1C7(FRuitkContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 4 "Source/RuitkDemo/Screens/SignalCounter/components/SignalPanel/SignalPanel.uetkx"
 	const int32 Count = Ruitk::UseSignalKey<int32>(Ctx, RuitkDemo::GDemoCounterSignal, 0);
@@ -31,7 +31,7 @@ static FRuitkNodeArray SignalPanel_UetkxBody_B772CD9A(FRuitkContext& Ctx, const 
 }
 static FRuitkNodeArray SignalPanel_UetkxImpl(FRuitkContext& Ctx, const FSignalPanelUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return SignalPanel_UetkxBody_B772CD9A(Ctx, Props, children);
+	return SignalPanel_UetkxBody_BF98A1C7(Ctx, Props, children);
 }
 static const FName GSignalPanelUetkxId = Ruitk::RegisterComponentId((void*)&SignalPanel_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_SignalCounter_components_SignalPanel_SignalPanel::SignalPanel")));
 static constexpr uint32 SignalPanel_RUITK_HOOK_SIG = 0xD50F149Cu;

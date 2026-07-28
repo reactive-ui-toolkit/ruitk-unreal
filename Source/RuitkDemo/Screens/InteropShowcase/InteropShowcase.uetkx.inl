@@ -23,7 +23,7 @@ inline FRuitkNode InteropShowcase(FInteropShowcaseUetkxProps InProps = FInteropS
 #else
 namespace RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase
 {
-static FRuitkNodeArray InteropShowcase_UetkxBody_8217024D(FRuitkContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray InteropShowcase_UetkxBody_90640785(FRuitkContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 #line 9 "Source/RuitkDemo/Screens/InteropShowcase/InteropShowcase.uetkx"
 	// MVVM pillar — a viewmodel we own; UseField re-renders on its broadcast.
@@ -159,7 +159,7 @@ static FRuitkNodeArray InteropShowcase_UetkxBody_8217024D(FRuitkContext& Ctx, co
 }
 static FRuitkNodeArray InteropShowcase_UetkxImpl(FRuitkContext& Ctx, const FInteropShowcaseUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return InteropShowcase_UetkxBody_8217024D(Ctx, Props, children);
+	return InteropShowcase_UetkxBody_90640785(Ctx, Props, children);
 }
 static const FName GInteropShowcaseUetkxId = Ruitk::RegisterComponentId((void*)&InteropShowcase_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkDemo_Screens_InteropShowcase_InteropShowcase::InteropShowcase")));
 static constexpr uint32 InteropShowcase_RUITK_HOOK_SIG = 0x4EA045DDu;

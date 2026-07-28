@@ -23,7 +23,7 @@ inline FRuitkNode CycleA(FCycleAUetkxProps InProps = FCycleAUetkxProps(), TArray
 #else
 namespace RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleA
 {
-static FRuitkNodeArray CycleA_UetkxBody_4529A4C1(FRuitkContext& Ctx, const FCycleAUetkxProps& Props, const TArray<FRuitkNode>& children)
+static FRuitkNodeArray CycleA_UetkxBody_34BA9648(FRuitkContext& Ctx, const FCycleAUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
 	const auto& Depth = Props.Depth;
 	return { [&]() -> FRuitkNode {
@@ -44,7 +44,7 @@ static FRuitkNodeArray CycleA_UetkxBody_4529A4C1(FRuitkContext& Ctx, const FCycl
 }
 static FRuitkNodeArray CycleA_UetkxImpl(FRuitkContext& Ctx, const FCycleAUetkxProps& Props, const TArray<FRuitkNode>& children)
 {
-	return CycleA_UetkxBody_4529A4C1(Ctx, Props, children);
+	return CycleA_UetkxBody_34BA9648(Ctx, Props, children);
 }
 static const FName GCycleAUetkxId = Ruitk::RegisterComponentId((void*)&CycleA_UetkxImpl, FName(TEXT("RuitkUetkx_Source_RuitkHostTests_CycleProof_CycleA::CycleA")));
 static constexpr uint32 CycleA_RUITK_HOOK_SIG = 0x811C9DC5u;
