@@ -30,10 +30,10 @@ bool FRuiBootTest::RunTest(const FString&)
 	{
 		return false;
 	}
-	TestTrue(TEXT("ReactiveUICore module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("ReactiveUICore")));
-	TestTrue(TEXT("ReactiveUISlate module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("ReactiveUISlate")));
-	TestTrue(TEXT("ReactiveUIInterp module loaded (non-Shipping)"),
-			 FModuleManager::Get().IsModuleLoaded(TEXT("ReactiveUIInterp")));
+	TestTrue(TEXT("RuitkCore module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("RuitkCore")));
+	TestTrue(TEXT("RuitkSlate module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("RuitkSlate")));
+	TestTrue(TEXT("RuitkInterp module loaded (non-Shipping)"),
+			 FModuleManager::Get().IsModuleLoaded(TEXT("RuitkInterp")));
 
 	AddInfo(TEXT("[boot] 2/3 a root mounts on the host seam"));
 	FRuiTestHarness H;

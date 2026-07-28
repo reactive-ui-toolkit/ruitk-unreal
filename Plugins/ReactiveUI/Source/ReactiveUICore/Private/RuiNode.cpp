@@ -28,7 +28,7 @@ namespace
 	// precedes ALL dynamic init — order-safe) + first-touch allocation (single-threaded under
 	// the loader lock; every later call sees non-null). Namespace-scope data keeps BASE
 	// storage across Live-Coding patches (the TB-15-proven behavior: initializers never re-run
-	// on patch), so a patched ReactiveUICore keeps pointing at the ORIGINAL registries.
+	// on patch), so a patched RuitkCore keeps pointing at the ORIGINAL registries.
 	// Deliberately never freed: process-lifetime registries; destruction order at exit is not
 	// a problem we want back.
 	struct FRuiComponentRegistry

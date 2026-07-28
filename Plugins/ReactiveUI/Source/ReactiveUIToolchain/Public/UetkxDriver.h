@@ -17,7 +17,7 @@
 
 class IUetkxImportResolver;
 
-struct REACTIVEUITOOLCHAIN_API FUetkxFileResult
+struct RUITKTOOLCHAIN_API FUetkxFileResult
 {
 	bool bOk = false;
 	bool bSkipped = false; // up-to-date or standing error verdict
@@ -30,7 +30,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxFileResult
 									// the watcher names this file's IMPORTERS in the sweep note
 };
 
-struct REACTIVEUITOOLCHAIN_API FUetkxSweepResult
+struct RUITKTOOLCHAIN_API FUetkxSweepResult
 {
 	int32 Compiled = 0;
 	int32 Errors = 0;
@@ -40,7 +40,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxSweepResult
 	TArray<FUetkxFileResult> Files;
 };
 
-struct REACTIVEUITOOLCHAIN_API FUetkxCheckResult
+struct RUITKTOOLCHAIN_API FUetkxCheckResult
 {
 	int32 Total = 0;
 	int32 Drift = 0;  // committed output missing or differing from a fresh in-memory compile
@@ -50,7 +50,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxCheckResult
 	bool Passed() const { return Drift == 0 && Errors == 0; }
 };
 
-class REACTIVEUITOOLCHAIN_API FUetkxDriver
+class RUITKTOOLCHAIN_API FUetkxDriver
 {
 public:
 	/** Bump when generated-code SHAPE changes — the fingerprint that re-stales everything.

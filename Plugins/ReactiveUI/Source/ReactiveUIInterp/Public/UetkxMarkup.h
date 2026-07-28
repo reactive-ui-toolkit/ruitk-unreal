@@ -44,7 +44,7 @@ enum class EUetkxAttrKind : uint8
 	Comment
 };
 
-struct REACTIVEUIINTERP_API FUetkxAttr
+struct RUITKINTERP_API FUetkxAttr
 {
 	FString Name;
 	EUetkxAttrKind Kind = EUetkxAttrKind::Bool;
@@ -54,21 +54,21 @@ struct REACTIVEUIINTERP_API FUetkxAttr
 	int32 End = -1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxIfBranch
+struct RUITKINTERP_API FUetkxIfBranch
 {
 	FString Cond;
 	FString BodyMarkup;
 	int32 BodyAt = -1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxMatchCase
+struct RUITKINTERP_API FUetkxMatchCase
 {
 	FString Value;
 	FString BodyMarkup;
 	int32 BodyAt = -1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxNode
+struct RUITKINTERP_API FUetkxNode
 {
 	EUetkxNodeType Type = EUetkxNodeType::Text;
 	int32 At = -1;
@@ -106,7 +106,7 @@ struct REACTIVEUIINTERP_API FUetkxNode
 	int32 DefaultBodyAt = -1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxParseResult
+struct RUITKINTERP_API FUetkxParseResult
 {
 	TArray<TSharedPtr<FUetkxNode>> Nodes;
 	FString ErrorCode; // "" when clean (UETKX####)
@@ -120,7 +120,7 @@ struct REACTIVEUIINTERP_API FUetkxParseResult
 	}
 };
 
-class REACTIVEUIINTERP_API FUetkxMarkup
+class RUITKINTERP_API FUetkxMarkup
 {
 public:
 	/** Parse the top-level nodes of the markup window [Start, End) of Src (code points). */

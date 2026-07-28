@@ -5,15 +5,15 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiCommonUI, Log, All);
 
-class FReactiveUICommonUIModule : public IModuleInterface
+class FRuitkCommonUIModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
 	{
-		UE_LOG(LogRuiCommonUI, Verbose, TEXT("ReactiveUICommonUI module started"));
+		UE_LOG(LogRuiCommonUI, Verbose, TEXT("RuitkCommonUI module started"));
 	}
 
 	virtual void ShutdownModule() override {}
 };
 
-IMPLEMENT_MODULE(FReactiveUICommonUIModule, ReactiveUICommonUI)
+IMPLEMENT_MODULE(FRuitkCommonUIModule, RuitkCommonUI)

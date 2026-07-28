@@ -17,7 +17,7 @@
 
 /** Props: label texts + controlled expansion (all masked — no engine setters) + the two
  *  FReply click events. */
-struct REACTIVEUISLATE_API FRuiExpandableButtonProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiExpandableButtonProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, CollapsedText, 0)
 	RUI_PROP(FText, ExpandedText, 1)
@@ -36,7 +36,7 @@ struct REACTIVEUISLATE_API FRuiExpandableButtonProps final : public FRuiPropsBas
 };
 
 /** Wraps SExpandableButton with three SBox holders the reconciler reparents children into. */
-class REACTIVEUISLATE_API SRuiExpandableButton final : public SCompoundWidget
+class RUITKSLATE_API SRuiExpandableButton final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiExpandableButton) : _IsExpanded(true) {}
@@ -63,11 +63,11 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId ExpandableButtonType();
+	RUITKSLATE_API FRuiElementTypeId ExpandableButtonType();
 
 	/** An expanding button. Optional children carry `slot.role="collapsed"` / `"expanded"`
 	 *  (button faces); any other child is the expanded body content. */
-	REACTIVEUISLATE_API FRuiNode ExpandableButton(FRuiExpandableButtonProps Props = FRuiExpandableButtonProps(),
+	RUITKSLATE_API FRuiNode ExpandableButton(FRuiExpandableButtonProps Props = FRuiExpandableButtonProps(),
 												  TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												  FRuiKey Key = FRuiKey());
 

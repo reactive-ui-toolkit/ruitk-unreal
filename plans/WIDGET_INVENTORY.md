@@ -142,7 +142,7 @@ to wrap) · `SPECIAL` (covered by a dedicated mechanism, not a plain adapter).
 | SPopup / SMenuOwner / SSubMenuHandler / STextEntryPopup / STextComboPopup / STextComboBox / SEditableComboBox | the menu/popup/combo story rides the SMenuAnchor design (Batch 2/3 with SComboBox) |
 | SErrorText / SErrorHint / SPopUpErrorText | form-validation story (with the input widgets) |
 | SDockTab | editor tab mount surface — ships with Phase 8's Inspector (editor module) |
-| SUserWidget | UMG's bridge class — the ReactiveUIUMG interop module (Phase 6) |
+| SUserWidget | UMG's bridge class — the RuitkUMG interop module (Phase 6) |
 
 ## Infrastructure / internal — nothing to wrap
 

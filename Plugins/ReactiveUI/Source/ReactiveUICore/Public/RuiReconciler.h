@@ -28,7 +28,7 @@
 #include "RuiCoreMisc.h"
 #include "RuiContextHandle.h"
 
-class REACTIVEUICORE_API FRuiReconciler
+class RUITKCORE_API FRuiReconciler
 {
 public:
 	/** Host outlives the reconciler (the root object owns both — mount-surface contract). */

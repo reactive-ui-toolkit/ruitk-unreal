@@ -101,7 +101,7 @@ namespace RuiDoom
 	 *                                       weapon bob, muzzle flash, crosshair, hurt +
 	 *                                       pickup full-screen flashes (alpha-driven)
 	 */
-	struct RUIDEMO_API FDoomFrameGeometry
+	struct RUITKDEMO_API FDoomFrameGeometry
 	{
 		TArray<FDoomQuad> Sky;
 		TArray<FDoomQuad> FloorBackstop;
@@ -138,27 +138,27 @@ namespace RuiDoom
 	// ───── The pure per-tick builders ─────
 
 	/** Billboard size multiplier per mobj kind (the original's `SpriteScale`). */
-	RUIDEMO_API float SpriteScale(EMobjKind K);
+	RUITKDEMO_API float SpriteScale(EMobjKind K);
 
 	/** World-Z anchor offset added to a mobj's feet for billboard placement (the original's
 	 *  `SpriteVerticalAnchor`). */
-	RUIDEMO_API float SpriteVerticalAnchor(EMobjKind K);
+	RUITKDEMO_API float SpriteVerticalAnchor(EMobjKind K);
 
 	/** Project every live mobj to a screen-space billboard entry, applying the per-column
 	 *  depth test plus the floor-step / ceiling-slab / step-down-silhouette occlusion culls,
 	 *  then sort far->near (the ONE pre-emission sort the original performs). `Out` is
 	 *  Reset(), not reallocated. Pass (C::VIEWPORT_W, C::VIEWPORT_H) for the reference frame. */
-	RUIDEMO_API void BuildSpriteList(const FGameState& State, const FVector2D& ViewportSize, TArray<FSpriteEntry>& Out);
+	RUITKDEMO_API void BuildSpriteList(const FGameState& State, const FVector2D& ViewportSize, TArray<FSpriteEntry>& Out);
 
 	/** Project the live tracer ring to screen-space rotated rects (camera-space rotation +
 	 *  perspective + near-plane clip). `Out` is Reset(), not reallocated. */
-	RUIDEMO_API void BuildTracerList(const FGameState& State, const FVector2D& ViewportSize, TArray<FTracerEntry>& Out);
+	RUITKDEMO_API void BuildTracerList(const FGameState& State, const FVector2D& ViewportSize, TArray<FTracerEntry>& Out);
 
 	/** Build the whole frame: every pass array in `Out` is Reset() and refilled in painter's
 	 *  order from `State`'s cast frame. `Brushes` pools the per-key textured brushes (walls/
 	 *  sprites/sky/weapon); solid quads share FDoomBrushPool::Solid(). `ViewportSize` is the
 	 *  canvas size in px — pass (C::VIEWPORT_W, C::VIEWPORT_H) for the reference 800x500
 	 *  frame the sibling ports hardcode (all math scales from it). */
-	RUIDEMO_API void BuildFrameGeometry(const FGameState& State, FDoomBrushPool& Brushes, const FVector2D& ViewportSize,
+	RUITKDEMO_API void BuildFrameGeometry(const FGameState& State, FDoomBrushPool& Brushes, const FVector2D& ViewportSize,
 										FDoomFrameGeometry& Out);
 } // namespace RuiDoom

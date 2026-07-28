@@ -6,16 +6,16 @@
 
 DEFINE_LOG_CATEGORY(LogRuiSlate);
 
-class FReactiveUISlateModule : public IModuleInterface
+class FRuitkSlateModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
 	{
 		RUI::Slate::RegisterBuiltinAdapters();
-		UE_LOG(LogRuiSlate, Verbose, TEXT("ReactiveUISlate module started"));
+		UE_LOG(LogRuiSlate, Verbose, TEXT("RuitkSlate module started"));
 	}
 
 	virtual void ShutdownModule() override {}
 };
 
-IMPLEMENT_MODULE(FReactiveUISlateModule, ReactiveUISlate)
+IMPLEMENT_MODULE(FRuitkSlateModule, RuitkSlate)

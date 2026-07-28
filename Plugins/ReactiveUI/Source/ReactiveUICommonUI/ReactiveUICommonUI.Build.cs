@@ -6,10 +6,10 @@ using UnrealBuildTool;
 // UseSafeArea platform override. We live INSIDE CommonUI, never rebuild it (D-25).
 // Deps added with the code, per D-27: CoreUObject, Engine, CommonUI (via an OPTIONAL plugin
 // reference in the .uplugin -- Phase 6 verifies optional refs gate module loading cleanly and
-// falls back to Build.cs conditionals if they do not), ReactiveUICore, ReactiveUIUMG.
-public class ReactiveUICommonUI : ModuleRules
+// falls back to Build.cs conditionals if they do not), RuitkCore, RuitkUMG.
+public class RuitkCommonUI : ModuleRules
 {
-	public ReactiveUICommonUI(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkCommonUI(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -25,9 +25,9 @@ public class ReactiveUICommonUI : ModuleRules
 			"CommonUI",
 			"CommonInput",
 			"GameplayTags",
-			"ReactiveUICore",
-			"ReactiveUISlate",
-			"ReactiveUIUMG",
+			"RuitkCore",
+			"RuitkSlate",
+			"RuitkUMG",
 		});
 	}
 }

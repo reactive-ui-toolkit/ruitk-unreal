@@ -15,15 +15,15 @@ namespace RUI
 	 *  root re-renders once per culture change, so what the player sees is always the current
 	 *  culture's output.
 	 *
-	 *  Registered by the ReactiveUICore module startup; Register is idempotent (tests may call it
+	 *  Registered by the RuitkCore module startup; Register is idempotent (tests may call it
 	 *  again — unit suites do not run StartupModule). Game-thread contract: the engine broadcasts
 	 *  text-revision changes on the game thread (SetCurrentCulture is a game-thread API); off-thread
 	 *  broadcasts are ignored defensively rather than racing the fiber tree. */
-	REACTIVEUICORE_API void RegisterCultureSync();
-	REACTIVEUICORE_API void UnregisterCultureSync();
+	RUITKCORE_API void RegisterCultureSync();
+	RUITKCORE_API void UnregisterCultureSync();
 
 	/** The handler body (also the test seam): mark every fiber of every live root dirty — the same
 	 *  semantics HMR uses, because the failure mode is the same: bailout caches serving output
 	 *  rendered under a stale environment. Coalesces into one re-render per root. */
-	REACTIVEUICORE_API void RefreshAllRootsForCultureChange();
+	RUITKCORE_API void RefreshAllRootsForCultureChange();
 } // namespace RUI

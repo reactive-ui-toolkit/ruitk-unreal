@@ -42,7 +42,7 @@ function readUetkxSchema() {
  *  + UseSignal/UseSignalKey (RuiSignal.h) + UsePresence (RuiPresence.h) — the audited 23. */
 function countCoreHooks() {
   const ctx = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUICore/Public/RuiContext.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkCore/Public/RuiContext.h'),
     'utf8',
   );
   const names = new Set();
@@ -52,14 +52,14 @@ function countCoreHooks() {
   return names.size + 2 /* UseSignal, UseSignalKey */ + 1 /* UsePresence */;
 }
 
-/** Wrapped Slate widgets = the public FRuiNode factories in ReactiveUISlate + core TextBlock. */
+/** Wrapped Slate widgets = the public FRuiNode factories in RuitkSlate + core TextBlock. */
 function countWidgetFactories() {
-  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUISlate/Public');
+  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkSlate/Public');
   const names = new Set();
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.h')) continue;
     const text = readFileSync(resolve(dir, f), 'utf8');
-    for (const m of text.matchAll(/REACTIVEUISLATE_API FRuiNode ([A-Z]\w+)\s*\(/g)) {
+    for (const m of text.matchAll(/RUITKSLATE_API FRuiNode ([A-Z]\w+)\s*\(/g)) {
       names.add(m[1]);
     }
   }
@@ -73,14 +73,14 @@ function countGalleryScreens() {
   ).length;
 }
 
-/** Router hooks = the REACTIVEUICORE_API Use* free functions in RuiRouter.h. */
+/** Router hooks = the RUITKCORE_API Use* free functions in RuiRouter.h. */
 function countRouterHooks() {
   const text = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUICore/Public/RuiRouter.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/RuitkCore/Public/RuiRouter.h'),
     'utf8',
   );
   const names = new Set();
-  for (const m of text.matchAll(/REACTIVEUICORE_API [\w<>,&:\s]+?\b(Use[A-Z]\w+)\s*\(/g)) {
+  for (const m of text.matchAll(/RUITKCORE_API [\w<>,&:\s]+?\b(Use[A-Z]\w+)\s*\(/g)) {
     names.add(m[1]);
   }
   return names.size;

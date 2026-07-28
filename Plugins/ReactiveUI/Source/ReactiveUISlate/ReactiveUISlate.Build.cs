@@ -6,10 +6,10 @@ using UnrealBuildTool;
 // widget pool, SRuiCanvas (draw_fn), and style v1. The ONLY module that talks to concrete
 // Slate APIs on behalf of the reconciler (MASTER_PLAN D-11..D-13).
 // Deps added WITH the code that uses them (IWYU-clean skeletons), per D-27:
-//   SlateCore, Slate, InputCore, ReactiveUICore.
-public class ReactiveUISlate : ModuleRules
+//   SlateCore, Slate, InputCore, RuitkCore.
+public class RuitkSlate : ModuleRules
 {
-	public ReactiveUISlate(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkSlate(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -17,7 +17,7 @@ public class ReactiveUISlate : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
-			"ReactiveUICore",  // the host implements the core's IRuiHostConfig seam
+			"RuitkCore",  // the host implements the core's IRuiHostConfig seam
 			"SlateCore",       // SWidget, FReply, slot types (public headers reference them)
 			"Slate",           // concrete widgets (STextBlock, SButton, panels), FSlateApplication
 			"InputCore",       // key/pointer types reaching through Slate delegates

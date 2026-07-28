@@ -105,7 +105,7 @@ export const sections: DocSection[] = [
         path: '/getting-started',
         keywords: ['install', 'setup', 'plugin', 'build.cs', 'mount', 'FRuiRoot', 'RUICompile'],
         searchContent:
-          'getting started install setup enable Reactive UI Toolkit plugin edit plugins Build.cs PublicDependencyModuleNames ReactiveUICore ReactiveUISlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock RUI::Fmt Button OnClicked SetCount mount FRuiRoot CreateInViewport RUI::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuiRoot.h compile RUICompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
+          'getting started install setup enable Reactive UI Toolkit plugin edit plugins Build.cs PublicDependencyModuleNames RuitkCore RuitkSlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock RUI::Fmt Button OnClicked SetCount mount FRuiRoot CreateInViewport RUI::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuiRoot.h compile RUICompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
         element: () => <GettingStartedPage />,
       },
     ],
@@ -363,7 +363,7 @@ export const sections: DocSection[] = [
         path: '/integration/mvvm',
         keywords: ['mvvm', 'fieldnotify', 'UseField', 'viewmodel', 'URuiSignalViewModel', 'global collection'],
         searchContent:
-          'mvvm interop fieldnotify engine-level FieldNotification module no ModelViewViewModel plugin dependency any INotifyFieldValueChanged data source epic mvvm viewmodels UMVVMViewModelBase stock widgets they own values we own structure UseField subscribe re-render broadcast unsubscribe unmount null stale default coalesce one re-render per frame delayed execution batching reverse direction our state their views URuiSignalViewModel plugin-free SetInt broadcasts on change skips equal URuiMvvmViewModel RegisterGlobalViewModel FindGlobalViewModel global viewmodel collection context name bind no view-side changes ReactiveUIMVVMBridge UseMemo TStrongObjectPtr NewObject gc-rooted released unmount MvvmDemo',
+          'mvvm interop fieldnotify engine-level FieldNotification module no ModelViewViewModel plugin dependency any INotifyFieldValueChanged data source epic mvvm viewmodels UMVVMViewModelBase stock widgets they own values we own structure UseField subscribe re-render broadcast unsubscribe unmount null stale default coalesce one re-render per frame delayed execution batching reverse direction our state their views URuiSignalViewModel plugin-free SetInt broadcasts on change skips equal URuiMvvmViewModel RegisterGlobalViewModel FindGlobalViewModel global viewmodel collection context name bind no view-side changes RuitkMVVMBridge UseMemo TStrongObjectPtr NewObject gc-rooted released unmount MvvmDemo',
         element: () => <MvvmGuidePage />,
       },
     ],

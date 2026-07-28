@@ -19,9 +19,9 @@ namespace RUI::Umg
 {
 	/** Write `Value` into `Object`'s reflected property. False = missing property, unsupported
 	 *  property type, or incompatible value kind (nothing written). */
-	REACTIVEUIUMG_API bool MarshalToProperty(UObject* Object, FName PropertyName, const FRuiValue& Value);
+	RUITKUMG_API bool MarshalToProperty(UObject* Object, FName PropertyName, const FRuiValue& Value);
 
 	/** Read `Object`'s reflected property into `OutValue` (kind follows the property type).
 	 *  False = missing property or unsupported type (OutValue untouched). */
-	REACTIVEUIUMG_API bool MarshalFromProperty(const UObject* Object, FName PropertyName, FRuiValue& OutValue);
+	RUITKUMG_API bool MarshalFromProperty(const UObject* Object, FName PropertyName, FRuiValue& OutValue);
 } // namespace RUI::Umg

@@ -21,7 +21,7 @@
 #include "RuiSignalViewModel.generated.h"
 
 UCLASS(BlueprintType)
-class REACTIVEUIUMG_API URuiSignalViewModel : public UObject, public INotifyFieldValueChanged
+class RUITKUMG_API URuiSignalViewModel : public UObject, public INotifyFieldValueChanged
 {
 	GENERATED_BODY()
 
@@ -50,7 +50,7 @@ public:
 
 	// ── INotifyFieldValueChanged (over the engine FieldNotification module) ─────────────────
 
-	struct REACTIVEUIUMG_API FFieldNotificationClassDescriptor : public ::UE::FieldNotification::IClassDescriptor
+	struct RUITKUMG_API FFieldNotificationClassDescriptor : public ::UE::FieldNotification::IClassDescriptor
 	{
 		static const ::UE::FieldNotification::FFieldId Int;
 		static const ::UE::FieldNotification::FFieldId Float;

@@ -21,10 +21,10 @@ public class RuiDemo : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore", // Doom demo: EKeys polling in the game-loop hook
-			"ReactiveUICore",
-			"ReactiveUISlate",
-			"ReactiveUIUMG",	  // interop demos: UseField + URuiSignalViewModel (MVVM/FieldNotify)
-			"ReactiveUICommonUI", // interop demos: UseIsActive / ActivationProvider
+			"RuitkCore",
+			"RuitkSlate",
+			"RuitkUMG",	  // interop demos: UseField + URuiSignalViewModel (MVVM/FieldNotify)
+			"RuitkCommonUI", // interop demos: UseIsActive / ActivationProvider
 			"UMG",				  // interop showcase: subclass UUserWidget (UDemoUmgWidget)
 			"CommonUI",			  // audit G2: the REAL activatable stack (UDemoStackHostWidget)
 			"FieldNotification",  // UWidget's FieldNotify base (pulled by UMG)

@@ -15,7 +15,7 @@
 class FRuiRoot;
 
 UCLASS()
-class REACTIVEUIUMG_API URuiWorldSubsystem : public UWorldSubsystem
+class RUITKUMG_API URuiWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 

@@ -34,7 +34,7 @@ enum class ERuiChildKind : uint8
 	MultiSlot,	   // a panel (Insert/Remove/Reorder + slot.* props)
 };
 
-class REACTIVEUISLATE_API IRuiElementAdapter
+class RUITKSLATE_API IRuiElementAdapter
 {
 public:
 	virtual ~IRuiElementAdapter() = default;
@@ -111,14 +111,14 @@ public:
 namespace RUI::Slate
 {
 	/** Register an adapter for an element type. Re-registration replaces (Live Coding). */
-	REACTIVEUISLATE_API void RegisterAdapter(FRuiElementTypeId Type, TUniquePtr<IRuiElementAdapter> Adapter);
+	RUITKSLATE_API void RegisterAdapter(FRuiElementTypeId Type, TUniquePtr<IRuiElementAdapter> Adapter);
 
 	/** Convenience: intern the tag name and register in one call; returns the id. */
-	REACTIVEUISLATE_API FRuiElementTypeId RegisterAdapter(FName TagName, TUniquePtr<IRuiElementAdapter> Adapter);
+	RUITKSLATE_API FRuiElementTypeId RegisterAdapter(FName TagName, TUniquePtr<IRuiElementAdapter> Adapter);
 
-	REACTIVEUISLATE_API IRuiElementAdapter* FindAdapter(FRuiElementTypeId Type);
+	RUITKSLATE_API IRuiElementAdapter* FindAdapter(FRuiElementTypeId Type);
 
 	/** Visit every registered adapter (TD-011 meta-gates; diagnostics). Holds the registry
 	 *  lock for the duration — visitors must not register/find adapters. */
-	REACTIVEUISLATE_API void ForEachAdapter(const TFunctionRef<void(FRuiElementTypeId, IRuiElementAdapter&)> Visit);
+	RUITKSLATE_API void ForEachAdapter(const TFunctionRef<void(FRuiElementTypeId, IRuiElementAdapter&)> Visit);
 } // namespace RUI::Slate

@@ -6,9 +6,9 @@ using UnrealBuildTool;
 // IRuiHostConfig seam. HARD CONSTRAINT (MASTER_PLAN D-27): no UObject, no CoreUObject, no
 // Slate — the reconciler touches engines only through the host-config interface, which is
 // what lets the mock-host test suites run the whole core headlessly.
-public class ReactiveUICore : ModuleRules
+public class RuitkCore : ModuleRules
 {
-	public ReactiveUICore(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkCore(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;

@@ -10,10 +10,10 @@ using UnrealBuildTool;
 // never statically reference Interp symbols; Interp self-registers into Core registries from
 // StartupModule, and any direct cross-module use is gated behind a WITH_RUI_INTERP define set
 // in the DEPENDENT module's Build.cs from (Target.Configuration != Shipping).
-// Deps added with the code, per D-27: ReactiveUICore.
-public class ReactiveUIInterp : ModuleRules
+// Deps added with the code, per D-27: RuitkCore.
+public class RuitkInterp : ModuleRules
 {
-	public ReactiveUIInterp(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkInterp(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -21,8 +21,8 @@ public class ReactiveUIInterp : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
-			"ReactiveUICore",  // reconciler override/named-factory/hook-sig seams + FRuiValue
-			"ReactiveUISlate", // interp element builders construct the typed Slate props
+			"RuitkCore",  // reconciler override/named-factory/hook-sig seams + FRuiValue
+			"RuitkSlate", // interp element builders construct the typed Slate props
 		});
 	}
 }

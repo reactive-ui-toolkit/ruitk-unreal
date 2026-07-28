@@ -5,15 +5,15 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiMVVMBridge, Log, All);
 
-class FReactiveUIMVVMBridgeModule : public IModuleInterface
+class FRuitkMVVMBridgeModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
 	{
-		UE_LOG(LogRuiMVVMBridge, Verbose, TEXT("ReactiveUIMVVMBridge module started"));
+		UE_LOG(LogRuiMVVMBridge, Verbose, TEXT("RuitkMVVMBridge module started"));
 	}
 
 	virtual void ShutdownModule() override {}
 };
 
-IMPLEMENT_MODULE(FReactiveUIMVVMBridgeModule, ReactiveUIMVVMBridge)
+IMPLEMENT_MODULE(FRuitkMVVMBridgeModule, RuitkMVVMBridge)

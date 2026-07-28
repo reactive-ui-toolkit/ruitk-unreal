@@ -17,7 +17,7 @@
 
 class SWindow;
 
-class REACTIVEUISLATE_API SRuiRoot : public SCompoundWidget
+class RUITKSLATE_API SRuiRoot : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiRoot) {}
@@ -36,7 +36,7 @@ private:
  * Keep the returned shared ref alive for the UI's lifetime; Unmount() (or destruction)
  * tears down: effect cleanups, refs nulled, widgets detached, fibers freed.
  */
-class REACTIVEUISLATE_API FRuiRoot
+class RUITKSLATE_API FRuiRoot
 {
 public:
 	/** Detached: the SRuiRoot widget exists but is not parented anywhere (tests, tools,

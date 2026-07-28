@@ -18,7 +18,7 @@
 class FRuiRoot;
 
 UCLASS(meta = (DisplayName = "ReactiveUI Host"))
-class REACTIVEUIUMG_API URuiHostWidget : public UWidget
+class RUITKUMG_API URuiHostWidget : public UWidget
 {
 	GENERATED_BODY()
 

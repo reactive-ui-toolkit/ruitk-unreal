@@ -13,17 +13,17 @@
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
 DECLARE_STATS_GROUP(TEXT("ReactiveUI"), STATGROUP_ReactiveUI, STATCAT_Advanced);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuiRenders, STATGROUP_ReactiveUI, REACTIVEUICORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuiCommits, STATGROUP_ReactiveUI, REACTIVEUICORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuiPlacements, STATGROUP_ReactiveUI, REACTIVEUICORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuiUpdates, STATGROUP_ReactiveUI, REACTIVEUICORE_API);
-DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROUP_ReactiveUI, REACTIVEUICORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Renders"), STAT_RuiRenders, STATGROUP_ReactiveUI, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Commits"), STAT_RuiCommits, STATGROUP_ReactiveUI, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Placements"), STAT_RuiPlacements, STATGROUP_ReactiveUI, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Updates"), STAT_RuiUpdates, STATGROUP_ReactiveUI, RUITKCORE_API);
+DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROUP_ReactiveUI, RUITKCORE_API);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Config (rui.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct REACTIVEUICORE_API FRuiConfig
+struct RUITKCORE_API FRuiConfig
 {
 	/** Chunk the render phase across frames on a budget (commit stays atomic). Off by
 	 *  default — synchronous renders are simplest and fast for normal UIs. */
@@ -45,7 +45,7 @@ struct REACTIVEUICORE_API FRuiConfig
 // Diagnostics counters (diagnostics.gd) — cheap, opt-in, test-assertable
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct REACTIVEUICORE_API FRuiDiagnostics
+struct RUITKCORE_API FRuiDiagnostics
 {
 	static bool bEnabled;
 
@@ -114,14 +114,14 @@ struct REACTIVEUICORE_API FRuiDiagnostics
 namespace RUI
 {
 	/** Signal "this render failed" (usable via the RUI_RENDER_FAIL macro for file/line). */
-	REACTIVEUICORE_API void FailRender(const FString& Reason);
+	RUITKCORE_API void FailRender(const FString& Reason);
 
 	/** Reconciler-side: consume the latch (returns unset optional when no failure). */
-	REACTIVEUICORE_API TOptional<FString> ConsumeRenderFailure();
+	RUITKCORE_API TOptional<FString> ConsumeRenderFailure();
 
 	/** True while a component render is on the stack (debug in-render assert support). */
-	REACTIVEUICORE_API bool IsRendering();
-	REACTIVEUICORE_API void SetRendering(bool bInRendering);
+	RUITKCORE_API bool IsRendering();
+	RUITKCORE_API void SetRendering(bool bInRendering);
 } // namespace RUI
 
 #define RUI_RENDER_FAIL(Fmt, ...)                                                                                      \

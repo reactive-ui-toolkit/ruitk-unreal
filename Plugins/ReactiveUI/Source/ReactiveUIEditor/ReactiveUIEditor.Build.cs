@@ -6,11 +6,11 @@ using UnrealBuildTool;
 // guard/deadman + MessageLog "ReactiveUI" de-dup), RUICompile/RUIExportSchema/RUIContractDump
 // commandlets, .uetkx asset actions (browser visibility, New Component, open-external), and
 // later the Inspector tab. Deps added with the code, per D-27:
-//   CoreUObject, Engine, UnrealEd, DirectoryWatcher, Projects, ReactiveUICore,
-//   ReactiveUIToolchain, ReactiveUIInterp.
-public class ReactiveUIEditor : ModuleRules
+//   CoreUObject, Engine, UnrealEd, DirectoryWatcher, Projects, RuitkCore,
+//   RuitkToolchain, RuitkInterp.
+public class RuitkEditor : ModuleRules
 {
-	public ReactiveUIEditor(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -25,10 +25,10 @@ public class ReactiveUIEditor : ModuleRules
 			"CoreUObject",		 // commandlet UCLASSes
 			"Engine",			 // UCommandlet base
 			"Projects",			 // sweep roots
-			"ReactiveUICore",	 // FRuiNode / FRuiRoot (the preview panel, TD-006)
-			"ReactiveUISlate",	 // FRuiRoot mount surface (the preview panel, TD-006)
-			"ReactiveUIInterp",	 // FUetkxFileScan parser (preview scan — HMR v2 deleted the interpreter)
-			"ReactiveUIToolchain", // FUetkxDriver / FUetkxCodegen
+			"RuitkCore",	 // FRuiNode / FRuiRoot (the preview panel, TD-006)
+			"RuitkSlate",	 // FRuiRoot mount surface (the preview panel, TD-006)
+			"RuitkInterp",	 // FUetkxFileScan parser (preview scan — HMR v2 deleted the interpreter)
+			"RuitkToolchain", // FUetkxDriver / FUetkxCodegen
 			"InputCore",			 // SEditableTextBox in the preview panel
 			"WorkspaceMenuStructure", // group the preview/HMR tabs under Window > Tools (grouped entries)
 			"ToolMenus",			  // the top-level ReactiveUetkx main-menu (HMR v2 Phase 2)

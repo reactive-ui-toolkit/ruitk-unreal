@@ -19,7 +19,7 @@ struct FUetkxTargetDecl
 	bool bExported = false;
 };
 
-class REACTIVEUITOOLCHAIN_API IUetkxImportResolver
+class RUITKTOOLCHAIN_API IUetkxImportResolver
 {
 public:
 	virtual ~IUetkxImportResolver() = default;
@@ -65,7 +65,7 @@ public:
  *  BaseDir/ImporterPath; `~/` anchors at FUetkxConfig::RootAnchorFor (or BaseDir in fixture mode);
  *  the FindExporter index + module-boundary universe are the .uetkx files under SearchRoots.
  *  Export tables + hashes are cached by (mtime, src_hash). */
-class REACTIVEUITOOLCHAIN_API FUetkxFsResolver : public IUetkxImportResolver
+class RUITKTOOLCHAIN_API FUetkxFsResolver : public IUetkxImportResolver
 {
 public:
 	FUetkxFsResolver(const FString& InBaseDir, const TArray<FString>& InSearchRoots, bool bInFixtureMode = false);
@@ -110,7 +110,7 @@ private:
 	mutable bool bIndexBuilt = false;
 };
 
-class REACTIVEUITOOLCHAIN_API FUetkxResolve
+class RUITKTOOLCHAIN_API FUetkxResolve
 {
 public:
 	/** FNV-1a export hash of a preamble scan: over its declarations' sorted `name|kind|exported`

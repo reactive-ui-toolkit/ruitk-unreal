@@ -17,7 +17,7 @@ struct FKeyEvent;
 namespace RUI::Slate
 {
 	/** A keyboard chord: a key plus required modifier state (all must match exactly). */
-	struct REACTIVEUISLATE_API FRuiShortcut
+	struct RUITKSLATE_API FRuiShortcut
 	{
 		FKey Key;
 		bool bCtrl = false;
@@ -34,7 +34,7 @@ namespace RUI::Slate
 
 	/** Register `OnTrigger` to fire when `Chord` is pressed, for the calling component's lifetime.
 	 *  Requires a running Slate application (a no-op headless without one). */
-	REACTIVEUISLATE_API void UseShortcut(FRuiContext& Ctx, const FRuiShortcut& Chord, TFunction<void()> OnTrigger);
+	RUITKSLATE_API void UseShortcut(FRuiContext& Ctx, const FRuiShortcut& Chord, TFunction<void()> OnTrigger);
 
 	// ── TD-022 (focus extensions): programmatic focus over a widget ref ─────────────────────
 
@@ -44,7 +44,7 @@ namespace RUI::Slate
 	 * captured widget in sync (attached on mount, cleared on unmount). Headless-safe (no-ops
 	 * without a running Slate application).
 	 */
-	struct REACTIVEUISLATE_API FRuiFocusHandle
+	struct RUITKSLATE_API FRuiFocusHandle
 	{
 		TFunction<void(const FRuiHostHandle&)> Ref;
 		TFunction<void()> Focus;
@@ -52,9 +52,9 @@ namespace RUI::Slate
 	};
 
 	/** Stable focus handle for the calling component (a UseRef under the hood). */
-	REACTIVEUISLATE_API FRuiFocusHandle UseFocus(FRuiContext& Ctx);
+	RUITKSLATE_API FRuiFocusHandle UseFocus(FRuiContext& Ctx);
 
 	/** Imperative focus/blur on a mounted host handle (e.g. from an effect or event). */
-	REACTIVEUISLATE_API void FocusWidget(const FRuiHostHandle& Handle);
-	REACTIVEUISLATE_API void ClearFocus();
+	RUITKSLATE_API void FocusWidget(const FRuiHostHandle& Handle);
+	RUITKSLATE_API void ClearFocus();
 } // namespace RUI::Slate

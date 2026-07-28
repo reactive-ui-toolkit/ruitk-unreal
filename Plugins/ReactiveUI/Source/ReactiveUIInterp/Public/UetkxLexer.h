@@ -27,7 +27,7 @@
 
 #include "CoreMinimal.h"
 
-class REACTIVEUIINTERP_API FUetkxLexer
+class RUITKINTERP_API FUetkxLexer
 {
 public:
 	/** Decode UTF-16 FString → code points (surrogate pairs collapse to one element). */

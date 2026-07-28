@@ -39,39 +39,39 @@ namespace RuiDoom
 
 	/** Build a fresh game state for `Level` (1..LEVEL_COUNT) at `Diff`, spawn the level's
 	 *  mobjs, build the parallel sector model, and cast the first frame. */
-	RUIDEMO_API FGameState NewGame(int32 Level, EDifficulty Diff);
+	RUITKDEMO_API FGameState NewGame(int32 Level, EDifficulty Diff);
 
 	/** Advance the simulation one frame: player movement/combat, doors, sector specials,
 	 *  monster/projectile/pickup updates, flash decay, tracer aging, then CastFrame. */
-	RUIDEMO_API void Tick(FGameState& St, float Dt, FInputCmd Input);
+	RUITKDEMO_API void Tick(FGameState& St, float Dt, FInputCmd Input);
 
 	/** Rebuild Frame.Columns/DepthBuffer for the player's current view (the renderer core).
 	 *  Rewinds the per-frame record pools first — pooled pointers from the previous frame
 	 *  die here. */
-	RUIDEMO_API void CastFrame(FGameState& St);
+	RUITKDEMO_API void CastFrame(FGameState& St);
 
 	/** Apply damage to mobj `Idx` (barrel explosion, monster pain/death, score/kill count). */
-	RUIDEMO_API void DamageMobj(FGameState& St, int32 Idx, int32 Dmg, int32 SourceId);
+	RUITKDEMO_API void DamageMobj(FGameState& St, int32 Idx, int32 Dmg, int32 SourceId);
 
 	/** Claim a pool slot for `M` (assigns Id, anchors Z to the spawn sector's floor,
 	 *  floats Cacodemon/LostSoul). */
-	RUIDEMO_API void AddMobj(FGameState& St, FMobj M);
+	RUITKDEMO_API void AddMobj(FGameState& St, FMobj M);
 
 	// ───── Misc classification helpers ─────
 
-	RUIDEMO_API bool IsMonster(EMobjKind K);
-	RUIDEMO_API bool IsBoss(EMobjKind K);
+	RUITKDEMO_API bool IsMonster(EMobjKind K);
+	RUITKDEMO_API bool IsBoss(EMobjKind K);
 
 	/** True while any boss-tier monster (Baron / Cacodemon) is still alive on the map.
 	 *  Used to gate level-exit cells when FLevelStart::BossExitGated is set. */
-	RUIDEMO_API bool AnyBossAlive(const FGameState& St);
+	RUITKDEMO_API bool AnyBossAlive(const FGameState& St);
 
-	RUIDEMO_API bool IsProjectile(EMobjKind K);
-	RUIDEMO_API bool IsPickup(EMobjKind K);
+	RUITKDEMO_API bool IsProjectile(EMobjKind K);
+	RUITKDEMO_API bool IsPickup(EMobjKind K);
 
 	/** Sprite sheet index (S_*) for a mobj kind. */
-	RUIDEMO_API int32 SpriteIndexForMobj(EMobjKind K);
+	RUITKDEMO_API int32 SpriteIndexForMobj(EMobjKind K);
 
 	/** Render tint for a mobj (pain flash, Shotgunner/Zombieman palette swaps). */
-	RUIDEMO_API FColor TintForMobj(EMobjKind K, EAIState S);
+	RUITKDEMO_API FColor TintForMobj(EMobjKind K, EAIState S);
 } // namespace RuiDoom

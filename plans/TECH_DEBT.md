@@ -17,12 +17,12 @@ referenced from plans/PRs.
 ---
 
 ## TD-001 — Router subsystem (17 family router hooks)
-- **Where:** would live in `ReactiveUICore` (+ suites `ReactiveUI.Router.*`)
+- **Where:** would live in `RuitkCore` (+ suites `ReactiveUI.Router.*`)
 - **What/why deferred:** OUT of the v1 ship gate by decision (MASTER_PLAN D-27 note + gate OUT
   list) — scope valve; the family's `router_match`/`router_spine` suites port when it lands.
 - **Production-grade resolution:** full port of the family router (+17 hooks), both suites, docs
   page, gate entry in a v1.x plan.
-- **Status:** RESOLVED 2026-07-12 — ported engine-blind into ReactiveUICore (`RuiRouter.h/.cpp`),
+- **Status:** RESOLVED 2026-07-12 — ported engine-blind into RuitkCore (`RuiRouter.h/.cpp`),
   a React-Router-shaped in-memory router. **Matching engine:** `MatchPath` (literal / `:param` /
   `*` splat, leaf-vs-prefix), `ParseLocation`, `ParseSearch`/`BuildSearch`, `ResolvePath`
   (absolute / append-relative / `..`). **Components:** `RUI::Router` (in-memory history w/ back +
@@ -73,7 +73,7 @@ referenced from plans/PRs.
   never notifies; re-entry (the key reappearing mid-exit) cancels the exit with the SAME fiber, so
   tween state continues from the current value. State preservation falls out for free: because the
   boundary keeps rendering the same keyed child, the reconciler keeps the same fiber.
-  Files: `RuiPresence.h/.cpp` (ReactiveUICore). Test `ReactiveUI.Core.Presence`: deferred deletion,
+  Files: `RuiPresence.h/.cpp` (RuitkCore). Test `ReactiveUI.Core.Presence`: deferred deletion,
   NotifyDone-driven unmount, timeout fence, re-entry cancel. **Reconciler hardening (same commit):**
   `ScheduleUpdateOnFiber` now marks the alternate twins too (React's `markUpdateLaneFromFiberToRoot`
   parity) — a latent bug where an async `setState` (frame/timer callback) on a component reached
@@ -81,7 +81,7 @@ referenced from plans/PRs.
   timeout/NotifyDone through `PresenceHost` exposed it. Full suite 61/61.
 
 ## TD-004 — Drag-and-drop + keyboard-shortcut APIs
-- **Where:** `ReactiveUISlate` event layer
+- **Where:** `RuitkSlate` event layer
 - **What/why deferred:** input policy v1 covers handled/unhandled + CommonUI delegation
   (Phase 2/6); DnD + shortcuts are additive APIs (critique gap 15 tail).
 - **Production-grade resolution:** typed DnD props over Slate's drag-drop ops + shortcut
@@ -114,14 +114,14 @@ referenced from plans/PRs.
 - **Status:** OPEN
 
 ## TD-006 — In-Unreal-editor `.uetkx` tab + read-only live preview panel
-- **Where:** `ReactiveUIEditor`
+- **Where:** `RuitkEditor`
 - **What/why deferred:** v1's minimum in-editor surface is asset actions + watcher + MessageLog
   (Phase 4 step 6); the tab/preview is the someday-step toward designer-ish workflows (gate OUT
   list).
 - **Production-grade resolution:** preview panel rendering a mounted component per open
   `.uetkx`, then (maybe) an editing tab.
 - **Status:** RESOLVED 2026-07-12 — the read-only live preview shipped. `FUetkxPreview`
-  (`ReactiveUIEditor/UetkxPreview.h/.cpp`) is the headless-testable core: scan (`FUetkxFileScan::Scan`)
+  (`RuitkEditor/UetkxPreview.h/.cpp`) is the headless-testable core: scan (`FUetkxFileScan::Scan`)
   → pick a component (first or by name) → build the dev-loop interpreter def (`FUetkxInterpDef::Build`)
   → mount it as a live `FRuiRoot`, collecting parse diagnostics + interpreter fallback notes. Always
   returns a preview — on failure a placeholder widget + messages, never a crash. `SUetkxPreviewPanel`
@@ -133,7 +133,7 @@ referenced from plans/PRs.
   editor; the mount/diagnostic pipeline is automated. (An editing tab remains the someday-step.)
 
 ## TD-007 — On-device remote reload (Phase-4-style, over TCP)
-- **Where:** `ReactiveUIInterp` + a device transport
+- **Where:** `RuitkInterp` + a device transport
 - **What/why deferred:** the v1 dev loop is editor-side (gate OUT list); device push is a
   post-v1 feature with console-TCP policy questions.
 - **Production-grade resolution:** serialized-spec push + `rui.reload`, mobile-first.
@@ -159,7 +159,7 @@ referenced from plans/PRs.
 - **Status:** OPEN — mechanism shipped leg 1; sibling adoption PRs pending (Godot leg 2, Unity leg 3)
 
 ## TD-010 — Reorder strategy: minimal-move (spike-decided) + slot-prop updates reinsert
-- **Where:** `ReactiveUISlate/Private/RuiCoreAdapters.cpp` (box panels + overlay)
+- **Where:** `RuitkSlate/Private/RuiCoreAdapters.cpp` (box panels + overlay)
 - **What/why deferred:** the Phase 2 step 1 spike (Bench.SlateReorder, rows in
   BENCH_BASELINES.md) decided **minimal-move**: 1-moved-child costs 3µs vs 60µs for a full
   rebuild (20×); only the pathological full reverse favors rebuild (1.5×). Two accepted
@@ -203,7 +203,7 @@ referenced from plans/PRs.
   — bookkeeping non-regressive).
 
 ## TD-012 — Batch-2 widget surface deliberately deferred to Phase 7 (header-sweep audit)
-- **Where:** `ReactiveUISlate` adapters (audit: engine-header sweep of all 15 shipped widgets)
+- **Where:** `RuitkSlate` adapters (audit: engine-header sweep of all 15 shipped widgets)
 - **What/why deferred:** the sweep found these RUNTIME setters not yet mapped — deferred by
   decision, not omission: SButton sounds + click/press/touch methods + IsFocusable; SSlider
   bar/handle colors + orientation + locked/indent; SCheckBox per-state images; SProgressBar
@@ -272,7 +272,7 @@ referenced from plans/PRs.
     them now would mean weak tests, against the quality bar.
 
 ## TD-013 — Typed authoring API for style dicts + slot.* props
-- **Where:** `ReactiveUISlate` (would live next to RuiStyle.h)
+- **Where:** `RuitkSlate` (would live next to RuiStyle.h)
 - **What/why deferred:** style/slot STORAGE is `TMap<FName, FRuiValue>` by design (markup,
   classes merging, and the LSP speak open key sets) — but the C++ AUTHORING surface should be
   compile-time-safe too (owner: "everything strongly typed"). Markup users get compile-time
@@ -296,7 +296,7 @@ referenced from plans/PRs.
   v1, and cross-checked by this test against the markup path.
 
 ## TD-014 — Content-Browser presence for `.uetkx` files
-- **Where:** `ReactiveUIEditor` (would extend `FUetkxFileActions`)
+- **Where:** `RuitkEditor` (would extend `FUetkxFileActions`)
 - **What/why deferred:** `.uetkx` files live in SOURCE trees (`Source/`, `Plugins/`), which
   the Content Browser does not browse — they are deliberately not imported assets (the
   committed-generated-code design, D-19). v1 ships the real file actions instead:
@@ -315,7 +315,7 @@ referenced from plans/PRs.
   need without importing anything. Left for the owner to decide if proxy assets earn their keep.
 
 ## TD-015 — `.uetkx` v1 grammar limits (deliberate cuts, family Phase-C class)
-- **Where:** `ReactiveUIToolchain` codegen / `ReactiveUIInterp` file scan
+- **Where:** `RuitkToolchain` codegen / `RuitkInterp` file scan
 - **What/why deferred:** four expressiveness gaps, each diagnosed rather than silently
   miscompiled: (1) EARLY markup returns — only the LAST top-level `return ( ... )` in a
   component body wins (T1.4); guard-style `if (x) { return ( <A/> ); }` at component level
@@ -351,7 +351,7 @@ referenced from plans/PRs.
   omitted per D-W1 (Unity-aligned; UETKX3003 stays).
 
 ## TD-016 — Event payload surface is the single magic `Value` (FRuiValue)
-- **Where:** `ReactiveUIToolchain` codegen (event attr lowering)
+- **Where:** `RuitkToolchain` codegen (event attr lowering)
 - **What/why deferred:** every event handler expression compiles into
   `FRuiCallback::Create([=](const FRuiValue& Value) { expr; })` — text/bool/float payloads
   arrive as `Value.TextValue` / `Value.BoolValue` / etc. (see SimpleTextField/StyledPanels).
@@ -369,7 +369,7 @@ referenced from plans/PRs.
   (server.test 16/16) + smoke `Value.` round-trip.
 
 ## TD-017 — `hook` / `module` companion declarations in `.uetkx`
-- **Where:** `ReactiveUIInterp` file scan + `ReactiveUIToolchain` codegen
+- **Where:** `RuitkInterp` file scan + `RuitkToolchain` codegen
 - **What/why deferred:** the family grammar also has `hook Name(params) { ... }` and
   `module Name { ... }` declarations (D-03's declaration inventory); the Phase-3 plan listed
   their codegen shapes. v1 ships `component` only: in UE a custom hook is ALREADY a plain
@@ -393,7 +393,7 @@ referenced from plans/PRs.
 - **Status:** OPEN
 
 ## TD-019 — Hook-state VALUE migration across the compiled→interp swap
-- **Where:** `ReactiveUICore` hook cells + `ReactiveUIInterp` hook execution
+- **Where:** `RuitkCore` hook cells + `RuitkInterp` hook execution
 - **What/why deferred:** compiled components hold TYPED hook cells
   (`TRuiStateCell<int32>`); the interpreter's cells are `FRuiValue`-typed. The first
   hot-swap of a compiled component therefore RESETS its state (reported honestly as
@@ -475,7 +475,7 @@ referenced from plans/PRs.
     present, format-on-save fires) is owner-verified by installing the VSIX in VS2022.
 
 ## TD-021 — CommonUI activatables + MVVM-plugin glue + UMG prop-map bridge
-- **Where:** `ReactiveUICommonUI`, `ReactiveUIMVVMBridge`, `ReactiveUIUMG`
+- **Where:** `RuitkCommonUI`, `RuitkMVVMBridge`, `RuitkUMG`
 - **What/why deferred:** Phase 6 shipped the interop CORE (URuiHostWidget, URuiWorldSubsystem
   teardown contract, RUI::Umg::UserWidget embedding, UseField over the engine FieldNotification
   module — deliberately MVVM-plugin-independent). Three plugin-coupled layers remain:
@@ -491,7 +491,7 @@ referenced from plans/PRs.
   layer with its suite (ReactiveUI.CommonUI, the reverse-bridge test), per-class prop maps
   generated from UHT reflection.
 - **Status:** PARTIAL — the MVVM **reverse bridge** shipped 2026-07-12 (the one layer with no
-  external-plugin dependency): `URuiSignalViewModel` (ReactiveUIUMG) is a FieldNotify UObject —
+  external-plugin dependency): `URuiSignalViewModel` (RuitkUMG) is a FieldNotify UObject —
   INotifyFieldValueChanged implemented directly over the engine FieldNotification module, NO
   ModelViewViewModel-plugin dependency — with a generic bindable field set (Int/Float/Bool/Text).
   Rui writes it via typed setters or `Set(FRuiValue)` (routes by kind, skip-when-equal, broadcasts
@@ -514,7 +514,7 @@ referenced from plans/PRs.
     re-render) + `ReactiveUI.CommonUI.Screen` (a standalone game instance → `CreateWidget` → real
     `ActivateWidget/DeactivateWidget` re-renders the hosted tree ACTIVE↔INACTIVE).
   - **MVVM global-collection registration: DONE.** `URuiMvvmViewModel` (`RuiMvvmViewModel.h/.cpp`,
-    ReactiveUIMVVMBridge) is the MVVM-plugin sibling of `URuiSignalViewModel` — a `UMVVMViewModelBase`
+    RuitkMVVMBridge) is the MVVM-plugin sibling of `URuiSignalViewModel` — a `UMVVMViewModelBase`
     (Int/Float/Bool/Text FieldNotify props, `UE_MVVM_SET_PROPERTY_VALUE` skip+broadcast, `Set(FRuiValue)`
     routing) so it can be REGISTERED in the MVVM global viewmodel collection. `RUI::Mvvm::RegisterGlobalViewModel`
     / `FindGlobalViewModel` add/resolve by context name via `UMVVMGameSubsystem→GetViewModelCollection`.
@@ -531,7 +531,7 @@ referenced from plans/PRs.
     per-signature UFUNCTION generation, a genuinely separate codegen effort.
 
 ## TD-022 — Asset brushes (D-17) + focus extensions + item-model list views
-- **Where:** `ReactiveUISlate` (+ `ReactiveUIUMG` for the GC root)
+- **Where:** `RuitkSlate` (+ `RuitkUMG` for the GC root)
 - **What/why deferred:** the remaining Phase-7 surface beyond the shipped animation/media
   hooks: (1) asset brushes — `BorderImage`/`Image` accepting texture/material ASSETS needs
   the FGCObject brush root keeping UObjects alive while Slate paints them (today: FCoreStyle
@@ -546,7 +546,7 @@ referenced from plans/PRs.
   completes the ledger), then focus.
 - **Status:** RESOLVED 2026-07-12 — all 3 sub-surfaces delivered:
   - **Asset brushes (D-17): DONE.** `RUI::Umg::MakeAssetBrush(UObject*, size, tint, drawAs)`
-    (ReactiveUIUMG) builds an FSlateBrush and registers it with a process-wide FGCObject
+    (RuitkUMG) builds an FSlateBrush and registers it with a process-wide FGCObject
     (`FRuiAssetBrushRoot`) that keeps every live brush's resource object referenced against GC;
     dead brushes are compacted. `FRuiImageProps::Brush` + `FRuiBorderProps::BorderImageBrush`
     (TSharedPtr<FSlateBrush>, identity-compared) carry it; the Image/Border adapters apply it
@@ -678,8 +678,8 @@ referenced from plans/PRs.
   components was fixed in the same window (`UetkxPreview.cpp` — "private — add `export` to preview").
 
 ## TD-027 — HMR v2: Live-Coding-driven whole-project HMR + `ReactiveUetkx` menu/window
-- **Where:** `ReactiveUIInterp` (the interpreter executor), `RuiHmr.*`, `UetkxWatcher.cpp`,
-  `ReactiveUIEditor` (new menu/window/commands/settings). Full design: `plans/archive/HMR_V2_PLAN.md`.
+- **Where:** `RuitkInterp` (the interpreter executor), `RuiHmr.*`, `UetkxWatcher.cpp`,
+  `RuitkEditor` (new menu/window/commands/settings). Full design: `plans/archive/HMR_V2_PLAN.md`.
 - **What/why deferred:** the shipped HMR makes a single-file INTERPRETER the default path — it can't
   resolve imports or run user hooks/effects, so a component using an imported hook (e.g. the
   `.hooks.uetkx` pattern) can't be hot-reloaded and (pre-fix) was swapped to a dead version. That is
@@ -690,13 +690,13 @@ referenced from plans/PRs.
   **Unreal Live Coding** the HMR engine — a Start/Stop mode (family parity with the Unity sibling's
   `UITKX Hot Reload` window) that, while active, recompiles + Live-Coding-patches on ANY `.uetkx` event
   (save / new / delete / rename / copy), automatically (no keystroke), state preserved, whole project.
-  Adds the `ReactiveUetkx` main-menu + the HMR window + two rebindable shortcuts. `ReactiveUIInterp`
+  Adds the `ReactiveUetkx` main-menu + the HMR window + two rebindable shortcuts. `RuitkInterp`
   shrinks to parser-only.
 - **Sub-item deferred within v2:** the `Demos/…` submenu (port of the sibling's demo launchers under
   `ReactiveUetkx`) is NOT in the v2 scope — the PIE gallery already covers the demos; a menu launcher
   is a later nicety. Tracked as **TD-HMR-DEMOS** (below).
 - **Status:** ✅ RESOLVED — shipped across `67f7035` (controller + watcher debounce), `1253510`
-  (interpreter deleted; `ReactiveUIInterp` now parser-only; preview + acceptance §5 reworked to the
+  (interpreter deleted; `RuitkInterp` now parser-only; preview + acceptance §5 reworked to the
   compiled component), `fa819dc` (`ReactiveUetkx` menu + `SReactiveUetkxHmrPanel` window), `95db6ac`
   (commands + settings + in-window rebinding), `b02390f` (repeat-key bughunt). Build OK; drift 23/0/0;
   suite 99/99; gates green. Two deliberate naming deviations recorded in `plans/archive/HMR_V2_PLAN.md`'s
@@ -730,7 +730,7 @@ referenced from plans/PRs.
   module (`Developer/HotReload`, `IHotReloadModule` → `RecompileModule` / `DoHotReloadFromEditor` /
   `RebindPackages`, completion via `FCoreUObjectDelegates::ReloadCompleteDelegate`) **is cross-platform**
   and still present in 5.6. It lines up with our design (registry-FName component identity + the
-  `ForEachLive`/`HmrRefreshAll` refresh seam; hook state lives in `ReactiveUICore`, which doesn't reload).
+  `ForEachLive`/`HmrRefreshAll` refresh seam; hook state lives in `RuitkCore`, which doesn't reload).
   The open risk:
   > Whether that's fatal depends on one question I can't answer by reading alone: does every render path
   > resolve components through the name registry, or do some hold raw `&Func` pointers across renders? If
@@ -748,7 +748,7 @@ referenced from plans/PRs.
   build/run is unaffected.
 
 ## TD-028 — `URuiHostWidget` has no props/viewmodel channel (audit N1)
-- **Where:** `Plugins/ReactiveUI/Source/ReactiveUIUMG/Public/RuiHostWidget.h`
+- **Where:** `Plugins/ReactiveUI/Source/RuitkUMG/Public/RuiHostWidget.h`
 - **What/why deferred:** the ours-in-theirs UMG door hosts by `ComponentName` only — no
   `SynchronizeProperties` override, no Blueprint-passed initial props, no VM handoff (research
   D_interop b2 promised "BP can pass initial props and a VM"). Shipped minimal in Phase 6;
@@ -770,7 +770,7 @@ referenced from plans/PRs.
   viewmodel from the Designer".
 
 ## TD-029 — `URuiActivatableScreen` lacks `GetDesiredFocusTarget()` (audit N2)
-- **Where:** `Plugins/ReactiveUI/Source/ReactiveUICommonUI/Public/RuiActivatableScreen.h`
+- **Where:** `Plugins/ReactiveUI/Source/RuitkCommonUI/Public/RuiActivatableScreen.h`
 - **What/why deferred:** CommonUI restores gamepad focus via the activatable's
   `GetDesiredFocusTarget()`; our screen doesn't override it, so focus doesn't land on a designated
   widget on activation (research D_interop c2's `autofocus`). Surfaced by the 2026-07-14 audit
@@ -811,7 +811,7 @@ referenced from plans/PRs.
   (Unity) both ship the `@` form; Godot tracked here for whenever the need arises.
 
 ## TD-031 — `<Provider>` element: slice-scoped context provision (owner decision 2026-07-17)
-- **Where:** the family markup grammar (all three legs) + `ReactiveUICore` fibers + codegen/LSP
+- **Where:** the family markup grammar (all three legs) + `RuitkCore` fibers + codegen/LSP
 - **What/why:** context provision is hook-style (`ProvideContext(Handle, Value)` — family API,
   D-08.3): the provision boundary is the COMPONENT boundary, so providing to a SLICE of a
   component's markup requires extracting a child component. React spells this as a

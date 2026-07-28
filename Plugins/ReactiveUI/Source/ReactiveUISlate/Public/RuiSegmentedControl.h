@@ -17,7 +17,7 @@ template <typename OptionType> class SSegmentedControl;
 
 /** SSegmentedControl<int32> (Leaf): one text segment per `Labels` entry (value = index).
  *  `SelectedIndex` is the controlled selection; OnSelectionChanged fires the picked index. */
-struct REACTIVEUISLATE_API FRuiSegmentedControlProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSegmentedControlProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FString>, Labels, 0) // construct-only (segments bake)
 	RUI_PROP(int32, SelectedIndex, 1)	 // controlled runtime
@@ -26,7 +26,7 @@ struct REACTIVEUISLATE_API FRuiSegmentedControlProps final : public FRuiPropsBas
 };
 
 /** Wraps SSegmentedControl<int32> with a stable callback holder + the controlled-selection surface. */
-class REACTIVEUISLATE_API SRuiSegmentedControl final : public SCompoundWidget
+class RUITKSLATE_API SRuiSegmentedControl final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiSegmentedControl) : _InitialIndex(0) {}
@@ -50,10 +50,10 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId SegmentedControlType();
+	RUITKSLATE_API FRuiElementTypeId SegmentedControlType();
 
 	/** A labelled segmented selector (tab bar). Labels bake the segments; SelectedIndex is controlled. */
-	REACTIVEUISLATE_API FRuiNode SegmentedControl(FRuiSegmentedControlProps Props = FRuiSegmentedControlProps(),
+	RUITKSLATE_API FRuiNode SegmentedControl(FRuiSegmentedControlProps Props = FRuiSegmentedControlProps(),
 												  FRuiKey Key = FRuiKey());
 
 	namespace Detail

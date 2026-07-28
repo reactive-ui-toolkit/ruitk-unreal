@@ -30,7 +30,7 @@ namespace
 	const FName GRuiHmrTabId(TEXT("ReactiveUetkxHmr"));
 } // namespace
 
-class FReactiveUIEditorModule : public IModuleInterface
+class FRuitkEditorModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
@@ -97,7 +97,7 @@ public:
 		UToolMenus::RegisterStartupCallback(
 			FSimpleMulticastDelegate::FDelegate::CreateStatic(&FReactiveUetkxMenu::Register));
 		UE_LOG(LogRuiEditor, Display,
-			   TEXT("ReactiveUIEditor started — .uetkx watcher armed; ReactiveUetkx menu + HMR window; "
+			   TEXT("RuitkEditor started — .uetkx watcher armed; ReactiveUetkx menu + HMR window; "
 					"console: ReactiveUetkx.HMR.Start/Stop/Toggle"));
 	}
 
@@ -144,7 +144,7 @@ private:
 		// lists it exactly once, in the conventional place, and the redundant Tools-menu entry is gone.
 		FGlobalTabmanager::Get()
 			->RegisterNomadTabSpawner(GRuiPreviewTabId,
-									  FOnSpawnTab::CreateRaw(this, &FReactiveUIEditorModule::SpawnPreviewTab))
+									  FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnPreviewTab))
 			.SetDisplayName(NSLOCTEXT("ReactiveUI", "PreviewTabTitle", "ReactiveUI Preview"))
 			.SetTooltipText(
 				NSLOCTEXT("ReactiveUI", "PreviewTabTooltip", "Read-only live preview of a .uetkx component"))
@@ -166,7 +166,7 @@ private:
 			return; // headless (commandlet) — no window UI
 		}
 		FGlobalTabmanager::Get()
-			->RegisterNomadTabSpawner(GRuiHmrTabId, FOnSpawnTab::CreateRaw(this, &FReactiveUIEditorModule::SpawnHmrTab))
+			->RegisterNomadTabSpawner(GRuiHmrTabId, FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnHmrTab))
 			.SetDisplayName(NSLOCTEXT("ReactiveUetkx", "HmrTabTitle", "ReactiveUetkx Hot Reload"))
 			.SetTooltipText(
 				NSLOCTEXT("ReactiveUetkx", "HmrTabTooltip", "Start/Stop .uetkx Hot Module Reload (Live Coding)"))
@@ -224,4 +224,4 @@ private:
 	TSharedPtr<FReactiveUetkxInputProcessor> InputProcessor; // global shortcut handler (Phase 3)
 };
 
-IMPLEMENT_MODULE(FReactiveUIEditorModule, ReactiveUIEditor)
+IMPLEMENT_MODULE(FRuitkEditorModule, RuitkEditor)

@@ -104,7 +104,7 @@ namespace RUI
 	}
 
 	/** Shallow deps comparison (family _deps_changed): unset on either side => changed. */
-	REACTIVEUICORE_API bool DepsChanged(const FRuiDeps& Prev, const FRuiDeps& Next);
+	RUITKCORE_API bool DepsChanged(const FRuiDeps& Prev, const FRuiDeps& Next);
 } // namespace RUI
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -133,7 +133,7 @@ enum class ERuiHookKind : uint8
 	LayoutEffect,
 };
 
-REACTIVEUICORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
+RUITKCORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
 
 /** Type-erased hook slot. Destructors double as teardown (a signal cell's dtor
  *  unsubscribes) — the C++ answer to _dispose_fiber_state's explicit unsub pass. */
@@ -337,8 +337,8 @@ namespace RUI
 
 	/** The process-wide UseSfx sink: the game registers HOW a bus plays (world context,
 	 *  audio assets). Unset = quiet no-op. */
-	REACTIVEUICORE_API void SetSfxSink(TFunction<void(FName Bus, const FRuiValue& Payload)> Sink);
-	REACTIVEUICORE_API void DispatchSfx(FName Bus, const FRuiValue& Payload);
+	RUITKCORE_API void SetSfxSink(TFunction<void(FName Bus, const FRuiValue& Payload)> Sink);
+	RUITKCORE_API void DispatchSfx(FName Bus, const FRuiValue& Payload);
 } // namespace RUI
 
 // ─────────────────────────────────────────────────────────────────────────────────────────

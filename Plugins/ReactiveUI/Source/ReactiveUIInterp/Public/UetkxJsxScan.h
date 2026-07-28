@@ -20,7 +20,7 @@
 /** One markup range inside an expression. End == -1 marks UNBALANCED markup (the caller must
  *  diagnose — after a boundary, `<Tag` is never valid C++ either; family T1.2). Op is "" or
  *  the short-circuit operator ("&&" / "||") that must desugar to a conditional at emit. */
-struct REACTIVEUIINTERP_API FUetkxMarkupRange
+struct RUITKINTERP_API FUetkxMarkupRange
 {
 	int32 Start = -1;
 	int32 End = -1;
@@ -28,7 +28,7 @@ struct REACTIVEUIINTERP_API FUetkxMarkupRange
 	int32 OpPos = -1;
 };
 
-class REACTIVEUIINTERP_API FUetkxJsxScan
+class RUITKINTERP_API FUetkxJsxScan
 {
 public:
 	/** Scan [Start, End) of Src for embedded markup ranges (sorted, non-overlapping). */

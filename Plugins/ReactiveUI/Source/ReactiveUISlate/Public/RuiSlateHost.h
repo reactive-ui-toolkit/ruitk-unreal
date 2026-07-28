@@ -18,7 +18,7 @@
 #include "Widgets/SWidget.h"
 
 /** One mounted widget: the concrete payload behind FRuiHostHandle on the Slate host. */
-struct REACTIVEUISLATE_API FRuiSlateNode
+struct RUITKSLATE_API FRuiSlateNode
 {
 	TSharedPtr<SWidget> Widget;
 	TSharedPtr<FRuiEventProxy> Proxy; // minted only when the adapter binds events
@@ -57,7 +57,7 @@ namespace RUI::Slate
 	}
 } // namespace RUI::Slate
 
-class REACTIVEUISLATE_API FRuiSlateHost final : public IRuiHostConfig
+class RUITKSLATE_API FRuiSlateHost final : public IRuiHostConfig
 {
 public:
 	FRuiSlateHost();

@@ -16,7 +16,7 @@
 
 #include "CoreMinimal.h"
 
-struct REACTIVEUITOOLCHAIN_API FUetkxConfig
+struct RUITKTOOLCHAIN_API FUetkxConfig
 {
 	// Formatter-facing options (defaults identical to FUetkxFormatOptions today).
 	int32 PrintWidth = 100;

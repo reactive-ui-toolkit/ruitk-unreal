@@ -12,7 +12,7 @@
 #include "RuiContext.h"
 
 /** Type-erased base so the FName registry can hold heterogeneous signals. */
-class REACTIVEUICORE_API FRuiSignalBase
+class RUITKCORE_API FRuiSignalBase
 {
 public:
 	virtual ~FRuiSignalBase() = default;
@@ -74,11 +74,11 @@ private:
  *  key collision (family: the registry is honest about misuse, never silent). */
 namespace RUI
 {
-	REACTIVEUICORE_API TSharedPtr<FRuiSignalBase>* FindOrAddSignalSlot(FName Key);
-	REACTIVEUICORE_API TSharedPtr<FRuiSignalBase> TryGetSignal(FName Key);
-	REACTIVEUICORE_API bool HasSignal(FName Key);
+	RUITKCORE_API TSharedPtr<FRuiSignalBase>* FindOrAddSignalSlot(FName Key);
+	RUITKCORE_API TSharedPtr<FRuiSignalBase> TryGetSignal(FName Key);
+	RUITKCORE_API bool HasSignal(FName Key);
 	/** Drop all keyed signals (subscribers NOT notified) — full session reset. */
-	REACTIVEUICORE_API void ClearSignals();
+	RUITKCORE_API void ClearSignals();
 
 	template <typename T> TSharedRef<TRuiSignal<T>> GetOrCreateSignal(FName Key, T Initial = T())
 	{

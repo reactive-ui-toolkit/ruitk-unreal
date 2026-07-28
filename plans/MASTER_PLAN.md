@@ -282,7 +282,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
 ### Toolchain & DX (full detail: `research/round2-implementation/uetkx-toolchain.md`)
 
-- **D-18 — The `.uetkx` compiler is C++ inside an `UncookedOnly` module (`ReactiveUIToolchain`);
+- **D-18 — The `.uetkx` compiler is C++ inside an `UncookedOnly` module (`RuitkToolchain`);
   TypeScript stays IDE-intelligence-only.** A Fab plugin that needs Node.js to build is dead on
   arrival. The C++ side is the single codegen/diagnostics authority; the TS LSP does light
   structural passes and reads the compiler's diagnostics sidecars (`Foo.uetkx.diags.json`,
@@ -320,7 +320,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   regardless of host OS** — `-check` compares bytes under that guarantee, and `.gitattributes`
   pins `eol=lf` on `*.uetkx`, `*.uetkx.inl`, `*.Uetkx.gen.cpp`, corpus JSON, and `CHANGELOG.md`
   (otherwise CRLF normalization false-fails both the drift gate and the D-31 byte-mirror).
-- **D-20 — Dev loop: interpret in dev, compile to ship.** `ReactiveUIInterp` (a `Runtime`-type
+- **D-20 — Dev loop: interpret in dev, compile to ship.** `RuitkInterp` (a `Runtime`-type
   module excluded from Shipping via the module descriptor's `TargetConfigurationDenyList:
   ["Shipping"]` — the verified UBT mechanism; see D-27's linkage rule) walks the markup AST and
   emits the SAME builder calls the generated C++ emits — one vtree format, one reconciler;
@@ -425,7 +425,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   with a stale policy; `UseOwnedViewModel<T>` uses `TStrongObjectPtr` for UI-local VMs. Reverse
   direction: `URuiSignalViewModel` implements `INotifyFieldValueChanged` (engine-level) so classic
   UMG/MVVM views can bind to our state; global-collection registration lives in the tiny optional
-  `ReactiveUIMVVMBridge` module (the only part needing the ModelViewViewModel plugin).
+  `RuitkMVVMBridge` module (the only part needing the ModelViewViewModel plugin).
 
 ### Modules, versions, distribution
 
@@ -433,19 +433,19 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
   | Module | Type | Deps (beyond Core) | Contents |
   |---|---|---|---|
-  | `ReactiveUICore` | Runtime | — (**no UObject/CoreUObject**) | vnode, fibers, reconciler, hooks, keys, context, signals, `IRuiHostConfig` |
-  | `ReactiveUISlate` | Runtime | SlateCore, Slate, InputCore | `FRuiSlateHost`, adapter registry, widgets, `SRuiRoot`, pool, `SRuiCanvas`, style v1 |
-  | `ReactiveUIUMG` | Runtime | CoreUObject, Engine, UMG, FieldNotification | `URuiHostWidget`, `URuiSubsystem`, `RUI::Umg`, `UseField`/`UseViewModel`, `UseSfx` glue, `URuiSignalViewModel`, brush GC root |
-  | `ReactiveUICommonUI` | Runtime | + CommonUI (optional plugin ref) | `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`, `UseSafeArea` platform override |
-  | `ReactiveUIMVVMBridge` | Runtime | + ModelViewViewModel (optional plugin ref) | global viewmodel-collection registration only |
-  | `ReactiveUIInterp` | Runtime + `TargetConfigurationDenyList: ["Shipping"]` | ReactiveUICore | **markup lexer + parser (the single grammar implementation — Toolchain consumes it)**, markup AST interpreter, expression VM, interp registry, HMR wiring |
-  | `ReactiveUIToolchain` | UncookedOnly | Interp (parser) | codegen, formatter, sidecars, fingerprint, `UETKX####` catalog |
-  | `ReactiveUIEditor` | Editor | + editor modules, DirectoryWatcher | watcher/compile-on-save, `RUICompile`/`RUIExportSchema` commandlets, asset actions, Inspector tab (later) |
+  | `RuitkCore` | Runtime | — (**no UObject/CoreUObject**) | vnode, fibers, reconciler, hooks, keys, context, signals, `IRuiHostConfig` |
+  | `RuitkSlate` | Runtime | SlateCore, Slate, InputCore | `FRuiSlateHost`, adapter registry, widgets, `SRuiRoot`, pool, `SRuiCanvas`, style v1 |
+  | `RuitkUMG` | Runtime | CoreUObject, Engine, UMG, FieldNotification | `URuiHostWidget`, `URuiSubsystem`, `RUI::Umg`, `UseField`/`UseViewModel`, `UseSfx` glue, `URuiSignalViewModel`, brush GC root |
+  | `RuitkCommonUI` | Runtime | + CommonUI (optional plugin ref) | `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`, `UseSafeArea` platform override |
+  | `RuitkMVVMBridge` | Runtime | + ModelViewViewModel (optional plugin ref) | global viewmodel-collection registration only |
+  | `RuitkInterp` | Runtime + `TargetConfigurationDenyList: ["Shipping"]` | RuitkCore | **markup lexer + parser (the single grammar implementation — Toolchain consumes it)**, markup AST interpreter, expression VM, interp registry, HMR wiring |
+  | `RuitkToolchain` | UncookedOnly | Interp (parser) | codegen, formatter, sidecars, fingerprint, `UETKX####` catalog |
+  | `RuitkEditor` | Editor | + editor modules, DirectoryWatcher | watcher/compile-on-save, `RUICompile`/`RUIExportSchema` commandlets, asset actions, Inspector tab (later) |
 
   **Router is post-v1** (the family's 17 router hooks + `router_match`/`router_spine` suite ports
   are deliberately NOT in v1 scope — recorded in `plans/TECH_DEBT.md` at Phase 0 and in the ship
   gate's exclusion list; the `react-reconciler.md` digest's "must not forget" warning is hereby
-  answered with a decision, not an omission). Placing the parser in `ReactiveUIInterp` (Runtime
+  answered with a decision, not an omission). Placing the parser in `RuitkInterp` (Runtime
   denied only for Shipping) rather than the UncookedOnly Toolchain is what makes D-21's opt-in
   "interpret in cooked dev builds" possible — UncookedOnly modules don't exist in cooked builds.
   **Interp exclusion mechanics:** "compiled out of Shipping" is NOT a module Type — the mechanism
@@ -558,14 +558,14 @@ ReactiveUI-Unreal/                          # repo root IS the demo host project
   Plugins/ReactiveUI/                       # DELIVERABLE 1 — the plugin (self-contained: own README/CHANGELOG/LICENSE)
     ReactiveUI.uplugin                      # FileVersion 3; Modules per D-27; VersionName; PlatformAllowList
     Config/FilterPlugin.ini                 # packaging allowlist (Docs/, README, LICENSE, templates)
-    Source/ReactiveUICore/                  # D-27 table; each module: Public/, Private/, <Module>.Build.cs
-    Source/ReactiveUISlate/
-    Source/ReactiveUIUMG/
-    Source/ReactiveUICommonUI/
-    Source/ReactiveUIMVVMBridge/
-    Source/ReactiveUIInterp/
-    Source/ReactiveUIToolchain/
-    Source/ReactiveUIEditor/
+    Source/RuitkCore/                  # D-27 table; each module: Public/, Private/, <Module>.Build.cs
+    Source/RuitkSlate/
+    Source/RuitkUMG/
+    Source/RuitkCommonUI/
+    Source/RuitkMVVMBridge/
+    Source/RuitkInterp/
+    Source/RuitkToolchain/
+    Source/RuitkEditor/
     Content/                                # small demo widgets if any (CanContainContent)
     README.md  CHANGELOG.md  LICENSE        # CHANGELOG.md = byte-identical mirror of root (tripwire)
   ide-extensions/                           # DELIVERABLE 2 — extends the FAMILY monorepo pattern
@@ -764,7 +764,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   one-time checklist (not blocking): re-adding the ruleset with THIS repo's check names so
   the gates become REQUIRED checks (the imported Godot-named ruleset was deleted).
 
-### - [ ] Phase 1 — Core reconciler + hooks (`ReactiveUICore`)
+### - [ ] Phase 1 — Core reconciler + hooks (`RuitkCore`)
 
 - **Objective:** the engine-blind core: vnode/builder API, fiber slab, full reconciler, all 23
   hooks, signals, context, structural error boundaries — tested against a mock host with ports of
@@ -798,7 +798,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      CommonUI overrides it in Phase 6), UseTween/UseTweenValue/UseAnimate get their curve/timer
      drive over the adapter setter tables in Phase 7 step 5, UseSfx gets its
      `UGameplayStatics::PlaySound2D` world-context glue in Phase 7 step 5 (lives in
-     `ReactiveUIUMG`). All five are FULLY WIRED before the ship gate — the gate forbids stubs.
+     `RuitkUMG`). All five are FULLY WIRED before the ship gate — the gate forbids stubs.
      Deps equality decision: value-equality for value types, identity for shared refs —
      documented (§5).
   5. `FRuiMockHost : IRuiHostConfig` recording ops; port `core_test.gd`'s ~36 test funcs and
@@ -808,7 +808,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      harness shape (`ReactiveUI.Bench`, not pass/fail) with its first baseline rows committed to
      `plans/BENCH_BASELINES.md`.
   6. StrictMode/hook-order-validation/set-during-render diagnostics behind CVars (D-14).
-- **Files touched:** `Plugins/ReactiveUI/Source/ReactiveUICore/**`, `Source/RuiHostTests/**`.
+- **Files touched:** `Plugins/ReactiveUI/Source/RuitkCore/**`, `Source/RuiHostTests/**`.
 - **Verify:** `test-run` skill: build + `Automation RunTests ReactiveUI.Core; ReactiveUI.Update`
   headless (NullRHI) green with per-section markers; bench numbers recorded; boot check
   (`ReactiveUI.Boot` smoke: module starts, root mounts on mock host).
@@ -816,7 +816,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   render counts); zero allocations on a stable frame (bench asserts slab/arena reuse).
 - **Status:** COMPLETE 2026-07-10 — evidence: 23 core/update/boot automation tests green headless (ReactiveUI.Core.*, .Update.*, .Boot); Bench.Core rows in BENCH_BASELINES.md (1000-leaf mount ~190us, SUBTREE-SKIP noop ~0us); SubtreeSkip test asserts render counts; slab reuse via noop-rerender 0-alloc path. NOTE: the Phase 1 step 1 vnode-arena idea was SUPERSEDED by shared FRuiChildren (bailout caches make vnodes cross-frame; see RuiNode.h).
 
-### - [ ] Phase 2 — Slate host + first widgets (`ReactiveUISlate`)
+### - [ ] Phase 2 — Slate host + first widgets (`RuitkSlate`)
 
 - **Objective:** real pixels: `FRuiSlateHost`, adapter registry, `SRuiRoot`, ~15 core widgets with
   events + v1 styles + slot props, pooling, `reuse_by_slot`; the demo host project shows a live
@@ -828,7 +828,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      (`FRuiEventProxy`, bind-once-swap-inner). **Event-handler API decided HERE, not in Phase 6**
      (15 widgets ship on this signature): user callbacks are `void`-returning by default with the
      proxy returning `FReply::Handled()`; per-event an optional `FReply`-returning overload exists
-     where pass-through matters (mouse/key events); the typedefs live in `ReactiveUISlate`
+     where pass-through matters (mouse/key events); the typedefs live in `RuitkSlate`
      (`FReply` is a SlateCore type — never in Core). Child adapters for the three kinds
      (multi-slot / single-content / leaf); `slot.*` props; reorder pass (permute via
      Detach/AttachWidget on structural frames — and **run the reorder benchmark spike now**:
@@ -837,7 +837,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      `plans/TECH_DEBT.md`).
   2. `SRuiRoot` + `FRuiRoot::Create/Unmount`; mount surfaces: game viewport
      (`AddViewportWidgetContent`), a plain `SWindow`, and the standalone test path (the editor
-     *tab* spawner is editor-only code — it ships with Phase 8's Inspector in `ReactiveUIEditor`);
+     *tab* spawner is editor-only code — it ships with Phase 8's Inspector in `RuitkEditor`);
      `OnPreTick` scheduling wiring; `FlushSync`.
   3. First widgets, hand-written to establish the pattern (opus-class): `STextBlock`, `SImage`,
      `SButton`, `SBorder`, `SBox`, `SVerticalBox`, `SHorizontalBox`, `SOverlay`, `SScrollBox`,
@@ -857,7 +857,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   7. Demo screen in the host project (hand-written C++ builder API — markup arrives Phase 3/4):
      a counter + a dynamic keyed list + styled panels. Owner playtests in PIE (**field-test
      touchpoint**).
-- **Files touched:** `ReactiveUISlate/**`, `RuiHostTests/**`, `Source/RuiDemo/**`, `templates/*`
+- **Files touched:** `RuitkSlate/**`, `RuiHostTests/**`, `Source/RuiDemo/**`, `templates/*`
   refinements, prop-map schema entries.
 - **Verify:** `ReactiveUI.Core|Update|Style|Widgets|Demos` green headless; reorder-spike numbers
   recorded; owner confirms the PIE demo (visuals can't be verified headlessly — §4).
@@ -866,12 +866,12 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   cheap-path benchmarked vs SNew.
 - **Status:** CODE-COMPLETE 2026-07-10 (owner PIE playtest pending — the field-test touchpoint): 15 widgets + style v1 (pointer-identity test green) + GO-05 pool (same-pointer reuse test) + focus fences + STATGROUP; 38/38 suites incl. ReactiveUI.{Slate,Widgets,Style,Demos}; reorder spike decided (TD-010, rows in BENCH_BASELINES.md). Header-sweep audit mapped remaining widget surface to TD-012.
 
-### - [x] Phase 3 — `.uetkx` compiler + build integration (`ReactiveUIToolchain` + parser in `ReactiveUIInterp`) — DONE 2026-07-11 (battery 46/46 incl. ReactiveUI.Uetkx.* + Contract; gallery's 11 screens run from committed codegen; RUICompile -check + RUIContractDump -check exit 0)
+### - [x] Phase 3 — `.uetkx` compiler + build integration (`RuitkToolchain` + parser in `RuitkInterp`) — DONE 2026-07-11 (battery 46/46 incl. ReactiveUI.Uetkx.* + Contract; gallery's 11 screens run from committed codegen; RUICompile -check + RUIContractDump -check exit 0)
 
 - **Objective:** `Foo.uetkx` → committed `Foo.uetkx.inl` + stable aggregator TU, byte-compatible
   grammar, sidecar diagnostics, staleness machinery, commandlets — CI-gated for drift. (Steps 1–8
   start right after Phase 0; step 9 and the Verify need Phases 1–2 — see the dependency block.
-  The lexer + markup parser land in `ReactiveUIInterp` per D-27 so the interpreter and cooked-dev
+  The lexer + markup parser land in `RuitkInterp` per D-27 so the interpreter and cooked-dev
   builds can reach them; Toolchain consumes them.)
 - **Inputs:** D-18, D-19, D-21, D-22; `uetkx-toolchain.md` PARTS 1–2 in full (it is the spec);
   the Godot compiler sources (`addons/reactive_ui/guitkx/*.gd`) as the algorithm reference.
@@ -892,7 +892,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      (every field-capture-hardened rule from the toolchain digest §1.3 ports: error-verdict
      sidecars, env-hold GUITKX2507→UETKX2507 with outputs KEPT, mtime-tie hash break, orphan +
      refs/2107 sweeps, duplicate-binding incumbent).
-  5. Commandlets in `ReactiveUIEditor`: `-run=RUICompile [-full] [-check]` (CI drift gate),
+  5. Commandlets in `RuitkEditor`: `-run=RUICompile [-full] [-check]` (CI drift gate),
      `-run=RUIExportSchema`.
   6. Formatter (C++ side) + `uetkx.config.json` walk-up loader; `uetkx-formatter-cases.json`
      goldens.
@@ -907,7 +907,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      path); `ReactiveUI.Uetkx` + `ReactiveUI.Contract` suites; the `ReactiveUI.Demos` battery
      RE-TARGETS the compiled screens so CI exercises the shipped path (owner directive
      2026-07-11: existing tests convert to the new syntax as it lands, not after).
-- **Files touched:** `ReactiveUIToolchain/**`, `ReactiveUIEditor/Private/RUI*Commandlet.cpp`,
+- **Files touched:** `RuitkToolchain/**`, `RuitkEditor/Private/RUI*Commandlet.cpp`,
   `RuiHostTests/**`, `ide-extensions/lsp-server/test-fixtures/uetkx-*.json`, demo `.uetkx` files
   + committed `.inl`/aggregators.
 - **Verify:** `RUICompile -check` exits 0 on clean tree, non-zero after touching a `.uetkx`
@@ -929,7 +929,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   decls — UE hooks are plain C++ functions), TD-018 (Godot-repo corpus-mirror PR). Post-write
   parse verification subsumed by CI compiling the committed .inl for real.
 
-### - [x] Phase 4 — Interpreter + hot reload (`ReactiveUIInterp` + watcher) — DONE 2026-07-11 (battery 48/48 incl. ReactiveUI.Hmr end-to-end: hot-link, interpreted click, state-preserving swap, hook-shape reset, parse-error isolation; owner PIE field-test on the acceptance checklist)
+### - [x] Phase 4 — Interpreter + hot reload (`RuitkInterp` + watcher) — DONE 2026-07-11 (battery 48/48 incl. ReactiveUI.Hmr end-to-end: hot-link, interpreted click, state-preserving swap, hook-shape reset, parse-error isolation; owner PIE field-test on the acceptance checklist)
 
 - **Objective:** the headline: save `.uetkx` mid-PIE → UI updates in place <1 s, state preserved
   per the hook-signature rule, honest fallbacks for non-interpretable edits.
@@ -946,7 +946,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   3. Hook-signature hash: compiler-baked constant vs interpreter-computed; equal → preserve;
      different → reset, counted, reported in the Godot status-line format. Name-based migration
      where declared names+types match (critique gap 21).
-  4. Watcher in `ReactiveUIEditor` (three triggers + busy/deadman + proof-of-life + MessageLog
+  4. Watcher in `RuitkEditor` (three triggers + busy/deadman + proof-of-life + MessageLog
      de-dup + green resolved line, per D-19); swap definitions under the same component key;
      `HmrRefreshAll` defeats bailout caches; per-file isolation on parse error; the full
      `reloaded/refreshed/reset/linked/global/ms` status line.
@@ -959,7 +959,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      "see it on screen in one step".
   7. `ReactiveUI.Hmr` suite (port `hmr_test.gd` semantics: targeted vs global refresh, signature
      reset, isolation); owner field-tests the mid-PIE loop (**cannot be verified headlessly**).
-- **Files touched:** `ReactiveUIInterp/**`, `ReactiveUIEditor/Private/UetkxWatcher.cpp`,
+- **Files touched:** `RuitkInterp/**`, `RuitkEditor/Private/UetkxWatcher.cpp`,
   `RuiHostTests/**`.
 - **Verify:** `ReactiveUI.Hmr` green; scripted end-to-end: launch editor commandlet-driven PIE?
   — no: the PIE loop is the owner's playtest; the headless proxy is the suite + a
@@ -1042,8 +1042,8 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   2. `RUI::Umg` (owning-player plumbing, `TStrongObjectPtr` handle lifecycle, per-class prop maps,
      delegate trampoline pool, unbind on cleanup).
   3. `UseField`/`UseViewModel` (+ read-tracking), stale-VM policy, `UseOwnedViewModel`;
-     `URuiSignalViewModel` reverse bridge; `ReactiveUIMVVMBridge` global-collection registration.
-  4. `ReactiveUICommonUI`: `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`,
+     `URuiSignalViewModel` reverse bridge; `RuitkMVVMBridge` global-collection registration.
+  4. `RuitkCommonUI`: `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`,
      activatable-as-child rejection diagnostic; verify optional-plugin gating (D-27 fallback if
      needed).
   5. Input policy, CommonUI half (the handler-signature decision itself moved to Phase 2 step 1):
@@ -1056,7 +1056,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      (`UWidgetComponent`) verified + demo (critique gap 10); PIE-end/level-travel teardown-order
      tests verifying the D-17 contract (`URuiSubsystem` per-world tracking; unmount + pool drain
      BEFORE GC); `UseSafeArea` CommonUI override wired (the Phase 1 stub's final owner).
-- **Files touched:** `ReactiveUIUMG/**`, `ReactiveUICommonUI/**`, `ReactiveUIMVVMBridge/**`,
+- **Files touched:** `RuitkUMG/**`, `RuitkCommonUI/**`, `RuitkMVVMBridge/**`,
   `RuiHostTests/**`, demo screens.
 - **Verify:** suites green; owner playtests the mixed demo (UMG screen hosting Rui island +
   Rui screen hosting a Common button; gamepad focus walks through both).
@@ -1098,7 +1098,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      forbids stubs): `UseTweenValue` (primary, steer docs here) + `UseTween`/`UseAnimate` over the
      adapter setter tables + `FCurveSequence`/active timers; `UseSfx` via
      `UGameplayStatics::PlaySound2D` with the world context carried by the mount surface (glue in
-     `ReactiveUIUMG`), bus → `USoundClass` mapping. Only the **exit-animation protocol** (delayed
+     `RuitkUMG`), bus → `USoundClass` mapping. Only the **exit-animation protocol** (delayed
      unmount) may be deferred: DESIGNED now, shipped if time allows, else DEFERRED with the design
      doc committed (it is on the gate's OUT list).
   6. **Portals** (gap 5): portal fiber owning out-of-tree content (overlay slot / `SWindow` /
@@ -1110,8 +1110,8 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      `SExpandableArea`, `SSeparator`, `SWrapBox`, `SGridPanel`, `SUniformGridPanel`, `SScaleBox`,
      `SThrobber`/`SCircularThrobber` (exact list may trade one-for-one with demand discovered in
      Phases 6–8; the COUNT is the gate).
-- **Files touched:** `ReactiveUISlate/**`, `ReactiveUICore/**` (portals/exit-anim touch the
-  reconciler), `ReactiveUIUMG/**` (assets, UseSfx), docs, demos, prop-map schema entries.
+- **Files touched:** `RuitkSlate/**`, `RuitkCore/**` (portals/exit-anim touch the
+  reconciler), `RuitkUMG/**` (assets, UseSfx), docs, demos, prop-map schema entries.
 - **Verify:** per-item suites (`ReactiveUI.Widgets.ListView` with a 5,000-row source asserting
   live-widget count; loc gather produces entries; GC test; focus tests; portal lifecycle;
   `ReactiveUI.Widgets.<Name>` per batch-2 widget; tween/sfx hook tests); bench: virtualized list
@@ -1178,7 +1178,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      and the Fab listing (Fab listings live or die on media; the AI cannot record video, so this
      is a scheduled owner dependency, not an afterthought).
 - **Files touched:** `Source/RuiDemo/**`, `Content/**` (demo maps), `ReactiveUIUnrealDocs~/**`,
-  `ReactiveUIEditor/**` (Inspector tab), root + plugin READMEs, `discordpost`, `plans/`.
+  `RuitkEditor/**` (Inspector tab), root + plugin READMEs, `discordpost`, `plans/`.
 - **Verify:** `ReactiveUI.Demos` covers every gallery screen; docs `npm run build && npm run lint`;
   `node ide-extensions/scripts/docs-drift.mjs` (claimed counts vs registries) green; bench table
   committed.

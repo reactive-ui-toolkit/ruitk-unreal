@@ -93,7 +93,7 @@ namespace RuiDoom
 	 * state. Textures are transient UTexture2Ds pinned by TStrongObjectPtr — the demo owns
 	 * their lifetimes without reflection.
 	 */
-	class RUIDEMO_API FDoomTextures
+	class RUITKDEMO_API FDoomTextures
 	{
 	public:
 		/** Builds every texture once; idempotent. */

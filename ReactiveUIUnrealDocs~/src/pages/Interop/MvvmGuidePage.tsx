@@ -61,7 +61,7 @@ export const MvvmGuidePage: FC = () => (
       <code>URuiSignalViewModel</code> (plugin-free) turns Reactive UI Toolkit state into a FieldNotify
       source UMG bindings consume. <code>URuiMvvmViewModel</code> +{' '}
       <code>RUI::Mvvm::RegisterGlobalViewModel</code> (in the optional{' '}
-      <code>ReactiveUIMVVMBridge</code> module) additionally registers into the MVVM plugin&apos;s{' '}
+      <code>RuitkMVVMBridge</code> module) additionally registers into the MVVM plugin&apos;s{' '}
       <strong>global viewmodel collection</strong>, so existing UMG views bind it by context name —
       no view-side changes at all.
     </Typography>

@@ -5,15 +5,15 @@
 
 DEFINE_LOG_CATEGORY(LogRuiToolchain);
 
-class FReactiveUIToolchainModule : public IModuleInterface
+class FRuitkToolchainModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
 	{
-		UE_LOG(LogRuiToolchain, Verbose, TEXT("ReactiveUIToolchain module started"));
+		UE_LOG(LogRuiToolchain, Verbose, TEXT("RuitkToolchain module started"));
 	}
 
 	virtual void ShutdownModule() override {}
 };
 
-IMPLEMENT_MODULE(FReactiveUIToolchainModule, ReactiveUIToolchain)
+IMPLEMENT_MODULE(FRuitkToolchainModule, RuitkToolchain)

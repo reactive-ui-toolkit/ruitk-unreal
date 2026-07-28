@@ -19,7 +19,7 @@ class UCommonInputSubsystem;
 enum class ECommonInputType : uint8;
 
 UCLASS(meta = (DisplayName = "ReactiveUI Activatable Screen"))
-class REACTIVEUICOMMONUI_API URuiActivatableScreen : public UCommonActivatableWidget
+class RUITKCOMMONUI_API URuiActivatableScreen : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 

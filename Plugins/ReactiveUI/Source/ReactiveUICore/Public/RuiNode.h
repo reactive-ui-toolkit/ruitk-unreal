@@ -47,7 +47,7 @@ enum class ERuiNodeKind : uint8
  *  of two child lists == the family's vnode-identity children_same check. */
 using FRuiChildren = TSharedPtr<const TArray<FRuiNode>>;
 
-struct REACTIVEUICORE_API FRuiNode
+struct RUITKCORE_API FRuiNode
 {
 	ERuiNodeKind Kind = ERuiNodeKind::Fragment;
 
@@ -83,7 +83,7 @@ struct REACTIVEUICORE_API FRuiNode
 namespace RUI
 {
 	/** Build a shared child list (the factories' common path). */
-	REACTIVEUICORE_API FRuiChildren MakeChildren(TArray<FRuiNode> InChildren);
+	RUITKCORE_API FRuiChildren MakeChildren(TArray<FRuiNode> InChildren);
 } // namespace RUI
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -95,18 +95,18 @@ namespace RUI
 	/** Register/refresh a component id → nothing to store beyond the name's existence; the
 	 *  fn-pointer → FName map lets FC() resolve identity fast and RE-RESOLVE after Live
 	 *  Coding relocates code (pointers change; names don't). */
-	REACTIVEUICORE_API FName RegisterComponentId(void* FnPtr, FName Id);
+	RUITKCORE_API FName RegisterComponentId(void* FnPtr, FName Id);
 
 	/** The registered id for a fn pointer (NAME_None if unregistered — lambda components:
 	 *  documented always-re-render semantics via a per-call unique id). */
-	REACTIVEUICORE_API FName FindComponentId(void* FnPtr);
+	RUITKCORE_API FName FindComponentId(void* FnPtr);
 
 	/** Name → zero-arg node factory (default props). Generated .uetkx code self-registers
 	 *  its components here; consumers in OTHER translation units (the gallery, previews,
 	 *  Phase-4 hot reload) instantiate by name — the generated wrappers themselves are
 	 *  TU-local to the aggregator by design. Re-registering a name replaces the factory
 	 *  (Live Coding / HMR). */
-	REACTIVEUICORE_API bool RegisterNamedFactory(FName Name, TFunction<FRuiNode()> Factory);
+	RUITKCORE_API bool RegisterNamedFactory(FName Name, TFunction<FRuiNode()> Factory);
 
 	/** FILE_SCOPED_EXPORTS (FS-05): generated registrations key by the FILE-QUALIFIED id
 	 *  (`RuiUetkx_<path>::<Name>`); the designer edges speak SHORT names. Resolution: an exact
@@ -119,19 +119,19 @@ namespace RUI
 		Miss,
 		Ambiguous
 	};
-	REACTIVEUICORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey,
+	RUITKCORE_API EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey,
 												  TArray<FName>* OutCandidates = nullptr);
 
 	/** Every registered factory id, lexically sorted — the first enumeration surface (dropdown
 	 *  pickers, diagnostics, tests). */
-	REACTIVEUICORE_API void GetRegisteredFactoryNames(TArray<FName>& Out);
+	RUITKCORE_API void GetRegisteredFactoryNames(TArray<FName>& Out);
 
 	/** Instantiate a named component with default props (empty Fragment when unknown; an
 	 *  AMBIGUOUS short name renders nothing and error-logs the qualified candidates once). */
-	REACTIVEUICORE_API FRuiNode Named(FName Name);
+	RUITKCORE_API FRuiNode Named(FName Name);
 
 	/** True when Name resolves to exactly one registration (exact or unique short-name tail). */
-	REACTIVEUICORE_API bool HasNamedFactory(FName Name);
+	RUITKCORE_API bool HasNamedFactory(FName Name);
 
 	// ── HMR seams (the registries themselves are tiny and shipping-safe — Shipping builds
 	//    simply never register anything) ─────────────────────────────────────────────────────
@@ -142,8 +142,8 @@ namespace RUI
 	 *  is decided by the reconciler's hook-shape snapshot (TB-13), not this map. Retained as a
 	 *  per-identity ledger for tooling/tests (per-FILE key independence is pinned in the Driver
 	 *  suite). 0 = unknown. */
-	REACTIVEUICORE_API void RegisterHookSignature(FName ComponentId, uint32 Signature);
-	REACTIVEUICORE_API uint32 FindHookSignature(FName ComponentId);
+	RUITKCORE_API void RegisterHookSignature(FName ComponentId, uint32 Signature);
+	RUITKCORE_API uint32 FindHookSignature(FName ComponentId);
 
 	/** TB-13 — HMR hook-shape tracking (the family rule: state preserved on a stable hook
 	 *  shape, RESET on a real shape change). The editor's HMR controller arms tracking for
@@ -153,10 +153,10 @@ namespace RUI
 	 *  (v1's interpreter enforced this via its AST signature; v2 detects it at render time).
 	 *  A shape change WITHOUT a generation bump stays what it always was: a rules-of-hooks
 	 *  user error (rui.HookValidation). */
-	REACTIVEUICORE_API void SetHmrHookTracking(bool bActive);
-	REACTIVEUICORE_API bool IsHmrHookTracking();
-	REACTIVEUICORE_API void BumpHmrGeneration();
-	REACTIVEUICORE_API uint32 HmrGeneration();
+	RUITKCORE_API void SetHmrHookTracking(bool bActive);
+	RUITKCORE_API bool IsHmrHookTracking();
+	RUITKCORE_API void BumpHmrGeneration();
+	RUITKCORE_API uint32 HmrGeneration();
 
 	/** A live definition override for a ComponentId: the reconciler invokes this INSTEAD of
 	 *  the fiber's compiled Invoke. Each Set bumps the generation; bResetState additionally
@@ -164,9 +164,9 @@ namespace RUI
 	 *  shape changed). bMigrateState (TD-019) makes that reset MIGRATE exported state rather than
 	 *  zero it — used for the compiled→interp representation swap where the shape is unchanged.
 	 *  Clear returns the component to its compiled definition. */
-	REACTIVEUICORE_API void SetComponentOverride(FName ComponentId, TSharedPtr<FRuiComponentInvoke> Invoke,
+	RUITKCORE_API void SetComponentOverride(FName ComponentId, TSharedPtr<FRuiComponentInvoke> Invoke,
 												 bool bResetState, bool bMigrateState = false);
-	REACTIVEUICORE_API void ClearComponentOverride(FName ComponentId);
+	RUITKCORE_API void ClearComponentOverride(FName ComponentId);
 
 	struct FRuiComponentOverride
 	{
@@ -177,7 +177,7 @@ namespace RUI
 	};
 	/** Snapshot lookup (copy — the registry may be swapped between renders). Unset = empty
 	 *  Invoke. */
-	REACTIVEUICORE_API FRuiComponentOverride FindComponentOverride(FName ComponentId);
+	RUITKCORE_API FRuiComponentOverride FindComponentOverride(FName ComponentId);
 } // namespace RUI
 
 /**
@@ -233,16 +233,16 @@ namespace RUI
 		return Node;
 	}
 
-	REACTIVEUICORE_API FRuiNode Fragment(TArray<FRuiNode> Children, FRuiKey Key = FRuiKey());
+	RUITKCORE_API FRuiNode Fragment(TArray<FRuiNode> Children, FRuiKey Key = FRuiKey());
 
-	REACTIVEUICORE_API FRuiNode Portal(FRuiPortalHandle Target, TArray<FRuiNode> Children, FRuiKey Key = FRuiKey());
+	RUITKCORE_API FRuiNode Portal(FRuiPortalHandle Target, TArray<FRuiNode> Children, FRuiKey Key = FRuiKey());
 
 	/**
 	 * Structural error boundary (family semantics, D-10): renders Fallback when activated —
 	 * by the cooperative error latch (RUI::FailRender) or imperatively — and resets when
 	 * ResetKey changes. Not a markup tag (family convention): an escape-hatch call.
 	 */
-	REACTIVEUICORE_API FRuiNode ErrorBoundary(FRuiNode Fallback, TArray<FRuiNode> Children,
+	RUITKCORE_API FRuiNode ErrorBoundary(FRuiNode Fallback, TArray<FRuiNode> Children,
 											  FRuiKey ResetKey = FRuiKey(),
 											  TFunction<void(const FString&)> OnError = nullptr,
 											  FRuiKey Key = FRuiKey());

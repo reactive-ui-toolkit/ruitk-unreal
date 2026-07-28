@@ -18,7 +18,7 @@
 #include "Styling/SlateTypes.h" // ECheckBoxState
 #include "Types/SlateEnums.h"	// ETextCommit
 
-class REACTIVEUISLATE_API FRuiEventProxy : public TSharedFromThis<FRuiEventProxy>
+class RUITKSLATE_API FRuiEventProxy : public TSharedFromThis<FRuiEventProxy>
 {
 public:
 	/** Swap the slot's inner callback (unbound FRuiCallback clears it). Slot indices are the

@@ -26,7 +26,7 @@
 // ── the operation ─────────────────────────────────────────────────────────────────────────────
 
 /** The drag operation carrying our payload + type tag across a drag. */
-class REACTIVEUISLATE_API FRuiDragDropOp final : public FDragDropOperation
+class RUITKSLATE_API FRuiDragDropOp final : public FDragDropOperation
 {
 public:
 	DRAG_DROP_OPERATOR_TYPE(FRuiDragDropOp, FDragDropOperation)
@@ -60,7 +60,7 @@ public:
 
 // ── the draggable source ──────────────────────────────────────────────────────────────────────
 
-class REACTIVEUISLATE_API SRuiDragSource final : public SCompoundWidget
+class RUITKSLATE_API SRuiDragSource final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiDragSource) {}
@@ -114,7 +114,7 @@ private:
 
 // ── the drop zone ─────────────────────────────────────────────────────────────────────────────
 
-class REACTIVEUISLATE_API SRuiDropTarget final : public SCompoundWidget
+class RUITKSLATE_API SRuiDropTarget final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiDropTarget) {}
@@ -207,7 +207,7 @@ private:
 /** A draggable source (SingleContent): its child becomes grabbable; a left-drag begins an operation
  *  carrying `Payload` tagged `DragType`. OnDragStart fires with the payload when a drag begins;
  *  OnDragEnd fires with a bool (was the drop handled?) when it ends. */
-struct REACTIVEUISLATE_API FRuiDragSourceProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiDragSourceProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, DragType, 0)
 	RUI_PROP(FRuiValue, Payload, 1)
@@ -219,7 +219,7 @@ struct REACTIVEUISLATE_API FRuiDragSourceProps final : public FRuiPropsBase
 /** A drop zone (SingleContent): accepts operations whose DragType is in `AcceptTypes` (empty = accept
  *  ANY FRuiDragDropOp). OnDrop fires with the dropped payload; OnDragEnter/OnDragLeave fire with the
  *  hovering payload (for hover styling) as an accepted op enters/leaves. */
-struct REACTIVEUISLATE_API FRuiDropTargetProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiDropTargetProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FName>, AcceptTypes, 0)
 	RUI_PROP_EVENT(OnDrop, 1)
@@ -230,15 +230,15 @@ struct REACTIVEUISLATE_API FRuiDropTargetProps final : public FRuiPropsBase
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId DragSourceType();
-	REACTIVEUISLATE_API FRuiElementTypeId DropTargetType();
+	RUITKSLATE_API FRuiElementTypeId DragSourceType();
+	RUITKSLATE_API FRuiElementTypeId DropTargetType();
 
 	/** Wrap draggable content. The child is grabbed on a left-drag; the operation carries `Payload`. */
-	REACTIVEUISLATE_API FRuiNode DragSource(FRuiDragSourceProps Props = FRuiDragSourceProps(),
+	RUITKSLATE_API FRuiNode DragSource(FRuiDragSourceProps Props = FRuiDragSourceProps(),
 											TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
 
 	/** Wrap a drop zone. Accepted operations dropped here fire OnDrop with their payload. */
-	REACTIVEUISLATE_API FRuiNode DropTarget(FRuiDropTargetProps Props = FRuiDropTargetProps(),
+	RUITKSLATE_API FRuiNode DropTarget(FRuiDropTargetProps Props = FRuiDropTargetProps(),
 											TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
 
 	/** Register the DragSource/DropTarget adapters (called from RegisterBuiltinAdapters; idempotent). */

@@ -40,5 +40,5 @@ namespace RuiDoom
 	};
 
 	/** The game loop. A change to Level/Diff/RestartVersion starts a fresh NewGame. */
-	RUIDEMO_API FDoomGameView UseDoomGame(FRuiContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion);
+	RUITKDEMO_API FDoomGameView UseDoomGame(FRuiContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion);
 } // namespace RuiDoom

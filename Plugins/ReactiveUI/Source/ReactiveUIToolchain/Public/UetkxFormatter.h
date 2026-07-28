@@ -15,7 +15,7 @@
 
 #include "CoreMinimal.h"
 
-struct REACTIVEUITOOLCHAIN_API FUetkxFormatOptions
+struct RUITKTOOLCHAIN_API FUetkxFormatOptions
 {
 	int32 PrintWidth = 100;
 	FString IndentStyle = TEXT("tab"); // "tab" | "space"
@@ -24,7 +24,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxFormatOptions
 	bool bInsertSpaceBeforeSelfClose = true;
 };
 
-struct REACTIVEUITOOLCHAIN_API FUetkxFormatResult
+struct RUITKTOOLCHAIN_API FUetkxFormatResult
 {
 	bool bOk = true;
 	FString Text;
@@ -32,7 +32,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxFormatResult
 	bool bFellBack = false; // parse error / unsafe re-emit: Text == Source byte-identical
 };
 
-class REACTIVEUITOOLCHAIN_API FUetkxFormatter
+class RUITKTOOLCHAIN_API FUetkxFormatter
 {
 public:
 	static FUetkxFormatResult Format(const FString& Source, const FUetkxFormatOptions& Options = FUetkxFormatOptions());

@@ -23,7 +23,7 @@
 class FRuiContext;
 
 /** What a hosted tree can learn from its URuiHostWidget host. */
-struct REACTIVEUIUMG_API FRuiHostPropsState
+struct RUITKUMG_API FRuiHostPropsState
 {
 	/** Designer/BP-set initial props (stringly typed — the generic channel; parse in the component). */
 	TMap<FName, FString> Props;
@@ -40,19 +40,19 @@ struct REACTIVEUIUMG_API FRuiHostPropsState
 namespace RUI::Umg
 {
 	/** The context handle carrying host props to descendants (default = empty / no viewmodel). */
-	REACTIVEUIUMG_API TRuiContext<FRuiHostPropsState>& HostPropsContext();
+	RUITKUMG_API TRuiContext<FRuiHostPropsState>& HostPropsContext();
 
 	/** The full host-props state at this point in the tree. */
-	REACTIVEUIUMG_API FRuiHostPropsState UseHostProps(FRuiContext& Ctx);
+	RUITKUMG_API FRuiHostPropsState UseHostProps(FRuiContext& Ctx);
 
 	/** Sugar: one named host prop, or `Default` when the host didn't set it. */
-	REACTIVEUIUMG_API FString UseHostProp(FRuiContext& Ctx, FName Name, FString Default = FString());
+	RUITKUMG_API FString UseHostProp(FRuiContext& Ctx, FName Name, FString Default = FString());
 
 	/** Sugar: the host-provided viewmodel (nullptr when unset/collected) — feed it to UseField. */
-	REACTIVEUIUMG_API UObject* UseHostViewModel(FRuiContext& Ctx);
+	RUITKUMG_API UObject* UseHostViewModel(FRuiContext& Ctx);
 
 	/** Provide `State` to `Children` (what URuiHostWidget wraps the hosted component in). */
-	REACTIVEUIUMG_API FRuiNode HostPropsProvider(FRuiHostPropsState State,
+	RUITKUMG_API FRuiNode HostPropsProvider(FRuiHostPropsState State,
 												 TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												 FRuiKey Key = FRuiKey());
 } // namespace RUI::Umg

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // IRuiHostConfig — THE seam (D-11). The reconciler touches engines only through this
-// interface over opaque FRuiHostHandle values. ReactiveUISlate implements it against real
+// interface over opaque FRuiHostHandle values. RuitkSlate implements it against real
 // widgets; FRuiMockHost implements it for the headless core suites — which is what makes
 // the entire reconciler testable without an RHI, exactly like react-dom vs react-test-renderer.
 //
@@ -16,7 +16,7 @@
 #include "RuiTypes.h"
 #include "RuiPropsBase.h"
 
-class REACTIVEUICORE_API IRuiHostConfig
+class RUITKCORE_API IRuiHostConfig
 {
 public:
 	virtual ~IRuiHostConfig() = default;

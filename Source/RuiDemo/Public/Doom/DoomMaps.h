@@ -27,7 +27,7 @@ namespace RuiDoom
 
 	// ───── Builder ─────
 	// Fluent map-authoring DSL — method names 1:1 with the Unity original's MapBuilder.
-	class RUIDEMO_API FMapBuilder
+	class RUITKDEMO_API FMapBuilder
 	{
 	public:
 		int32 W = 0;
@@ -76,9 +76,9 @@ namespace RuiDoom
 		FLevelStart Build() const;
 	};
 
-	RUIDEMO_API int32 HealthFor(EMobjKind K);
-	RUIDEMO_API float RadiusFor(EMobjKind K);
-	RUIDEMO_API float HeightFor(EMobjKind K);
+	RUITKDEMO_API int32 HealthFor(EMobjKind K);
+	RUITKDEMO_API float RadiusFor(EMobjKind K);
+	RUITKDEMO_API float HeightFor(EMobjKind K);
 
 	// ───── Levels ─────
 
@@ -86,15 +86,15 @@ namespace RuiDoom
 	constexpr int32 LEVEL_COUNT = 6;
 
 	/** Build level 1..6 (anything else falls back to Level1, like the original). */
-	RUIDEMO_API FLevelStart BuildLevel(int32 Level);
+	RUITKDEMO_API FLevelStart BuildLevel(int32 Level);
 
 	/** Display name for level 1..6 without building it ("E1M1: Hangar", ...). */
-	RUIDEMO_API const TCHAR* LevelName(int32 Level);
+	RUITKDEMO_API const TCHAR* LevelName(int32 Level);
 
-	RUIDEMO_API FLevelStart Level1();
-	RUIDEMO_API FLevelStart Level2();
-	RUIDEMO_API FLevelStart Level3();
-	RUIDEMO_API FLevelStart Level4();
-	RUIDEMO_API FLevelStart Level5();
-	RUIDEMO_API FLevelStart Level6();
+	RUITKDEMO_API FLevelStart Level1();
+	RUITKDEMO_API FLevelStart Level2();
+	RUITKDEMO_API FLevelStart Level3();
+	RUITKDEMO_API FLevelStart Level4();
+	RUITKDEMO_API FLevelStart Level5();
+	RUITKDEMO_API FLevelStart Level6();
 } // namespace RuiDoom

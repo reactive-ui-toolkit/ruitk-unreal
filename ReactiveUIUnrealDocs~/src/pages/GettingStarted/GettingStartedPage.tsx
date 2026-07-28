@@ -7,8 +7,8 @@ const BUILD_CS = `// YourModule.Build.cs — depend on the runtime + the Slate h
 PublicDependencyModuleNames.AddRange(new[]
 {
 	"Core", "CoreUObject", "Engine", "Slate", "SlateCore",
-	"ReactiveUICore",   // vnodes, fibers, hooks, the reconciler (no UObject)
-	"ReactiveUISlate",  // the Slate host + per-widget adapters
+	"RuitkCore",   // vnodes, fibers, hooks, the reconciler (no UObject)
+	"RuitkSlate",  // the Slate host + per-widget adapters
 });`
 
 const HELLO = `// HelloWorld.uetkx — the primary component's name matches the file.

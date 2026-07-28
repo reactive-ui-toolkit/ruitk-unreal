@@ -14,7 +14,7 @@
 using FRuiDrawFn =
 	TFunction<int32(const FGeometry& AllottedGeometry, FSlateWindowElementList& OutDrawElements, int32 LayerId)>;
 
-class REACTIVEUISLATE_API SRuiCanvas : public SLeafWidget
+class RUITKSLATE_API SRuiCanvas : public SLeafWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiCanvas) {}

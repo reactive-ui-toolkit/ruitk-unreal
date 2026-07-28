@@ -5,12 +5,12 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiInterp, Log, All);
 
-class FReactiveUIInterpModule : public IModuleInterface
+class FRuitkInterpModule : public IModuleInterface
 {
 public:
-	virtual void StartupModule() override { UE_LOG(LogRuiInterp, Verbose, TEXT("ReactiveUIInterp module started")); }
+	virtual void StartupModule() override { UE_LOG(LogRuiInterp, Verbose, TEXT("RuitkInterp module started")); }
 
 	virtual void ShutdownModule() override {}
 };
 
-IMPLEMENT_MODULE(FReactiveUIInterpModule, ReactiveUIInterp)
+IMPLEMENT_MODULE(FRuitkInterpModule, RuitkInterp)

@@ -23,7 +23,7 @@ class SBox;
 
 /** SExpandableArea (two role slots): children carry `slot.role = "header" | "body"`. `bIsExpanded`
  *  is the controlled expansion state; OnExpansionChanged fires (Value = bool) when the user toggles. */
-struct REACTIVEUISLATE_API FRuiExpandableAreaProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiExpandableAreaProps final : public FRuiPropsBase
 {
 	RUI_PROP(bool, bIsExpanded, 0)
 	RUI_PROP_EVENT(OnExpansionChanged, 1)
@@ -31,7 +31,7 @@ struct REACTIVEUISLATE_API FRuiExpandableAreaProps final : public FRuiPropsBase
 };
 
 /** Wraps SExpandableArea with two SBox content holders the reconciler reparents children into. */
-class REACTIVEUISLATE_API SRuiExpandableArea final : public SCompoundWidget
+class RUITKSLATE_API SRuiExpandableArea final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiExpandableArea) : _InitiallyExpanded(true) {}
@@ -65,10 +65,10 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId ExpandableAreaType();
+	RUITKSLATE_API FRuiElementTypeId ExpandableAreaType();
 
 	/** A collapsible section. Give it two children with `slot.role="header"` and `slot.role="body"`. */
-	REACTIVEUISLATE_API FRuiNode ExpandableArea(FRuiExpandableAreaProps Props = FRuiExpandableAreaProps(),
+	RUITKSLATE_API FRuiNode ExpandableArea(FRuiExpandableAreaProps Props = FRuiExpandableAreaProps(),
 												TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												FRuiKey Key = FRuiKey());
 

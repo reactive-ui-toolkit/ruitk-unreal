@@ -7,9 +7,9 @@ using UnrealBuildTool;
 // "theirs inside ours"), URuiWorldSubsystem (per-world mount surface with the teardown
 // contract: PIE end / level travel unmounts every root), and UseField over FieldNotify
 // ("their data feeding ours" — the engine FieldNotification module, plugin-independent).
-public class ReactiveUIUMG : ModuleRules
+public class RuitkUMG : ModuleRules
 {
-	public ReactiveUIUMG(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkUMG(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -23,8 +23,8 @@ public class ReactiveUIUMG : ModuleRules
 			"Slate",
 			"SlateCore",
 			"FieldNotification",
-			"ReactiveUICore",
-			"ReactiveUISlate",
+			"RuitkCore",
+			"RuitkSlate",
 		});
 	}
 }

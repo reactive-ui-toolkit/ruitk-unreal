@@ -11,7 +11,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogRuiCore, Log, All);
 // load-bearing already: the ReactiveUI.Boot suite and the packaged-fidelity test (fresh project,
 // enable plugin, expect the banner in the log) both key off it — the exact analogue of the Godot
 // repo's "a silent Output means the plugin is NOT running" rule.
-class FReactiveUICoreModule : public IModuleInterface
+class FRuitkCoreModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
@@ -21,7 +21,7 @@ public:
 		{
 			VersionName = Plugin->GetDescriptor().VersionName;
 		}
-		UE_LOG(LogRuiCore, Display, TEXT("ReactiveUI %s loaded (ReactiveUICore)"), *VersionName);
+		UE_LOG(LogRuiCore, Display, TEXT("ReactiveUI %s loaded (RuitkCore)"), *VersionName);
 
 		// Culture-change → root re-render (Phase 7 localization): live roots re-render when the
 		// text revision bumps, healing anything a component baked under the previous culture.
@@ -31,4 +31,4 @@ public:
 	virtual void ShutdownModule() override { RUI::UnregisterCultureSync(); }
 };
 
-IMPLEMENT_MODULE(FReactiveUICoreModule, ReactiveUICore)
+IMPLEMENT_MODULE(FRuitkCoreModule, RuitkCore)

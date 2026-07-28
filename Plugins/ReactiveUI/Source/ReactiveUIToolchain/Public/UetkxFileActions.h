@@ -9,7 +9,7 @@
 
 #include "CoreMinimal.h"
 
-class REACTIVEUITOOLCHAIN_API FUetkxFileActions
+class RUITKTOOLCHAIN_API FUetkxFileActions
 {
 public:
 	/** Create `<Dir>/<Name>.uetkx` from the starter template. Name must be UpperCamel (the

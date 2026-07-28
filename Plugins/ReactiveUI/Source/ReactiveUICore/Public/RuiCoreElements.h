@@ -33,11 +33,11 @@ struct FRuiTextBlockProps final : public FRuiPropsBase
 namespace RUI
 {
 	/** The interned "Text" element id (stable across the process). */
-	REACTIVEUICORE_API FRuiElementTypeId TextBlockElementType();
+	RUITKCORE_API FRuiElementTypeId TextBlockElementType();
 
 	/** Text node factory (also what raw-string children auto-wrap into). */
-	REACTIVEUICORE_API FRuiNode TextBlock(FText InText, FRuiKey Key = FRuiKey());
-	REACTIVEUICORE_API FRuiNode TextBlock(const FString& InText, FRuiKey Key = FRuiKey());
+	RUITKCORE_API FRuiNode TextBlock(FText InText, FRuiKey Key = FRuiKey());
+	RUITKCORE_API FRuiNode TextBlock(const FString& InText, FRuiKey Key = FRuiKey());
 
 	// ─────────────────────────────────────────────────────────────────────────────────────
 	// Fmt — clean FText interpolation for .uetkx bindings. `RUI::Fmt(TEXT("Count: {}"), Count)`
@@ -138,10 +138,10 @@ namespace RUI
 	};
 
 	/** The Suspense component function (registered; use via RUI::Suspense below). */
-	REACTIVEUICORE_API FRuiNodeArray SuspenseComponent(FRuiContext& Ctx, const FRuiSuspenseProps& Props,
+	RUITKCORE_API FRuiNodeArray SuspenseComponent(FRuiContext& Ctx, const FRuiSuspenseProps& Props,
 													   const TArray<FRuiNode>& Children);
 
 	/** Declarative boundary: fallback until IsReady() flips true, then the children. */
-	REACTIVEUICORE_API FRuiNode Suspense(TFunction<bool()> IsReady, FRuiNode Fallback, TArray<FRuiNode> Children,
+	RUITKCORE_API FRuiNode Suspense(TFunction<bool()> IsReady, FRuiNode Fallback, TArray<FRuiNode> Children,
 										 FRuiKey Key = FRuiKey());
 } // namespace RUI

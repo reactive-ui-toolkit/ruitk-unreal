@@ -18,7 +18,7 @@ class SSuggestionTextBox;
 
 /** SSuggestionTextBox (Leaf): controlled Text + a `Suggestions` candidate list the widget filters by
  *  the typed substring. OnTextChanged/OnTextCommitted carry the current text. */
-struct REACTIVEUISLATE_API FRuiSuggestionTextBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSuggestionTextBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -37,7 +37,7 @@ struct REACTIVEUISLATE_API FRuiSuggestionTextBoxProps final : public FRuiPropsBa
 };
 
 /** Wraps SSuggestionTextBox with the controlled text + the substring suggestion filter. */
-class REACTIVEUISLATE_API SRuiSuggestionTextBox final : public SCompoundWidget
+class RUITKSLATE_API SRuiSuggestionTextBox final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiSuggestionTextBox) {}
@@ -69,10 +69,10 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId SuggestionTextBoxType();
+	RUITKSLATE_API FRuiElementTypeId SuggestionTextBoxType();
 
 	/** A text field with a substring-matched suggestion dropdown. */
-	REACTIVEUISLATE_API FRuiNode SuggestionTextBox(FRuiSuggestionTextBoxProps Props = FRuiSuggestionTextBoxProps(),
+	RUITKSLATE_API FRuiNode SuggestionTextBox(FRuiSuggestionTextBoxProps Props = FRuiSuggestionTextBoxProps(),
 												   FRuiKey Key = FRuiKey());
 
 	namespace Detail

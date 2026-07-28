@@ -11,7 +11,7 @@
 
 #include "CoreMinimal.h"
 
-struct REACTIVEUITOOLCHAIN_API FUetkxContractResult
+struct RUITKTOOLCHAIN_API FUetkxContractResult
 {
 	int32 Total = 0;
 	int32 Mismatched = 0; // includes missing goldens in check mode
@@ -21,7 +21,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxContractResult
 	bool Passed() const { return Mismatched == 0; }
 };
 
-class REACTIVEUITOOLCHAIN_API FUetkxContract
+class RUITKTOOLCHAIN_API FUetkxContract
 {
 public:
 	static FString DefaultFixtureDir(); // <Project>/Source/RuiHostTests/ContractFixtures

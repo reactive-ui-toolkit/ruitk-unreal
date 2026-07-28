@@ -18,7 +18,7 @@ template <typename NumericType> class SNumericEntryBox;
 
 /** SNumericEntryBox<float> (Leaf): a controlled numeric field. Value is applied skip-when-equal;
  *  MinValue/MaxValue bound the typed input; OnValueChanged/OnValueCommitted carry the float. */
-struct REACTIVEUISLATE_API FRuiNumericEntryBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiNumericEntryBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Value, 0)
 	RUI_PROP(float, MinValue, 1)
@@ -30,7 +30,7 @@ struct REACTIVEUISLATE_API FRuiNumericEntryBoxProps final : public FRuiPropsBase
 };
 
 /** Wraps SNumericEntryBox<float> with the controlled-value member the widget's Value attribute reads. */
-class REACTIVEUISLATE_API SRuiNumericEntryBox final : public SCompoundWidget
+class RUITKSLATE_API SRuiNumericEntryBox final : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SRuiNumericEntryBox) {}
@@ -66,10 +66,10 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId NumericEntryBoxType();
+	RUITKSLATE_API FRuiElementTypeId NumericEntryBoxType();
 
 	/** A controlled numeric field. Drive `Value` from state; OnValueChanged fires as the user types. */
-	REACTIVEUISLATE_API FRuiNode NumericEntryBox(FRuiNumericEntryBoxProps Props = FRuiNumericEntryBoxProps(),
+	RUITKSLATE_API FRuiNode NumericEntryBox(FRuiNumericEntryBoxProps Props = FRuiNumericEntryBoxProps(),
 												 FRuiKey Key = FRuiKey());
 
 	namespace Detail

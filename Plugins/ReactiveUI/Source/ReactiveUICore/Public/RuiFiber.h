@@ -34,7 +34,7 @@ enum ERuiEffect : uint8
 	RuiEffect_PortalRetarget = 1 << 5,
 };
 
-struct REACTIVEUICORE_API FRuiFiber
+struct RUITKCORE_API FRuiFiber
 {
 	FRuiFiber() = default;
 	// Never copied/moved: fibers are slab-owned with RAW pointers into them everywhere
@@ -177,7 +177,7 @@ struct REACTIVEUICORE_API FRuiFiber
  * steady-state allocation once warmed (stable trees reuse alternates and never touch the
  * slab at all). Per-reconciler — a torn-down root frees exactly its own pages.
  */
-class REACTIVEUICORE_API FRuiFiberSlab
+class RUITKCORE_API FRuiFiberSlab
 {
 public:
 	static constexpr int32 PageSize = 256;

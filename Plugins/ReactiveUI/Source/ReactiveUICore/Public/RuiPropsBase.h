@@ -20,7 +20,7 @@
 /** Polymorphic base for all typed props. Props are immutable once built and shared by
  *  pointer between the vnode and the committed fiber — pointer identity IS the memo
  *  fast-path (Godot's is_same(), React's ===). */
-struct REACTIVEUICORE_API FRuiPropsBase
+struct RUITKCORE_API FRuiPropsBase
 {
 	virtual ~FRuiPropsBase() = default;
 

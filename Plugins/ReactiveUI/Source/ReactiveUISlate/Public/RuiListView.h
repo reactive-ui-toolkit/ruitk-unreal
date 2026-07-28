@@ -40,7 +40,7 @@ enum class ERuiItemViewKind : uint8
 /** SListView (Leaf-to-the-reconciler; children are DATA, not vnodes). Items are compared by the
  *  TSharedPtr identity per element; RenderItem by shared-inner identity (wrap once — MakeItemRenderer
  *  — and re-hand a fresh closure each render to push new state into the rows). */
-struct REACTIVEUISLATE_API FRuiListViewProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiListViewProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, Items, 0)
 	RUI_PROP(TSharedPtr<FRuiItemRenderer>, RenderItem, 1)
@@ -51,7 +51,7 @@ struct REACTIVEUISLATE_API FRuiListViewProps final : public FRuiPropsBase
 
 /** STileView — the same item model laid out as a uniform grid of tiles. ItemWidth / ItemHeight are
  *  the tile cell size (construct-time; STileView bakes the panel around them). */
-struct REACTIVEUISLATE_API FRuiTileViewProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiTileViewProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, Items, 0)
 	RUI_PROP(TSharedPtr<FRuiItemRenderer>, RenderItem, 1)
@@ -69,7 +69,7 @@ struct REACTIVEUISLATE_API FRuiTileViewProps final : public FRuiPropsBase
  * ForceGenerateRows / NumGeneratedRows pair exists for deterministic headless row generation
  * (rows only generate under a real arranged geometry — a test/tool ticks the list directly).
  */
-class REACTIVEUISLATE_API SRuiListView : public SCompoundWidget
+class RUITKSLATE_API SRuiListView : public SCompoundWidget
 {
 public:
 	using FItemType = TSharedPtr<FRuiValue>;
@@ -121,18 +121,18 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId ListViewType();
-	REACTIVEUISLATE_API FRuiElementTypeId TileViewType();
+	RUITKSLATE_API FRuiElementTypeId ListViewType();
+	RUITKSLATE_API FRuiElementTypeId TileViewType();
 
 	/** A virtualized list. Hold `Items` stably (UseMemo/UseRef) for row reuse; re-hand `RenderItem`
 	 *  each render to push fresh state into the visible rows. */
-	REACTIVEUISLATE_API FRuiNode ListView(FRuiListViewProps Props = FRuiListViewProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode ListView(FRuiListViewProps Props = FRuiListViewProps(), FRuiKey Key = FRuiKey());
 
 	/** A virtualized tile grid (same item model as ListView). */
-	REACTIVEUISLATE_API FRuiNode TileView(FRuiTileViewProps Props = FRuiTileViewProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode TileView(FRuiTileViewProps Props = FRuiTileViewProps(), FRuiKey Key = FRuiKey());
 
 	/** Wrap a render closure ONCE (UseMemo/UseRef it). Re-handing a fresh closure re-renders rows. */
-	REACTIVEUISLATE_API TSharedPtr<FRuiItemRenderer> MakeItemRenderer(FRuiItemRenderer Fn);
+	RUITKSLATE_API TSharedPtr<FRuiItemRenderer> MakeItemRenderer(FRuiItemRenderer Fn);
 
 	/** Register the ListView/TileView adapters (called from RegisterBuiltinAdapters; idempotent). */
 	namespace Detail

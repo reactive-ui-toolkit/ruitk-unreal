@@ -15,7 +15,7 @@
 
 class IUetkxImportResolver; // UetkxResolve.h (M4) — resolution runs inside CompileSource when set
 
-struct REACTIVEUITOOLCHAIN_API FUetkxCompileOutput
+struct RUITKTOOLCHAIN_API FUetkxCompileOutput
 {
 	bool bOk = false;
 	FString Inl; // the generated .uetkx.inl text ("" on failure)
@@ -30,7 +30,7 @@ struct REACTIVEUITOOLCHAIN_API FUetkxCompileOutput
 	FString DefaultExportName;		 // ES-modules (U-08): `export default <Name>` target ("" = none)
 };
 
-class REACTIVEUITOOLCHAIN_API FUetkxCodegen
+class RUITKTOOLCHAIN_API FUetkxCodegen
 {
 public:
 	/** Compile one .uetkx source into its sibling .inl. Basename = file stem (binding + NSLOCTEXT

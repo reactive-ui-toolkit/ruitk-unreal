@@ -659,10 +659,10 @@ with the next engine run), vdoc unit + smoke pins.
 ## TB-29 — 5.7 link failure: SearchableComboBox's ToolWidgets dependency was never declared
 
 **Found:** 2026-07-25, first 5.7 build of the field-test campaign (also the FIRST 5.7 build
-since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of ReactiveUISlate.
+since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of RuitkSlate.
 
 **Root cause:** `SSearchableComboBox` lives in `Developer/ToolWidgets` (verified identical in
-5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but ReactiveUISlate.Build.cs
+5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but RuitkSlate.Build.cs
 never listed the module. It "worked" everywhere until now because the adapter is
 version-gated `#if !UE_VERSION_OLDER_THAN(5, 7, 0)` — on 5.6 (every build since the widget
 shipped 2026-07-16) the adapter compiled out, and the last 5.7 battery (2026-07-14) predates

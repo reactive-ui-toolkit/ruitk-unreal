@@ -4,11 +4,11 @@ using UnrealBuildTool;
 
 // Global viewmodel-collection registration ONLY (Phase 6) -- the one piece of MVVM interop
 // that needs the ModelViewViewModel plugin (everything FieldNotify is engine-level and lives
-// in ReactiveUIUMG, D-26). Deps added with the code, per D-27:
-//   CoreUObject, ModelViewViewModel (optional plugin ref), ReactiveUIUMG.
-public class ReactiveUIMVVMBridge : ModuleRules
+// in RuitkUMG, D-26). Deps added with the code, per D-27:
+//   CoreUObject, ModelViewViewModel (optional plugin ref), RuitkUMG.
+public class RuitkMVVMBridge : ModuleRules
 {
-	public ReactiveUIMVVMBridge(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkMVVMBridge(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -20,8 +20,8 @@ public class ReactiveUIMVVMBridge : ModuleRules
 			"Engine",
 			"FieldNotification",
 			"ModelViewViewModel",
-			"ReactiveUICore",
-			"ReactiveUIUMG",
+			"RuitkCore",
+			"RuitkUMG",
 		});
 	}
 }

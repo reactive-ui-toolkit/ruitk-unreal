@@ -15,7 +15,7 @@
 #include "CoreMinimal.h"
 #include "UetkxMarkup.h"
 
-struct REACTIVEUIINTERP_API FUetkxDiag
+struct RUITKINTERP_API FUetkxDiag
 {
 	FString Code;
 	int32 Severity = 0; // 0 err / 1 warn / 2 hint (sidecar schema v2)
@@ -24,7 +24,7 @@ struct REACTIVEUIINTERP_API FUetkxDiag
 	int32 Length = 1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxParam
+struct RUITKINTERP_API FUetkxParam
 {
 	FString Name;
 	FString Type;
@@ -55,7 +55,7 @@ enum class EUetkxDeclKind : uint8
  *  the toolchain to name-check); Specifier holds the payload WITHOUT the leading `@`. Every
  *  consumer that iterates Imports for name resolution (UetkxResolve, the aggregator's import-
  *  to-file resolution) must skip entries with bHostInclude set — they resolve to no file. */
-struct REACTIVEUIINTERP_API FUetkxImportDecl
+struct RUITKINTERP_API FUetkxImportDecl
 {
 	TArray<FString> Names;
 	TArray<int32> NameAts;
@@ -89,7 +89,7 @@ struct REACTIVEUIINTERP_API FUetkxImportDecl
  *  A `return null;` / `return ( null );` span (bNull, TB-28 family parity — React/Unity
  *  render-nothing) carries NO markup: MStart..MEnd cover the `null` token (bare form) or the
  *  paren interior (paren form), Root stays null, and codegen lowers it to `return {};`. */
-struct REACTIVEUIINTERP_API FUetkxReturnSpan
+struct RUITKINTERP_API FUetkxReturnSpan
 {
 	int32 ReturnAt = -1; // offset of `return`
 	int32 MStart = -1;	 // first char inside `(`
@@ -100,7 +100,7 @@ struct REACTIVEUIINTERP_API FUetkxReturnSpan
 	TSharedPtr<FUetkxNode> Root; // the span's single render root (filled by the component scan)
 };
 
-struct REACTIVEUIINTERP_API FUetkxComponentDecl
+struct RUITKINTERP_API FUetkxComponentDecl
 {
 	FString Name;
 	bool bExported = false; // `export component` — cross-file addressable (privacy is opt-in, A3)
@@ -130,7 +130,7 @@ struct REACTIVEUIINTERP_API FUetkxComponentDecl
 /** `hook UseName(params) [-> Ret] { body }` — a user hook (support-file declaration). The
  *  params/body are VERBATIM C++ (unlike component params, which use the `Name: Type` decl
  *  grammar) — C++ params can carry template commas the family grammar can't split. */
-struct REACTIVEUIINTERP_API FUetkxHookDecl
+struct RUITKINTERP_API FUetkxHookDecl
 {
 	FString Name;
 	bool bExported = false; // `export hook`
@@ -152,7 +152,7 @@ struct REACTIVEUIINTERP_API FUetkxHookDecl
  *  empty means inference sugar, valid ONLY when Init begins `Ident(`/`Ident{`/`Ident<` (the
  *  initializer names its own type — UETKX2322 otherwise). Emission is DECL-PHASE-ONLY
  *  `inline const <T> Name = <Init>;` (U-04) — there is no BodyAt/Body split like hooks/utils. */
-struct REACTIVEUIINTERP_API FUetkxValueDecl
+struct RUITKINTERP_API FUetkxValueDecl
 {
 	FString Name;
 	int32 NameAt = -1;
@@ -170,7 +170,7 @@ struct REACTIVEUIINTERP_API FUetkxValueDecl
  *  `Use`-prefixed, not FRuiNode-returning. Params are verbatim C++ text (like hooks — template
  *  commas can't be split by the family `Name: Type` grammar). Emission mirrors a hook minus the
  *  `Ctx` injection and HookSig participation (U-04). */
-struct REACTIVEUIINTERP_API FUetkxUtilDecl
+struct RUITKINTERP_API FUetkxUtilDecl
 {
 	FString Name;
 	int32 NameAt = -1;
@@ -186,7 +186,7 @@ struct REACTIVEUIINTERP_API FUetkxUtilDecl
 };
 
 /** `module Name { body }` — verbatim C++ declarations (style dicts, types, statics). */
-struct REACTIVEUIINTERP_API FUetkxModuleDecl
+struct RUITKINTERP_API FUetkxModuleDecl
 {
 	FString Name;
 	bool bExported = false; // `export module`
@@ -201,13 +201,13 @@ struct REACTIVEUIINTERP_API FUetkxModuleDecl
 /** ES-modules (U-09): one name requested by a deferred `export { ... };` list, with its token
  *  offset — resolved against the decl arrays at end-of-scan; kept on the result for the LSP
  *  rename/references index (TD-033). */
-struct REACTIVEUIINTERP_API FUetkxPendingExportName
+struct RUITKINTERP_API FUetkxPendingExportName
 {
 	FString Name;
 	int32 At = -1;
 };
 
-struct REACTIVEUIINTERP_API FUetkxFileScanResult
+struct RUITKINTERP_API FUetkxFileScanResult
 {
 	TArray<FString> PreambleIncludes; // verbatim `#include ...` lines from the preamble
 	TArray<int32> PreambleIncludeAts; // 1:1 with PreambleIncludes — each line's start offset
@@ -257,7 +257,7 @@ struct REACTIVEUIINTERP_API FUetkxFileScanResult
 };
 
 /** One declaration's identity, as seen by the cheap preamble scan (no markup parse). */
-struct REACTIVEUIINTERP_API FUetkxPreambleDecl
+struct RUITKINTERP_API FUetkxPreambleDecl
 {
 	FString Name;
 	EUetkxDeclKind Kind = EUetkxDeclKind::Component;
@@ -269,7 +269,7 @@ struct REACTIVEUIINTERP_API FUetkxPreambleDecl
 /** The result of ScanPreamble: imports + declaration identities in source order, WITHOUT parsing
  *  component markup. The import resolver reads this to build export tables + export hashes cheaply
  *  and without tripping on a target file's markup errors (A2 source-truth graph). */
-struct REACTIVEUIINTERP_API FUetkxPreambleScan
+struct RUITKINTERP_API FUetkxPreambleScan
 {
 	TArray<FUetkxImportDecl> Imports;
 	TArray<FUetkxPreambleDecl> Decls;
@@ -282,7 +282,7 @@ struct REACTIVEUIINTERP_API FUetkxPreambleScan
 
 /** The (last) top-level markup `return ( ... )` inside a body — the ONE splitter shared by
  *  the file scan, the emitter, and the formatter (they must never disagree on the window). */
-struct REACTIVEUIINTERP_API FUetkxSplitReturn
+struct RUITKINTERP_API FUetkxSplitReturn
 {
 	bool bOk = false;
 	int32 ReturnAt = -1; // offset of `return`
@@ -291,7 +291,7 @@ struct REACTIVEUIINTERP_API FUetkxSplitReturn
 	int32 AfterParen = -1;
 };
 
-class REACTIVEUIINTERP_API FUetkxFileScan
+class RUITKINTERP_API FUetkxFileScan
 {
 public:
 	/** The 20 hook names (auto-prefix + signature scanning). */

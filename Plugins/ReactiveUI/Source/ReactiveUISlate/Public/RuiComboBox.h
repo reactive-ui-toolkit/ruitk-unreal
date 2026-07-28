@@ -23,7 +23,7 @@ class SBox;
 
 /** SComboBox (Leaf; options are DATA). Options + RenderOption render both the selected display and the
  *  dropdown rows; SelectedIndex is controlled; OnSelectionChanged fires the picked index. */
-struct REACTIVEUISLATE_API FRuiComboBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiComboBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, Options, 0)
 	RUI_PROP(TSharedPtr<FRuiItemRenderer>, RenderOption, 1)
@@ -34,7 +34,7 @@ struct REACTIVEUISLATE_API FRuiComboBoxProps final : public FRuiPropsBase
 };
 
 /** Wraps SComboBox<TSharedPtr<FRuiValue>> with the render-prop plumbing + controlled selection. */
-class REACTIVEUISLATE_API SRuiComboBox final : public SCompoundWidget
+class RUITKSLATE_API SRuiComboBox final : public SCompoundWidget
 {
 public:
 	using FItemType = TSharedPtr<FRuiValue>;
@@ -89,10 +89,10 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId ComboBoxType();
+	RUITKSLATE_API FRuiElementTypeId ComboBoxType();
 
 	/** A dropdown selector. Hold Options stably; RenderOption renders the selected + each row. */
-	REACTIVEUISLATE_API FRuiNode ComboBox(FRuiComboBoxProps Props = FRuiComboBoxProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode ComboBox(FRuiComboBoxProps Props = FRuiComboBoxProps(), FRuiKey Key = FRuiKey());
 
 	namespace Detail
 	{

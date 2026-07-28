@@ -20,21 +20,21 @@ public class RuiHostTests : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			// Keep deps exactly as narrow as the tests that exist (later phases add the
-			// modules they test: ReactiveUISlate, ReactiveUIUMG, ...).
+			// modules they test: RuitkSlate, RuitkUMG, ...).
 			"CoreUObject",
 			"Engine",
 			"Projects",         // IPluginManager (the Boot suite)
-			"ReactiveUICore",   // the mock-host core suites
-			"ReactiveUISlate",  // the Slate host suites + reorder spike
+			"RuitkCore",   // the mock-host core suites
+			"RuitkSlate",  // the Slate host suites + reorder spike
 			"RuiDemo",          // the Demos suite mounts the gallery
-			"ReactiveUIInterp", // the .uetkx scanner/parser suites + VM/Hmr
-			"ReactiveUIToolchain", // the codegen suites
-			"ReactiveUIEditor", // the TD-006 .uetkx preview suite (FUetkxPreview)
-			"ReactiveUIUMG",    // the Phase-6 interop suites (Umg/Mvvm)
-			"ReactiveUICommonUI", // the TD-021 CommonUI activatable suite
+			"RuitkInterp", // the .uetkx scanner/parser suites + VM/Hmr
+			"RuitkToolchain", // the codegen suites
+			"RuitkEditor", // the TD-006 .uetkx preview suite (FUetkxPreview)
+			"RuitkUMG",    // the Phase-6 interop suites (Umg/Mvvm)
+			"RuitkCommonUI", // the TD-021 CommonUI activatable suite
 			"CommonUI",         // UCommonActivatableWidget + ActivateWidget in the suite
 			"CommonInput",      // UCommonInputSubsystem (B12 input-method regression)
-			"ReactiveUIMVVMBridge", // the TD-021 MVVM global-collection suite
+			"RuitkMVVMBridge", // the TD-021 MVVM global-collection suite
 			"ModelViewViewModel",   // UMVVMViewModelBase + the global collection in the suite
 			"UMG",
 			"FieldNotification",

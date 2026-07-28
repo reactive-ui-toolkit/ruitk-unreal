@@ -18,13 +18,13 @@
 #include "Styling/SlateBrush.h" // FSlateBrush (asset brushes, D-17)
 
 /** SVerticalBox (MultiSlot). Layout comes from the children's slot.* props. */
-struct REACTIVEUISLATE_API FRuiVerticalBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiVerticalBoxProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiVerticalBoxProps, )
 };
 
 /** SHorizontalBox (MultiSlot). */
-struct REACTIVEUISLATE_API FRuiHorizontalBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiHorizontalBoxProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiHorizontalBoxProps, )
 };
@@ -32,7 +32,7 @@ struct REACTIVEUISLATE_API FRuiHorizontalBoxProps final : public FRuiPropsBase
 /** SButton (SingleContent) — the event-proxy pattern widget. OnClicked participates in
  *  Equals by IDENTITY (FRuiCallback ==): a fresh closure means new props, exactly React —
  *  otherwise a bailout would keep firing a stale capture. UseCallback restores memo. */
-struct REACTIVEUISLATE_API FRuiButtonProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiButtonProps final : public FRuiPropsBase
 {
 	RUI_PROP_EVENT(OnClicked, 0)
 	RUI_PROP(bool, bEnabled, 1)
@@ -42,7 +42,7 @@ struct REACTIVEUISLATE_API FRuiButtonProps final : public FRuiPropsBase
 };
 
 /** SOverlay (MultiSlot; also the SRuiRoot inner panel). slot.zorder orders the slots. */
-struct REACTIVEUISLATE_API FRuiOverlayProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiOverlayProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiOverlayProps, )
 };
@@ -50,7 +50,7 @@ struct REACTIVEUISLATE_API FRuiOverlayProps final : public FRuiPropsBase
 /** SCanvas (MultiSlot) — ABSOLUTE placement: each child positions/sizes itself via
  *  `Slot.Position` + `Slot.Size` (FVector2D or "x,y" literals). Paint order = child order
  *  (SCanvas has no per-slot z; keep emission order stable — the Doom-demo container). */
-struct REACTIVEUISLATE_API FRuiCanvasPanelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiCanvasPanelProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiCanvasPanelProps, )
 };
@@ -58,7 +58,7 @@ struct REACTIVEUISLATE_API FRuiCanvasPanelProps final : public FRuiPropsBase
 /** SConstraintCanvas (MultiSlot) - anchor-based absolute panel (P5a): children place via
  *  `Slot.Anchors` ("min" | "x,y" | "minX,minY,maxX,maxY"), `Slot.Offset` (FMargin forms),
  *  `Slot.Alignment` (Vector2), `Slot.AutoSize` (bool), `Slot.ZOrder` (float) - all live. */
-struct REACTIVEUISLATE_API FRuiConstraintCanvasProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiConstraintCanvasProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiConstraintCanvasProps, )
 };
@@ -68,7 +68,7 @@ struct REACTIVEUISLATE_API FRuiConstraintCanvasProps final : public FRuiPropsBas
  *  `Slot.Resizable` - all live. The user's drag reports back via OnSplitterFinishedResizing
  *  (payload: none - read fractions through a Ref if needed). PhysicalSplitterHandleSize is
  *  construct-only (masked). */
-struct REACTIVEUISLATE_API FRuiSplitterProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSplitterProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, Orientation, 0)
 	RUI_PROP(float, PhysicalSplitterHandleSize, 1)
@@ -81,7 +81,7 @@ struct REACTIVEUISLATE_API FRuiSplitterProps final : public FRuiPropsBase
  *  `Slot.Role` = "topLeft" (default) | "bottomLeft" | "topRight" | "bottomRight" (live
  *  Set*Content setters). Percentages = 4 fractions in that same order (live,
  *  SetSplitterPercentages; each quadrant's share of its column/row). */
-struct REACTIVEUISLATE_API FRuiSplitter2x2Props final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSplitter2x2Props final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FVector2D>, Percentages, 0)
 	RUI_PROPS_BODY(FRuiSplitter2x2Props, RUI_EQ(Percentages))
@@ -92,7 +92,7 @@ struct REACTIVEUISLATE_API FRuiSplitter2x2Props final : public FRuiPropsBase
  *  (skip-when-equal vs IsOpen, D-16); OnMenuOpenChanged reports user dismissals (Value =
  *  bool). Placement = menuPlacementBelowAnchor (default) | comboBox | belowRightAnchor |
  *  aboveAnchor | menuRight | center ... (loyal EMenuPlacement names, lowerCamel). */
-struct REACTIVEUISLATE_API FRuiMenuAnchorProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiMenuAnchorProps final : public FRuiPropsBase
 {
 	RUI_PROP(bool, bIsOpen, 0)
 	RUI_PROP(FName, Placement, 1)
@@ -105,7 +105,7 @@ struct REACTIVEUISLATE_API FRuiMenuAnchorProps final : public FRuiPropsBase
 /** SWindowTitleBarArea (SingleContent): a custom title-bar strip — drag zone + OS window
  *  buttons on the GAME window (wired automatically from the game viewport when present).
  *  RequestToggleFullscreen fires on title-bar double-click. */
-struct REACTIVEUISLATE_API FRuiWindowTitleBarAreaProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiWindowTitleBarAreaProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, HAlign, 0)
 	RUI_PROP(FName, VAlign, 1)
@@ -118,7 +118,7 @@ struct REACTIVEUISLATE_API FRuiWindowTitleBarAreaProps final : public FRuiPropsB
 /** SNumericDropDown<float> (Leaf): numeric preset dropdown. Values+Labels zip into the
  *  engine's FNamedValue list; everything is construct-only (masked) except the controlled
  *  Value (also masked - attribute-only) - user picks report via OnValueChanged. */
-struct REACTIVEUISLATE_API FRuiNumericDropDownProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiNumericDropDownProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<float>, Values, 0)
 	RUI_PROP(TArray<FString>, Labels, 1)
@@ -132,7 +132,7 @@ struct REACTIVEUISLATE_API FRuiNumericDropDownProps final : public FRuiPropsBase
 /** SBreadcrumbTrail<FString> (Leaf): declarative crumbs over the engine's imperative stack -
  *  a Crumbs list change converges via ClearCrumbs+PushCrumb (small lists). OnCrumbClicked
  *  payload = the crumb string. Direct Push/Pop also reachable via P2. */
-struct REACTIVEUISLATE_API FRuiBreadcrumbTrailProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiBreadcrumbTrailProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FString>, Crumbs, 0)
 	RUI_PROP(bool, bShowLeadingDelimiter, 1)
@@ -144,7 +144,7 @@ struct REACTIVEUISLATE_API FRuiBreadcrumbTrailProps final : public FRuiPropsBase
  *  pushes go through the P2 command path - capture the list with `Ref` and call
  *  `RUI::Slate::PushNotification(Handle, Text, Duration)` (or WidgetFromHandle for the full
  *  FNotificationInfo surface). */
-struct REACTIVEUISLATE_API FRuiNotificationListProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiNotificationListProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiNotificationListProps, )
 };
@@ -152,7 +152,7 @@ struct REACTIVEUISLATE_API FRuiNotificationListProps final : public FRuiPropsBas
 /** SSearchableComboBox (Leaf) - sinceUE 5.7 (the widget does not exist in 5.6; mounting on
  *  5.6 warns unknown-adapter). Options are strings; SelectedItem is controlled; picks report
  *  via OnSelectionChanged (text payload). */
-struct REACTIVEUISLATE_API FRuiSearchableComboBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSearchableComboBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FString>, Options, 0)
 	RUI_PROP(FText, SelectedItem, 1)
@@ -169,7 +169,7 @@ struct REACTIVEUISLATE_API FRuiSearchableComboBoxProps final : public FRuiPropsB
 
 /** SLinkedBox (SingleContent): siblings sharing a GroupKey size uniformly (one shared
  *  FLinkedBoxManager per group, adapter-owned). GroupKey is construct-only (masked). */
-struct REACTIVEUISLATE_API FRuiLinkedBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiLinkedBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, GroupKey, 0)
 	RUI_PROPS_BODY(FRuiLinkedBoxProps, RUI_EQ(GroupKey))
@@ -178,7 +178,7 @@ struct REACTIVEUISLATE_API FRuiLinkedBoxProps final : public FRuiPropsBase
 /** SVirtualJoystick (Leaf): the touch joystick overlay. The engine config API is imperative
  *  (FControlInfo structs with brushes) - capture with `Ref` and drive it via
  *  `WidgetFromHandle<SVirtualJoystick>` (P2). Desktop no-op without touch. */
-struct REACTIVEUISLATE_API FRuiVirtualJoystickProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiVirtualJoystickProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiVirtualJoystickProps, )
 };
@@ -186,7 +186,7 @@ struct REACTIVEUISLATE_API FRuiVirtualJoystickProps final : public FRuiPropsBase
 /** SVectorInputBox (= SNumericVectorInputBox<float,3>, Leaf): X/Y/Z numeric row. The whole
  *  surface is attribute/construct-only -> masked; per-axis edits report via OnXChanged etc.
  *  (float payloads). */
-struct REACTIVEUISLATE_API FRuiVectorInputBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiVectorInputBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, X, 0)
 	RUI_PROP(float, Y, 1)
@@ -201,7 +201,7 @@ struct REACTIVEUISLATE_API FRuiVectorInputBoxProps final : public FRuiPropsBase
 
 /** SRotatorInputBox (= SNumericRotatorInputBox<float>, Leaf): Roll/Pitch/Yaw row - same
  *  masked-controlled contract as VectorInputBox. */
-struct REACTIVEUISLATE_API FRuiRotatorInputBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiRotatorInputBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Roll, 0)
 	RUI_PROP(float, Pitch, 1)
@@ -218,7 +218,7 @@ struct REACTIVEUISLATE_API FRuiRotatorInputBoxProps final : public FRuiPropsBase
  *  BorderImage takes an FCoreStyle brush NAME (v1 — e.g. "WhiteBrush" for a solid fill
  *  tinted by BorderBackgroundColor; the engine default is a thin frame-type brush). Asset
  *  brushes (textures/materials) are the D-17 work. */
-struct REACTIVEUISLATE_API FRuiBorderProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiBorderProps final : public FRuiPropsBase
 {
 	RUI_PROP(FMargin, Padding, 0)
 	RUI_PROP(FLinearColor, BorderBackgroundColor, 1)
@@ -232,7 +232,7 @@ struct REACTIVEUISLATE_API FRuiBorderProps final : public FRuiPropsBase
 
 /** SBox (SingleContent): size overrides + content alignment. Overrides are settable, not
  *  clearable (family removal semantics: plain props don't reset). */
-struct REACTIVEUISLATE_API FRuiBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, WidthOverride, 0)
 	RUI_PROP(float, HeightOverride, 1)
@@ -252,7 +252,7 @@ struct REACTIVEUISLATE_API FRuiBoxProps final : public FRuiPropsBase
  *  Build the brush ONCE with RUI::Umg::MakeAssetBrush (it GC-roots the texture/material) and
  *  pass it by identity — RUI_EQ(Image) compares the shared pointer, so wrap it in
  *  UseMemo/UseRef to avoid re-applying. (Renamed from `Brush` 2026-07-15, D-33 compliance.) */
-struct REACTIVEUISLATE_API FRuiImageProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiImageProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, ColorAndOpacity, 0)
 	RUI_PROP(FVector2D, DesiredSizeOverride, 1)
@@ -261,7 +261,7 @@ struct REACTIVEUISLATE_API FRuiImageProps final : public FRuiPropsBase
 };
 
 /** SScrollBox (MultiSlot). Orientation is runtime-settable (header-sweep verified). */
-struct REACTIVEUISLATE_API FRuiScrollBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiScrollBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, Orientation, 0)			  // "vertical" (default) | "horizontal"
 	RUI_PROP(bool, bAllowOverscroll, 1)		  // TD-012 sweep: live SetAllowOverscroll
@@ -272,7 +272,7 @@ struct REACTIVEUISLATE_API FRuiScrollBoxProps final : public FRuiPropsBase
 };
 
 /** SSpacer (Leaf). */
-struct REACTIVEUISLATE_API FRuiSpacerProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSpacerProps final : public FRuiPropsBase
 {
 	RUI_PROP(FVector2D, Size, 0)
 	RUI_PROPS_BODY(FRuiSpacerProps, RUI_EQ(Size))
@@ -280,7 +280,7 @@ struct REACTIVEUISLATE_API FRuiSpacerProps final : public FRuiPropsBase
 
 /** SEditableTextBox (Leaf) — THE controlled input (D-16): Text is applied skip-when-equal
  *  against the WIDGET's current text so the caret survives the typing round-trip. */
-struct REACTIVEUISLATE_API FRuiEditableTextBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiEditableTextBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -299,7 +299,7 @@ struct REACTIVEUISLATE_API FRuiEditableTextBoxProps final : public FRuiPropsBase
 };
 
 /** SCheckBox (SingleContent — the label is the child). */
-struct REACTIVEUISLATE_API FRuiCheckBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiCheckBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(bool, bIsChecked, 0)
 	RUI_PROP_EVENT(OnCheckStateChanged, 1)
@@ -307,7 +307,7 @@ struct REACTIVEUISLATE_API FRuiCheckBoxProps final : public FRuiPropsBase
 };
 
 /** SSlider (Leaf). Value applies skip-when-equal (self-notifying family, D-16). */
-struct REACTIVEUISLATE_API FRuiSliderProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSliderProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Value, 0)
 	RUI_PROP(float, MinValue, 1)
@@ -325,7 +325,7 @@ struct REACTIVEUISLATE_API FRuiSliderProps final : public FRuiPropsBase
 };
 
 /** SProgressBar (Leaf). */
-struct REACTIVEUISLATE_API FRuiProgressBarProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiProgressBarProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Percent, 0)
 	RUI_PROP(FName, BarFillType, 1)
@@ -333,7 +333,7 @@ struct REACTIVEUISLATE_API FRuiProgressBarProps final : public FRuiPropsBase
 };
 
 /** SRuiCanvas (Leaf) — draw_fn by IDENTITY (wrap in a shared fn once; see MakeDrawFn). */
-struct REACTIVEUISLATE_API FRuiCanvasProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiCanvasProps final : public FRuiPropsBase
 {
 	RUI_PROP(TSharedPtr<FRuiDrawFn>, DrawFn, 0)
 	RUI_PROP(int64, RedrawKey, 1)
@@ -345,7 +345,7 @@ struct REACTIVEUISLATE_API FRuiCanvasProps final : public FRuiPropsBase
 
 /** SWidgetSwitcher (MultiSlot): shows exactly one child by index. WidgetIndex is a runtime
  *  setter (SetActiveWidgetIndex) — the classic tab/page panel. */
-struct REACTIVEUISLATE_API FRuiWidgetSwitcherProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiWidgetSwitcherProps final : public FRuiPropsBase
 {
 	RUI_PROP(int32, WidgetIndex, 0)
 	RUI_PROPS_BODY(FRuiWidgetSwitcherProps, RUI_EQ(WidgetIndex))
@@ -354,7 +354,7 @@ struct REACTIVEUISLATE_API FRuiWidgetSwitcherProps final : public FRuiPropsBase
 /** SScaleBox (SingleContent): scales its content. Stretch = none|fill|scaleToFit|scaleToFitX|
  *  scaleToFitY|scaleToFill|scaleBySafeZone; StretchDirection = both|downOnly|upOnly.
  *  HAlign/VAlign place the scaled content inside the box (default center|center). */
-struct REACTIVEUISLATE_API FRuiScaleBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiScaleBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, Stretch, 0)
 	RUI_PROP(FName, StretchDirection, 1)
@@ -365,7 +365,7 @@ struct REACTIVEUISLATE_API FRuiScaleBoxProps final : public FRuiPropsBase
 
 /** SThrobber (Leaf): a busy indicator. Animate = all|vertical|horizontal|opacity|
  *  verticalAndOpacity|none. */
-struct REACTIVEUISLATE_API FRuiThrobberProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiThrobberProps final : public FRuiPropsBase
 {
 	RUI_PROP(int32, NumPieces, 0)
 	RUI_PROP(FName, Animate, 1)
@@ -374,7 +374,7 @@ struct REACTIVEUISLATE_API FRuiThrobberProps final : public FRuiPropsBase
 
 /** SWrapBox (MultiSlot): flows children onto new lines. Orientation = horizontal (default) |
  *  vertical. WrapSize is the wrap threshold (ignored while bUseAllottedSize). */
-struct REACTIVEUISLATE_API FRuiWrapBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiWrapBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, Orientation, 0)
 	RUI_PROP(float, WrapSize, 1)
@@ -386,7 +386,7 @@ struct REACTIVEUISLATE_API FRuiWrapBoxProps final : public FRuiPropsBase
 
 /** SMultiLineEditableTextBox (Leaf) — multi-line controlled input; same D-16 caret rule as
  *  SEditableTextBox (Text applied skip-when-equal against the WIDGET's live text). */
-struct REACTIVEUISLATE_API FRuiMultiLineEditableTextBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiMultiLineEditableTextBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -408,7 +408,7 @@ struct REACTIVEUISLATE_API FRuiMultiLineEditableTextBoxProps final : public FRui
 /** SSearchBox (Leaf) — an SEditableTextBox specialization with a search affordance. The search
  *  text flows through OnTextChanged/OnTextCommitted (SSearchBox::OnSearch is up/down navigation,
  *  not a text callback). Text is the same controlled-input caret rule (D-16). */
-struct REACTIVEUISLATE_API FRuiSearchBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSearchBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -426,7 +426,7 @@ struct REACTIVEUISLATE_API FRuiSearchBoxProps final : public FRuiPropsBase
 };
 
 /** SSafeZone (SingleContent): pads content into the device title/action safe area. */
-struct REACTIVEUISLATE_API FRuiSafeZoneProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSafeZoneProps final : public FRuiPropsBase
 {
 	RUI_PROP(bool, bIsTitleSafe, 0)
 	RUI_PROP(bool, bPadLeft, 1)
@@ -438,7 +438,7 @@ struct REACTIVEUISLATE_API FRuiSafeZoneProps final : public FRuiPropsBase
 };
 
 /** SDPIScaler (SingleContent): scales its content by a DPI factor. */
-struct REACTIVEUISLATE_API FRuiDPIScalerProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiDPIScalerProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, DPIScale, 0)
 	RUI_PROPS_BODY(FRuiDPIScalerProps, RUI_EQ(DPIScale))
@@ -447,7 +447,7 @@ struct REACTIVEUISLATE_API FRuiDPIScalerProps final : public FRuiPropsBase
 /** SSeparator (Leaf): a styled line. Orientation (horizontal|vertical) + Thickness are
  *  CONSTRUCT-ONLY (Slate bakes them at build) — a change replaces the widget (TD-011 reconstruct
  *  mask, the first shipped widget to exercise it). ColorAndOpacity is a live setter. */
-struct REACTIVEUISLATE_API FRuiSeparatorProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSeparatorProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, Orientation, 0)			   // construct-only
 	RUI_PROP(float, Thickness, 1)			   // construct-only
@@ -457,7 +457,7 @@ struct REACTIVEUISLATE_API FRuiSeparatorProps final : public FRuiPropsBase
 
 /** SSpinBox<float> (Leaf): numeric drag/type input. Value applies skip-when-equal (D-16
  *  self-notifying). Delta is the drag step (0 = continuous). */
-struct REACTIVEUISLATE_API FRuiSpinBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSpinBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Value, 0)
 	RUI_PROP(float, MinValue, 1)
@@ -469,7 +469,7 @@ struct REACTIVEUISLATE_API FRuiSpinBoxProps final : public FRuiPropsBase
 };
 
 /** SUniformWrapPanel (MultiSlot): a wrap panel that gives every child the same cell size. */
-struct REACTIVEUISLATE_API FRuiUniformWrapPanelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiUniformWrapPanelProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, SlotPadding, 0)
 	RUI_PROP(FName, HAlign, 1)
@@ -477,7 +477,7 @@ struct REACTIVEUISLATE_API FRuiUniformWrapPanelProps final : public FRuiPropsBas
 };
 
 /** SRichTextBlock (Leaf): text with inline markup (default decorator set). AutoWrapText wraps. */
-struct REACTIVEUISLATE_API FRuiRichTextBlockProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiRichTextBlockProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(bool, bAutoWrapText, 1)
@@ -492,13 +492,13 @@ struct REACTIVEUISLATE_API FRuiRichTextBlockProps final : public FRuiPropsBase
 };
 
 /** SGridPanel (MultiSlot): places children by slot.column / slot.row (both default 0). */
-struct REACTIVEUISLATE_API FRuiGridPanelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiGridPanelProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiGridPanelProps, )
 };
 
 /** SUniformGridPanel (MultiSlot): uniform cells placed by slot.column / slot.row. */
-struct REACTIVEUISLATE_API FRuiUniformGridPanelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiUniformGridPanelProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, SlotPadding, 0)
 	RUI_PROP(float, MinDesiredSlotWidth, 1)
@@ -512,7 +512,7 @@ struct REACTIVEUISLATE_API FRuiUniformGridPanelProps final : public FRuiPropsBas
 /** SColorBlock (Leaf): a color swatch. ALL props are construct-only (no engine setters) —
  *  every bit is on the reconstruct mask; the leaf is cheap to rebuild. AlphaDisplayMode =
  *  combined|separate|ignore. */
-struct REACTIVEUISLATE_API FRuiColorBlockProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiColorBlockProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, Color, 0)
 	RUI_PROP(FVector2D, Size, 1)
@@ -526,7 +526,7 @@ struct REACTIVEUISLATE_API FRuiColorBlockProps final : public FRuiPropsBase
 
 /** SSimpleGradient (Leaf-ish paint widget): two-stop gradient. Construct-only (no setters) —
  *  fully masked. Orientation = vertical (default) | horizontal. */
-struct REACTIVEUISLATE_API FRuiSimpleGradientProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiSimpleGradientProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, StartColor, 0)
 	RUI_PROP(FLinearColor, EndColor, 1)
@@ -537,7 +537,7 @@ struct REACTIVEUISLATE_API FRuiSimpleGradientProps final : public FRuiPropsBase
 };
 
 /** SComplexGradient (Leaf-ish paint widget): N-stop gradient. Construct-only — fully masked. */
-struct REACTIVEUISLATE_API FRuiComplexGradientProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiComplexGradientProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<FLinearColor>, GradientColors, 0)
 	RUI_PROP(FName, Orientation, 1)
@@ -549,7 +549,7 @@ struct REACTIVEUISLATE_API FRuiComplexGradientProps final : public FRuiPropsBase
 
 /** SHyperlink (Leaf): a link. Text/Padding are construct-only (the inner text block bakes at
  *  Construct) — masked; OnNavigate binds at construction via the event proxy. */
-struct REACTIVEUISLATE_API FRuiHyperlinkProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiHyperlinkProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FMargin, Padding, 1)
@@ -571,20 +571,20 @@ struct REACTIVEUISLATE_API FRuiHyperlinkProps final : public FRuiPropsBase
 };
 
 /** SEnableBox (SingleContent): renders its child as if every ancestor were enabled. */
-struct REACTIVEUISLATE_API FRuiEnableBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiEnableBoxProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiEnableBoxProps, )
 };
 
 /** SScissorRectBox (SingleContent): hardware scissor-clips its child (render transforms
  *  included — unlike Clipping="clipToBounds"'s rect). */
-struct REACTIVEUISLATE_API FRuiScissorRectBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiScissorRectBoxProps final : public FRuiPropsBase
 {
 	RUI_PROPS_BODY(FRuiScissorRectBoxProps, )
 };
 
 /** SBackgroundBlur (SingleContent): post-process blur behind the content. Live setters. */
-struct REACTIVEUISLATE_API FRuiBackgroundBlurProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiBackgroundBlurProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, BlurStrength, 0)
 	RUI_PROP(int32, BlurRadius, 1)
@@ -595,7 +595,7 @@ struct REACTIVEUISLATE_API FRuiBackgroundBlurProps final : public FRuiPropsBase
 };
 
 /** SInvalidationPanel (SingleContent): opt-in retained-paint cache around static subtrees. */
-struct REACTIVEUISLATE_API FRuiInvalidationPanelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiInvalidationPanelProps final : public FRuiPropsBase
 {
 	RUI_PROP(bool, bCanCache, 0)
 	RUI_PROPS_BODY(FRuiInvalidationPanelProps, RUI_EQ(bCanCache))
@@ -606,7 +606,7 @@ struct REACTIVEUISLATE_API FRuiInvalidationPanelProps final : public FRuiPropsBa
 /** SVolumeControl (Leaf): slider + mute composite. Volume/Muted are engine ATTRIBUTES with no
  *  setters — controlled via the reconstruct mask (D-16 semantics ride the rebuild); the two
  *  events report user edits back. */
-struct REACTIVEUISLATE_API FRuiVolumeControlProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiVolumeControlProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Volume, 0)
 	RUI_PROP(bool, bMuted, 1)
@@ -617,7 +617,7 @@ struct REACTIVEUISLATE_API FRuiVolumeControlProps final : public FRuiPropsBase
 
 /** STextScroller (SingleContent): marquee auto-scroll around single-line text. Options are
  *  construct-only (masked); Start/Suspend/Reset ride P2 (`WidgetFromHandle<STextScroller>`). */
-struct REACTIVEUISLATE_API FRuiTextScrollerProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiTextScrollerProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, Speed, 0)
 	RUI_PROP(float, StartDelay, 1)
@@ -628,7 +628,7 @@ struct REACTIVEUISLATE_API FRuiTextScrollerProps final : public FRuiPropsBase
 
 /** SRadialBox (MultiSlot, bare slots — children place around the arc in declaration order).
  *  PreferredWidth is construct-only (masked); the angle/distribution params are live. */
-struct REACTIVEUISLATE_API FRuiRadialBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiRadialBoxProps final : public FRuiPropsBase
 {
 	RUI_PROP(float, PreferredWidth, 0)
 	RUI_PROP(bool, bUseAllottedWidth, 1)
@@ -643,7 +643,7 @@ struct REACTIVEUISLATE_API FRuiRadialBoxProps final : public FRuiPropsBase
 
 /** SColorWheel (Leaf): HSV wheel. SelectedColor is HSV-space, attribute-only (no setter) —
  *  controlled via the reconstruct mask; drag edits report through OnValueChanged. */
-struct REACTIVEUISLATE_API FRuiColorWheelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiColorWheelProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, SelectedColor, 0)
 	RUI_PROP_EVENT(OnValueChanged, 1)
@@ -654,7 +654,7 @@ struct REACTIVEUISLATE_API FRuiColorWheelProps final : public FRuiPropsBase
 };
 
 /** SColorSpectrum (Leaf): saturation/value box — same controlled contract as ColorWheel. */
-struct REACTIVEUISLATE_API FRuiColorSpectrumProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiColorSpectrumProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, SelectedColor, 0)
 	RUI_PROP_EVENT(OnValueChanged, 1)
@@ -666,7 +666,7 @@ struct REACTIVEUISLATE_API FRuiColorSpectrumProps final : public FRuiPropsBase
 
 /** SLayeredImage (Leaf): SImage + N overlay layers, all live (RemoveAllLayers + AddLayer on a
  *  layer-list change; brushes by identity like Image). */
-struct REACTIVEUISLATE_API FRuiLayeredImageProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiLayeredImageProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, ColorAndOpacity, 0)
 	RUI_PROP(FVector2D, DesiredSizeOverride, 1)
@@ -679,7 +679,7 @@ struct REACTIVEUISLATE_API FRuiLayeredImageProps final : public FRuiPropsBase
 /** SInputKeySelector (Leaf composite): key-binding capture. SelectedKey is a live setter (key
  *  NAME; modifiers are the TD-016 multi-field payload trigger — key-only in v1). The
  *  capture-behavior args are construct-only (masked). */
-struct REACTIVEUISLATE_API FRuiInputKeySelectorProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiInputKeySelectorProps final : public FRuiPropsBase
 {
 	RUI_PROP(FName, SelectedKey, 0)
 	RUI_PROP(FText, KeySelectionText, 1)
@@ -706,7 +706,7 @@ struct REACTIVEUISLATE_API FRuiInputKeySelectorProps final : public FRuiPropsBas
 
 /** SEditableText (Leaf): the RAW single-line text edit (no box chrome) — full live setters;
  *  Text follows the D-16 controlled rule (skip-when-equal against the widget). */
-struct REACTIVEUISLATE_API FRuiEditableTextProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiEditableTextProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -729,7 +729,7 @@ struct REACTIVEUISLATE_API FRuiEditableTextProps final : public FRuiPropsBase
 
 /** SInlineEditableTextBlock (Leaf): text that turns into an editor on slow-click/F2.
  *  bMultiLine is construct-only (masked); Enter/ExitEditingMode ride P2. */
-struct REACTIVEUISLATE_API FRuiInlineEditableTextBlockProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiInlineEditableTextBlockProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -750,7 +750,7 @@ struct REACTIVEUISLATE_API FRuiInlineEditableTextBlockProps final : public FRuiP
 
 /** SVirtualKeyboardEntry (Leaf): the mobile OS-keyboard text field. Text is live (D-16);
  *  HintText/bIsReadOnly/KeyboardType are construct-only (masked). Ticks. */
-struct REACTIVEUISLATE_API FRuiVirtualKeyboardEntryProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiVirtualKeyboardEntryProps final : public FRuiPropsBase
 {
 	RUI_PROP(FText, Text, 0)
 	RUI_PROP(FText, HintText, 1)
@@ -771,7 +771,7 @@ struct REACTIVEUISLATE_API FRuiVirtualKeyboardEntryProps final : public FRuiProp
 
 /** SColorGradingWheel (Leaf; the AdvancedWidgets module — live one; the Slate-module twin is
  *  deprecated 5.5): all attrs have live attribute setters. SelectedColor is HSV-space. */
-struct REACTIVEUISLATE_API FRuiColorGradingWheelProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiColorGradingWheelProps final : public FRuiPropsBase
 {
 	RUI_PROP(FLinearColor, SelectedColor, 0)
 	RUI_PROP(int32, DesiredWheelSize, 1)
@@ -786,143 +786,143 @@ struct REACTIVEUISLATE_API FRuiColorGradingWheelProps final : public FRuiPropsBa
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId VerticalBoxType();
-	REACTIVEUISLATE_API FRuiElementTypeId HorizontalBoxType();
-	REACTIVEUISLATE_API FRuiElementTypeId ButtonType();
-	REACTIVEUISLATE_API FRuiElementTypeId OverlayType();
-	REACTIVEUISLATE_API FRuiElementTypeId CanvasType();
+	RUITKSLATE_API FRuiElementTypeId VerticalBoxType();
+	RUITKSLATE_API FRuiElementTypeId HorizontalBoxType();
+	RUITKSLATE_API FRuiElementTypeId ButtonType();
+	RUITKSLATE_API FRuiElementTypeId OverlayType();
+	RUITKSLATE_API FRuiElementTypeId CanvasType();
 
-	REACTIVEUISLATE_API FRuiNode VerticalBox(FRuiVerticalBoxProps Props = FRuiVerticalBoxProps(),
+	RUITKSLATE_API FRuiNode VerticalBox(FRuiVerticalBoxProps Props = FRuiVerticalBoxProps(),
 											 TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode HorizontalBox(FRuiHorizontalBoxProps Props = FRuiHorizontalBoxProps(),
+	RUITKSLATE_API FRuiNode HorizontalBox(FRuiHorizontalBoxProps Props = FRuiHorizontalBoxProps(),
 											   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Button(FRuiButtonProps Props = FRuiButtonProps(),
+	RUITKSLATE_API FRuiNode Button(FRuiButtonProps Props = FRuiButtonProps(),
 										TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Overlay(FRuiOverlayProps Props = FRuiOverlayProps(),
+	RUITKSLATE_API FRuiNode Overlay(FRuiOverlayProps Props = FRuiOverlayProps(),
 										 TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Canvas(FRuiCanvasPanelProps Props = FRuiCanvasPanelProps(),
+	RUITKSLATE_API FRuiNode Canvas(FRuiCanvasPanelProps Props = FRuiCanvasPanelProps(),
 										TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
 
-	REACTIVEUISLATE_API FRuiNode Border(FRuiBorderProps Props = FRuiBorderProps(),
+	RUITKSLATE_API FRuiNode Border(FRuiBorderProps Props = FRuiBorderProps(),
 										TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Box(FRuiBoxProps Props = FRuiBoxProps(),
+	RUITKSLATE_API FRuiNode Box(FRuiBoxProps Props = FRuiBoxProps(),
 									 TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Image(FRuiImageProps Props = FRuiImageProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ScrollBox(FRuiScrollBoxProps Props = FRuiScrollBoxProps(),
+	RUITKSLATE_API FRuiNode Image(FRuiImageProps Props = FRuiImageProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode ScrollBox(FRuiScrollBoxProps Props = FRuiScrollBoxProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Spacer(FRuiSpacerProps Props = FRuiSpacerProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode EditableTextBox(FRuiEditableTextBoxProps Props = FRuiEditableTextBoxProps(),
+	RUITKSLATE_API FRuiNode Spacer(FRuiSpacerProps Props = FRuiSpacerProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode EditableTextBox(FRuiEditableTextBoxProps Props = FRuiEditableTextBoxProps(),
 												 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode CheckBox(FRuiCheckBoxProps Props = FRuiCheckBoxProps(),
+	RUITKSLATE_API FRuiNode CheckBox(FRuiCheckBoxProps Props = FRuiCheckBoxProps(),
 										  TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Slider(FRuiSliderProps Props = FRuiSliderProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ProgressBar(FRuiProgressBarProps Props = FRuiProgressBarProps(),
+	RUITKSLATE_API FRuiNode Slider(FRuiSliderProps Props = FRuiSliderProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode ProgressBar(FRuiProgressBarProps Props = FRuiProgressBarProps(),
 											 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode RuiCanvas(FRuiCanvasProps Props = FRuiCanvasProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode RuiCanvas(FRuiCanvasProps Props = FRuiCanvasProps(), FRuiKey Key = FRuiKey());
 
 	// ── Batch 2 (Phase 7 step 8) factories ────────────────────────────────────────────────
-	REACTIVEUISLATE_API FRuiNode WidgetSwitcher(FRuiWidgetSwitcherProps Props = FRuiWidgetSwitcherProps(),
+	RUITKSLATE_API FRuiNode WidgetSwitcher(FRuiWidgetSwitcherProps Props = FRuiWidgetSwitcherProps(),
 												TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ScaleBox(FRuiScaleBoxProps Props = FRuiScaleBoxProps(),
+	RUITKSLATE_API FRuiNode ScaleBox(FRuiScaleBoxProps Props = FRuiScaleBoxProps(),
 										  TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Throbber(FRuiThrobberProps Props = FRuiThrobberProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode WrapBox(FRuiWrapBoxProps Props = FRuiWrapBoxProps(),
+	RUITKSLATE_API FRuiNode Throbber(FRuiThrobberProps Props = FRuiThrobberProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode WrapBox(FRuiWrapBoxProps Props = FRuiWrapBoxProps(),
 										 TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode MultiLineEditableTextBox(
+	RUITKSLATE_API FRuiNode MultiLineEditableTextBox(
 		FRuiMultiLineEditableTextBoxProps Props = FRuiMultiLineEditableTextBoxProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode SearchBox(FRuiSearchBoxProps Props = FRuiSearchBoxProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode SafeZone(FRuiSafeZoneProps Props = FRuiSafeZoneProps(),
+	RUITKSLATE_API FRuiNode SearchBox(FRuiSearchBoxProps Props = FRuiSearchBoxProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode SafeZone(FRuiSafeZoneProps Props = FRuiSafeZoneProps(),
 										  TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode DPIScaler(FRuiDPIScalerProps Props = FRuiDPIScalerProps(),
+	RUITKSLATE_API FRuiNode DPIScaler(FRuiDPIScalerProps Props = FRuiDPIScalerProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Separator(FRuiSeparatorProps Props = FRuiSeparatorProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode SpinBox(FRuiSpinBoxProps Props = FRuiSpinBoxProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode UniformWrapPanel(FRuiUniformWrapPanelProps Props = FRuiUniformWrapPanelProps(),
+	RUITKSLATE_API FRuiNode Separator(FRuiSeparatorProps Props = FRuiSeparatorProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode SpinBox(FRuiSpinBoxProps Props = FRuiSpinBoxProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode UniformWrapPanel(FRuiUniformWrapPanelProps Props = FRuiUniformWrapPanelProps(),
 												  TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode RichTextBlock(FRuiRichTextBlockProps Props = FRuiRichTextBlockProps(),
+	RUITKSLATE_API FRuiNode RichTextBlock(FRuiRichTextBlockProps Props = FRuiRichTextBlockProps(),
 											   FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode GridPanel(FRuiGridPanelProps Props = FRuiGridPanelProps(),
+	RUITKSLATE_API FRuiNode GridPanel(FRuiGridPanelProps Props = FRuiGridPanelProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ColorBlock(FRuiColorBlockProps Props = FRuiColorBlockProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode SimpleGradient(FRuiSimpleGradientProps Props = FRuiSimpleGradientProps(),
+	RUITKSLATE_API FRuiNode ColorBlock(FRuiColorBlockProps Props = FRuiColorBlockProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode SimpleGradient(FRuiSimpleGradientProps Props = FRuiSimpleGradientProps(),
 												FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ComplexGradient(FRuiComplexGradientProps Props = FRuiComplexGradientProps(),
+	RUITKSLATE_API FRuiNode ComplexGradient(FRuiComplexGradientProps Props = FRuiComplexGradientProps(),
 												 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Hyperlink(FRuiHyperlinkProps Props = FRuiHyperlinkProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode EnableBox(FRuiEnableBoxProps Props = FRuiEnableBoxProps(),
+	RUITKSLATE_API FRuiNode Hyperlink(FRuiHyperlinkProps Props = FRuiHyperlinkProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode EnableBox(FRuiEnableBoxProps Props = FRuiEnableBoxProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ScissorRectBox(FRuiScissorRectBoxProps Props = FRuiScissorRectBoxProps(),
+	RUITKSLATE_API FRuiNode ScissorRectBox(FRuiScissorRectBoxProps Props = FRuiScissorRectBoxProps(),
 												TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode BackgroundBlur(FRuiBackgroundBlurProps Props = FRuiBackgroundBlurProps(),
+	RUITKSLATE_API FRuiNode BackgroundBlur(FRuiBackgroundBlurProps Props = FRuiBackgroundBlurProps(),
 												TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode InvalidationPanel(FRuiInvalidationPanelProps Props = FRuiInvalidationPanelProps(),
+	RUITKSLATE_API FRuiNode InvalidationPanel(FRuiInvalidationPanelProps Props = FRuiInvalidationPanelProps(),
 												   TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												   FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode VolumeControl(FRuiVolumeControlProps Props = FRuiVolumeControlProps(),
+	RUITKSLATE_API FRuiNode VolumeControl(FRuiVolumeControlProps Props = FRuiVolumeControlProps(),
 											   FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode TextScroller(FRuiTextScrollerProps Props = FRuiTextScrollerProps(),
+	RUITKSLATE_API FRuiNode TextScroller(FRuiTextScrollerProps Props = FRuiTextScrollerProps(),
 											  TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode RadialBox(FRuiRadialBoxProps Props = FRuiRadialBoxProps(),
+	RUITKSLATE_API FRuiNode RadialBox(FRuiRadialBoxProps Props = FRuiRadialBoxProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ConstraintCanvas(FRuiConstraintCanvasProps Props = FRuiConstraintCanvasProps(),
+	RUITKSLATE_API FRuiNode ConstraintCanvas(FRuiConstraintCanvasProps Props = FRuiConstraintCanvasProps(),
 												  TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Splitter(FRuiSplitterProps Props = FRuiSplitterProps(),
+	RUITKSLATE_API FRuiNode Splitter(FRuiSplitterProps Props = FRuiSplitterProps(),
 										  TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode Splitter2x2(FRuiSplitter2x2Props Props = FRuiSplitter2x2Props(),
+	RUITKSLATE_API FRuiNode Splitter2x2(FRuiSplitter2x2Props Props = FRuiSplitter2x2Props(),
 											 TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode MenuAnchor(FRuiMenuAnchorProps Props = FRuiMenuAnchorProps(),
+	RUITKSLATE_API FRuiNode MenuAnchor(FRuiMenuAnchorProps Props = FRuiMenuAnchorProps(),
 											TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode WindowTitleBarArea(FRuiWindowTitleBarAreaProps Props = FRuiWindowTitleBarAreaProps(),
+	RUITKSLATE_API FRuiNode WindowTitleBarArea(FRuiWindowTitleBarAreaProps Props = FRuiWindowTitleBarAreaProps(),
 													TArray<FRuiNode> Children = TArray<FRuiNode>(),
 													FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode NumericDropDown(FRuiNumericDropDownProps Props = FRuiNumericDropDownProps(),
+	RUITKSLATE_API FRuiNode NumericDropDown(FRuiNumericDropDownProps Props = FRuiNumericDropDownProps(),
 												 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode BreadcrumbTrail(FRuiBreadcrumbTrailProps Props = FRuiBreadcrumbTrailProps(),
+	RUITKSLATE_API FRuiNode BreadcrumbTrail(FRuiBreadcrumbTrailProps Props = FRuiBreadcrumbTrailProps(),
 												 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode NotificationList(FRuiNotificationListProps Props = FRuiNotificationListProps(),
+	RUITKSLATE_API FRuiNode NotificationList(FRuiNotificationListProps Props = FRuiNotificationListProps(),
 												  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode SearchableComboBox(FRuiSearchableComboBoxProps Props = FRuiSearchableComboBoxProps(),
+	RUITKSLATE_API FRuiNode SearchableComboBox(FRuiSearchableComboBoxProps Props = FRuiSearchableComboBoxProps(),
 													FRuiKey Key = FRuiKey()); // sinceUE 5.7
-	REACTIVEUISLATE_API FRuiNode LinkedBox(FRuiLinkedBoxProps Props = FRuiLinkedBoxProps(),
+	RUITKSLATE_API FRuiNode LinkedBox(FRuiLinkedBoxProps Props = FRuiLinkedBoxProps(),
 										   TArray<FRuiNode> Children = TArray<FRuiNode>(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode VirtualJoystick(FRuiVirtualJoystickProps Props = FRuiVirtualJoystickProps(),
+	RUITKSLATE_API FRuiNode VirtualJoystick(FRuiVirtualJoystickProps Props = FRuiVirtualJoystickProps(),
 												 FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode VectorInputBox(FRuiVectorInputBoxProps Props = FRuiVectorInputBoxProps(),
+	RUITKSLATE_API FRuiNode VectorInputBox(FRuiVectorInputBoxProps Props = FRuiVectorInputBoxProps(),
 												FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode RotatorInputBox(FRuiRotatorInputBoxProps Props = FRuiRotatorInputBoxProps(),
+	RUITKSLATE_API FRuiNode RotatorInputBox(FRuiRotatorInputBoxProps Props = FRuiRotatorInputBoxProps(),
 												 FRuiKey Key = FRuiKey());
 
 	/** P4 command: push a toast onto a Ref-captured <NotificationList> (no-op on a dead/wrong
 	 *  handle). The full FNotificationInfo surface stays reachable via WidgetFromHandle. */
-	REACTIVEUISLATE_API void PushNotification(const FRuiHostHandle& Handle, const FText& Text,
+	RUITKSLATE_API void PushNotification(const FRuiHostHandle& Handle, const FText& Text,
 											  float ExpireDuration = 4.0f);
-	REACTIVEUISLATE_API FRuiNode ColorWheel(FRuiColorWheelProps Props = FRuiColorWheelProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ColorSpectrum(FRuiColorSpectrumProps Props = FRuiColorSpectrumProps(),
+	RUITKSLATE_API FRuiNode ColorWheel(FRuiColorWheelProps Props = FRuiColorWheelProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode ColorSpectrum(FRuiColorSpectrumProps Props = FRuiColorSpectrumProps(),
 											   FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode LayeredImage(FRuiLayeredImageProps Props = FRuiLayeredImageProps(),
+	RUITKSLATE_API FRuiNode LayeredImage(FRuiLayeredImageProps Props = FRuiLayeredImageProps(),
 											  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode InputKeySelector(FRuiInputKeySelectorProps Props = FRuiInputKeySelectorProps(),
+	RUITKSLATE_API FRuiNode InputKeySelector(FRuiInputKeySelectorProps Props = FRuiInputKeySelectorProps(),
 												  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode EditableText(FRuiEditableTextProps Props = FRuiEditableTextProps(),
+	RUITKSLATE_API FRuiNode EditableText(FRuiEditableTextProps Props = FRuiEditableTextProps(),
 											  FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode InlineEditableTextBlock(
+	RUITKSLATE_API FRuiNode InlineEditableTextBlock(
 		FRuiInlineEditableTextBlockProps Props = FRuiInlineEditableTextBlockProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode VirtualKeyboardEntry(
+	RUITKSLATE_API FRuiNode VirtualKeyboardEntry(
 		FRuiVirtualKeyboardEntryProps Props = FRuiVirtualKeyboardEntryProps(), FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode ColorGradingWheel(FRuiColorGradingWheelProps Props = FRuiColorGradingWheelProps(),
+	RUITKSLATE_API FRuiNode ColorGradingWheel(FRuiColorGradingWheelProps Props = FRuiColorGradingWheelProps(),
 												   FRuiKey Key = FRuiKey());
-	REACTIVEUISLATE_API FRuiNode UniformGridPanel(FRuiUniformGridPanelProps Props = FRuiUniformGridPanelProps(),
+	RUITKSLATE_API FRuiNode UniformGridPanel(FRuiUniformGridPanelProps Props = FRuiUniformGridPanelProps(),
 												  TArray<FRuiNode> Children = TArray<FRuiNode>(),
 												  FRuiKey Key = FRuiKey());
 
 	/** Wrap a paint lambda ONCE (UseMemo/UseRef it) — the canvas repaints on identity change. */
-	REACTIVEUISLATE_API TSharedPtr<FRuiDrawFn> MakeDrawFn(FRuiDrawFn Fn);
+	RUITKSLATE_API TSharedPtr<FRuiDrawFn> MakeDrawFn(FRuiDrawFn Fn);
 
 	/** Register the built-in adapters (module startup; idempotent — replaces on re-run). */
-	REACTIVEUISLATE_API void RegisterBuiltinAdapters();
+	RUITKSLATE_API void RegisterBuiltinAdapters();
 } // namespace RUI::Slate

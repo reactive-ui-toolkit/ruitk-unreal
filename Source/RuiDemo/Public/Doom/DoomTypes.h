@@ -352,7 +352,7 @@ namespace RuiDoom
 		TArray<FExtraFloor> ExtraFloors;
 	};
 
-	struct RUIDEMO_API FMapDef
+	struct RUITKDEMO_API FMapDef
 	{
 		int32 Width = 0;
 		int32 Height = 0;
@@ -545,7 +545,7 @@ namespace RuiDoom
 		uint8 ColorIdx = 0; // 0=yellow pistol/chaingun, 1=red shotgun pellet
 	};
 
-	struct RUIDEMO_API FFrameData
+	struct RUITKDEMO_API FFrameData
 	{
 		// Move-only: the pool slots below are uniquely owned, and neither sibling ever copies a
 		// FrameData (C# shares the arrays by reference, Godot the RefCounted object). This makes
@@ -628,7 +628,7 @@ namespace RuiDoom
 		float DoorWaitTimer = 0.f; // counts down after open before auto-close
 	};
 
-	struct RUIDEMO_API FMapData
+	struct RUITKDEMO_API FMapData
 	{
 		TArray<FVertex> Vertices;
 		TArray<FLinedef> Lines;

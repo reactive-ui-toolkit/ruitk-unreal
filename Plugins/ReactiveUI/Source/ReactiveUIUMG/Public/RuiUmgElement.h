@@ -18,7 +18,7 @@
 class UUserWidget;
 class UWorld;
 
-struct REACTIVEUIUMG_API FRuiUmgProps final : public FRuiPropsBase
+struct RUITKUMG_API FRuiUmgProps final : public FRuiPropsBase
 {
 	RUI_PROP(TSubclassOf<UUserWidget>, WidgetClass, 0)
 	RUI_PROP(TWeakObjectPtr<UWorld>, World, 1)
@@ -44,17 +44,17 @@ namespace RUI::Umg
 {
 	/** A UMG widget as a Rui node. The widget is created against World (its owning player
 	 *  context); replacing WidgetClass replaces the widget. */
-	REACTIVEUIUMG_API FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuiKey Key = FRuiKey());
+	RUITKUMG_API FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuiKey Key = FRuiKey());
 
 	/** As above, plus a declarative prop map applied to the hosted widget's UPROPERTYs. */
-	REACTIVEUIUMG_API FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World,
+	RUITKUMG_API FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World,
 										  FRuiStyleDict WidgetProps, FRuiKey Key = FRuiKey());
 
 	/** Apply a prop map to a widget's UPROPERTYs by reflection (int/float/bool/string/text/name,
 	 *  type-matched to the FRuiValue kind). Unknown names and type mismatches are skipped. Returns
 	 *  the number of properties actually set. Public so tools/tests can drive it directly. */
-	REACTIVEUIUMG_API int32 ApplyPropMap(UUserWidget* Widget, const FRuiStyleDict& WidgetProps);
+	RUITKUMG_API int32 ApplyPropMap(UUserWidget* Widget, const FRuiStyleDict& WidgetProps);
 
 	/** Register the adapter (module startup; idempotent). */
-	REACTIVEUIUMG_API void RegisterUmgAdapters();
+	RUITKUMG_API void RegisterUmgAdapters();
 } // namespace RUI::Umg

@@ -28,7 +28,7 @@ struct FRuiSafeArea
 	float Left = 0, Top = 0, Right = 0, Bottom = 0;
 };
 
-class REACTIVEUICORE_API FRuiContext
+class RUITKCORE_API FRuiContext
 {
 public:
 	FRuiContext(const TSharedRef<FRuiComponentState>& InState, FRuiFiber& InFiber, FRuiReconciler& InReconciler,

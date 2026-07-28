@@ -13,7 +13,7 @@
 
 class FRuiRoot;
 
-class REACTIVEUIEDITOR_API FUetkxPreview : public TSharedFromThis<FUetkxPreview>
+class RUITKEDITOR_API FUetkxPreview : public TSharedFromThis<FUetkxPreview>
 {
 public:
 	/** Build a preview from `.uetkx` source. `ComponentName` picks a component (None = the first).

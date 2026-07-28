@@ -13,7 +13,7 @@
 
 struct FRuiFiber;
 
-class REACTIVEUICORE_API FRuiComponentState
+class RUITKCORE_API FRuiComponentState
 {
 public:
 	FRuiComponentState() = default;

@@ -30,7 +30,7 @@ class FRuiContext;
  * Outside any <Presence> the default is { true, unbound } — a plain component is always present
  * and NotifyDone is a quiet no-op, so UsePresence is always safe to call.
  */
-struct REACTIVEUICORE_API FRuiPresenceState
+struct RUITKCORE_API FRuiPresenceState
 {
 	bool bPresent = true;
 	FRuiCallback NotifyDone;
@@ -50,9 +50,9 @@ namespace RUI
 	 * falls back to its positional index with a dev warning. `MaxExitSeconds` force-unmounts a
 	 * child that never calls NotifyDone — a missing NotifyDone costs an animation, not a leak.
 	 */
-	REACTIVEUICORE_API FRuiNode Presence(TArray<FRuiNode> Children, float MaxExitSeconds = 2.0f,
+	RUITKCORE_API FRuiNode Presence(TArray<FRuiNode> Children, float MaxExitSeconds = 2.0f,
 										 FRuiKey Key = FRuiKey());
 } // namespace RUI
 
 /** Read the nearest <Presence> boundary's signal for THIS child. Safe anywhere (see default). */
-REACTIVEUICORE_API FRuiPresenceState UsePresence(FRuiContext& Ctx);
+RUITKCORE_API FRuiPresenceState UsePresence(FRuiContext& Ctx);

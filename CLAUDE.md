@@ -84,13 +84,13 @@ Docs site: `cd "ReactiveUIUnrealDocs~" && npm ci && npm run dev` (or `npm run bu
 
 ## Architecture (one paragraph + pointers)
 
-`ReactiveUICore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
-talks to engines only through `IRuiHostConfig`. `ReactiveUISlate` implements the host with
+`RuitkCore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
+talks to engines only through `IRuiHostConfig`. `RuitkSlate` implements the host with
 per-widget adapters (typed props structs + set-bitmask, setter tables, reconstruct masks, event
-proxies). `ReactiveUIUMG`/`ReactiveUICommonUI`/`ReactiveUIMVVMBridge` are the Epic-interop
-modules. `ReactiveUIInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) owns the
+proxies). `RuitkUMG`/`RuitkCommonUI`/`RuitkMVVMBridge` are the Epic-interop
+modules. `RuitkInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) owns the
 markup lexer/parser (parser-only since HMR v2 — the dev-loop interpreter was deleted);
-`ReactiveUIToolchain` (UncookedOnly) consumes the parser for codegen; `ReactiveUIEditor` (Editor)
+`RuitkToolchain` (UncookedOnly) consumes the parser for codegen; `RuitkEditor` (Editor)
 hosts the watcher/commandlets + the Live-Coding HMR controller (`FUetkxHmrController`) and the
 `ReactiveUetkx` menu/window. Full reasoning:
 MASTER_PLAN §1; module table: D-27.

@@ -25,7 +25,7 @@ namespace RUI::Umg
 	namespace Private
 	{
 		/** Subscribe once (slot-stable) + re-render on broadcast. Returns whether live. */
-		REACTIVEUIUMG_API bool UseFieldSubscription(FRuiContext& Ctx, UObject* ViewModel, FName FieldName);
+		RUITKUMG_API bool UseFieldSubscription(FRuiContext& Ctx, UObject* ViewModel, FName FieldName);
 
 		/** Read a reflected property value; false when unreadable/type-mismatched. */
 		template <typename T> bool ReadProperty(UObject* Object, FName PropertyName, T& Out)

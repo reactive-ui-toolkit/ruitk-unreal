@@ -18,12 +18,12 @@ namespace RuiDemo
 	};
 
 	/** Every gallery screen (stable order; the shell and the Demos suite both iterate it). */
-	RUIDEMO_API const TArray<FRuiDemoEntry>& GetGalleryEntries();
+	RUITKDEMO_API const TArray<FRuiDemoEntry>& GetGalleryEntries();
 
 	/** The compiled component names behind the entries (the Demos suite asserts every one
 	 *  registered — RUI::Named falls back to an empty Fragment, which must never pass). */
-	RUIDEMO_API const TArray<FName>& GetCompiledScreenNames();
+	RUITKDEMO_API const TArray<FName>& GetCompiledScreenNames();
 
 	/** The gallery root vnode (menu + selected screen). */
-	RUIDEMO_API FRuiNode GalleryRoot();
+	RUITKDEMO_API FRuiNode GalleryRoot();
 } // namespace RuiDemo

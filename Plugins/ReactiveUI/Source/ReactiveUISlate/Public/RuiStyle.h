@@ -27,19 +27,19 @@ class IRuiElementAdapter;
 namespace RUI::Slate
 {
 	/** Register/replace a named style class (the `classes` layer). */
-	REACTIVEUISLATE_API void RegisterStyleClass(FName ClassName, FRuiStyleDict Style);
+	RUITKSLATE_API void RegisterStyleClass(FName ClassName, FRuiStyleDict Style);
 
-	REACTIVEUISLATE_API const FRuiStyleDict* FindStyleClass(FName ClassName);
+	RUITKSLATE_API const FRuiStyleDict* FindStyleClass(FName ClassName);
 
 	/** Build the effective dict: classes in order, then inline style overrides. Returns
 	 *  null when nothing contributes. */
-	REACTIVEUISLATE_API TSharedPtr<FRuiStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
+	RUITKSLATE_API TSharedPtr<FRuiStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
 																	  const TSharedPtr<FRuiStyleDict>& InlineStyle);
 
 	/** Diff-apply Old -> New on the widget: changed/new keys apply; keys present in Old but
 	 *  absent in New RESET to their defaults. Unknown keys warn once per key name. Adapter
 	 *  handles widget-specific keys first (may be null). */
-	REACTIVEUISLATE_API void ApplyStyleDiff(SWidget& Widget, IRuiElementAdapter* Adapter, const FRuiStyleDict* Old,
+	RUITKSLATE_API void ApplyStyleDiff(SWidget& Widget, IRuiElementAdapter* Adapter, const FRuiStyleDict* Old,
 											const FRuiStyleDict* New);
 
 	// ── TD-002: the THIRD layer — @theme tokens + @uss stylesheets ─────────────────────────
@@ -49,24 +49,24 @@ namespace RUI::Slate
 	// against the ACTIVE theme when the effective style is built (missing token -> warn + kept).
 
 	/** Register/replace a named theme (a token name -> FRuiValue map). */
-	REACTIVEUISLATE_API void RegisterTheme(FName ThemeName, FRuiStyleDict Tokens);
+	RUITKSLATE_API void RegisterTheme(FName ThemeName, FRuiStyleDict Tokens);
 
 	/** Select the active theme used to resolve `$token` references. NAME_None = no theme. */
-	REACTIVEUISLATE_API void SetActiveTheme(FName ThemeName);
-	REACTIVEUISLATE_API FName GetActiveTheme();
+	RUITKSLATE_API void SetActiveTheme(FName ThemeName);
+	RUITKSLATE_API FName GetActiveTheme();
 
 	/** Resolve a token against the active theme (null if unknown / no active theme). */
-	REACTIVEUISLATE_API const FRuiValue* ResolveThemeToken(FName TokenName);
+	RUITKSLATE_API const FRuiValue* ResolveThemeToken(FName TokenName);
 
 	/** Parse a `.uss`-style stylesheet source and register its `@theme <name> { ... }` blocks
 	 *  and `.<class> { key: value; }` rules. Values: `#rrggbb[aa]` color, numbers (int/float),
 	 *  true/false, `$token` refs, "quoted" strings, else a bare Name. Returns the count of
 	 *  (themes + classes) registered. Idempotent — re-loading replaces. */
-	REACTIVEUISLATE_API int32 LoadStylesheet(const FString& Source);
+	RUITKSLATE_API int32 LoadStylesheet(const FString& Source);
 
 	/** Parse one style value literal into an FRuiValue (the stylesheet grammar; also handy for
 	 *  the markup codegen's @uss lowering). */
-	REACTIVEUISLATE_API FRuiValue ParseStyleValue(const FString& Literal);
+	RUITKSLATE_API FRuiValue ParseStyleValue(const FString& Literal);
 } // namespace RUI::Slate
 
 namespace RUI

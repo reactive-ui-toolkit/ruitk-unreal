@@ -41,7 +41,7 @@ struct FRuiHeaderColumn
 /** TreeView props. Expansion is CONTROLLED: ExpandedItems (by item identity) diffs onto the
  *  widget; user toggles report via OnExpansionChanged (Value = bool; pair with selection to
  *  know which item — or use the P2 handle for imperative reads). */
-struct REACTIVEUISLATE_API FRuiTreeViewProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuiTreeViewProps final : public FRuiPropsBase
 {
 	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, Items, 0) // root items
 	RUI_PROP(TSharedPtr<FRuiItemRenderer>, RenderItem, 1)
@@ -58,7 +58,7 @@ struct REACTIVEUISLATE_API FRuiTreeViewProps final : public FRuiPropsBase
 
 /** The concrete tree widget (adapter-driven via the Set*() surface; headless helpers mirror
  *  SRuiListView's). */
-class REACTIVEUISLATE_API SRuiTreeView : public SCompoundWidget
+class RUITKSLATE_API SRuiTreeView : public SCompoundWidget
 {
 public:
 	using FItemType = TSharedPtr<FRuiValue>;
@@ -106,13 +106,13 @@ private:
 
 namespace RUI::Slate
 {
-	REACTIVEUISLATE_API FRuiElementTypeId TreeViewType();
+	RUITKSLATE_API FRuiElementTypeId TreeViewType();
 
 	/** A virtualized hierarchical tree (TD-022). C++-first, like ListView. */
-	REACTIVEUISLATE_API FRuiNode TreeView(FRuiTreeViewProps Props = FRuiTreeViewProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuiNode TreeView(FRuiTreeViewProps Props = FRuiTreeViewProps(), FRuiKey Key = FRuiKey());
 
 	/** Wrap a child accessor ONCE (UseMemo/UseRef it) — identity participates in props equality. */
-	REACTIVEUISLATE_API TSharedPtr<FRuiChildAccessor> MakeChildAccessor(FRuiChildAccessor Fn);
+	RUITKSLATE_API TSharedPtr<FRuiChildAccessor> MakeChildAccessor(FRuiChildAccessor Fn);
 
 	namespace Detail
 	{

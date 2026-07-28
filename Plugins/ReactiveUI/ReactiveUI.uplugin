@@ -16,32 +16,32 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "ReactiveUICore",
+			"Name": "RuitkCore",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUISlate",
+			"Name": "RuitkSlate",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUIUMG",
+			"Name": "RuitkUMG",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUICommonUI",
+			"Name": "RuitkCommonUI",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUIMVVMBridge",
+			"Name": "RuitkMVVMBridge",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUIInterp",
+			"Name": "RuitkInterp",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"TargetConfigurationDenyList": [
@@ -49,12 +49,12 @@
 			]
 		},
 		{
-			"Name": "ReactiveUIToolchain",
+			"Name": "RuitkToolchain",
 			"Type": "UncookedOnly",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ReactiveUIEditor",
+			"Name": "RuitkEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
