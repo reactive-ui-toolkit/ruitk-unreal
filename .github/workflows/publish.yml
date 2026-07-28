@@ -60,7 +60,7 @@ jobs:
           fi
 
   # The plugin release: tag v<VersionName> + GitHub Release whose body is the top `## [`
-  # section of CHANGELOG.md. ALWAYS attaches the Fab-uploadable SOURCE zip (Plugins/ReactiveUI minus
+  # section of CHANGELOG.md. ALWAYS attaches the Fab-uploadable SOURCE zip (Plugins/ReactiveUIToolkit minus
   # build artifacts — Fab's reviewers build the binaries with Epic's toolchain) PLUS one
   # EngineVersion-STAMPED per-engine zip per supported version (Route B, 2026-07-25: the zips are
   # source-only, so producing them needs no engine — compile CONFIDENCE comes from the armed
@@ -101,17 +101,17 @@ jobs:
         if: steps.tagcheck.outputs.new_tag == 'true'
         run: |
           awk '/^## \[/{n++} n==1' CHANGELOG.md > /tmp/release-body.md
-          printf '\n---\n_`ReactiveUI-%s.zip` is the plugin **source**; the `-UE<ver>.zip` assets are the same source with the matching `EngineVersion` pre-stamped — upload those to Fab per engine version (Epic builds the binaries). Compile verification per engine runs in this workflow'"'"'s engine legs when armed._\n' "${{ steps.ver.outputs.version }}" >> /tmp/release-body.md
+          printf '\n---\n_`ReactiveUIToolkit-%s.zip` is the plugin **source**; the `-UE<ver>.zip` assets are the same source with the matching `EngineVersion` pre-stamped — upload those to Fab per engine version (Epic builds the binaries). Compile verification per engine runs in this workflow'"'"'s engine legs when armed._\n' "${{ steps.ver.outputs.version }}" >> /tmp/release-body.md
       - name: Package the Fab-uploadable source zip + per-engine stamped zips
         if: steps.tagcheck.outputs.new_tag == 'true'
         run: |
           mkdir -p dist
-          # Fab wants the plugin folder (ReactiveUI/ at the archive root), source only — no build
+          # Fab wants the plugin folder (ReactiveUIToolkit/ at the archive root), source only — no build
           # output. Binaries/Intermediate are gitignored (not in a fresh checkout); exclude belt-and-
           # suspenders, and drop the machine-local diag sidecars.
-          (cd Plugins && zip -r "$GITHUB_WORKSPACE/dist/ReactiveUI-${{ steps.ver.outputs.version }}.zip" ReactiveUI \
-             -x 'ReactiveUI/Binaries/*' -x 'ReactiveUI/Intermediate/*' -x '*.uetkx.diags.json' -x '*/.git*')
-          echo "Packaged: dist/ReactiveUI-${{ steps.ver.outputs.version }}.zip"
+          (cd Plugins && zip -r "$GITHUB_WORKSPACE/dist/ReactiveUIToolkit-${{ steps.ver.outputs.version }}.zip" ReactiveUIToolkit \
+             -x 'ReactiveUIToolkit/Binaries/*' -x 'ReactiveUIToolkit/Intermediate/*' -x '*.uetkx.diags.json' -x '*/.git*')
+          echo "Packaged: dist/ReactiveUIToolkit-${{ steps.ver.outputs.version }}.zip"
           # Route B (2026-07-25): per-engine zips are the SAME source with ONE stamped line —
           # the dev .uplugin deliberately carries NO EngineVersion (a pin is a hard compat gate,
           # engine-catchup scar); packaging stamps it per zip, exactly what Fab's per-engine
@@ -119,15 +119,15 @@ jobs:
           # engine-tests users) — the engine-catchup skill's checklist updates both.
           for ENG in 5.6 5.7 5.8; do
             STAGE="$(mktemp -d)"
-            cp -r Plugins/ReactiveUI "$STAGE/ReactiveUI"
-            rm -rf "$STAGE/ReactiveUI/Binaries" "$STAGE/ReactiveUI/Intermediate"
-            find "$STAGE/ReactiveUI" -name '*.uetkx.diags.json' -delete
-            jq --arg v "$ENG.0" '.EngineVersion = $v' "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin" \
-              > "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin.tmp"
-            mv "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin.tmp" "$STAGE/ReactiveUI/ReactiveUIToolkit.uplugin"
-            (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip" ReactiveUI)
+            cp -r Plugins/ReactiveUIToolkit "$STAGE/ReactiveUIToolkit"
+            rm -rf "$STAGE/ReactiveUIToolkit/Binaries" "$STAGE/ReactiveUIToolkit/Intermediate"
+            find "$STAGE/ReactiveUIToolkit" -name '*.uetkx.diags.json' -delete
+            jq --arg v "$ENG.0" '.EngineVersion = $v' "$STAGE/ReactiveUIToolkit/ReactiveUIToolkit.uplugin" \
+              > "$STAGE/ReactiveUIToolkit/ReactiveUIToolkit.uplugin.tmp"
+            mv "$STAGE/ReactiveUIToolkit/ReactiveUIToolkit.uplugin.tmp" "$STAGE/ReactiveUIToolkit/ReactiveUIToolkit.uplugin"
+            (cd "$STAGE" && zip -qr "$GITHUB_WORKSPACE/dist/ReactiveUIToolkit-${{ steps.ver.outputs.version }}-UE$ENG.zip" ReactiveUIToolkit)
             rm -rf "$STAGE"
-            echo "Packaged: dist/ReactiveUI-${{ steps.ver.outputs.version }}-UE$ENG.zip (EngineVersion $ENG.0)"
+            echo "Packaged: dist/ReactiveUIToolkit-${{ steps.ver.outputs.version }}-UE$ENG.zip (EngineVersion $ENG.0)"
           done
       - name: Tag + GitHub Release (source zip + per-engine stamped zips attached)
         if: steps.tagcheck.outputs.new_tag == 'true'
@@ -141,7 +141,7 @@ jobs:
           git push origin "$TAG"
           gh release create "$TAG" --title "Reactive UI Toolkit for Unreal ${{ steps.ver.outputs.version }}" \
             --notes-file /tmp/release-body.md \
-            dist/ReactiveUI-*.zip
+            dist/ReactiveUIToolkit-*.zip
 
   # Pre-release engine verification + packaged per-engine zips — armed runs only. Reuses the SAME
   # engine workflow test.yml uses (one definition, no drift). Zip packaging on the Windows

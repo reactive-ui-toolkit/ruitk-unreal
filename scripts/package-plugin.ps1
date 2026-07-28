@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 <#
 .SYNOPSIS
-    Package the ReactiveUI plugin per engine version — the LOCAL rail for what publish.yml's
+    Package the ReactiveUIToolkit plugin per engine version — the LOCAL rail for what publish.yml's
     engine legs do in CI (MASTER_PLAN D-29; engine CI is default-unarmed, so this is the
     expected v1 path).
 
@@ -9,7 +9,7 @@
     For each engine install found (or passed), runs:
       RunUAT.bat BuildPlugin -Plugin=<ReactiveUIToolkit.uplugin> -Package=<staging> -TargetPlatforms=Win64 -Rocket -StrictIncludes
     then strips Binaries/ and Intermediate/ (Fab: "Epic's toolchain builds the binaries") and
-    zips  dist/ReactiveUI-<VersionName>-UE<major.minor>.zip.
+    zips  dist/ReactiveUIToolkit-<VersionName>-UE<major.minor>.zip.
 
     -StrictIncludes is non-negotiable: marketplace builds compile with -DisableUnity -NoPCH,
     so include-leakage that works locally fails at Fab otherwise.
@@ -64,7 +64,7 @@ foreach ($engine in $EngineRoots) {
         if (Test-Path $p) { Remove-Item $p -Recurse -Force }
     }
 
-    $zip = Join-Path $OutDir "ReactiveUI-$versionName-UE$shortVer.zip"
+    $zip = Join-Path $OutDir "ReactiveUIToolkit-$versionName-UE$shortVer.zip"
     if (Test-Path $zip) { Remove-Item $zip -Force }
     Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $zip
     Write-Host "   -> $zip" -ForegroundColor Green
