@@ -50,7 +50,7 @@ if (!Prism.languages.uetkx) {
         lookbehind: true,
       },
       // Unreal-style type names used bare (FText, TArray, EVisibility), PascalCase ctor calls,
-      // and namespaces before :: (RUI::Fmt, RuiDemo::GetDemoWorld).
+      // and namespaces before :: (Ruitk::Fmt, RuitkDemo::GetDemoWorld).
       /\b(?:[FUTE][A-Z]\w*|[A-Z]\w*(?=\s*(?:::|[.(])))\b/,
     ],
     builtin:

@@ -1,44 +1,44 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Core.Portal — the previously untested structural primitive (audit §13: "Portal:
+// Ruitk.Core.Portal — the previously untested structural primitive (audit §13: "Portal:
 // ZERO tests"). Covers: children re-parent under the TARGET host node (not the render position),
 // context flows from the RENDER position, toggling the portal off removes the out-of-tree
 // children, and a full unmount leaves the target clean.
 
 #include "Misc/AutomationTest.h"
-#include "RuiContextHandle.h"
-#include "RuiCoreElements.h"
-#include "RuiMockHost.h"
-#include "RuiNode.h"
+#include "RuitkContextHandle.h"
+#include "RuitkCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkNode.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_PORTAL_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_PORTAL_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 namespace PortalTest
 {
-	static TRuiContext<int32> GPortalCtx(0, FName(TEXT("PortalTestCtx")));
-	static TSharedPtr<FRuiHostHandle> GTargetRef;
+	static TRuitkContext<int32> GPortalCtx(0, FName(TEXT("PortalTestCtx")));
+	static TSharedPtr<FRuitkHostHandle> GTargetRef;
 	static TFunction<void(bool)> GSetShow;
 	static int32 GSeenCtx = -1;
 
 	// Consumer INSIDE the portal — proves context flows from the render position.
-	static FRuiNodeArray PortalContent(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PortalContent(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		GSeenCtx = Ctx.UseContext(GPortalCtx);
-		return {RUI::TextBlock(TEXT("PORTALED"))};
+		return {Ruitk::TextBlock(TEXT("PORTALED"))};
 	}
-	RUI_COMPONENT(PortalContent)
+	RUITK_COMPONENT(PortalContent)
 
 	// Renders a target box (handle captured via Ref) and, when toggled, portals content into it.
-	static FRuiNodeArray PortalHost(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PortalHost(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		auto [bShow, SetShow] = Ctx.UseState<bool>(false);
 		GSetShow = SetShow;
 		Ctx.ProvideContext(GPortalCtx, 7);
 
-		FTestBoxProps TargetProps = RuiTest::BoxProps(TEXT("target"));
-		TargetProps.Ref = [](const FRuiHostHandle& H)
+		FTestBoxProps TargetProps = RuitkTest::BoxProps(TEXT("target"));
+		TargetProps.Ref = [](const FRuitkHostHandle& H)
 		{
 			if (GTargetRef.IsValid())
 			{
@@ -46,27 +46,27 @@ namespace PortalTest
 			}
 		};
 
-		TArray<FRuiNode> Children;
-		Children.Add(RuiTest::Box(MoveTemp(TargetProps), {}));
-		Children.Add(RUI::TextBlock(TEXT("SIBLING")));
+		TArray<FRuitkNode> Children;
+		Children.Add(RuitkTest::Box(MoveTemp(TargetProps), {}));
+		Children.Add(Ruitk::TextBlock(TEXT("SIBLING")));
 		if (bShow && GTargetRef.IsValid() && GTargetRef->IsValid())
 		{
-			Children.Add(RUI::Portal(*GTargetRef, {RUI::FC(&PortalContent)}));
+			Children.Add(Ruitk::Portal(*GTargetRef, {Ruitk::FC(&PortalContent)}));
 		}
-		return {RuiTest::Box(RuiTest::BoxProps(TEXT("root")), MoveTemp(Children))};
+		return {RuitkTest::Box(RuitkTest::BoxProps(TEXT("root")), MoveTemp(Children))};
 	}
-	RUI_COMPONENT(PortalHost)
+	RUITK_COMPONENT(PortalHost)
 } // namespace PortalTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCorePortalTest, "ReactiveUI.Core.Portal", RUI_PORTAL_FLAGS)
-bool FRuiCorePortalTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCorePortalTest, "Ruitk.Core.Portal", RUITK_PORTAL_FLAGS)
+bool FRuitkCorePortalTest::RunTest(const FString&)
 {
 	using namespace PortalTest;
-	GTargetRef = MakeShared<FRuiHostHandle>();
+	GTargetRef = MakeShared<FRuitkHostHandle>();
 	GSeenCtx = -1;
 
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&PortalHost));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&PortalHost));
 
 	FMockNode* Root = H.ChildAt(0);
 	if (!TestEqual(TEXT("target + sibling mounted, no portal yet"), Root->Children.Num(), 2))

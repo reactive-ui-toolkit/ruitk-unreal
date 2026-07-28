@@ -12,7 +12,7 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Modules/ModuleManager.h"
-#include "RUICompileCommandlet.h"
+#include "RuitkCompileCommandlet.h"
 #include "ReactiveUetkxEditorSettings.h"
 #include "UetkxDriver.h"
 #include "UetkxHmrController.h"

@@ -33,7 +33,7 @@
 #undef MAX_PITCH
 #endif
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// Optional Phase-7 BSP renderer hook (Godot-only upgrade, ported later if at all).
 	struct FDoomBsp;
@@ -748,4 +748,4 @@ namespace RuiDoom
 		uint8 TexIdx = 0;
 		float DistanceAtCenter = 0.f; // for shading
 	};
-} // namespace RuiDoom
+} // namespace RuitkDoom

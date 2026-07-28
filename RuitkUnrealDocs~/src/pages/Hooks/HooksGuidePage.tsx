@@ -13,7 +13,7 @@ UseEffect([=]() -> TFunction<void()>
 {
 	auto Handle = Store->Subscribe(OnChange);
 	return [=]() { Store->Unsubscribe(Handle); };   // cleanup on unmount / dep change
-}, RUI::Deps(PlayerId));`
+}, Ruitk::Deps(PlayerId));`
 
 const HOOKS: Array<[string, string, string]> = [
   ['UseState<T>', 'State', 'A value and its setter; the setter accepts a new value or an updater lambda.'],
@@ -33,9 +33,9 @@ const HOOKS: Array<[string, string, string]> = [
   ['UseSfx', 'Media', 'Fire a sound effect as a declarative side effect.'],
   ['UseSafeArea', 'Platform', 'Read the display safe-area insets.'],
   ['UsePresence', 'Lifecycle', 'Keep an exiting subtree mounted long enough to animate out.'],
-  ['RUI::Slate::UseFocus', 'Input', 'A stable focus handle — Ref for the widget, Focus(), IsFocused().'],
-  ['RUI::Slate::UseShortcut', 'Input', 'Register a keyboard chord for the component’s lifetime.'],
-  ['RUI::Umg::UseField<T>', 'Interop', 'Reactively read a FieldNotify viewmodel field (see the MVVM guide).'],
+  ['Ruitk::Slate::UseFocus', 'Input', 'A stable focus handle — Ref for the widget, Focus(), IsFocused().'],
+  ['Ruitk::Slate::UseShortcut', 'Input', 'Register a keyboard chord for the component’s lifetime.'],
+  ['Ruitk::Umg::UseField<T>', 'Interop', 'Reactively read a FieldNotify viewmodel field (see the MVVM guide).'],
 ]
 
 export const HooksGuidePage: FC = () => (
@@ -64,9 +64,9 @@ export const HooksGuidePage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       An effect runs after the commit. Return a cleanup lambda; it runs on unmount and before the
-      effect re-runs. The dependency list decides when that happens: <code>RUI::Deps(A, B)</code>{' '}
-      re-runs on change, empty <code>RUI::Deps()</code> runs once on mount, and{' '}
-      <code>RUI::EveryCommit()</code> runs after every commit.
+      effect re-runs. The dependency list decides when that happens: <code>Ruitk::Deps(A, B)</code>{' '}
+      re-runs on change, empty <code>Ruitk::Deps()</code> runs once on mount, and{' '}
+      <code>Ruitk::EveryCommit()</code> runs after every commit.
     </Typography>
     <CodeBlock code={EFFECT} language="uetkx" />
 

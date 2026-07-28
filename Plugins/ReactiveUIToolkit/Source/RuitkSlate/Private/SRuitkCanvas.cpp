@@ -1,12 +1,12 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "SRuiCanvas.h"
+#include "SRuitkCanvas.h"
 
-void SRuiCanvas::Construct(const FArguments&)
+void SRuitkCanvas::Construct(const FArguments&)
 {
 }
 
-void SRuiCanvas::SetDrawFn(TSharedPtr<FRuiDrawFn> InDrawFn)
+void SRuitkCanvas::SetDrawFn(TSharedPtr<FRuitkDrawFn> InDrawFn)
 {
 	if (DrawFn != InDrawFn) // identity — the family's callback-identity repaint rule
 	{
@@ -15,7 +15,7 @@ void SRuiCanvas::SetDrawFn(TSharedPtr<FRuiDrawFn> InDrawFn)
 	}
 }
 
-void SRuiCanvas::SetRedrawKey(int64 InKey)
+void SRuitkCanvas::SetRedrawKey(int64 InKey)
 {
 	if (RedrawKey != InKey)
 	{
@@ -24,7 +24,7 @@ void SRuiCanvas::SetRedrawKey(int64 InKey)
 	}
 }
 
-void SRuiCanvas::SetCanvasDesiredSize(FVector2D InSize)
+void SRuitkCanvas::SetCanvasDesiredSize(FVector2D InSize)
 {
 	if (CanvasDesiredSize != InSize)
 	{
@@ -33,7 +33,7 @@ void SRuiCanvas::SetCanvasDesiredSize(FVector2D InSize)
 	}
 }
 
-int32 SRuiCanvas::OnPaint(const FPaintArgs&, const FGeometry& AllottedGeometry, const FSlateRect&,
+int32 SRuitkCanvas::OnPaint(const FPaintArgs&, const FGeometry& AllottedGeometry, const FSlateRect&,
 						  FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle&, bool) const
 {
 	if (DrawFn.IsValid() && *DrawFn)
@@ -43,7 +43,7 @@ int32 SRuiCanvas::OnPaint(const FPaintArgs&, const FGeometry& AllottedGeometry, 
 	return LayerId;
 }
 
-FVector2D SRuiCanvas::ComputeDesiredSize(float) const
+FVector2D SRuitkCanvas::ComputeDesiredSize(float) const
 {
 	return CanvasDesiredSize;
 }

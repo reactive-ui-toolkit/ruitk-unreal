@@ -18,7 +18,7 @@ public class RuitkToolchain : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
-			"RuitkCore",   // RUI:: registries referenced by generated-code shapes
+			"RuitkCore",   // Ruitk:: registries referenced by generated-code shapes
 			"RuitkInterp", // the single grammar implementation (D-27)
 		});
 

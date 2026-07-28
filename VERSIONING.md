@@ -15,8 +15,8 @@ All releases follow [Semantic Versioning 2.0.0](https://semver.org/).
 A major bump signals breaking changes. Users may need to update code or markup.
 
 Examples of breaking changes:
-- Removing or renaming a public C++ API (`RUI::` factories, `FRuiRoot` surfaces,
-  hook signatures, the interop classes `URuiHostWidget`/`URuiActivatableScreen`)
+- Removing or renaming a public C++ API (`Ruitk::` factories, `FRuitkRoot` surfaces,
+  hook signatures, the interop classes `URuitkHostWidget`/`URuitkActivatableScreen`)
 - Removing or changing `.uetkx` syntax semantics (removing a directive, changing
   control-flow behavior, changing what a prop/style key means)
 - Dropping support for an Unreal Engine version

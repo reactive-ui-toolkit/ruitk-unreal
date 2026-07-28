@@ -2,7 +2,7 @@
 //
 // The hand-written pattern adapters (Phase 2 step 3, first batch): STextBlock (the text
 // contract), SVerticalBox/SHorizontalBox (MultiSlot panels + slot.* props), SButton
-// (SingleContent + the event-proxy pattern), SOverlay (MultiSlot; the SRuiRoot panel).
+// (SingleContent + the event-proxy pattern), SOverlay (MultiSlot; the SRuitkRoot panel).
 // Every later widget copies these shapes via templates/widget_wrapper.template.cpp.
 //
 // slot.* keys (v1; parsed here — the host is key-agnostic):
@@ -14,12 +14,12 @@
 //   slot.position Vector2 | String "x,y" (canvas only; absolute placement)
 //   slot.size     Vector2 | String "w,h" (canvas only; absolute size)
 
-#include "RuiElementAdapter.h"
-#include "RuiEventProxy.h"
-#include "RuiSlateElements.h"
-#include "RuiSlotValue.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkEventProxy.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlotValue.h"
 
-#include "RuiSlateLog.h"
+#include "RuitkSlateLog.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/SBoxPanel.h"
@@ -34,20 +34,20 @@
 
 namespace
 {
-	FMargin ParsePadding(const FRuiValue& V)
+	FMargin ParsePadding(const FRuitkValue& V)
 	{
 		switch (V.Kind)
 		{
-		case FRuiValue::EKind::Int:
+		case FRuitkValue::EKind::Int:
 			return FMargin(static_cast<float>(V.IntValue));
-		case FRuiValue::EKind::Float:
+		case FRuitkValue::EKind::Float:
 			return FMargin(static_cast<float>(V.FloatValue));
-		case FRuiValue::EKind::Vector2:
+		case FRuitkValue::EKind::Vector2:
 			return FMargin(static_cast<float>(V.Vector2Value.X), static_cast<float>(V.Vector2Value.Y));
-		case FRuiValue::EKind::String:
-		case FRuiValue::EKind::Name:
+		case FRuitkValue::EKind::String:
+		case FRuitkValue::EKind::Name:
 		{
-			const FString S = V.Kind == FRuiValue::EKind::Name ? V.NameValue.ToString() : V.StringValue;
+			const FString S = V.Kind == FRuitkValue::EKind::Name ? V.NameValue.ToString() : V.StringValue;
 			TArray<FString> Parts;
 			S.ParseIntoArray(Parts, TEXT(","), true);
 			if (Parts.Num() == 4)
@@ -72,20 +72,20 @@ namespace
 		return FMargin(0.0f);
 	}
 
-	FString ValueAsLowerString(const FRuiValue& V)
+	FString ValueAsLowerString(const FRuitkValue& V)
 	{
-		if (V.Kind == FRuiValue::EKind::Name)
+		if (V.Kind == FRuitkValue::EKind::Name)
 		{
 			return V.NameValue.ToString().ToLower();
 		}
-		if (V.Kind == FRuiValue::EKind::String)
+		if (V.Kind == FRuitkValue::EKind::String)
 		{
 			return V.StringValue.ToLower();
 		}
 		return FString();
 	}
 
-	EHorizontalAlignment ParseHAlign(const FRuiValue& V)
+	EHorizontalAlignment ParseHAlign(const FRuitkValue& V)
 	{
 		const FString S = ValueAsLowerString(V);
 		if (S == TEXT("left"))
@@ -103,7 +103,7 @@ namespace
 		return HAlign_Fill;
 	}
 
-	EVerticalAlignment ParseVAlign(const FRuiValue& V)
+	EVerticalAlignment ParseVAlign(const FRuitkValue& V)
 	{
 		const FString S = ValueAsLowerString(V);
 		if (S == TEXT("top"))
@@ -129,13 +129,13 @@ namespace
 	const FName SlotPositionKey(TEXT("slot.position"));
 	const FName SlotSizeKey(TEXT("slot.size"));
 
-	float SlotFillOf(const FRuiStyleDict* SlotProps)
+	float SlotFillOf(const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps != nullptr)
 		{
-			if (const FRuiValue* Fill = SlotProps->Find(SlotFillKey))
+			if (const FRuitkValue* Fill = SlotProps->Find(SlotFillKey))
 			{
-				return RUI::Slate::SlotValue::AsFloat(*Fill); // String/Name literal forms too (SLOT-1)
+				return Ruitk::Slate::SlotValue::AsFloat(*Fill); // String/Name literal forms too (SLOT-1)
 			}
 		}
 		return 0.0f; // absent -> Auto size
@@ -143,24 +143,24 @@ namespace
 } // namespace
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// Text (STextBlock) — renders core FRuiTextBlockProps (the GetTextElementType contract)
+// Text (STextBlock) — renders core FRuitkTextBlockProps (the GetTextElementType contract)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiTextAdapter final : public IRuiElementAdapter
+class FRuitkTextAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(STextBlock);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		STextBlock& W = static_cast<STextBlock&>(Widget);
-		const FRuiTextBlockProps& N = static_cast<const FRuiTextBlockProps&>(New);
-		const FRuiTextBlockProps* O = static_cast<const FRuiTextBlockProps*>(Old);
+		const FRuitkTextBlockProps& N = static_cast<const FRuitkTextBlockProps&>(New);
+		const FRuitkTextBlockProps* O = static_cast<const FRuitkTextBlockProps*>(Old);
 		if (N.HasText())
 		{
 			const bool bSame = O != nullptr && O->HasText() &&
@@ -173,7 +173,7 @@ public:
 	}
 
 	// Widget-specific style keys (D-13): color + fontSize map to setters; null = reset.
-	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuiValue* Value) override
+	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuitkValue* Value) override
 	{
 		STextBlock& W = static_cast<STextBlock&>(Widget);
 		if (Key == FName(TEXT("ColorAndOpacity")))
@@ -185,7 +185,7 @@ public:
 		{
 			// R11: SlotValue reader — the literal form (`Font.Size="12"`) is a String and the
 			// union-field read silently gave size 0 (SLOT-1's class, style side).
-			const int32 Size = Value != nullptr ? RUI::Slate::SlotValue::AsInt(*Value, 9) : 9;
+			const int32 Size = Value != nullptr ? Ruitk::Slate::SlotValue::AsInt(*Value, 9) : 9;
 			W.SetFont(FCoreStyle::GetDefaultFontStyle("Regular", Size));
 			return true;
 		}
@@ -195,7 +195,7 @@ public:
 			if (Value != nullptr)
 			{
 				const FName Name =
-					Value->Kind == FRuiValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
+					Value->Kind == FRuitkValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
 				Justify = Name == FName(TEXT("center"))	 ? ETextJustify::Center
 						  : Name == FName(TEXT("right")) ? ETextJustify::Right
 														 : ETextJustify::Left;
@@ -205,13 +205,13 @@ public:
 		}
 		if (Key == FName(TEXT("AutoWrapText")))
 		{
-			W.SetAutoWrapText(Value != nullptr && RUI::Slate::SlotValue::AsBool(*Value)); // R11: parses "true"
+			W.SetAutoWrapText(Value != nullptr && Ruitk::Slate::SlotValue::AsBool(*Value)); // R11: parses "true"
 			return true;
 		}
 		// TD-012 sweep (WIDGET_COMPLETION_PLAN wave 2): the remaining text-shaping setters.
 		if (Key == FName(TEXT("LineHeightPercentage")))
 		{
-			W.SetLineHeightPercentage(Value != nullptr ? RUI::Slate::SlotValue::AsFloat(*Value, 1.0f) : 1.0f);
+			W.SetLineHeightPercentage(Value != nullptr ? Ruitk::Slate::SlotValue::AsFloat(*Value, 1.0f) : 1.0f);
 			return true;
 		}
 		if (Key == FName(TEXT("OverflowPolicy")))
@@ -220,7 +220,7 @@ public:
 			if (Value != nullptr)
 			{
 				const FName Name =
-					Value->Kind == FRuiValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
+					Value->Kind == FRuitkValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
 				Policy = Name == FName(TEXT("ellipsis")) ? ETextOverflowPolicy::Ellipsis : ETextOverflowPolicy::Clip;
 			}
 			W.SetOverflowPolicy(Policy);
@@ -237,18 +237,18 @@ public:
 /** Shared mechanics for the two box panels (their slot APIs are twins). CreateWidget lives
  *  on the concrete subclasses: SNew stringizes its type token for the widget's debug type
  *  name, so `SNew(TBox)` would label every panel "TBox" in the Widget Reflector. */
-template <typename TBox> class TRuiBoxPanelAdapter : public IRuiElementAdapter
+template <typename TBox> class TRuitkBoxPanelAdapter : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override
 	{
 		// Panels have no own props in v1 — layout is all slot.* on the children.
 	}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32 Index,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		TBox& Box = static_cast<TBox&>(Parent);
 		typename TBox::FScopedWidgetSlotArguments Slot = Box.InsertSlot(Index);
@@ -262,7 +262,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		// Minimal-move enforce-order (the family's move_child walk): only out-of-place
 		// widgets detach + reinsert. The Bench.SlateReorder spike pits this against a full
@@ -283,7 +283,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// TD-010(a): mutate the LIVE FSlot in place — no detach/reinsert churn on hot slot-prop
 		// animation paths (e.g. an animated Slot.Padding). GetSlotAt returns a const ref; the slot
@@ -304,7 +304,7 @@ public:
 	}
 
 private:
-	static void ConfigureSlot(typename TBox::FScopedWidgetSlotArguments& Slot, const FRuiStyleDict* SlotProps)
+	static void ConfigureSlot(typename TBox::FScopedWidgetSlotArguments& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		// Slate box slots DEFAULT TO FILL (why engine code writes .AutoHeight() everywhere).
 		// The family default is content-hugging AUTO — fill only when slot.fill asks. Without
@@ -323,15 +323,15 @@ private:
 		{
 			return;
 		}
-		if (const FRuiValue* Padding = SlotProps->Find(SlotPaddingKey))
+		if (const FRuitkValue* Padding = SlotProps->Find(SlotPaddingKey))
 		{
 			Slot.Padding(ParsePadding(*Padding));
 		}
-		if (const FRuiValue* H = SlotProps->Find(SlotHAlignKey))
+		if (const FRuitkValue* H = SlotProps->Find(SlotHAlignKey))
 		{
 			Slot.HAlign(ParseHAlign(*H));
 		}
-		if (const FRuiValue* V = SlotProps->Find(SlotVAlignKey))
+		if (const FRuitkValue* V = SlotProps->Find(SlotVAlignKey))
 		{
 			Slot.VAlign(ParseVAlign(*V));
 		}
@@ -350,7 +350,7 @@ private:
 
 	/** Apply the full slot config to a LIVE FSlot. Absent keys RESET to the box slot defaults
 	 *  (padding 0, HAlign/VAlign Fill) so an update mirrors the fresh-reinsert result exactly. */
-	static void ConfigureSlotLive(typename TBox::FSlot& Slot, const FRuiStyleDict* SlotProps)
+	static void ConfigureSlotLive(typename TBox::FSlot& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		const float Fill = SlotFillOf(SlotProps);
 		if (Fill > 0.0f)
@@ -361,28 +361,28 @@ private:
 		{
 			SetAutoLive(Slot);
 		}
-		const FRuiValue* Padding = SlotProps ? SlotProps->Find(SlotPaddingKey) : nullptr;
+		const FRuitkValue* Padding = SlotProps ? SlotProps->Find(SlotPaddingKey) : nullptr;
 		Slot.SetPadding(Padding ? ParsePadding(*Padding) : FMargin(0.0f));
-		const FRuiValue* H = SlotProps ? SlotProps->Find(SlotHAlignKey) : nullptr;
+		const FRuitkValue* H = SlotProps ? SlotProps->Find(SlotHAlignKey) : nullptr;
 		Slot.SetHorizontalAlignment(H ? ParseHAlign(*H) : HAlign_Fill);
-		const FRuiValue* V = SlotProps ? SlotProps->Find(SlotVAlignKey) : nullptr;
+		const FRuitkValue* V = SlotProps ? SlotProps->Find(SlotVAlignKey) : nullptr;
 		Slot.SetVerticalAlignment(V ? ParseVAlign(*V) : VAlign_Fill);
 	}
 };
 
-class FRuiVerticalBoxAdapter final : public TRuiBoxPanelAdapter<SVerticalBox>
+class FRuitkVerticalBoxAdapter final : public TRuitkBoxPanelAdapter<SVerticalBox>
 {
 public:
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SVerticalBox);
 	}
 };
 
-class FRuiHorizontalBoxAdapter final : public TRuiBoxPanelAdapter<SHorizontalBox>
+class FRuitkHorizontalBoxAdapter final : public TRuitkBoxPanelAdapter<SHorizontalBox>
 {
 public:
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SHorizontalBox);
 	}
@@ -392,26 +392,26 @@ public:
 // Button (SButton) — SingleContent + the event-proxy pattern
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiButtonAdapter final : public IRuiElementAdapter
+class FRuitkButtonAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiButtonProps& P = static_cast<const FRuiButtonProps&>(Props);
+		const FRuitkButtonProps& P = static_cast<const FRuitkButtonProps&>(Props);
 		TSharedRef<SButton> W = SNew(SButton).IsFocusable(P.HasbIsFocusable() ? P.bIsFocusable : true);
-		W->SetOnClicked(FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleReply,
-											 static_cast<int32>(FRuiButtonProps::OnClicked_Bit)));
+		W->SetOnClicked(FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleReply,
+											 static_cast<int32>(FRuitkButtonProps::OnClicked_Bit)));
 		return W;
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SButton& W = static_cast<SButton&>(Widget);
-		const FRuiButtonProps& N = static_cast<const FRuiButtonProps&>(New);
-		const FRuiButtonProps* O = static_cast<const FRuiButtonProps*>(Old);
+		const FRuitkButtonProps& N = static_cast<const FRuitkButtonProps&>(New);
+		const FRuitkButtonProps* O = static_cast<const FRuitkButtonProps*>(Old);
 		if (N.HasbEnabled() && (O == nullptr || !O->HasbEnabled() || O->bEnabled != N.bEnabled))
 		{
 			W.SetEnabled(N.bEnabled);
@@ -425,21 +425,21 @@ public:
 
 	// bIsFocusable is CONSTRUCT-ONLY (SButton::SetIsFocusable is protected in 5.6) — it rides
 	// the TD-011 reconstruct mask like Separator's Orientation (TD-012 rider, wave 1).
-	virtual uint64 GetReconstructMask() const override { return 1ull << FRuiButtonProps::bIsFocusable_Bit; }
+	virtual uint64 GetReconstructMask() const override { return 1ull << FRuitkButtonProps::bIsFocusable_Bit; }
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiButtonProps& O = static_cast<const FRuiButtonProps&>(Old);
-		const FRuiButtonProps& N = static_cast<const FRuiButtonProps&>(New);
+		const FRuitkButtonProps& O = static_cast<const FRuitkButtonProps&>(Old);
+		const FRuitkButtonProps& N = static_cast<const FRuitkButtonProps&>(New);
 		return N.HasbIsFocusable() && (!O.HasbIsFocusable() || O.bIsFocusable != N.bIsFocusable);
 	}
 
 	virtual bool HasEvents() const override { return true; }
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiButtonProps& N = static_cast<const FRuiButtonProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiButtonProps::OnClicked_Bit), N.OnClicked);
+		const FRuitkButtonProps& N = static_cast<const FRuitkButtonProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkButtonProps::OnClicked_Bit), N.OnClicked);
 	}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
@@ -449,23 +449,23 @@ public:
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// Overlay (SOverlay) — MultiSlot (also the SRuiRoot inner panel)
+// Overlay (SOverlay) — MultiSlot (also the SRuitkRoot inner panel)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiOverlayAdapter final : public IRuiElementAdapter
+class FRuitkOverlayAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SOverlay);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32 Index,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		SOverlay& Overlay = static_cast<SOverlay&>(Parent);
 		(void)Index; // overlay stacking order == slot order; reorder enforces it
@@ -480,7 +480,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		// AddSlot's parameter is a Z-ORDER, not an index — a minimal-move walk can't target
 		// positions. Overlays stack a handful of layers, so rebuild: declaration order wins,
@@ -489,7 +489,7 @@ public:
 		Overlay.ClearChildren();
 		for (const TSharedRef<SWidget>& Child : Ordered)
 		{
-			const FRuiStyleDict* SlotProps = SlotPropsOf(Child);
+			const FRuitkStyleDict* SlotProps = SlotPropsOf(Child);
 			SOverlay::FScopedWidgetSlotArguments Slot = Overlay.AddSlot(ZOrderOf(SlotProps));
 			Slot.AttachWidget(Child);
 			ConfigureSlot(Slot, SlotProps);
@@ -497,7 +497,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		SOverlay& Overlay = static_cast<SOverlay&>(Parent);
 		if (Overlay.RemoveSlot(Child))
@@ -509,33 +509,33 @@ public:
 	}
 
 private:
-	static int32 ZOrderOf(const FRuiStyleDict* SlotProps)
+	static int32 ZOrderOf(const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps != nullptr)
 		{
-			if (const FRuiValue* Z = SlotProps->Find(SlotZOrderKey))
+			if (const FRuitkValue* Z = SlotProps->Find(SlotZOrderKey))
 			{
-				return RUI::Slate::SlotValue::AsInt(*Z, INDEX_NONE); // String/Name literal forms too (SLOT-1)
+				return Ruitk::Slate::SlotValue::AsInt(*Z, INDEX_NONE); // String/Name literal forms too (SLOT-1)
 			}
 		}
 		return INDEX_NONE;
 	}
 
-	static void ConfigureSlot(SOverlay::FScopedWidgetSlotArguments& Slot, const FRuiStyleDict* SlotProps)
+	static void ConfigureSlot(SOverlay::FScopedWidgetSlotArguments& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps == nullptr)
 		{
 			return;
 		}
-		if (const FRuiValue* Padding = SlotProps->Find(SlotPaddingKey))
+		if (const FRuitkValue* Padding = SlotProps->Find(SlotPaddingKey))
 		{
 			Slot.Padding(ParsePadding(*Padding));
 		}
-		if (const FRuiValue* H = SlotProps->Find(SlotHAlignKey))
+		if (const FRuitkValue* H = SlotProps->Find(SlotHAlignKey))
 		{
 			Slot.HAlign(ParseHAlign(*H));
 		}
-		if (const FRuiValue* V = SlotProps->Find(SlotVAlignKey))
+		if (const FRuitkValue* V = SlotProps->Find(SlotVAlignKey))
 		{
 			Slot.VAlign(ParseVAlign(*V));
 		}
@@ -548,20 +548,20 @@ private:
 // painter's order — keep emission stable, the Doom-demo container contract).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiCanvasPanelAdapter final : public IRuiElementAdapter
+class FRuitkCanvasPanelAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SCanvas);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32 Index,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		// SCanvas has no indexed insertion; the reconciler appends in declaration order and
 		// ReorderChildren enforces any later divergence.
@@ -578,7 +578,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		// Order IS the painter's order here; a keyed reorder rebuilds (rare on this panel —
 		// the demo contract is stable emission order).
@@ -593,7 +593,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// The hot path: SCanvas slots mutate Position/Size IN PLACE — no slot churn (this is
 		// what makes per-frame quad movement cheap; contrast the Overlay remove/re-add).
@@ -615,40 +615,40 @@ public:
 	}
 
 private:
-	static void ConfigureSlot(SCanvas::FScopedWidgetSlotArguments& Slot, const FRuiStyleDict* SlotProps)
+	static void ConfigureSlot(SCanvas::FScopedWidgetSlotArguments& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps == nullptr)
 		{
 			return;
 		}
-		if (const FRuiValue* P = SlotProps->Find(SlotPositionKey))
+		if (const FRuitkValue* P = SlotProps->Find(SlotPositionKey))
 		{
-			Slot.Position(RUI::Slate::SlotValue::AsVector2(*P));
+			Slot.Position(Ruitk::Slate::SlotValue::AsVector2(*P));
 		}
-		if (const FRuiValue* S = SlotProps->Find(SlotSizeKey))
+		if (const FRuitkValue* S = SlotProps->Find(SlotSizeKey))
 		{
-			Slot.Size(RUI::Slate::SlotValue::AsVector2(*S));
+			Slot.Size(Ruitk::Slate::SlotValue::AsVector2(*S));
 		}
-		if (const FRuiValue* H = SlotProps->Find(SlotHAlignKey))
+		if (const FRuitkValue* H = SlotProps->Find(SlotHAlignKey))
 		{
 			Slot.HAlign(ParseHAlign(*H));
 		}
-		if (const FRuiValue* V = SlotProps->Find(SlotVAlignKey))
+		if (const FRuitkValue* V = SlotProps->Find(SlotVAlignKey))
 		{
 			Slot.VAlign(ParseVAlign(*V));
 		}
 	}
 
-	static void ApplySlot(SCanvas::FSlot& Slot, const FRuiStyleDict* SlotProps)
+	static void ApplySlot(SCanvas::FSlot& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		// Removal RESETS to the slot defaults (Position 0,0 / Size 1,1 / Left / Top) — the same
 		// family semantic the box panels honor: an update result mirrors a fresh reinsert.
-		const FRuiValue* P = SlotProps != nullptr ? SlotProps->Find(SlotPositionKey) : nullptr;
-		const FRuiValue* S = SlotProps != nullptr ? SlotProps->Find(SlotSizeKey) : nullptr;
-		const FRuiValue* H = SlotProps != nullptr ? SlotProps->Find(SlotHAlignKey) : nullptr;
-		const FRuiValue* V = SlotProps != nullptr ? SlotProps->Find(SlotVAlignKey) : nullptr;
-		Slot.SetPosition(P != nullptr ? RUI::Slate::SlotValue::AsVector2(*P) : FVector2D::ZeroVector);
-		Slot.SetSize(S != nullptr ? RUI::Slate::SlotValue::AsVector2(*S) : FVector2D(1.0, 1.0));
+		const FRuitkValue* P = SlotProps != nullptr ? SlotProps->Find(SlotPositionKey) : nullptr;
+		const FRuitkValue* S = SlotProps != nullptr ? SlotProps->Find(SlotSizeKey) : nullptr;
+		const FRuitkValue* H = SlotProps != nullptr ? SlotProps->Find(SlotHAlignKey) : nullptr;
+		const FRuitkValue* V = SlotProps != nullptr ? SlotProps->Find(SlotVAlignKey) : nullptr;
+		Slot.SetPosition(P != nullptr ? Ruitk::Slate::SlotValue::AsVector2(*P) : FVector2D::ZeroVector);
+		Slot.SetSize(S != nullptr ? Ruitk::Slate::SlotValue::AsVector2(*S) : FVector2D(1.0, 1.0));
 		Slot.SetHorizontalAlignment(H != nullptr ? ParseHAlign(*H) : HAlign_Left);
 		Slot.SetVerticalAlignment(V != nullptr ? ParseVAlign(*V) : VAlign_Top);
 	}
@@ -658,95 +658,95 @@ private:
 // Element factories + registration
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId VerticalBoxType()
+	FRuitkElementTypeId VerticalBoxType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("VerticalBox")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("VerticalBox")));
 		return Id;
 	}
-	FRuiElementTypeId HorizontalBoxType()
+	FRuitkElementTypeId HorizontalBoxType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("HorizontalBox")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("HorizontalBox")));
 		return Id;
 	}
-	FRuiElementTypeId ButtonType()
+	FRuitkElementTypeId ButtonType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("Button")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("Button")));
 		return Id;
 	}
-	FRuiElementTypeId OverlayType()
+	FRuitkElementTypeId OverlayType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("Overlay")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("Overlay")));
 		return Id;
 	}
-	FRuiElementTypeId CanvasType()
+	FRuitkElementTypeId CanvasType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("Canvas")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("Canvas")));
 		return Id;
 	}
 
 	namespace
 	{
 		template <typename TProps>
-		FRuiNode MakeHostNode(FRuiElementTypeId Type, TProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+		FRuitkNode MakeHostNode(FRuitkElementTypeId Type, TProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 		{
-			FRuiNode Node;
-			Node.Kind = ERuiNodeKind::Host;
+			FRuitkNode Node;
+			Node.Kind = ERuitkNodeKind::Host;
 			Node.ElementType = Type;
 			Node.Props = MakeShared<TProps>(MoveTemp(Props));
-			Node.Children = RUI::MakeChildren(MoveTemp(Children));
+			Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 			Node.Key = Key;
 			return Node;
 		}
 	} // namespace
 
-	FRuiNode VerticalBox(FRuiVerticalBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode VerticalBox(FRuitkVerticalBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNode(VerticalBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode HorizontalBox(FRuiHorizontalBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode HorizontalBox(FRuitkHorizontalBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNode(HorizontalBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode Button(FRuiButtonProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Button(FRuitkButtonProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNode(ButtonType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode Overlay(FRuiOverlayProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Overlay(FRuitkOverlayProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNode(OverlayType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode Canvas(FRuiCanvasPanelProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Canvas(FRuitkCanvasPanelProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNode(CanvasType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
 
 	namespace Detail
 	{
-		void RegisterBatch2Adapters();			 // RuiWidgetAdapters.cpp
-		void RegisterBatch2WidgetAdapters();	 // RuiWidgetAdaptersB2.cpp (Phase 7 batch-2 set)
-		void RegisterItemViewAdapters();		 // RuiListView.cpp (TD-022 virtualized ListView/TileView)
-		void RegisterDragDropAdapters();		 // RuiDragDrop.cpp (TD-004 DragSource/DropTarget)
-		void RegisterExpandableAreaAdapter();	 // RuiExpandableArea.cpp (TD-012 tail; two role slots)
-		void RegisterSegmentedControlAdapter();	 // RuiSegmentedControl.cpp (TD-012 tail; tab bar)
-		void RegisterNumericEntryBoxAdapter();	 // RuiNumericEntryBox.cpp (TD-012 tail; numeric field)
-		void RegisterComboBoxAdapter();			 // RuiComboBox.cpp (TD-012 tail; dropdown selector)
-		void RegisterSuggestionTextBoxAdapter(); // RuiSuggestionTextBox.cpp (TD-012 tail; autocomplete)
-		void RegisterBatch3WidgetAdapters();	 // RuiWidgetAdaptersB3.cpp (WIDGET_COMPLETION_PLAN wave 1)
-		void RegisterExpandableButtonAdapter();	 // RuiExpandableButton.cpp (wave 2; three role slots)
-		void RegisterBatch3Wave3Adapters();		 // RuiWidgetAdaptersB4.cpp (wave 3 protocol widgets)
-		void RegisterTreeViewAdapter();			 // RuiTreeView.cpp (wave 4; TD-022 closure + P5c columns)
+		void RegisterBatch2Adapters();			 // RuitkWidgetAdapters.cpp
+		void RegisterBatch2WidgetAdapters();	 // RuitkWidgetAdaptersB2.cpp (Phase 7 batch-2 set)
+		void RegisterItemViewAdapters();		 // RuitkListView.cpp (TD-022 virtualized ListView/TileView)
+		void RegisterDragDropAdapters();		 // RuitkDragDrop.cpp (TD-004 DragSource/DropTarget)
+		void RegisterExpandableAreaAdapter();	 // RuitkExpandableArea.cpp (TD-012 tail; two role slots)
+		void RegisterSegmentedControlAdapter();	 // RuitkSegmentedControl.cpp (TD-012 tail; tab bar)
+		void RegisterNumericEntryBoxAdapter();	 // RuitkNumericEntryBox.cpp (TD-012 tail; numeric field)
+		void RegisterComboBoxAdapter();			 // RuitkComboBox.cpp (TD-012 tail; dropdown selector)
+		void RegisterSuggestionTextBoxAdapter(); // RuitkSuggestionTextBox.cpp (TD-012 tail; autocomplete)
+		void RegisterBatch3WidgetAdapters();	 // RuitkWidgetAdaptersB3.cpp (WIDGET_COMPLETION_PLAN wave 1)
+		void RegisterExpandableButtonAdapter();	 // RuitkExpandableButton.cpp (wave 2; three role slots)
+		void RegisterBatch3Wave3Adapters();		 // RuitkWidgetAdaptersB4.cpp (wave 3 protocol widgets)
+		void RegisterTreeViewAdapter();			 // RuitkTreeView.cpp (wave 4; TD-022 closure + P5c columns)
 	} // namespace Detail
 
 	void RegisterBuiltinAdapters()
 	{
-		RegisterAdapter(RUI::TextBlockElementType(), MakeUnique<FRuiTextAdapter>());
-		RegisterAdapter(VerticalBoxType(), MakeUnique<FRuiVerticalBoxAdapter>());
-		RegisterAdapter(HorizontalBoxType(), MakeUnique<FRuiHorizontalBoxAdapter>());
-		RegisterAdapter(ButtonType(), MakeUnique<FRuiButtonAdapter>());
-		RegisterAdapter(OverlayType(), MakeUnique<FRuiOverlayAdapter>());
-		RegisterAdapter(CanvasType(), MakeUnique<FRuiCanvasPanelAdapter>());
+		RegisterAdapter(Ruitk::TextBlockElementType(), MakeUnique<FRuitkTextAdapter>());
+		RegisterAdapter(VerticalBoxType(), MakeUnique<FRuitkVerticalBoxAdapter>());
+		RegisterAdapter(HorizontalBoxType(), MakeUnique<FRuitkHorizontalBoxAdapter>());
+		RegisterAdapter(ButtonType(), MakeUnique<FRuitkButtonAdapter>());
+		RegisterAdapter(OverlayType(), MakeUnique<FRuitkOverlayAdapter>());
+		RegisterAdapter(CanvasType(), MakeUnique<FRuitkCanvasPanelAdapter>());
 		Detail::RegisterBatch2Adapters();
 		Detail::RegisterBatch2WidgetAdapters();
 		Detail::RegisterItemViewAdapters();
@@ -761,4 +761,4 @@ namespace RUI::Slate
 		Detail::RegisterBatch3Wave3Adapters();
 		Detail::RegisterTreeViewAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

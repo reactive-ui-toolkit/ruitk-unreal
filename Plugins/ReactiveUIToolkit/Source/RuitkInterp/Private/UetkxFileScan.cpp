@@ -41,7 +41,7 @@ namespace
 	 *  (`auto X = (<VerticalBox>…);` lowers in place), so the old detector is gone. What stays
 	 *  illegal is a PAREN-LESS markup return at statement level (`return <Tag/>;`) — the family
 	 *  return spelling is `return ( <markup> );` (that's what the collector recognizes; a bare
-	 *  form would otherwise die as an FRuiNode→FRuiNodeArray conversion error inside the .inl).
+	 *  form would otherwise die as an FRuitkNode→FRuitkNodeArray conversion error inside the .inl).
 	 *  Lambda-nested returns (ParenDepth > 0, deduced return type) lower fine and stay legal. */
 	void DiagnoseBareMarkupReturn(const TArray<int32>& Body, const TArray<FUetkxMarkupRange>& Ranges, int32 BodyAt,
 								  TArray<FUetkxDiag>& Diags)
@@ -1635,7 +1635,7 @@ namespace
 		return Bclose + 1;
 	}
 
-	/** ES-modules (U-02): `[export] FRuiNode Name(Type Param = Default, ...) { body }` — the new
+	/** ES-modules (U-02): `[export] FRuitkNode Name(Type Param = Default, ...) { body }` — the new
 	 *  plain-declaration component form. `Head`/`ParamText`/`ParenClose` come from the caller's
 	 *  ScanDeclHead + FindMatching on the param list; the BODY parsing (markup returns, jsx-range
 	 *  scan, hook-call scan, rules-of-hooks) is IDENTICAL to the legacy wrapper's tail — kept as a
@@ -1791,7 +1791,7 @@ namespace
 	}
 
 	/** ES-modules (U-02): `[export] <Ret> Name(params) { body }` — a module-level UTIL function
-	 *  (not `Use`-prefixed, not FRuiNode-returning). Emission mirrors a hook minus the `Ctx`
+	 *  (not `Use`-prefixed, not FRuitkNode-returning). Emission mirrors a hook minus the `Ctx`
 	 *  injection/HookSig participation — that's purely an EMISSION concern (M2), not scanned here. */
 	int32 ParseNewUtil(const TArray<int32>& Src, int32 DeclStart, const FString& RetType, const FUetkxDeclHead& Head,
 					   const FString& ParamText, int32 ParenClose, bool bExported, FUetkxFileScanResult& Out)
@@ -1908,12 +1908,12 @@ namespace
 			}
 			const FString ParamText = FUetkxLexer::FromCodePoints(Src, Head.TriggerAt + 1, Pc - Head.TriggerAt - 1);
 
-			if (Type == TEXT("FRuiNode"))
+			if (Type == TEXT("FRuitkNode"))
 			{
 				if (bLooksLikeHook)
 				{
 					AddDiag(Out.Diags, TEXT("UETKX2321"), 0,
-							FString::Printf(TEXT("`%s` is `Use`-prefixed but returns FRuiNode — did you mean a "
+							FString::Printf(TEXT("`%s` is `Use`-prefixed but returns FRuitkNode — did you mean a "
 												 "component? (hooks must not return markup nodes)"),
 											*Name),
 							Head.NameAt, Name.Len());
@@ -2198,21 +2198,21 @@ const TArray<FString>& FUetkxFileScan::AutoIncludedHeaders()
 	// virtualDoc.ts's PRELUDE exactly (comments there point back here).
 	static const TArray<FString> Headers = {
 		TEXT("CoreMinimal.h"),
-		TEXT("RuiContext.h"),
-		TEXT("RuiCoreElements.h"),
-		TEXT("RuiSignal.h"),
-		TEXT("RuiSlateElements.h"),
-		TEXT("RuiStyle.h"),
-		TEXT("RuiRouter.h"),
-		TEXT("RuiAssetBrush.h"),
-		TEXT("RuiFieldHooks.h"),
-		TEXT("RuiUmgElement.h"),
-		TEXT("RuiSignalViewModel.h"),
-		TEXT("RuiHostWidget.h"),
-		TEXT("RuiWorldSubsystem.h"),
-		TEXT("RuiActivation.h"),
-		TEXT("RuiActivatableScreen.h"),
-		TEXT("RuiMvvmViewModel.h"),
+		TEXT("RuitkContext.h"),
+		TEXT("RuitkCoreElements.h"),
+		TEXT("RuitkSignal.h"),
+		TEXT("RuitkSlateElements.h"),
+		TEXT("RuitkStyle.h"),
+		TEXT("RuitkRouter.h"),
+		TEXT("RuitkAssetBrush.h"),
+		TEXT("RuitkFieldHooks.h"),
+		TEXT("RuitkUmgElement.h"),
+		TEXT("RuitkSignalViewModel.h"),
+		TEXT("RuitkHostWidget.h"),
+		TEXT("RuitkWorldSubsystem.h"),
+		TEXT("RuitkActivation.h"),
+		TEXT("RuitkActivatableScreen.h"),
+		TEXT("RuitkMvvmViewModel.h"),
 		TEXT("UObject/StrongObjectPtr.h"),
 		TEXT("Engine/World.h"),
 	};
@@ -2549,8 +2549,8 @@ FUetkxFileScanResult FUetkxFileScan::Scan(const FString& Source, const FString& 
 		{
 			AddDiag(Out.Diags, TEXT("UETKX2320"), 1,
 					TEXT("`component` wrapper syntax is deprecated — write a plain typed declaration (`export "
-						 "FRuiNode Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run "
-						 "`-run=RUIMigrateEsModules`. Removed in the next minor."),
+						 "FRuitkNode Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run "
+						 "`-run=RuitkMigrateEsModules`. Removed in the next minor."),
 					i, 9);
 			Next = ParseComponent(Src, i, bExported, Out);
 			if (Next >= 0 && bExported)
@@ -2561,9 +2561,9 @@ FUetkxFileScanResult FUetkxFileScan::Scan(const FString& Source, const FString& 
 		else if (FUetkxLexer::KeywordAt(Src, i, TEXT("hook")))
 		{
 			AddDiag(Out.Diags, TEXT("UETKX2320"), 1,
-					TEXT("`hook` wrapper syntax is deprecated — write a plain typed declaration (`export FRuiNode "
+					TEXT("`hook` wrapper syntax is deprecated — write a plain typed declaration (`export FRuitkNode "
 						 "Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run "
-						 "`-run=RUIMigrateEsModules`. Removed in the next minor."),
+						 "`-run=RuitkMigrateEsModules`. Removed in the next minor."),
 					i, 4);
 			Next = ParseHook(Src, i, bExported, Out);
 			if (Next >= 0 && bExported)
@@ -2574,9 +2574,9 @@ FUetkxFileScanResult FUetkxFileScan::Scan(const FString& Source, const FString& 
 		else if (FUetkxLexer::KeywordAt(Src, i, TEXT("module")))
 		{
 			AddDiag(Out.Diags, TEXT("UETKX2320"), 1,
-					TEXT("`module` wrapper syntax is deprecated — write a plain typed declaration (`export FRuiNode "
+					TEXT("`module` wrapper syntax is deprecated — write a plain typed declaration (`export FRuitkNode "
 						 "Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run "
-						 "`-run=RUIMigrateEsModules`. Removed in the next minor."),
+						 "`-run=RuitkMigrateEsModules`. Removed in the next minor."),
 					i, 6);
 			Next = ParseModule(Src, i, bExported, Out);
 			if (Next >= 0 && bExported)
@@ -2951,7 +2951,7 @@ FUetkxPreambleScan FUetkxFileScan::ScanPreamble(const FString& Source)
 				continue;
 			}
 			// Trigger == '(' — component / hook / util by signature (U-02).
-			D.Kind = Type == TEXT("FRuiNode")	 ? EUetkxDeclKind::Component
+			D.Kind = Type == TEXT("FRuitkNode")	 ? EUetkxDeclKind::Component
 					 : LooksLikeHookName(D.Name) ? EUetkxDeclKind::Hook
 												 : EUetkxDeclKind::Util;
 			const int32 Pc = FUetkxLexer::FindMatching(Src, Head.TriggerAt);

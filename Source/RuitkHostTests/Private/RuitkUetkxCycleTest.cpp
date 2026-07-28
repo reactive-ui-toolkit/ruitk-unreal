@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Cycle — cross-file COMPONENT-cycle parity (M6). CycleA and CycleB (under
-// Source/RuiHostTests/CycleProof/) import and render each other. That the RuiHostTests aggregator
-// TU compiled at all is the compile-time proof the two-phase (RUI_UETKX_DECL_PHASE) fwd-decl pass
+// Ruitk.Uetkx.Cycle — cross-file COMPONENT-cycle parity (M6). CycleA and CycleB (under
+// Source/RuitkHostTests/CycleProof/) import and render each other. That the RuitkHostTests aggregator
+// TU compiled at all is the compile-time proof the two-phase (RUITK_UETKX_DECL_PHASE) fwd-decl pass
 // legalizes the cycle (the old UETKX2107 error retired). This test adds the runtime half: both
 // compiled cyclic components register a named factory and mount/render.
 
 #include "Misc/AutomationTest.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -34,20 +34,20 @@ namespace UetkxCycleTest
 	}
 } // namespace UetkxCycleTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxCycleTest, "ReactiveUI.Uetkx.Cycle",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxCycleTest, "Ruitk.Uetkx.Cycle",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxCycleTest::RunTest(const FString&)
+bool FRuitkUetkxCycleTest::RunTest(const FString&)
 {
 	// Both halves of the mutual cycle compiled into this module and self-registered.
-	TestTrue(TEXT("CycleA is registered"), RUI::HasNamedFactory(FName(TEXT("CycleA"))));
-	TestTrue(TEXT("CycleB is registered"), RUI::HasNamedFactory(FName(TEXT("CycleB"))));
+	TestTrue(TEXT("CycleA is registered"), Ruitk::HasNamedFactory(FName(TEXT("CycleA"))));
+	TestTrue(TEXT("CycleB is registered"), Ruitk::HasNamedFactory(FName(TEXT("CycleB"))));
 
-	TSharedRef<FRuiRoot> RootA = FRuiRoot::Create(RUI::Named(FName(TEXT("CycleA"))));
+	TSharedRef<FRuitkRoot> RootA = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("CycleA"))));
 	RootA->FlushSync();
 	TestTrue(TEXT("CycleA mounts and renders"), UetkxCycleTest::ContainsText(RootA->GetWidget().Get(), TEXT("A")));
 	RootA->Unmount();
 
-	TSharedRef<FRuiRoot> RootB = FRuiRoot::Create(RUI::Named(FName(TEXT("CycleB"))));
+	TSharedRef<FRuitkRoot> RootB = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("CycleB"))));
 	RootB->FlushSync();
 	TestTrue(TEXT("CycleB mounts and renders"), UetkxCycleTest::ContainsText(RootB->GetWidget().Get(), TEXT("B")));
 	RootB->Unmount();

@@ -234,7 +234,7 @@ export function listUetkxFiles(rootDir: string): string[] {
 export interface ImportedSurface {
   hooks: Array<{ name: string; ret: string; params: string }>;
   modules: Array<{ name: string; body: string }>;
-  /** Component names — their generated wrappers are fully-defaulted (`FRuiNode Name();` is a
+  /** Component names — their generated wrappers are fully-defaulted (`FRuitkNode Name();` is a
    *  valid call shape), and CODE references them (router tables: `RouterHome()`). */
   components: string[];
   /** ES-modules (M6): value exports — emitted as `inline const <T> Name = <Init>;` (typed) or
@@ -321,7 +321,7 @@ export function workspaceHeaders(importerFsPath: string): string[] {
 }
 
 /** Resolve an `import "@X.h"` payload to a workspace header by path-suffix match
- *  (`RuiDemoSupport.h`, `Doom/DoomTypes.h`), or null when the workspace doesn't have it. */
+ *  (`RuitkDemoSupport.h`, `Doom/DoomTypes.h`), or null when the workspace doesn't have it. */
 export function resolveHostInclude(importerFsPath: string, specifier: string): string | null {
   const suffix = "/" + specifier.replace(/\\/g, "/");
   for (const h of workspaceHeaders(importerFsPath)) {
@@ -337,7 +337,7 @@ export interface ExporterHit {
 }
 
 /** The compiler's sweep universe under the workspace root: the .uetkx files under `Source/` + `Plugins/`
- *  (mirrors RUICompileCommandlet::DefaultRoots). The LSP indexes ONLY these so it never offers or
+ *  (mirrors RuitkCompileCommandlet::DefaultRoots). The LSP indexes ONLY these so it never offers or
  *  navigates to an export the compiler never sweeps (bughunt LSP-2). Falls back to the whole workspace
  *  root when neither Source/ nor Plugins/ exists (a bare fixture tree). Sorted for a stable order. */
 export function sweptUetkxFiles(importerFsPath: string): string[] {

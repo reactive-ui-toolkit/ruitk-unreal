@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Children — TD-015: `{children}` forwards a component's children. ChildParent
+// Ruitk.Uetkx.Children — TD-015: `{children}` forwards a component's children. ChildParent
 // renders <ChildHost> wrapping two TextBlocks; ChildHost splices `{children}` between its own
 // header/footer. Mounting ChildParent must show all of HOST-HEADER, the two forwarded rows, and
 // HOST-FOOTER — proving the compiled Ch.Append(children) splice works end to end.
 
 #include "Misc/AutomationTest.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -33,14 +33,14 @@ namespace ChildrenTest
 	}
 } // namespace ChildrenTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiChildrenTest, "ReactiveUI.Uetkx.Children",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkChildrenTest, "Ruitk.Uetkx.Children",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiChildrenTest::RunTest(const FString&)
+bool FRuitkChildrenTest::RunTest(const FString&)
 {
-	TestTrue(TEXT("ChildHost registered"), RUI::HasNamedFactory(FName(TEXT("ChildHost"))));
-	TestTrue(TEXT("ChildParent registered"), RUI::HasNamedFactory(FName(TEXT("ChildParent"))));
+	TestTrue(TEXT("ChildHost registered"), Ruitk::HasNamedFactory(FName(TEXT("ChildHost"))));
+	TestTrue(TEXT("ChildParent registered"), Ruitk::HasNamedFactory(FName(TEXT("ChildParent"))));
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("ChildParent"))));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("ChildParent"))));
 	Root->FlushSync();
 	SWidget& W = Root->GetWidget().Get();
 

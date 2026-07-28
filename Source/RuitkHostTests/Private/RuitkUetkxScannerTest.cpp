@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Scanner — runs the D-22 contract corpus (uetkx-scanner-cases.json)
+// Ruitk.Uetkx.Scanner — runs the D-22 contract corpus (uetkx-scanner-cases.json)
 // against FUetkxLexer. The SAME file is run by lsp-server's node --test: the corpus is the
 // lockstep mechanism between the C++ compiler and the TypeScript IDE scanner (the family's
 // scanner-cases.json pattern). All offsets are Unicode code points (D-18).
@@ -41,9 +41,9 @@ namespace UetkxScannerTest
 	}
 } // namespace UetkxScannerTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxScannerTest, "ReactiveUI.Uetkx.Scanner",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxScannerTest, "Ruitk.Uetkx.Scanner",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxScannerTest::RunTest(const FString&)
+bool FRuitkUetkxScannerTest::RunTest(const FString&)
 {
 	const FString CorpusPath =
 		FPaths::Combine(FPaths::ProjectDir(), TEXT("ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json"));

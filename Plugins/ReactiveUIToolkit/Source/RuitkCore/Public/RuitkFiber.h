@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// FRuiFiber — a node in the persistent work tree, current/WIP paired via Alternate
-// (double buffering, D-06). Fibers live in the reconciler-owned SLAB (FRuiFiberSlab):
+// FRuitkFiber — a node in the persistent work tree, current/WIP paired via Alternate
+// (double buffering, D-06). Fibers live in the reconciler-owned SLAB (FRuitkFiberSlab):
 // fixed addresses, free-list reuse, RAW intra-tree pointers, zero ref counting inside the
 // tree. The Godot port's "sever cycles explicitly" generalizes here to "no cycles exist" —
 // only three ownership edges leave the slab (host handle, shared state, shared props).
@@ -9,10 +9,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiComponentState.h"
+#include "RuitkNode.h"
+#include "RuitkComponentState.h"
 
-enum class ERuiFiberTag : uint8
+enum class ERuitkFiberTag : uint8
 {
 	Function,
 	Host,
@@ -23,62 +23,62 @@ enum class ERuiFiberTag : uint8
 };
 
 /** Effect flags — what commit must do (family bitmask, incl. the PortalRetarget addition). */
-enum ERuiEffect : uint8
+enum ERuitkEffect : uint8
 {
-	RuiEffect_None = 0,
-	RuiEffect_Placement = 1 << 0,
-	RuiEffect_Update = 1 << 1,
-	RuiEffect_Deletion = 1 << 2,
-	RuiEffect_Layout = 1 << 3,
-	RuiEffect_Passive = 1 << 4,
-	RuiEffect_PortalRetarget = 1 << 5,
+	RuitkEffect_None = 0,
+	RuitkEffect_Placement = 1 << 0,
+	RuitkEffect_Update = 1 << 1,
+	RuitkEffect_Deletion = 1 << 2,
+	RuitkEffect_Layout = 1 << 3,
+	RuitkEffect_Passive = 1 << 4,
+	RuitkEffect_PortalRetarget = 1 << 5,
 };
 
-struct RUITKCORE_API FRuiFiber
+struct RUITKCORE_API FRuitkFiber
 {
-	FRuiFiber() = default;
+	FRuitkFiber() = default;
 	// Never copied/moved: fibers are slab-owned with RAW pointers into them everywhere
 	// (Parent/Child/Sibling/Alternate, state back-pointers) — address stability is the
 	// contract (D-06).
-	FRuiFiber(const FRuiFiber&) = delete;
-	FRuiFiber& operator=(const FRuiFiber&) = delete;
+	FRuitkFiber(const FRuitkFiber&) = delete;
+	FRuitkFiber& operator=(const FRuitkFiber&) = delete;
 
 	// --- tree (raw, slab-owned) ---
-	FRuiFiber* Parent = nullptr;
-	FRuiFiber* Child = nullptr;
-	FRuiFiber* Sibling = nullptr;
+	FRuitkFiber* Parent = nullptr;
+	FRuitkFiber* Child = nullptr;
+	FRuitkFiber* Sibling = nullptr;
 	int32 Index = 0;
 
 	// --- identity ---
-	ERuiFiberTag Tag = ERuiFiberTag::Host;
-	FRuiKey Key;
-	FRuiElementTypeId ElementType;			// HOST
+	ERuitkFiberTag Tag = ERuitkFiberTag::Host;
+	FRuitkKey Key;
+	FRuitkElementTypeId ElementType;			// HOST
 	FName ComponentId;						// FUNCTION (registry identity, D-05)
-	TSharedPtr<FRuiComponentInvoke> Invoke; // FUNCTION
+	TSharedPtr<FRuitkComponentInvoke> Invoke; // FUNCTION
 
 	// --- props ---
-	TSharedPtr<const FRuiPropsBase> Props; // committed (null = never rendered)
-	TSharedPtr<const FRuiPropsBase> PendingProps;
-	FRuiChildren InputChildren; // child vnodes to reconcile (shared list)
+	TSharedPtr<const FRuitkPropsBase> Props; // committed (null = never rendered)
+	TSharedPtr<const FRuitkPropsBase> PendingProps;
+	FRuitkChildren InputChildren; // child vnodes to reconcile (shared list)
 
 	// --- host ---
-	FRuiHostHandle Node;
+	FRuitkHostHandle Node;
 
 	// --- portal ---
-	FRuiPortalHandle PortalTarget;
+	FRuitkPortalHandle PortalTarget;
 
 	// --- error boundary (structural, D-10) ---
 	bool bEbActive = false;
 	FString EbLastError;
-	FRuiKey EbResetKey;
-	TSharedPtr<FRuiNode> EbFallback;
+	FRuitkKey EbResetKey;
+	TSharedPtr<FRuitkNode> EbFallback;
 	TFunction<void(const FString&)> EbOnError;
-	FRuiChildren EbChildren;
+	FRuitkChildren EbChildren;
 
 	// --- reconciliation / double buffer ---
-	FRuiFiber* Alternate = nullptr;
-	uint8 EffectTag = RuiEffect_None;
-	FRuiFiber* NextEffect = nullptr; // singly-linked post-order effect list
+	FRuitkFiber* Alternate = nullptr;
+	uint8 EffectTag = RuitkEffect_None;
+	FRuitkFiber* NextEffect = nullptr; // singly-linked post-order effect list
 	bool bHasDeletions = false;		 // this fiber recorded deletions this pass
 	bool bMatchedPass = false;		 // full-keyed mark-and-sweep (GO-08)
 
@@ -95,46 +95,46 @@ struct RUITKCORE_API FRuiFiber
 	bool bSubtreeHasUpdates = false;
 
 	// --- function-component state (SHARED across alternates) ---
-	TSharedPtr<FRuiComponentState> State;
+	TSharedPtr<FRuitkComponentState> State;
 
-	bool IsPortal() const { return Tag == ERuiFiberTag::Portal; }
-	bool IsRoot() const { return Tag == ERuiFiberTag::Root; }
+	bool IsPortal() const { return Tag == ERuitkFiberTag::Portal; }
+	bool IsRoot() const { return Tag == ERuitkFiberTag::Root; }
 
 	/** Can this fiber be reused for `vnode`? (family matches()) */
-	bool Matches(const FRuiNode& VNode) const
+	bool Matches(const FRuitkNode& VNode) const
 	{
 		switch (VNode.Kind)
 		{
-		case ERuiNodeKind::Host:
-			return Tag == ERuiFiberTag::Host && ElementType == VNode.ElementType;
-		case ERuiNodeKind::Function:
-			return Tag == ERuiFiberTag::Function && ComponentId == VNode.ComponentId;
-		case ERuiNodeKind::Fragment:
-			return Tag == ERuiFiberTag::Fragment;
-		case ERuiNodeKind::Portal:
-			return Tag == ERuiFiberTag::Portal;
-		case ERuiNodeKind::ErrorBoundary:
-			return Tag == ERuiFiberTag::ErrorBoundary;
+		case ERuitkNodeKind::Host:
+			return Tag == ERuitkFiberTag::Host && ElementType == VNode.ElementType;
+		case ERuitkNodeKind::Function:
+			return Tag == ERuitkFiberTag::Function && ComponentId == VNode.ComponentId;
+		case ERuitkNodeKind::Fragment:
+			return Tag == ERuitkFiberTag::Fragment;
+		case ERuitkNodeKind::Portal:
+			return Tag == ERuitkFiberTag::Portal;
+		case ERuitkNodeKind::ErrorBoundary:
+			return Tag == ERuitkFiberTag::ErrorBoundary;
 		}
 		return false;
 	}
 
-	static ERuiFiberTag TagForNode(const FRuiNode& VNode)
+	static ERuitkFiberTag TagForNode(const FRuitkNode& VNode)
 	{
 		switch (VNode.Kind)
 		{
-		case ERuiNodeKind::Host:
-			return ERuiFiberTag::Host;
-		case ERuiNodeKind::Function:
-			return ERuiFiberTag::Function;
-		case ERuiNodeKind::Fragment:
-			return ERuiFiberTag::Fragment;
-		case ERuiNodeKind::Portal:
-			return ERuiFiberTag::Portal;
-		case ERuiNodeKind::ErrorBoundary:
-			return ERuiFiberTag::ErrorBoundary;
+		case ERuitkNodeKind::Host:
+			return ERuitkFiberTag::Host;
+		case ERuitkNodeKind::Function:
+			return ERuitkFiberTag::Function;
+		case ERuitkNodeKind::Fragment:
+			return ERuitkFiberTag::Fragment;
+		case ERuitkNodeKind::Portal:
+			return ERuitkFiberTag::Portal;
+		case ERuitkNodeKind::ErrorBoundary:
+			return ERuitkFiberTag::ErrorBoundary;
 		}
-		return ERuiFiberTag::Host;
+		return ERuitkFiberTag::Host;
 	}
 
 	/** Full reset for slab reuse (every field to fresh-fiber state). */
@@ -142,9 +142,9 @@ struct RUITKCORE_API FRuiFiber
 	{
 		Parent = Child = Sibling = nullptr;
 		Index = 0;
-		Tag = ERuiFiberTag::Host;
-		Key = FRuiKey();
-		ElementType = FRuiElementTypeId();
+		Tag = ERuitkFiberTag::Host;
+		Key = FRuitkKey();
+		ElementType = FRuitkElementTypeId();
 		ComponentId = NAME_None;
 		Invoke.Reset();
 		Props.Reset();
@@ -154,12 +154,12 @@ struct RUITKCORE_API FRuiFiber
 		PortalTarget.Reset();
 		bEbActive = false;
 		EbLastError.Empty();
-		EbResetKey = FRuiKey();
+		EbResetKey = FRuitkKey();
 		EbFallback.Reset();
 		EbOnError = nullptr;
 		EbChildren.Reset();
 		Alternate = nullptr;
-		EffectTag = RuiEffect_None;
+		EffectTag = RuitkEffect_None;
 		NextEffect = nullptr;
 		bHasDeletions = false;
 		bMatchedPass = false;
@@ -177,12 +177,12 @@ struct RUITKCORE_API FRuiFiber
  * steady-state allocation once warmed (stable trees reuse alternates and never touch the
  * slab at all). Per-reconciler — a torn-down root frees exactly its own pages.
  */
-class RUITKCORE_API FRuiFiberSlab
+class RUITKCORE_API FRuitkFiberSlab
 {
 public:
 	static constexpr int32 PageSize = 256;
 
-	~FRuiFiberSlab()
+	~FRuitkFiberSlab()
 	{
 		for (FPage* Page : Pages)
 		{
@@ -190,11 +190,11 @@ public:
 		}
 	}
 
-	FRuiFiber* Acquire()
+	FRuitkFiber* Acquire()
 	{
 		if (FreeList != nullptr)
 		{
-			FRuiFiber* Out = FreeList;
+			FRuitkFiber* Out = FreeList;
 			FreeList = Out->Sibling; // free list threads through Sibling
 			Out->Sibling = nullptr;
 			++LiveCount;
@@ -205,13 +205,13 @@ public:
 			Pages.Add(new FPage());
 		}
 		FPage* Page = Pages.Last();
-		FRuiFiber* Out = &Page->Fibers[Page->Used++];
+		FRuitkFiber* Out = &Page->Fibers[Page->Used++];
 		++LiveCount;
 		return Out;
 	}
 
 	/** Return ONE fiber (caller handles the alternate pair — see reconciler Release()). */
-	void Release(FRuiFiber* Fiber)
+	void Release(FRuitkFiber* Fiber)
 	{
 		Fiber->ResetForReuse();
 		Fiber->Sibling = FreeList;
@@ -225,11 +225,11 @@ public:
 private:
 	struct FPage
 	{
-		FRuiFiber Fibers[PageSize];
+		FRuitkFiber Fibers[PageSize];
 		int32 Used = 0;
 	};
 
 	TArray<FPage*> Pages;
-	FRuiFiber* FreeList = nullptr;
+	FRuitkFiber* FreeList = nullptr;
 	int32 LiveCount = 0;
 };

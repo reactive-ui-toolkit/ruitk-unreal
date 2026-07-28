@@ -40,7 +40,7 @@ enum class EUetkxDeclKind : uint8
 	Hook,
 	Module,
 	Value, // ES-modules (plans/archive/ES_MODULES_EXECUTION_PLAN.md G-03/U-01): `export <Type> Name = Init;`
-	Util   // `export <Type> Name(params) { body }` — not Use-prefixed, not FRuiNode-returning
+	Util   // `export <Type> Name(params) { body }` — not Use-prefixed, not FRuitkNode-returning
 };
 
 /** `import { A, B } from "specifier"` — a PREAMBLE-ONLY static import (A1): named bindings only
@@ -122,7 +122,7 @@ struct RUITKINTERP_API FUetkxComponentDecl
 	int32 Next = -1;		   // just past the closing brace
 	// ES-modules (G-10): true when this decl used the deprecated `component Name(...) { }` wrapper
 	// keyword (UETKX2320 fires at At); false for the new plain-declaration form
-	// `[export] FRuiNode Name(...) { }` (classified by signature, U-02). Drives the formatter's
+	// `[export] FRuitkNode Name(...) { }` (classified by signature, U-02). Drives the formatter's
 	// form-preserving choice (§6 — the formatter never migrates syntax).
 	bool bLegacySyntax = true;
 };
@@ -167,7 +167,7 @@ struct RUITKINTERP_API FUetkxValueDecl
 };
 
 /** `[export] <Type> Name(params) { body }` — a module-level UTIL function (G-03/U-01): not
- *  `Use`-prefixed, not FRuiNode-returning. Params are verbatim C++ text (like hooks — template
+ *  `Use`-prefixed, not FRuitkNode-returning. Params are verbatim C++ text (like hooks — template
  *  commas can't be split by the family `Name: Type` grammar). Emission mirrors a hook minus the
  *  `Ctx` injection and HookSig participation (U-04). */
 struct RUITKINTERP_API FUetkxUtilDecl

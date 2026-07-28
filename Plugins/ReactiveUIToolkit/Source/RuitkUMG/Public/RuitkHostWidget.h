@@ -11,31 +11,31 @@
 #include "Components/Widget.h"
 #include "CoreMinimal.h"
 #include "INotifyFieldValueChanged.h"
-#include "RuiNode.h"
+#include "RuitkNode.h"
 #include "UObject/ScriptInterface.h"
-#include "RuiHostWidget.generated.h"
+#include "RuitkHostWidget.generated.h"
 
-class FRuiRoot;
+class FRuitkRoot;
 
 UCLASS(meta = (DisplayName = "ReactiveUI Host"))
-class RUITKUMG_API URuiHostWidget : public UWidget
+class RUITKUMG_API URuitkHostWidget : public UWidget
 {
 	GENERATED_BODY()
 
 public:
 	/** The registered component to mount (a compiled .uetkx component's name, or anything
-	 *  self-registered via RUI::RegisterNamedFactory). */
+	 *  self-registered via Ruitk::RegisterNamedFactory). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
 	FName ComponentName;
 
 	/** Initial props for the hosted component (TD-028) — the designer/BP-settable channel.
-	 *  Published into the tree as context; read with RUI::Umg::UseHostProp("Name"). Edits
+	 *  Published into the tree as context; read with Ruitk::Umg::UseHostProp("Name"). Edits
 	 *  re-publish through SynchronizeProperties (or set at runtime and call it yourself). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
 	TMap<FName, FString> InitialProps;
 
 	/** Optional FieldNotify viewmodel handed to the hosted tree (TD-028). Components fetch it
-	 *  with RUI::Umg::UseHostViewModel and subscribe via RUI::Umg::UseField. This UPROPERTY
+	 *  with Ruitk::Umg::UseHostViewModel and subscribe via Ruitk::Umg::UseField. This UPROPERTY
 	 *  holds the strong ref; the tree sees it weakly (stale-VM policy: quiet default). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReactiveUI")
 	TScriptInterface<INotifyFieldValueChanged> ViewModel;
@@ -59,12 +59,12 @@ protected:
 
 private:
 	/** The hosted component wrapped in the host-props provider (TD-028). */
-	FRuiNode BuildTree() const;
+	FRuitkNode BuildTree() const;
 
 	/** Build the current content (placeholder / unknown-name text / a live mounted root). */
 	TSharedRef<SWidget> BuildContent();
 
-	TSharedPtr<FRuiRoot> Root;
+	TSharedPtr<FRuitkRoot> Root;
 	/** Stable wrapper returned to UMG once; Remount swaps its content in place (UMG's
 	 *  TakeWidget caches the outer widget, so returning a NEW one from a re-Rebuild never
 	 *  reaches an already-slotted host — audit 2026-07-14, Remount was a no-op without this). */

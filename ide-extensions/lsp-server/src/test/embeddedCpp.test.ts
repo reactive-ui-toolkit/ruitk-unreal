@@ -108,12 +108,12 @@ test("virtual C++ doc lifts a component setup block", () => {
   assert.ok(vd.text.includes("Doubled = Count * 2"), "setup body present");
 });
 
-test("TB-27: setup scaffold returns FRuiNode so early-return windows are legal C++", () => {
+test("TB-27: setup scaffold returns FRuitkNode so early-return windows are legal C++", () => {
   // Under a `void` scaffold EVERY early return (`return ( <X/> );`, `return (<></>);`)
   // neutralized to `return ( __rui_rn );` — clangd's "void function should not return a
   // value" on perfectly valid markup (owner-reported on the fragment shape, F5 round 16).
   const source = [
-    "export FRuiNode SimpleCounter() {",
+    "export FRuitkNode SimpleCounter() {",
     "\tauto [Count, Inc] = UseState<int32>(0);",
     "",
     "\treturn (<></>);",
@@ -126,7 +126,7 @@ test("TB-27: setup scaffold returns FRuiNode so early-return windows are legal C
     "}",
   ].join("\n");
   const vd = buildVirtualCpp(source);
-  assert.ok(vd.text.includes("FRuiNode __rui_setup_SimpleCounter"), "scaffold returns FRuiNode, not void");
+  assert.ok(vd.text.includes("FRuitkNode __rui_setup_SimpleCounter"), "scaffold returns FRuitkNode, not void");
   assert.ok(!vd.text.includes("void __rui_setup_"), "no void scaffold remains");
   assert.ok(vd.text.includes("return (__rui_rn);"), "fragment early return neutralizes IN PLACE (legal now)");
   assert.ok(/return __rui_rn;\n\}/.test(vd.text), "synthetic tail return closes every control path (no C4715)");
@@ -134,7 +134,7 @@ test("TB-27: setup scaffold returns FRuiNode so early-return windows are legal C
 
 test("TB-28: `return null;` neutralizes to __rui_rn inside the setup scaffold", () => {
   const source = [
-    "export FRuiNode Gate() {",
+    "export FRuitkNode Gate() {",
     "\tif (Hidden) {",
     "\t\treturn null;",
     "\t}",
@@ -142,7 +142,7 @@ test("TB-28: `return null;` neutralizes to __rui_rn inside the setup scaffold", 
     "}",
   ].join("\n");
   const vd = buildVirtualCpp(source);
-  assert.ok(vd.text.includes("FRuiNode __rui_setup_Gate"), "scaffold returns FRuiNode");
+  assert.ok(vd.text.includes("FRuitkNode __rui_setup_Gate"), "scaffold returns FRuitkNode");
   assert.ok(vd.text.includes("return __rui_rn;\n\t}"), "the null token neutralizes in place (typed, legal)");
   assert.ok(!/\breturn null;/.test(vd.text), "raw `null` never reaches clangd");
 });
@@ -192,14 +192,14 @@ test("ES-modules: virtual doc declares rename/namespace/default bindings + value
   );
   fs.writeFileSync(
     path.join(dir, "Screen.uetkx"),
-    "export FRuiNode Screen() {\n\treturn ( <Spacer /> );\n}\nexport default Screen;\n",
+    "export FRuitkNode Screen() {\n\treturn ( <Spacer /> );\n}\nexport default Screen;\n",
   );
   const importer = path.join(dir, "App.uetkx");
   const src = [
     'import { Cool as Primary, FmtP } from "./Palette"',
     'import * as Palette from "./Palette"',
     'import Home from "./Screen"',
-    "export FRuiNode App() {",
+    "export FRuitkNode App() {",
     "\tauto A = Primary;",
     "\tauto B = Palette::Cool;",
     "\tauto C = FmtP(1);",
@@ -213,7 +213,7 @@ test("ES-modules: virtual doc declares rename/namespace/default bindings + value
   assert.ok(view.virtualText.includes("extern const FLinearColor Primary;"), "renamed value declared under the LOCAL alias");
   assert.ok(view.virtualText.includes("FString FmtP(int32 S);"), "imported util declared with its real signature");
   assert.ok(view.virtualText.includes("namespace Palette {"), "namespace import declared as a namespace");
-  assert.ok(view.virtualText.includes("FRuiNode Home();"), "default import bound to the target's default component shape");
+  assert.ok(view.virtualText.includes("FRuitkNode Home();"), "default import bound to the target's default component shape");
   fs.rmSync(root, { recursive: true, force: true });
 });
 
@@ -230,7 +230,7 @@ test("ES combined: one declaration declares default AND named AND star surfaces 
   const src = [
     'import Fmt, { Cool as Primary } from "./Palette"',
     'import Fmt2, * as Palette from "./Palette"',
-    "export FRuiNode App() {",
+    "export FRuitkNode App() {",
     "\tauto A = Primary;",
     "\tauto B = Fmt(1);",
     "\tauto C = Fmt2(2);",
@@ -274,7 +274,7 @@ test("§2 lifter: markup expressions become mapped code regions (events, directi
     "\treturn (",
     "\t\t<VerticalBox>",
     '\t\t\t<Button OnClicked={ SetCount(Count + 1) } ContentPadding="12,4">Go</Button>',
-    "\t\t\t{ RUI::TextBlock(FString(TEXT(\"hi\"))) }",
+    "\t\t\t{ Ruitk::TextBlock(FString(TEXT(\"hi\"))) }",
     "\t\t\t@for (int32 i = 0; i < 3; ++i) {",
     "\t\t\t\tconst FString Row = FString::FromInt(i);",
     "\t\t\t\treturn ( <TextBlock Text={ Row } /> );",
@@ -285,10 +285,10 @@ test("§2 lifter: markup expressions become mapped code regions (events, directi
     "",
   ].join("\n");
   const vd = buildVirtualCpp(src, "Lift");
-  assert.ok(vd.text.includes("(void)[=](const FRuiValue& Value)"), "event handler lifted in codegen's lambda shape");
+  assert.ok(vd.text.includes("(void)[=](const FRuitkValue& Value)"), "event handler lifted in codegen's lambda shape");
   assert.ok(vd.text.includes("for (int32 i = 0; i < 3; ++i) {"), "directive header lifted as a REAL loop");
   assert.ok(vd.text.includes("const FString Row = FString::FromInt(i);"), "directive-body statement lifted inside the loop scope");
-  assert.ok(vd.text.includes('RUI::TextBlock(FString(TEXT("hi")))'), "expr child lifted");
+  assert.ok(vd.text.includes('Ruitk::TextBlock(FString(TEXT("hi")))'), "expr child lifted");
   // Round-trip: an offset INSIDE the OnClicked expression maps into the virtual doc and back.
   const at = src.indexOf("SetCount(Count + 1)");
   const vir = vd.map.sourceToVirtual(at);
@@ -303,14 +303,14 @@ test("§2 prefix: qualified real-header hooks get decltype adapters; imported co
   const src = [
     'import "@Doom/DoomGameHook.h"',
     "export component Q {",
-    "\tauto View = RuiDoom::UseDoomGame(1, 2, 3);",
+    "\tauto View = RuitkDoom::UseDoomGame(1, 2, 3);",
     "\treturn ( <Spacer /> );",
     "}",
     "",
   ].join("\n");
   const vd = buildVirtualCpp(src, "Q");
   assert.ok(
-    vd.text.includes("namespace RuiDoom { template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto UseDoomGame(TArgs&&... Args) -> decltype(UseDoomGame(Ctx, static_cast<TArgs&&>(Args)...)); }"),
+    vd.text.includes("namespace RuitkDoom { template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto UseDoomGame(TArgs&&... Args) -> decltype(UseDoomGame(Ctx, static_cast<TArgs&&>(Args)...)); }"),
     "qualified-hook adapter emitted inside its namespace",
   );
   // A comment mentioning a qualified hook must NOT produce an adapter (code-aware scan).
@@ -320,7 +320,7 @@ test("§2 prefix: qualified real-header hooks get decltype adapters; imported co
   // Imported components appear as fully-defaulted wrapper declarations via the resolver.
   const resolver = () => ({ hooks: [], modules: [], components: ["RouterHome"] });
   const withComp = buildVirtualCpp('import { RouterHome } from "./R"\ncomponent W {\n\tauto N = RouterHome();\n\treturn ( <Spacer /> );\n}\n', "W", resolver);
-  assert.ok(withComp.text.includes("FRuiNode RouterHome();"), "imported component declared");
+  assert.ok(withComp.text.includes("FRuitkNode RouterHome();"), "imported component declared");
 });
 
 test("§2 sanitizer: rsp expansion honors quotes; SharedPCH dropped; system includes appended", () => {
@@ -413,8 +413,8 @@ test("virtual doc: value markup in setup neutralizes to __rui_rn and lifts its e
   assert.ok(!doc.text.includes("<VerticalBox"), "no raw markup reaches the virtual TU");
   assert.ok(!doc.text.includes("<Spacer"), "bare `=` markup neutralized too");
   assert.ok(doc.text.includes("auto Card = (__rui_rn);"), "paren value markup reads as a typed placeholder");
-  assert.ok(doc.text.includes("FRuiNode Bare = __rui_rn;"), "bare value markup reads as a typed placeholder");
-  assert.ok(doc.text.includes("extern FRuiNode __rui_rn;"), "the placeholder is declared in the prelude");
+  assert.ok(doc.text.includes("FRuitkNode Bare = __rui_rn;"), "bare value markup reads as a typed placeholder");
+  assert.ok(doc.text.includes("extern FRuitkNode __rui_rn;"), "the placeholder is declared in the prelude");
   // the nested attr expr got its own mapped region
   const attrExpr = "\nFText::AsNumber(Total)\n";
   const virAt = doc.text.indexOf(attrExpr);

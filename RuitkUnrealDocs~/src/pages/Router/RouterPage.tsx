@@ -6,21 +6,21 @@ const ROUTES = `import { HomeScreen } from "./HomeScreen"
 import { UserScreen } from "./UserScreen"
 
 // A Router owns an in-memory history; Routes renders the best match for the
-// current location. Routes are data (FRuiRoute), not tags.
-export FRuiNode AppShell() {
-	TArray<RUI::FRuiRoute> RouteList;
-	RouteList.Add(RUI::FRuiRoute{ TEXT("/"),          HomeScreen() });
-	RouteList.Add(RUI::FRuiRoute{ TEXT("/users/:id"), UserScreen() });
+// current location. Routes are data (FRuitkRoute), not tags.
+export FRuitkNode AppShell() {
+	TArray<Ruitk::FRuitkRoute> RouteList;
+	RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/"),          HomeScreen() });
+	RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/users/:id"), UserScreen() });
 
 	return (
 		<Overlay>
-			{ RUI::Router({ RUI::Routes(MoveTemp(RouteList)) }, /*InitialPath*/ TEXT("/")) }
+			{ Ruitk::Router({ Ruitk::Routes(MoveTemp(RouteList)) }, /*InitialPath*/ TEXT("/")) }
 		</Overlay>
 	);
 }`
 
 const HOOKS_SAMPLE = `// Inside a routed component — the compiler passes Ctx to every Use* call for you.
-export FRuiNode UserScreen() {
+export FRuitkNode UserScreen() {
 	const FString Path = UsePathname();
 	const TMap<FString, FString>& Params = UseParams();   // { "id": "42" }
 	auto Navigate = UseNavigate();                        // Navigate(TEXT("/users/7"), false)
@@ -28,7 +28,7 @@ export FRuiNode UserScreen() {
 	// A parent route renders its matched child wherever it embeds UseOutlet:
 	return (
 		<VerticalBox>
-			<TextBlock Text={ RUI::Fmt(TEXT("User {}"), Params[TEXT("id")]) } />
+			<TextBlock Text={ Ruitk::Fmt(TEXT("User {}"), Params[TEXT("id")]) } />
 			{ UseOutlet() }
 		</VerticalBox>
 	);
@@ -54,7 +54,7 @@ export const RouterPage: FC = () => (
       screens. A <code>Router</code> holds the routing state; <code>Routes</code> picks the best
       match by ranked path; each matched route renders its element, and nested routes render where
       the parent calls <code>UseOutlet</code>. Like the other structural primitives, the router is
-      a <code>RUI::</code> API (used from C++ or inside <code>{'{ expr }'}</code>), not a set of
+      a <code>Ruitk::</code> API (used from C++ or inside <code>{'{ expr }'}</code>), not a set of
       markup tags.
     </Typography>
     <CodeBlock code={ROUTES} language="uetkx" />
@@ -63,9 +63,9 @@ export const RouterPage: FC = () => (
       Routes are data
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>FRuiRoute</code> carries <code>Path</code> (with <code>:param</code> segments),{' '}
+      <code>FRuitkRoute</code> carries <code>Path</code> (with <code>:param</code> segments),{' '}
       <code>Element</code>, <code>bIndex</code> (the default child), and nested{' '}
-      <code>Children</code>. <code>RUI::Link(To, Children, bReplace)</code> renders a navigation
+      <code>Children</code>. <code>Ruitk::Link(To, Children, bReplace)</code> renders a navigation
       link; active-state styling comes from <code>UseIsActive</code>.
     </Typography>
     <CodeBlock code={HOOKS_SAMPLE} language="uetkx" />

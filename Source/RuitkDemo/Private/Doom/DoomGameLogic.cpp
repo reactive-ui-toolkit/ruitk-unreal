@@ -20,9 +20,9 @@
 
 #include <limits>
 
-namespace RuiDoom
+namespace RuitkDoom
 {
-	static const float RUI_DOOM_INF = std::numeric_limits<float>::infinity();
+	static const float RUITK_DOOM_INF = std::numeric_limits<float>::infinity();
 
 	// ───── Private structs (C# nested structs; F-prefixed per the naming contract) ─────
 
@@ -1665,13 +1665,13 @@ namespace RuiDoom
 		Col.CeilingBands.Reset();
 		DepthOut = C::MAX_RAY;
 		// Phase 8: first step-up riser captured for sprite occlusion.
-		float FloorOccDist = RUI_DOOM_INF;
-		float FloorOccZ = -RUI_DOOM_INF;
+		float FloorOccDist = RUITK_DOOM_INF;
+		float FloorOccZ = -RUITK_DOOM_INF;
 		// Phase 9: closest ceiling-slab underside encountered along the ray.
 		// Sprites past this distance whose anchor sits at-or-above this Z are
 		// hidden by the slab.
-		float CeilOccDist = RUI_DOOM_INF;
-		float CeilOccZ = RUI_DOOM_INF;
+		float CeilOccDist = RUITK_DOOM_INF;
+		float CeilOccZ = RUITK_DOOM_INF;
 
 		// Vertical occlusion window. Stuff farther than the current hit can
 		// only paint inside [WinTop, WinBot]. Tightens monotonically as we
@@ -1745,7 +1745,7 @@ namespace RuiDoom
 					Fb.FloorZ = Fz;
 					Fb.Light = Light;
 					Fb.FloorTex = Front.FloorTex;
-					Fb.BehindFloorZ = -RUI_DOOM_INF;
+					Fb.BehindFloorZ = -RUITK_DOOM_INF;
 					Fb.RimAtFar = bRimAtFar;
 					Fb.Distance = Perp; // GODOT ADDITION: depth-sorted paint list
 					Col.FloorBands.Add(&Fb);
@@ -1841,7 +1841,7 @@ namespace RuiDoom
 						Fb.FloorZ = Ef.TopZ;
 						Fb.Light = SlabLight;
 						Fb.FloorTex = Ef.TopTex;
-						Fb.BehindFloorZ = -RUI_DOOM_INF;
+						Fb.BehindFloorZ = -RUITK_DOOM_INF;
 						Fb.RimAtFar = !bSharedWithBack;
 						Fb.Distance = Perp; // GODOT ADDITION
 						Col.FloorBands.Add(&Fb);
@@ -2005,7 +2005,7 @@ namespace RuiDoom
 							Fb.FloorZ = Ef.TopZ;
 							Fb.Light = SlabLight;
 							Fb.FloorTex = Ef.TopTex;
-							Fb.BehindFloorZ = -RUI_DOOM_INF;
+							Fb.BehindFloorZ = -RUITK_DOOM_INF;
 							Fb.RimAtFar = true;
 							Fb.Distance = Perp; // GODOT ADDITION
 							Col.FloorBands.Add(&Fb);
@@ -2986,4 +2986,4 @@ namespace RuiDoom
 
 	// (The original file ends with its private `Frand(ref GameState)` — that LCG lives on
 	// the state itself here: `FGameState::Frand()` in DoomTypes.h, bit-identical.)
-} // namespace RuiDoom
+} // namespace RuitkDoom

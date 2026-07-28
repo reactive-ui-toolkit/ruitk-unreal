@@ -3,8 +3,8 @@
 // TD-012 tail — SExpandableArea, the collapsible section. It is the family's first TWO-NAMED-SLOT
 // widget: a header and a body, addressed by `slot.role = "header" | "body"` on the children (each a
 // single content slot). SExpandableArea's HeaderContent/BodyContent are CONSTRUCT-time named slots
-// with no runtime setters, so SRuiExpandableArea builds it once around two persistent SBox holders
-// and reparents the Rui children into them — the reconciler's child ops route by role.
+// with no runtime setters, so SRuitkExpandableArea builds it once around two persistent SBox holders
+// and reparents the Ruitk children into them — the reconciler's child ops route by role.
 //
 // Expansion is a CONTROLLED prop (React parity): `bIsExpanded` is applied skip-when-equal against
 // the widget's live state each render (the self-notifying family rule, D-16), and OnExpansionChanged
@@ -14,8 +14,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiPropsBase.h"
+#include "RuitkNode.h"
+#include "RuitkPropsBase.h"
 #include "Widgets/SCompoundWidget.h"
 
 class SExpandableArea;
@@ -23,18 +23,18 @@ class SBox;
 
 /** SExpandableArea (two role slots): children carry `slot.role = "header" | "body"`. `bIsExpanded`
  *  is the controlled expansion state; OnExpansionChanged fires (Value = bool) when the user toggles. */
-struct RUITKSLATE_API FRuiExpandableAreaProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuitkExpandableAreaProps final : public FRuitkPropsBase
 {
-	RUI_PROP(bool, bIsExpanded, 0)
-	RUI_PROP_EVENT(OnExpansionChanged, 1)
-	RUI_PROPS_BODY(FRuiExpandableAreaProps, RUI_EQ(bIsExpanded) RUI_EQ(OnExpansionChanged))
+	RUITK_PROP(bool, bIsExpanded, 0)
+	RUITK_PROP_EVENT(OnExpansionChanged, 1)
+	RUITK_PROPS_BODY(FRuitkExpandableAreaProps, RUITK_EQ(bIsExpanded) RUITK_EQ(OnExpansionChanged))
 };
 
 /** Wraps SExpandableArea with two SBox content holders the reconciler reparents children into. */
-class RUITKSLATE_API SRuiExpandableArea final : public SCompoundWidget
+class RUITKSLATE_API SRuitkExpandableArea final : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiExpandableArea) : _InitiallyExpanded(true) {}
+	SLATE_BEGIN_ARGS(SRuitkExpandableArea) : _InitiallyExpanded(true) {}
 	SLATE_ARGUMENT(bool, InitiallyExpanded)
 	SLATE_END_ARGS()
 
@@ -42,7 +42,7 @@ public:
 
 	void SetExpanded(bool bExpanded);
 	bool IsExpanded() const;
-	void SetOnExpansionChanged(FRuiCallback InCb) { OnExpansionChanged = MoveTemp(InCb); }
+	void SetOnExpansionChanged(FRuitkCallback InCb) { OnExpansionChanged = MoveTemp(InCb); }
 
 	/** Route a child into the header or body holder by role ("header" -> header, else body). */
 	void SetRoleContent(FName Role, const TSharedPtr<SWidget>& Content);
@@ -57,23 +57,23 @@ private:
 	TSharedPtr<SExpandableArea> Area;
 	TSharedPtr<SBox> HeaderBox;
 	TSharedPtr<SBox> BodyBox;
-	FRuiCallback OnExpansionChanged;
+	FRuitkCallback OnExpansionChanged;
 	/** Set while WE drive a controlled Area->SetExpanded, so HandleExpansionChanged suppresses
 	 *  OnExpansionChanged for the programmatic change (bughunt B9 — only user toggles fire it). */
 	bool bApplyingExpansion = false;
 };
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	RUITKSLATE_API FRuiElementTypeId ExpandableAreaType();
+	RUITKSLATE_API FRuitkElementTypeId ExpandableAreaType();
 
 	/** A collapsible section. Give it two children with `slot.role="header"` and `slot.role="body"`. */
-	RUITKSLATE_API FRuiNode ExpandableArea(FRuiExpandableAreaProps Props = FRuiExpandableAreaProps(),
-												TArray<FRuiNode> Children = TArray<FRuiNode>(),
-												FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuitkNode ExpandableArea(FRuitkExpandableAreaProps Props = FRuitkExpandableAreaProps(),
+												TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+												FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{
 		void RegisterExpandableAreaAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

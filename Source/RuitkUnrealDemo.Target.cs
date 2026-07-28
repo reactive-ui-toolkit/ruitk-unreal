@@ -15,6 +15,6 @@ public class RuitkUnrealDemoTarget : TargetRules
 		// (MASTER_PLAN D-28).
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
-		ExtraModuleNames.Add("RuiDemo");
+		ExtraModuleNames.Add("RuitkDemo");
 	}
 }

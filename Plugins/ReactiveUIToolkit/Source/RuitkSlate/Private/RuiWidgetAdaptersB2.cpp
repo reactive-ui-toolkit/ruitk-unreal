@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // Batch 2 (Phase 7 step 8) — the everyday game widget set (WIDGET_INVENTORY.md), on the same
-// production-line shape RuiWidgetAdapters.cpp established (props struct → adapter rows → factory →
+// production-line shape RuitkWidgetAdapters.cpp established (props struct → adapter rows → factory →
 // codegen tag + interp builder → contract/test). Setters are header-verified RUNTIME setters
 // wherever Slate exposes them; SSeparator is the exception — its Orientation/Thickness bake at
 // construction, so it declares a reconstruct mask (the first shipped widget to exercise TD-011).
 
-#include "RuiElementAdapter.h"
-#include "RuiEventProxy.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateLog.h"
-#include "RuiSlotValue.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkEventProxy.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateLog.h"
+#include "RuitkSlotValue.h"
 
 #include "Widgets/Images/SThrobber.h"
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
@@ -30,7 +30,7 @@
 
 namespace
 {
-	// ── shared parsers (batch-2-local; the box-panel set lives in RuiCoreAdapters.cpp) ─────
+	// ── shared parsers (batch-2-local; the box-panel set lives in RuitkCoreAdapters.cpp) ─────
 
 	EHorizontalAlignment HAlignB2(FName Value)
 	{
@@ -134,41 +134,41 @@ namespace
 	}
 
 	/** Apply the common slot.* layout keys to a scoped slot-args object (padding/halign/valign). */
-	template <typename TSlotArgs> void ConfigureCommonSlot(TSlotArgs& Slot, const FRuiStyleDict* SlotProps)
+	template <typename TSlotArgs> void ConfigureCommonSlot(TSlotArgs& Slot, const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps == nullptr)
 		{
 			return;
 		}
-		if (const FRuiValue* Padding = SlotProps->Find(FName(TEXT("slot.padding"))))
+		if (const FRuitkValue* Padding = SlotProps->Find(FName(TEXT("slot.padding"))))
 		{
 			// Full parser (String "l,t,r,b"/"h,v"/"u", Vector2, uniform) so these panels honor
 			// slot.padding identically to the box panels (bughunt SLOT-2).
-			Slot.Padding(RUI::Slate::SlotValue::AsMargin(*Padding));
+			Slot.Padding(Ruitk::Slate::SlotValue::AsMargin(*Padding));
 		}
-		if (const FRuiValue* H = SlotProps->Find(FName(TEXT("slot.halign"))))
+		if (const FRuitkValue* H = SlotProps->Find(FName(TEXT("slot.halign"))))
 		{
-			Slot.HAlign(HAlignB2(H->Kind == FRuiValue::EKind::Name ? H->NameValue : FName(*H->StringValue)));
+			Slot.HAlign(HAlignB2(H->Kind == FRuitkValue::EKind::Name ? H->NameValue : FName(*H->StringValue)));
 		}
-		if (const FRuiValue* V = SlotProps->Find(FName(TEXT("slot.valign"))))
+		if (const FRuitkValue* V = SlotProps->Find(FName(TEXT("slot.valign"))))
 		{
-			Slot.VAlign(VAlignB2(V->Kind == FRuiValue::EKind::Name ? V->NameValue : FName(*V->StringValue)));
+			Slot.VAlign(VAlignB2(V->Kind == FRuitkValue::EKind::Name ? V->NameValue : FName(*V->StringValue)));
 		}
 	}
 
 	/** Apply the common slot.* keys to a LIVE FSlot in place (padding/halign/valign), resetting absent
 	 *  keys to the slot defaults so a live update mirrors a fresh insert — WITHOUT detach/re-add, which
 	 *  on an append-only panel (SWrapBox) would jump the child to the end (bughunt WRAP-1). */
-	template <typename TSlot> void ConfigureCommonSlotLive(TSlot& Slot, const FRuiStyleDict* SlotProps)
+	template <typename TSlot> void ConfigureCommonSlotLive(TSlot& Slot, const FRuitkStyleDict* SlotProps)
 	{
-		const FRuiValue* Padding = SlotProps ? SlotProps->Find(FName(TEXT("slot.padding"))) : nullptr;
-		Slot.SetPadding(Padding ? RUI::Slate::SlotValue::AsMargin(*Padding) : FMargin(0.0f));
-		const FRuiValue* H = SlotProps ? SlotProps->Find(FName(TEXT("slot.halign"))) : nullptr;
+		const FRuitkValue* Padding = SlotProps ? SlotProps->Find(FName(TEXT("slot.padding"))) : nullptr;
+		Slot.SetPadding(Padding ? Ruitk::Slate::SlotValue::AsMargin(*Padding) : FMargin(0.0f));
+		const FRuitkValue* H = SlotProps ? SlotProps->Find(FName(TEXT("slot.halign"))) : nullptr;
 		Slot.SetHorizontalAlignment(
-			H ? HAlignB2(H->Kind == FRuiValue::EKind::Name ? H->NameValue : FName(*H->StringValue)) : HAlign_Fill);
-		const FRuiValue* V = SlotProps ? SlotProps->Find(FName(TEXT("slot.valign"))) : nullptr;
+			H ? HAlignB2(H->Kind == FRuitkValue::EKind::Name ? H->NameValue : FName(*H->StringValue)) : HAlign_Fill);
+		const FRuitkValue* V = SlotProps ? SlotProps->Find(FName(TEXT("slot.valign"))) : nullptr;
 		Slot.SetVerticalAlignment(
-			V ? VAlignB2(V->Kind == FRuiValue::EKind::Name ? V->NameValue : FName(*V->StringValue)) : VAlign_Fill);
+			V ? VAlignB2(V->Kind == FRuitkValue::EKind::Name ? V->NameValue : FName(*V->StringValue)) : VAlign_Fill);
 	}
 
 	bool ChildPresent(FChildren* Children, const TSharedRef<SWidget>& Child)
@@ -185,21 +185,21 @@ namespace
 
 	/** Read an integer slot.* key (grid column/row); absent -> Def. Parses the String/Name literal forms
 	 *  the toolchain emits for a literal `Slot.Column="1"`, not just the expression Int form (SLOT-1). */
-	int32 SlotIntOf(const FRuiStyleDict* SlotProps, const TCHAR* Key, int32 Def)
+	int32 SlotIntOf(const FRuitkStyleDict* SlotProps, const TCHAR* Key, int32 Def)
 	{
 		if (SlotProps != nullptr)
 		{
-			if (const FRuiValue* V = SlotProps->Find(FName(Key)))
+			if (const FRuitkValue* V = SlotProps->Find(FName(Key)))
 			{
-				return RUI::Slate::SlotValue::AsInt(*V, Def);
+				return Ruitk::Slate::SlotValue::AsInt(*V, Def);
 			}
 		}
 		return Def;
 	}
 } // namespace
 
-// Convenience for the repetitive row shape (mirrors RuiWidgetAdapters.cpp).
-#define RUI_ROW(Prop, ApplyExpr)                                                                                       \
+// Convenience for the repetitive row shape (mirrors RuitkWidgetAdapters.cpp).
+#define RUITK_ROW(Prop, ApplyExpr)                                                                                       \
 	if (N.Has##Prop() && (O == nullptr || !O->Has##Prop() || !(N.Prop == O->Prop)))                                    \
 	{                                                                                                                  \
 		ApplyExpr;                                                                                                     \
@@ -209,26 +209,26 @@ namespace
 // SWidgetSwitcher (MultiSlot; shows one child by index)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiWidgetSwitcherAdapter final : public IRuiElementAdapter
+class FRuitkWidgetSwitcherAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SWidgetSwitcher);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SWidgetSwitcher& W = static_cast<SWidgetSwitcher&>(Widget);
-		const FRuiWidgetSwitcherProps& N = static_cast<const FRuiWidgetSwitcherProps&>(New);
-		const FRuiWidgetSwitcherProps* O = static_cast<const FRuiWidgetSwitcherProps*>(Old);
-		RUI_ROW(WidgetIndex, W.SetActiveWidgetIndex(N.WidgetIndex))
+		const FRuitkWidgetSwitcherProps& N = static_cast<const FRuitkWidgetSwitcherProps&>(New);
+		const FRuitkWidgetSwitcherProps* O = static_cast<const FRuitkWidgetSwitcherProps*>(Old);
+		RUITK_ROW(WidgetIndex, W.SetActiveWidgetIndex(N.WidgetIndex))
 	}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32 Index,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		SWidgetSwitcher& W = static_cast<SWidgetSwitcher&>(Parent);
 		SWidgetSwitcher::FScopedWidgetSlotArguments Slot = W.AddSlot(Index);
@@ -242,7 +242,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		SWidgetSwitcher& W = static_cast<SWidgetSwitcher&>(Parent);
 		for (const TSharedRef<SWidget>& Child : Ordered)
@@ -258,7 +258,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// SWidgetSwitcher::GetChildren is protected — RemoveSlot returns the removed index
 		// (INDEX_NONE if absent), so re-add at the SAME index to preserve the switcher position.
@@ -277,29 +277,29 @@ public:
 // SScaleBox (SingleContent)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiScaleBoxAdapter final : public IRuiElementAdapter
+class FRuitkScaleBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SScaleBox);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SScaleBox& W = static_cast<SScaleBox&>(Widget);
-		const FRuiScaleBoxProps& N = static_cast<const FRuiScaleBoxProps&>(New);
-		const FRuiScaleBoxProps* O = static_cast<const FRuiScaleBoxProps*>(Old);
-		RUI_ROW(Stretch, W.SetStretch(StretchOf(N.Stretch)))
-		RUI_ROW(StretchDirection, W.SetStretchDirection(StretchDirOf(N.StretchDirection)))
+		const FRuitkScaleBoxProps& N = static_cast<const FRuitkScaleBoxProps&>(New);
+		const FRuitkScaleBoxProps* O = static_cast<const FRuitkScaleBoxProps*>(Old);
+		RUITK_ROW(Stretch, W.SetStretch(StretchOf(N.Stretch)))
+		RUITK_ROW(StretchDirection, W.SetStretchDirection(StretchDirOf(N.StretchDirection)))
 		// Scaled-content placement inside the box (SScaleBox live setters; default center|center).
-		RUI_ROW(HAlign, W.SetHAlign(N.HAlign == FName(TEXT("left"))	   ? HAlign_Left
+		RUITK_ROW(HAlign, W.SetHAlign(N.HAlign == FName(TEXT("left"))	   ? HAlign_Left
 									: N.HAlign == FName(TEXT("right")) ? HAlign_Right
 									: N.HAlign == FName(TEXT("fill"))  ? HAlign_Fill
 																	   : HAlign_Center))
-		RUI_ROW(VAlign, W.SetVAlign(N.VAlign == FName(TEXT("top"))		? VAlign_Top
+		RUITK_ROW(VAlign, W.SetVAlign(N.VAlign == FName(TEXT("top"))		? VAlign_Top
 									: N.VAlign == FName(TEXT("bottom")) ? VAlign_Bottom
 									: N.VAlign == FName(TEXT("fill"))	? VAlign_Fill
 																		: VAlign_Center))
@@ -315,23 +315,23 @@ public:
 // SThrobber (Leaf)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiThrobberAdapter final : public IRuiElementAdapter
+class FRuitkThrobberAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SThrobber);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SThrobber& W = static_cast<SThrobber&>(Widget);
-		const FRuiThrobberProps& N = static_cast<const FRuiThrobberProps&>(New);
-		const FRuiThrobberProps* O = static_cast<const FRuiThrobberProps*>(Old);
-		RUI_ROW(NumPieces, W.SetNumPieces(N.NumPieces))
-		RUI_ROW(Animate, W.SetAnimate(ThrobberAnimOf(N.Animate)))
+		const FRuitkThrobberProps& N = static_cast<const FRuitkThrobberProps&>(New);
+		const FRuitkThrobberProps* O = static_cast<const FRuitkThrobberProps*>(Old);
+		RUITK_ROW(NumPieces, W.SetNumPieces(N.NumPieces))
+		RUITK_ROW(Animate, W.SetAnimate(ThrobberAnimOf(N.Animate)))
 	}
 };
 
@@ -339,30 +339,30 @@ public:
 // SWrapBox (MultiSlot)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiWrapBoxAdapter final : public IRuiElementAdapter
+class FRuitkWrapBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SWrapBox);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SWrapBox& W = static_cast<SWrapBox&>(Widget);
-		const FRuiWrapBoxProps& N = static_cast<const FRuiWrapBoxProps&>(New);
-		const FRuiWrapBoxProps* O = static_cast<const FRuiWrapBoxProps*>(Old);
-		RUI_ROW(Orientation,
+		const FRuitkWrapBoxProps& N = static_cast<const FRuitkWrapBoxProps&>(New);
+		const FRuitkWrapBoxProps* O = static_cast<const FRuitkWrapBoxProps*>(Old);
+		RUITK_ROW(Orientation,
 				W.SetOrientation(N.Orientation == FName(TEXT("vertical")) ? Orient_Vertical : Orient_Horizontal))
-		RUI_ROW(bUseAllottedSize, W.SetUseAllottedSize(N.bUseAllottedSize))
-		RUI_ROW(WrapSize, W.SetWrapSize(N.WrapSize))
-		RUI_ROW(InnerSlotPadding, W.SetInnerSlotPadding(N.InnerSlotPadding))
+		RUITK_ROW(bUseAllottedSize, W.SetUseAllottedSize(N.bUseAllottedSize))
+		RUITK_ROW(WrapSize, W.SetWrapSize(N.WrapSize))
+		RUITK_ROW(InnerSlotPadding, W.SetInnerSlotPadding(N.InnerSlotPadding))
 	}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		SWrapBox& W = static_cast<SWrapBox&>(Parent);
 		SWrapBox::FScopedWidgetSlotArguments Slot = W.AddSlot();
@@ -376,7 +376,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		SWrapBox& W = static_cast<SWrapBox&>(Parent);
 		W.ClearChildren();
@@ -389,7 +389,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// Mutate the LIVE FSlot in place (like the box panels' TD-010(a) path) instead of remove+append,
 		// which on SWrapBox (append-only, no InsertSlot) jumped a non-last child to the end (bughunt WRAP-1).
@@ -413,28 +413,28 @@ public:
 // SMultiLineEditableTextBox — multi-line controlled input (D-16 caret rule)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiMultiLineEditableTextAdapter final : public IRuiElementAdapter
+class FRuitkMultiLineEditableTextAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
 		return SNew(SMultiLineEditableTextBox)
 			.OnTextChanged(
-				FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleText,
-										 static_cast<int32>(FRuiMultiLineEditableTextBoxProps::OnTextChanged_Bit)))
+				FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleText,
+										 static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextChanged_Bit)))
 			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuiMultiLineEditableTextBoxProps::OnTextCommitted_Bit)));
+				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+										   static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit)));
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SMultiLineEditableTextBox& W = static_cast<SMultiLineEditableTextBox&>(Widget);
-		const FRuiMultiLineEditableTextBoxProps& N = static_cast<const FRuiMultiLineEditableTextBoxProps&>(New);
-		const FRuiMultiLineEditableTextBoxProps* O = static_cast<const FRuiMultiLineEditableTextBoxProps*>(Old);
+		const FRuitkMultiLineEditableTextBoxProps& N = static_cast<const FRuitkMultiLineEditableTextBoxProps&>(New);
+		const FRuitkMultiLineEditableTextBoxProps* O = static_cast<const FRuitkMultiLineEditableTextBoxProps*>(Old);
 		// The D-16 caret rule: compare against the WIDGET's live text (survives the typing round-trip).
 		if (N.HasText() && !W.GetText().EqualTo(N.Text))
 		{
@@ -444,14 +444,14 @@ public:
 		{
 			W.SetHintText(N.HintText);
 		}
-		RUI_ROW(bIsReadOnly, W.SetIsReadOnly(N.bIsReadOnly))
+		RUITK_ROW(bIsReadOnly, W.SetIsReadOnly(N.bIsReadOnly))
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiMultiLineEditableTextBoxProps& N = static_cast<const FRuiMultiLineEditableTextBoxProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiMultiLineEditableTextBoxProps::OnTextChanged_Bit), N.OnTextChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiMultiLineEditableTextBoxProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		const FRuitkMultiLineEditableTextBoxProps& N = static_cast<const FRuitkMultiLineEditableTextBoxProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextChanged_Bit), N.OnTextChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkMultiLineEditableTextBoxProps::OnTextCommitted_Bit), N.OnTextCommitted);
 	}
 };
 
@@ -459,26 +459,26 @@ public:
 // SSearchBox — SEditableTextBox specialization (controlled text; D-16 caret rule)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSearchBoxAdapter final : public IRuiElementAdapter
+class FRuitkSearchBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
 		return SNew(SSearchBox)
-			.OnTextChanged(FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleText,
-													static_cast<int32>(FRuiSearchBoxProps::OnTextChanged_Bit)))
-			.OnTextCommitted(FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleTextCommit,
-														static_cast<int32>(FRuiSearchBoxProps::OnTextCommitted_Bit)));
+			.OnTextChanged(FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleText,
+													static_cast<int32>(FRuitkSearchBoxProps::OnTextChanged_Bit)))
+			.OnTextCommitted(FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+														static_cast<int32>(FRuitkSearchBoxProps::OnTextCommitted_Bit)));
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SSearchBox& W = static_cast<SSearchBox&>(Widget);
-		const FRuiSearchBoxProps& N = static_cast<const FRuiSearchBoxProps&>(New);
-		const FRuiSearchBoxProps* O = static_cast<const FRuiSearchBoxProps*>(Old);
+		const FRuitkSearchBoxProps& N = static_cast<const FRuitkSearchBoxProps&>(New);
+		const FRuitkSearchBoxProps* O = static_cast<const FRuitkSearchBoxProps*>(Old);
 		if (N.HasText() && !W.GetText().EqualTo(N.Text))
 		{
 			W.SetText(N.Text);
@@ -489,11 +489,11 @@ public:
 		}
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiSearchBoxProps& N = static_cast<const FRuiSearchBoxProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiSearchBoxProps::OnTextChanged_Bit), N.OnTextChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiSearchBoxProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		const FRuitkSearchBoxProps& N = static_cast<const FRuitkSearchBoxProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkSearchBoxProps::OnTextChanged_Bit), N.OnTextChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkSearchBoxProps::OnTextCommitted_Bit), N.OnTextCommitted);
 	}
 };
 
@@ -501,22 +501,22 @@ public:
 // SSafeZone (SingleContent)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSafeZoneAdapter final : public IRuiElementAdapter
+class FRuitkSafeZoneAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SSafeZone);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SSafeZone& W = static_cast<SSafeZone&>(Widget);
-		const FRuiSafeZoneProps& N = static_cast<const FRuiSafeZoneProps&>(New);
-		const FRuiSafeZoneProps* O = static_cast<const FRuiSafeZoneProps*>(Old);
-		RUI_ROW(bIsTitleSafe, W.SetTitleSafe(N.bIsTitleSafe))
+		const FRuitkSafeZoneProps& N = static_cast<const FRuitkSafeZoneProps&>(New);
+		const FRuitkSafeZoneProps* O = static_cast<const FRuitkSafeZoneProps*>(Old);
+		RUITK_ROW(bIsTitleSafe, W.SetTitleSafe(N.bIsTitleSafe))
 		// The four pad-side bools apply together (single Slate setter).
 		if ((N.HasbPadLeft() || N.HasbPadRight() || N.HasbPadTop() || N.HasbPadBottom()) &&
 			(O == nullptr || !(O->bPadLeft == N.bPadLeft) || !(O->bPadRight == N.bPadRight) ||
@@ -537,22 +537,22 @@ public:
 // SDPIScaler (SingleContent)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiDPIScalerAdapter final : public IRuiElementAdapter
+class FRuitkDPIScalerAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SDPIScaler);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SDPIScaler& W = static_cast<SDPIScaler&>(Widget);
-		const FRuiDPIScalerProps& N = static_cast<const FRuiDPIScalerProps&>(New);
-		const FRuiDPIScalerProps* O = static_cast<const FRuiDPIScalerProps*>(Old);
-		RUI_ROW(DPIScale, W.SetDPIScale(N.DPIScale))
+		const FRuitkDPIScalerProps& N = static_cast<const FRuitkDPIScalerProps&>(New);
+		const FRuitkDPIScalerProps* O = static_cast<const FRuitkDPIScalerProps*>(Old);
+		RUITK_ROW(DPIScale, W.SetDPIScale(N.DPIScale))
 	}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
@@ -566,21 +566,21 @@ public:
 // exercise the TD-011 reconstruct mask); ColorAndOpacity is a live setter (inherited SBorder).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSeparatorAdapter final : public IRuiElementAdapter
+class FRuitkSeparatorAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
 	// Orientation (bit 0) + Thickness (bit 1) bake at construction — a change replaces the widget.
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiSeparatorProps::Orientation_Bit) | (1ull << FRuiSeparatorProps::Thickness_Bit);
+		return (1ull << FRuitkSeparatorProps::Orientation_Bit) | (1ull << FRuitkSeparatorProps::Thickness_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiSeparatorProps& O = static_cast<const FRuiSeparatorProps&>(Old);
-		const FRuiSeparatorProps& N = static_cast<const FRuiSeparatorProps&>(New);
+		const FRuitkSeparatorProps& O = static_cast<const FRuitkSeparatorProps&>(Old);
+		const FRuitkSeparatorProps& N = static_cast<const FRuitkSeparatorProps&>(New);
 		// Gate on the Has-bits (bughunt SEP-REBUILD-1): merely REMOVING a construct-only prop in the new
 		// render is not a change (removed plain props don't reset) — comparing raw values would see
 		// old!=default and force a spurious rebuild that resets the widget to its literal default.
@@ -589,27 +589,27 @@ public:
 		return bOrient || bThickness;
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiSeparatorProps& P = static_cast<const FRuiSeparatorProps&>(Props);
+		const FRuitkSeparatorProps& P = static_cast<const FRuitkSeparatorProps&>(Props);
 		return SNew(SSeparator)
 			.Orientation(P.HasOrientation() && P.Orientation == FName(TEXT("vertical")) ? Orient_Vertical
 																						: Orient_Horizontal)
 			.Thickness(P.HasThickness() ? P.Thickness : 3.0f);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SSeparator& W = static_cast<SSeparator&>(Widget);
-		const FRuiSeparatorProps& N = static_cast<const FRuiSeparatorProps&>(New);
-		const FRuiSeparatorProps* O = static_cast<const FRuiSeparatorProps*>(Old);
-		RUI_ROW(ColorAndOpacity, W.SetColorAndOpacity(N.ColorAndOpacity))
+		const FRuitkSeparatorProps& N = static_cast<const FRuitkSeparatorProps&>(New);
+		const FRuitkSeparatorProps* O = static_cast<const FRuitkSeparatorProps*>(Old);
+		RUITK_ROW(ColorAndOpacity, W.SetColorAndOpacity(N.ColorAndOpacity))
 	}
 
 	// Markup routes ColorAndOpacity through the STYLE dict (D-13 widget-specific key, like
 	// TextBlock's) — the typed row above only serves the C++ authoring API. null = reset to
 	// the SCompoundWidget default (opaque white).
-	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuiValue* Value) override
+	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuitkValue* Value) override
 	{
 		if (Key == FName(TEXT("ColorAndOpacity")))
 		{
@@ -625,28 +625,28 @@ public:
 // SSpinBox<float> (Leaf) — numeric input (self-notifying skip; D-16)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSpinBoxAdapter final : public IRuiElementAdapter
+class FRuitkSpinBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
 		return SNew(SSpinBox<float>)
 			.OnValueChanged(
-				SSpinBox<float>::FOnValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleFloat,
-														   static_cast<int32>(FRuiSpinBoxProps::OnValueChanged_Bit)));
+				SSpinBox<float>::FOnValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleFloat,
+														   static_cast<int32>(FRuitkSpinBoxProps::OnValueChanged_Bit)));
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SSpinBox<float>& W = static_cast<SSpinBox<float>&>(Widget);
-		const FRuiSpinBoxProps& N = static_cast<const FRuiSpinBoxProps&>(New);
-		const FRuiSpinBoxProps* O = static_cast<const FRuiSpinBoxProps*>(Old);
-		RUI_ROW(MinValue, W.SetMinValue(N.MinValue))
-		RUI_ROW(MaxValue, W.SetMaxValue(N.MaxValue))
-		RUI_ROW(Delta, W.SetDelta(N.Delta))
+		const FRuitkSpinBoxProps& N = static_cast<const FRuitkSpinBoxProps&>(New);
+		const FRuitkSpinBoxProps* O = static_cast<const FRuitkSpinBoxProps*>(Old);
+		RUITK_ROW(MinValue, W.SetMinValue(N.MinValue))
+		RUITK_ROW(MaxValue, W.SetMaxValue(N.MaxValue))
+		RUITK_ROW(Delta, W.SetDelta(N.Delta))
 		// Self-notifying skip: the drag/commit round-trip lands on an equal value (D-16).
 		if (N.HasValue() && !FMath::IsNearlyEqual(W.GetValue(), N.Value))
 		{
@@ -654,10 +654,10 @@ public:
 		}
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiSpinBoxProps& N = static_cast<const FRuiSpinBoxProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiSpinBoxProps::OnValueChanged_Bit), N.OnValueChanged);
+		const FRuitkSpinBoxProps& N = static_cast<const FRuitkSpinBoxProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkSpinBoxProps::OnValueChanged_Bit), N.OnValueChanged);
 	}
 };
 
@@ -665,26 +665,26 @@ public:
 // SUniformWrapPanel (MultiSlot)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiUniformWrapPanelAdapter final : public IRuiElementAdapter
+class FRuitkUniformWrapPanelAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SUniformWrapPanel);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SUniformWrapPanel& W = static_cast<SUniformWrapPanel&>(Widget);
-		const FRuiUniformWrapPanelProps& N = static_cast<const FRuiUniformWrapPanelProps&>(New);
-		const FRuiUniformWrapPanelProps* O = static_cast<const FRuiUniformWrapPanelProps*>(Old);
-		RUI_ROW(SlotPadding, W.SetSlotPadding(FMargin(N.SlotPadding)))
-		RUI_ROW(HAlign, W.SetHorizontalAlignment(HAlignB2(N.HAlign)))
+		const FRuitkUniformWrapPanelProps& N = static_cast<const FRuitkUniformWrapPanelProps&>(New);
+		const FRuitkUniformWrapPanelProps* O = static_cast<const FRuitkUniformWrapPanelProps*>(Old);
+		RUITK_ROW(SlotPadding, W.SetSlotPadding(FMargin(N.SlotPadding)))
+		RUITK_ROW(HAlign, W.SetHorizontalAlignment(HAlignB2(N.HAlign)))
 	}
 
-	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32, const FRuiStyleDict*) override
+	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32, const FRuitkStyleDict*) override
 	{
 		SUniformWrapPanel& W = static_cast<SUniformWrapPanel&>(Parent);
 		SUniformWrapPanel::FScopedWidgetSlotArguments Slot = W.AddSlot();
@@ -708,7 +708,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)>) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)>) override
 	{
 		Rebuild(static_cast<SUniformWrapPanel&>(Parent), Ordered);
 	}
@@ -729,26 +729,26 @@ private:
 // SRichTextBlock (Leaf)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiRichTextBlockAdapter final : public IRuiElementAdapter
+class FRuitkRichTextBlockAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SRichTextBlock);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SRichTextBlock& W = static_cast<SRichTextBlock&>(Widget);
-		const FRuiRichTextBlockProps& N = static_cast<const FRuiRichTextBlockProps&>(New);
-		const FRuiRichTextBlockProps* O = static_cast<const FRuiRichTextBlockProps*>(Old);
+		const FRuitkRichTextBlockProps& N = static_cast<const FRuitkRichTextBlockProps&>(New);
+		const FRuitkRichTextBlockProps* O = static_cast<const FRuitkRichTextBlockProps*>(Old);
 		if (N.HasText() && (O == nullptr || !O->HasText() || !N.Text.EqualTo(O->Text)))
 		{
 			W.SetText(N.Text);
 		}
-		RUI_ROW(bAutoWrapText, W.SetAutoWrapText(N.bAutoWrapText))
+		RUITK_ROW(bAutoWrapText, W.SetAutoWrapText(N.bAutoWrapText))
 	}
 };
 
@@ -756,20 +756,20 @@ public:
 // SGridPanel / SUniformGridPanel (MultiSlot; slot.column + slot.row place each child)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiGridPanelAdapter final : public IRuiElementAdapter
+class FRuitkGridPanelAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SGridPanel);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		SGridPanel& W = static_cast<SGridPanel&>(Parent);
 		SGridPanel::FScopedWidgetSlotArguments Slot =
@@ -784,7 +784,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// A grid places by cell, not by child order, so re-place the child at its (possibly new)
 		// column/row on any slot-prop change (bughunt GRID-1: previously the base no-op left the
@@ -802,13 +802,13 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		SGridPanel& W = static_cast<SGridPanel&>(Parent);
 		W.ClearChildren();
 		for (const TSharedRef<SWidget>& Child : Ordered)
 		{
-			const FRuiStyleDict* SlotProps = SlotPropsOf(Child);
+			const FRuitkStyleDict* SlotProps = SlotPropsOf(Child);
 			SGridPanel::FScopedWidgetSlotArguments Slot =
 				W.AddSlot(SlotIntOf(SlotProps, TEXT("slot.column"), 0), SlotIntOf(SlotProps, TEXT("slot.row"), 0));
 			Slot.AttachWidget(Child);
@@ -826,28 +826,28 @@ private:
 	}
 };
 
-class FRuiUniformGridPanelAdapter final : public IRuiElementAdapter
+class FRuitkUniformGridPanelAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SUniformGridPanel);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SUniformGridPanel& W = static_cast<SUniformGridPanel&>(Widget);
-		const FRuiUniformGridPanelProps& N = static_cast<const FRuiUniformGridPanelProps&>(New);
-		const FRuiUniformGridPanelProps* O = static_cast<const FRuiUniformGridPanelProps*>(Old);
-		RUI_ROW(SlotPadding, W.SetSlotPadding(FMargin(N.SlotPadding)))
-		RUI_ROW(MinDesiredSlotWidth, W.SetMinDesiredSlotWidth(N.MinDesiredSlotWidth))
-		RUI_ROW(MinDesiredSlotHeight, W.SetMinDesiredSlotHeight(N.MinDesiredSlotHeight))
+		const FRuitkUniformGridPanelProps& N = static_cast<const FRuitkUniformGridPanelProps&>(New);
+		const FRuitkUniformGridPanelProps* O = static_cast<const FRuitkUniformGridPanelProps*>(Old);
+		RUITK_ROW(SlotPadding, W.SetSlotPadding(FMargin(N.SlotPadding)))
+		RUITK_ROW(MinDesiredSlotWidth, W.SetMinDesiredSlotWidth(N.MinDesiredSlotWidth))
+		RUITK_ROW(MinDesiredSlotHeight, W.SetMinDesiredSlotHeight(N.MinDesiredSlotHeight))
 	}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
 		SUniformGridPanel& W = static_cast<SUniformGridPanel&>(Parent);
 		SUniformGridPanel::FScopedWidgetSlotArguments Slot =
@@ -861,7 +861,7 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
 		// Re-place at the (possibly new) column/row on a slot-prop change (bughunt GRID-1).
 		SUniformGridPanel& W = static_cast<SUniformGridPanel&>(Parent);
@@ -876,13 +876,13 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
 		SUniformGridPanel& W = static_cast<SUniformGridPanel&>(Parent);
 		W.ClearChildren();
 		for (const TSharedRef<SWidget>& Child : Ordered)
 		{
-			const FRuiStyleDict* SlotProps = SlotPropsOf(Child);
+			const FRuitkStyleDict* SlotProps = SlotPropsOf(Child);
 			SUniformGridPanel::FScopedWidgetSlotArguments Slot =
 				W.AddSlot(SlotIntOf(SlotProps, TEXT("slot.column"), 0), SlotIntOf(SlotProps, TEXT("slot.row"), 0));
 			Slot.AttachWidget(Child);
@@ -894,133 +894,133 @@ public:
 // Types, factories, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
 	namespace
 	{
 		template <typename TProps>
-		FRuiNode MakeHostNodeB2(FRuiElementTypeId Type, TProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+		FRuitkNode MakeHostNodeB2(FRuitkElementTypeId Type, TProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 		{
-			FRuiNode Node;
-			Node.Kind = ERuiNodeKind::Host;
+			FRuitkNode Node;
+			Node.Kind = ERuitkNodeKind::Host;
 			Node.ElementType = Type;
 			Node.Props = MakeShared<TProps>(MoveTemp(Props));
-			Node.Children = RUI::MakeChildren(MoveTemp(Children));
+			Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 			Node.Key = Key;
 			return Node;
 		}
 
-		FRuiElementTypeId WidgetSwitcherType()
+		FRuitkElementTypeId WidgetSwitcherType()
 		{
-			return RUI::InternElementType(FName(TEXT("WidgetSwitcher")));
+			return Ruitk::InternElementType(FName(TEXT("WidgetSwitcher")));
 		}
-		FRuiElementTypeId ScaleBoxType()
+		FRuitkElementTypeId ScaleBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("ScaleBox")));
+			return Ruitk::InternElementType(FName(TEXT("ScaleBox")));
 		}
-		FRuiElementTypeId ThrobberType()
+		FRuitkElementTypeId ThrobberType()
 		{
-			return RUI::InternElementType(FName(TEXT("Throbber")));
+			return Ruitk::InternElementType(FName(TEXT("Throbber")));
 		}
-		FRuiElementTypeId WrapBoxType()
+		FRuitkElementTypeId WrapBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("WrapBox")));
+			return Ruitk::InternElementType(FName(TEXT("WrapBox")));
 		}
-		FRuiElementTypeId MultiLineEditableTextBoxType()
+		FRuitkElementTypeId MultiLineEditableTextBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("MultiLineEditableTextBox")));
+			return Ruitk::InternElementType(FName(TEXT("MultiLineEditableTextBox")));
 		}
-		FRuiElementTypeId SearchBoxType()
+		FRuitkElementTypeId SearchBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("SearchBox")));
+			return Ruitk::InternElementType(FName(TEXT("SearchBox")));
 		}
-		FRuiElementTypeId SafeZoneType()
+		FRuitkElementTypeId SafeZoneType()
 		{
-			return RUI::InternElementType(FName(TEXT("SafeZone")));
+			return Ruitk::InternElementType(FName(TEXT("SafeZone")));
 		}
-		FRuiElementTypeId DPIScalerType()
+		FRuitkElementTypeId DPIScalerType()
 		{
-			return RUI::InternElementType(FName(TEXT("DPIScaler")));
+			return Ruitk::InternElementType(FName(TEXT("DPIScaler")));
 		}
-		FRuiElementTypeId SeparatorType()
+		FRuitkElementTypeId SeparatorType()
 		{
-			return RUI::InternElementType(FName(TEXT("Separator")));
+			return Ruitk::InternElementType(FName(TEXT("Separator")));
 		}
-		FRuiElementTypeId SpinBoxType()
+		FRuitkElementTypeId SpinBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("SpinBox")));
+			return Ruitk::InternElementType(FName(TEXT("SpinBox")));
 		}
-		FRuiElementTypeId UniformWrapPanelType()
+		FRuitkElementTypeId UniformWrapPanelType()
 		{
-			return RUI::InternElementType(FName(TEXT("UniformWrapPanel")));
+			return Ruitk::InternElementType(FName(TEXT("UniformWrapPanel")));
 		}
-		FRuiElementTypeId RichTextBlockType()
+		FRuitkElementTypeId RichTextBlockType()
 		{
-			return RUI::InternElementType(FName(TEXT("RichTextBlock")));
+			return Ruitk::InternElementType(FName(TEXT("RichTextBlock")));
 		}
-		FRuiElementTypeId GridPanelType()
+		FRuitkElementTypeId GridPanelType()
 		{
-			return RUI::InternElementType(FName(TEXT("GridPanel")));
+			return Ruitk::InternElementType(FName(TEXT("GridPanel")));
 		}
-		FRuiElementTypeId UniformGridPanelType()
+		FRuitkElementTypeId UniformGridPanelType()
 		{
-			return RUI::InternElementType(FName(TEXT("UniformGridPanel")));
+			return Ruitk::InternElementType(FName(TEXT("UniformGridPanel")));
 		}
 	} // namespace
 
-	FRuiNode WidgetSwitcher(FRuiWidgetSwitcherProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode WidgetSwitcher(FRuitkWidgetSwitcherProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(WidgetSwitcherType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode ScaleBox(FRuiScaleBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode ScaleBox(FRuitkScaleBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(ScaleBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode Throbber(FRuiThrobberProps Props, FRuiKey Key)
+	FRuitkNode Throbber(FRuitkThrobberProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(ThrobberType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(ThrobberType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode WrapBox(FRuiWrapBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode WrapBox(FRuitkWrapBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(WrapBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode MultiLineEditableTextBox(FRuiMultiLineEditableTextBoxProps Props, FRuiKey Key)
+	FRuitkNode MultiLineEditableTextBox(FRuitkMultiLineEditableTextBoxProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(MultiLineEditableTextBoxType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(MultiLineEditableTextBoxType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode SearchBox(FRuiSearchBoxProps Props, FRuiKey Key)
+	FRuitkNode SearchBox(FRuitkSearchBoxProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(SearchBoxType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(SearchBoxType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode SafeZone(FRuiSafeZoneProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode SafeZone(FRuitkSafeZoneProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(SafeZoneType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode DPIScaler(FRuiDPIScalerProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode DPIScaler(FRuitkDPIScalerProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(DPIScalerType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode Separator(FRuiSeparatorProps Props, FRuiKey Key)
+	FRuitkNode Separator(FRuitkSeparatorProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(SeparatorType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(SeparatorType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode SpinBox(FRuiSpinBoxProps Props, FRuiKey Key)
+	FRuitkNode SpinBox(FRuitkSpinBoxProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(SpinBoxType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(SpinBoxType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode UniformWrapPanel(FRuiUniformWrapPanelProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode UniformWrapPanel(FRuitkUniformWrapPanelProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(UniformWrapPanelType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode RichTextBlock(FRuiRichTextBlockProps Props, FRuiKey Key)
+	FRuitkNode RichTextBlock(FRuitkRichTextBlockProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB2(RichTextBlockType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB2(RichTextBlockType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode GridPanel(FRuiGridPanelProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode GridPanel(FRuitkGridPanelProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(GridPanelType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode UniformGridPanel(FRuiUniformGridPanelProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode UniformGridPanel(FRuitkUniformGridPanelProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB2(UniformGridPanelType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
@@ -1029,22 +1029,22 @@ namespace RUI::Slate
 	{
 		void RegisterBatch2WidgetAdapters()
 		{
-			RegisterAdapter(WidgetSwitcherType(), MakeUnique<FRuiWidgetSwitcherAdapter>());
-			RegisterAdapter(ScaleBoxType(), MakeUnique<FRuiScaleBoxAdapter>());
-			RegisterAdapter(ThrobberType(), MakeUnique<FRuiThrobberAdapter>());
-			RegisterAdapter(WrapBoxType(), MakeUnique<FRuiWrapBoxAdapter>());
-			RegisterAdapter(MultiLineEditableTextBoxType(), MakeUnique<FRuiMultiLineEditableTextAdapter>());
-			RegisterAdapter(SearchBoxType(), MakeUnique<FRuiSearchBoxAdapter>());
-			RegisterAdapter(SafeZoneType(), MakeUnique<FRuiSafeZoneAdapter>());
-			RegisterAdapter(DPIScalerType(), MakeUnique<FRuiDPIScalerAdapter>());
-			RegisterAdapter(SeparatorType(), MakeUnique<FRuiSeparatorAdapter>());
-			RegisterAdapter(SpinBoxType(), MakeUnique<FRuiSpinBoxAdapter>());
-			RegisterAdapter(UniformWrapPanelType(), MakeUnique<FRuiUniformWrapPanelAdapter>());
-			RegisterAdapter(RichTextBlockType(), MakeUnique<FRuiRichTextBlockAdapter>());
-			RegisterAdapter(GridPanelType(), MakeUnique<FRuiGridPanelAdapter>());
-			RegisterAdapter(UniformGridPanelType(), MakeUnique<FRuiUniformGridPanelAdapter>());
+			RegisterAdapter(WidgetSwitcherType(), MakeUnique<FRuitkWidgetSwitcherAdapter>());
+			RegisterAdapter(ScaleBoxType(), MakeUnique<FRuitkScaleBoxAdapter>());
+			RegisterAdapter(ThrobberType(), MakeUnique<FRuitkThrobberAdapter>());
+			RegisterAdapter(WrapBoxType(), MakeUnique<FRuitkWrapBoxAdapter>());
+			RegisterAdapter(MultiLineEditableTextBoxType(), MakeUnique<FRuitkMultiLineEditableTextAdapter>());
+			RegisterAdapter(SearchBoxType(), MakeUnique<FRuitkSearchBoxAdapter>());
+			RegisterAdapter(SafeZoneType(), MakeUnique<FRuitkSafeZoneAdapter>());
+			RegisterAdapter(DPIScalerType(), MakeUnique<FRuitkDPIScalerAdapter>());
+			RegisterAdapter(SeparatorType(), MakeUnique<FRuitkSeparatorAdapter>());
+			RegisterAdapter(SpinBoxType(), MakeUnique<FRuitkSpinBoxAdapter>());
+			RegisterAdapter(UniformWrapPanelType(), MakeUnique<FRuitkUniformWrapPanelAdapter>());
+			RegisterAdapter(RichTextBlockType(), MakeUnique<FRuitkRichTextBlockAdapter>());
+			RegisterAdapter(GridPanelType(), MakeUnique<FRuitkGridPanelAdapter>());
+			RegisterAdapter(UniformGridPanelType(), MakeUnique<FRuitkUniformGridPanelAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate
 
-#undef RUI_ROW
+#undef RUITK_ROW

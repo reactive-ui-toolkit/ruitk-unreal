@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Style.* — the D-13 v1 contract: style keys map to setters (a style-only
+// Ruitk.Style.* — the D-13 v1 contract: style keys map to setters (a style-only
 // re-render provably does NOT reconstruct the widget — pointer identity is asserted),
 // removed style keys RESET to defaults (unlike plain props), classes merge under inline.
 // Plus the GO-05 pool: released leaves come back as the SAME widget pointer.
 
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateHost.h"
-#include "RuiStyle.h"
+#include "RuitkContext.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateHost.h"
+#include "RuitkStyle.h"
 #include "Widgets/IToolTip.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Layout/SSeparator.h"
@@ -18,13 +18,13 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_STYLE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_STYLE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 namespace StyleTest
 {
 	static TFunction<void(int32)> IntSetter;
 
-	static TSharedPtr<SWidget> RootChild(FRuiRoot& Root)
+	static TSharedPtr<SWidget> RootChild(FRuitkRoot& Root)
 	{
 		FChildren* Children = Root.GetWidget()->GetRootPanel()->GetChildren();
 		return Children->Num() > 0 ? TSharedPtr<SWidget>(Children->GetChildAt(0)) : nullptr;
@@ -45,11 +45,11 @@ namespace StyleTest
 			.GetSpecifiedColor();
 	}
 
-	static FRuiNode StyledText(const FString& S, TSharedPtr<FRuiStyleDict> Style, TArray<FName> Classes = {})
+	static FRuitkNode StyledText(const FString& S, TSharedPtr<FRuitkStyleDict> Style, TArray<FName> Classes = {})
 	{
-		FRuiNode Node = RUI::TextBlock(S);
-		TSharedRef<FRuiTextBlockProps> Props =
-			MakeShared<FRuiTextBlockProps>(static_cast<const FRuiTextBlockProps&>(*Node.Props));
+		FRuitkNode Node = Ruitk::TextBlock(S);
+		TSharedRef<FRuitkTextBlockProps> Props =
+			MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*Node.Props));
 		Props->Style = MoveTemp(Style);
 		Props->Classes = MoveTemp(Classes);
 		Node.Props = Props;
@@ -59,31 +59,31 @@ namespace StyleTest
 
 // ── apply / update / removal-reset + pointer identity ─────────────────────────────────────
 
-static FRuiNodeArray StyleModesComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray StyleModesComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Mode, SetMode] = Ctx.UseState<int32>(0);
 	StyleTest::IntSetter = SetMode;
-	TSharedPtr<FRuiStyleDict> Style;
+	TSharedPtr<FRuitkStyleDict> Style;
 	if (Mode < 2)
 	{
-		Style = MakeShared<FRuiStyleDict>();
-		Style->Add(FName(TEXT("RenderOpacity")), FRuiValue(Mode == 0 ? 0.4f : 0.8f));
+		Style = MakeShared<FRuitkStyleDict>();
+		Style->Add(FName(TEXT("RenderOpacity")), FRuitkValue(Mode == 0 ? 0.4f : 0.8f));
 		if (Mode == 0)
 		{
-			Style->Add(FName(TEXT("visibility")), FRuiValue(FName(TEXT("hidden"))));
-			Style->Add(FName(TEXT("RenderTranslation")), FRuiValue(FVector2D(5.0f, 7.0f)));
-			Style->Add(FName(TEXT("Clipping")), FRuiValue(FName(TEXT("clipToBounds"))));
-			Style->Add(FName(TEXT("ToolTipText")), FRuiValue(FText::FromString(TEXT("hover me"))));
+			Style->Add(FName(TEXT("visibility")), FRuitkValue(FName(TEXT("hidden"))));
+			Style->Add(FName(TEXT("RenderTranslation")), FRuitkValue(FVector2D(5.0f, 7.0f)));
+			Style->Add(FName(TEXT("Clipping")), FRuitkValue(FName(TEXT("clipToBounds"))));
+			Style->Add(FName(TEXT("ToolTipText")), FRuitkValue(FText::FromString(TEXT("hover me"))));
 		}
 	}
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {StyleTest::StyledText(TEXT("styled"), MoveTemp(Style))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {StyleTest::StyledText(TEXT("styled"), MoveTemp(Style))})};
 }
-RUI_COMPONENT(StyleModesComp)
+RUITK_COMPONENT(StyleModesComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiStyleApplyTest, "ReactiveUI.Style.ApplyAndReset", RUI_STYLE_TEST_FLAGS)
-bool FRuiStyleApplyTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStyleApplyTest, "Ruitk.Style.ApplyAndReset", RUITK_STYLE_TEST_FLAGS)
+bool FRuitkStyleApplyTest::RunTest(const FString&)
 {
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&StyleModesComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&StyleModesComp));
 	TSharedPtr<SWidget> Panel = StyleTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -124,20 +124,20 @@ bool FRuiStyleApplyTest::RunTest(const FString&)
 // buttons — with no diagnostic anywhere. Pinned distinguishably: each expected value differs
 // from the old silent default.
 
-static FRuiNodeArray StyleStringFormsComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray StyleStringFormsComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
-	TSharedPtr<FRuiStyleDict> Style = MakeShared<FRuiStyleDict>();
-	Style->Add(FName(TEXT("RenderOpacity")), FRuiValue(FString(TEXT("0.5"))));
-	Style->Add(FName(TEXT("enabled")), FRuiValue(FString(TEXT("true"))));
-	Style->Add(FName(TEXT("RenderTranslation")), FRuiValue(FString(TEXT("5,7"))));
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {StyleTest::StyledText(TEXT("lit"), MoveTemp(Style))})};
+	TSharedPtr<FRuitkStyleDict> Style = MakeShared<FRuitkStyleDict>();
+	Style->Add(FName(TEXT("RenderOpacity")), FRuitkValue(FString(TEXT("0.5"))));
+	Style->Add(FName(TEXT("enabled")), FRuitkValue(FString(TEXT("true"))));
+	Style->Add(FName(TEXT("RenderTranslation")), FRuitkValue(FString(TEXT("5,7"))));
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {StyleTest::StyledText(TEXT("lit"), MoveTemp(Style))})};
 }
-RUI_COMPONENT(StyleStringFormsComp)
+RUITK_COMPONENT(StyleStringFormsComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiStyleStringFormsTest, "ReactiveUI.Style.StringLiteralForms", RUI_STYLE_TEST_FLAGS)
-bool FRuiStyleStringFormsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStyleStringFormsTest, "Ruitk.Style.StringLiteralForms", RUITK_STYLE_TEST_FLAGS)
+bool FRuitkStyleStringFormsTest::RunTest(const FString&)
 {
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&StyleStringFormsComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&StyleStringFormsComp));
 	TSharedPtr<SWidget> Panel = StyleTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -154,29 +154,29 @@ bool FRuiStyleStringFormsTest::RunTest(const FString&)
 
 // ── classes merge: class applies, inline wins ─────────────────────────────────────────────
 
-static FRuiNodeArray StyleClassesComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray StyleClassesComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Mode, SetMode] = Ctx.UseState<int32>(0);
 	StyleTest::IntSetter = SetMode;
-	TSharedPtr<FRuiStyleDict> Inline;
+	TSharedPtr<FRuitkStyleDict> Inline;
 	if (Mode == 1)
 	{
-		Inline = MakeShared<FRuiStyleDict>();
-		Inline->Add(FName(TEXT("RenderOpacity")), FRuiValue(0.9f)); // inline beats the class
+		Inline = MakeShared<FRuitkStyleDict>();
+		Inline->Add(FName(TEXT("RenderOpacity")), FRuitkValue(0.9f)); // inline beats the class
 	}
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(),
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
 									{StyleTest::StyledText(TEXT("classy"), Inline, {FName(TEXT("rui-test-dim"))})})};
 }
-RUI_COMPONENT(StyleClassesComp)
+RUITK_COMPONENT(StyleClassesComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiStyleClassesTest, "ReactiveUI.Style.Classes", RUI_STYLE_TEST_FLAGS)
-bool FRuiStyleClassesTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStyleClassesTest, "Ruitk.Style.Classes", RUITK_STYLE_TEST_FLAGS)
+bool FRuitkStyleClassesTest::RunTest(const FString&)
 {
-	FRuiStyleDict Dim;
-	Dim.Add(FName(TEXT("RenderOpacity")), FRuiValue(0.25f));
-	RUI::Slate::RegisterStyleClass(FName(TEXT("rui-test-dim")), MoveTemp(Dim));
+	FRuitkStyleDict Dim;
+	Dim.Add(FName(TEXT("RenderOpacity")), FRuitkValue(0.25f));
+	Ruitk::Slate::RegisterStyleClass(FName(TEXT("rui-test-dim")), MoveTemp(Dim));
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&StyleClassesComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&StyleClassesComp));
 	TSharedPtr<SWidget> Panel = StyleTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -193,25 +193,25 @@ bool FRuiStyleClassesTest::RunTest(const FString&)
 
 // ── GO-05 pool: released leaves come back as the same widget ──────────────────────────────
 
-static FRuiNodeArray StylePoolComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray StylePoolComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Count, SetCount] = Ctx.UseState<int32>(3);
 	StyleTest::IntSetter = SetCount;
-	TArray<FRuiNode> Rows;
+	TArray<FRuitkNode> Rows;
 	for (int32 i = 0; i < Count; ++i)
 	{
-		FRuiNode Row = RUI::TextBlock(FString::Printf(TEXT("row %d"), i));
-		Row.Key = FRuiKey(i);
+		FRuitkNode Row = Ruitk::TextBlock(FString::Printf(TEXT("row %d"), i));
+		Row.Key = FRuitkKey(i);
 		Rows.Add(MoveTemp(Row));
 	}
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), MoveTemp(Rows))};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(Rows))};
 }
-RUI_COMPONENT(StylePoolComp)
+RUITK_COMPONENT(StylePoolComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiStylePoolTest, "ReactiveUI.Style.NodePool", RUI_STYLE_TEST_FLAGS)
-bool FRuiStylePoolTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStylePoolTest, "Ruitk.Style.NodePool", RUITK_STYLE_TEST_FLAGS)
+bool FRuitkStylePoolTest::RunTest(const FString&)
 {
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&StylePoolComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&StylePoolComp));
 	TSharedPtr<SWidget> Panel = StyleTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -227,13 +227,13 @@ bool FRuiStylePoolTest::RunTest(const FString&)
 	StyleTest::IntSetter(1);
 	Root->FlushSync();
 	TestEqual(TEXT("one row left"), Panel->GetChildren()->Num(), 1);
-	TestEqual(TEXT("two texts pooled"), Root->GetHost().NumPooled(RUI::TextBlockElementType()), 2);
+	TestEqual(TEXT("two texts pooled"), Root->GetHost().NumPooled(Ruitk::TextBlockElementType()), 2);
 
 	AddInfo(TEXT("[pool] regrow reuses the SAME widgets (diff-on-reuse)"));
 	StyleTest::IntSetter(3);
 	Root->FlushSync();
 	TestEqual(TEXT("three rows again"), Panel->GetChildren()->Num(), 3);
-	TestEqual(TEXT("pool drained"), Root->GetHost().NumPooled(RUI::TextBlockElementType()), 0);
+	TestEqual(TEXT("pool drained"), Root->GetHost().NumPooled(Ruitk::TextBlockElementType()), 0);
 	int32 Reused = 0;
 	for (int32 i = 0; i < 3; ++i)
 	{
@@ -258,36 +258,36 @@ bool FRuiStylePoolTest::RunTest(const FString&)
 // handler silently dropped it — the Doom viewport's alpha-0 flash quads painted OPAQUE WHITE
 // over the whole frame. Asserts apply at mount, live update, and removal-reset for both.
 
-static FRuiNodeArray StyleTintLeavesComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray StyleTintLeavesComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Mode, SetMode] = Ctx.UseState<int32>(0);
 	StyleTest::IntSetter = SetMode;
 
-	FRuiImageProps ImageProps;
-	FRuiSeparatorProps SepProps;
+	FRuitkImageProps ImageProps;
+	FRuitkSeparatorProps SepProps;
 	if (Mode < 2)
 	{
 		const FLinearColor ImageTint = Mode == 0 ? FLinearColor(0.85f, 0.05f, 0.05f, 0.0f) // the Doom hurt flash
 												 : FLinearColor(0.95f, 0.85f, 0.2f, 0.35f);
-		TSharedRef<FRuiStyleDict> ImageStyle = MakeShared<FRuiStyleDict>();
-		ImageStyle->Add(FName(TEXT("ColorAndOpacity")), FRuiValue(ImageTint));
+		TSharedRef<FRuitkStyleDict> ImageStyle = MakeShared<FRuitkStyleDict>();
+		ImageStyle->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(ImageTint));
 		ImageProps.Style = ImageStyle;
 
 		const FLinearColor SepTint =
 			Mode == 0 ? FLinearColor(0.2f, 0.4f, 0.6f, 0.5f) : FLinearColor(0.6f, 0.4f, 0.2f, 1.0f);
-		TSharedRef<FRuiStyleDict> SepStyle = MakeShared<FRuiStyleDict>();
-		SepStyle->Add(FName(TEXT("ColorAndOpacity")), FRuiValue(SepTint));
+		TSharedRef<FRuitkStyleDict> SepStyle = MakeShared<FRuitkStyleDict>();
+		SepStyle->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(SepTint));
 		SepProps.Style = SepStyle;
 	}
-	return {RUI::Slate::VerticalBox(
-		FRuiVerticalBoxProps(), {RUI::Slate::Image(MoveTemp(ImageProps)), RUI::Slate::Separator(MoveTemp(SepProps))})};
+	return {Ruitk::Slate::VerticalBox(
+		FRuitkVerticalBoxProps(), {Ruitk::Slate::Image(MoveTemp(ImageProps)), Ruitk::Slate::Separator(MoveTemp(SepProps))})};
 }
-RUI_COMPONENT(StyleTintLeavesComp)
+RUITK_COMPONENT(StyleTintLeavesComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiStyleTintLeavesTest, "ReactiveUI.Style.WidgetColorKeys", RUI_STYLE_TEST_FLAGS)
-bool FRuiStyleTintLeavesTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStyleTintLeavesTest, "Ruitk.Style.WidgetColorKeys", RUITK_STYLE_TEST_FLAGS)
+bool FRuitkStyleTintLeavesTest::RunTest(const FString&)
 {
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&StyleTintLeavesComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&StyleTintLeavesComp));
 	TSharedPtr<SWidget> Panel = StyleTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{

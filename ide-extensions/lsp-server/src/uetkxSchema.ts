@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
-// The markup vocabulary: SHIPPED default (src/uetkx-schema.json — the committed RUIExportSchema
+// The markup vocabulary: SHIPPED default (src/uetkx-schema.json — the committed RuitkExportSchema
 // output) overridden by the workspace's live export at <workspace>/Saved/ReactiveUI/schema.json
-// when present (regenerate with `UnrealEditor-Cmd <proj>.uproject -run=RUIExportSchema`).
+// when present (regenerate with `UnrealEditor-Cmd <proj>.uproject -run=RuitkExportSchema`).
 
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -14,7 +14,7 @@ export interface UetkxSchema {
   slotKeys: string[];
   hooks: string[];
   /** TD-016: event attr name -> payload kind (text|bool|float|int|name|color|vector2|void) — the
-   *  FRuiValue field an event handler's `Value` carries. Absent in older shipped schemas. */
+   *  FRuitkValue field an event handler's `Value` carries. Absent in older shipped schemas. */
   eventPayloads?: Record<string, string>;
   /** R10: attr/style/slot key -> the CLOSED set of accepted string values, exported from the
    *  runtime's own parse tables (ParseHAlign et al) — those parses fall back SILENTLY, so a

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RUIContractDumpCommandlet.h"
+#include "RuitkContractDumpCommandlet.h"
 
 #include "UetkxContract.h"
 
@@ -19,11 +19,11 @@ int32 URUIContractDumpCommandlet::Main(const FString& Params)
 	}
 	if (bCheck)
 	{
-		UE_LOG(LogRUIContract, Display, TEXT("RUIContractDump -check: %d fixture(s), %d mismatched"), Result.Total,
+		UE_LOG(LogRUIContract, Display, TEXT("RuitkContractDump -check: %d fixture(s), %d mismatched"), Result.Total,
 			   Result.Mismatched);
 		return Result.Passed() ? 0 : 1;
 	}
-	UE_LOG(LogRUIContract, Display, TEXT("RUIContractDump: %d golden(s) written for %d fixture(s)"), Result.Written,
+	UE_LOG(LogRUIContract, Display, TEXT("RuitkContractDump: %d golden(s) written for %d fixture(s)"), Result.Written,
 		   Result.Total);
 	return 0;
 }

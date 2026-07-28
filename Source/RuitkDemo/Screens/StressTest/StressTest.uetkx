@@ -1,18 +1,18 @@
-import "@RuiDemoSupport.h"
+import "@RuitkDemoSupport.h"
 
-export FRuiNode StressTest() {
+export FRuitkNode StressTest() {
 	auto [CountText, SetCountText] = UseState<FString>(FString(TEXT("300")));
 	auto [DurationText, SetDurationText] = UseState<FString>(FString(TEXT("10")));
 	auto [bRunning, SetRunning] = UseState<bool>(false);
 	auto [Version, SetVersion] = UseState<int32>(0);
-	auto [Stats, SetStats] = UseState<RuiDemo::FStressStats>(RuiDemo::FStressStats());
+	auto [Stats, SetStats] = UseState<RuitkDemo::FStressStats>(RuitkDemo::FStressStats());
 	auto [RenderTick, SetRenderTick] = UseState<int32>(0);
 	(void)RenderTick; // consumed implicitly: each bump re-renders the box field below
 
 	// Simulation state lives OUTSIDE render state (mutated per tick, read by render).
-	TSharedRef<TRuiRef<TArray<RuiDemo::FStressBox>>> Boxes = UseRef<TArray<RuiDemo::FStressBox>>();
+	TSharedRef<TRuitkRef<TArray<RuitkDemo::FStressBox>>> Boxes = UseRef<TArray<RuitkDemo::FStressBox>>();
 
-	IRuiHostConfig* Host = &Ctx.GetHost();
+	IRuitkHostConfig* Host = &Ctx.GetHost();
 
 	// The frame loop: a self-re-arming RequestFrame chain (the Suspense poll-driver pattern).
 	UseEffect(
@@ -25,16 +25,16 @@ export FRuiNode StressTest() {
 			const int32 Count = FMath::Clamp(FCString::Atoi(*CountText), 1, 10000);
 			const float Duration = FMath::Clamp(FCString::Atof(*DurationText), 1.0f, 600.0f);
 
-			TArray<RuiDemo::FStressBox>& B = Boxes->Current;
+			TArray<RuitkDemo::FStressBox>& B = Boxes->Current;
 			B.Reset(Count);
 			FRandomStream Rng(Version * 7919 + Count);
 			for (int32 i = 0; i < Count; ++i)
 			{
-				RuiDemo::FStressBox Box;
+				RuitkDemo::FStressBox Box;
 				Box.Id = i;
 				Box.Size = Rng.FRandRange(6.0f, 18.0f);
-				Box.Pos = FVector2D(Rng.FRandRange(0.0f, RuiDemo::StressAreaW - Box.Size),
-									Rng.FRandRange(0.0f, RuiDemo::StressAreaH - Box.Size));
+				Box.Pos = FVector2D(Rng.FRandRange(0.0f, RuitkDemo::StressAreaW - Box.Size),
+									Rng.FRandRange(0.0f, RuitkDemo::StressAreaH - Box.Size));
 				Box.Vel = FVector2D(Rng.FRandRange(-120.0f, 120.0f), Rng.FRandRange(-120.0f, 120.0f));
 				Box.Color = FLinearColor::MakeFromHSV8(static_cast<uint8>(Rng.RandRange(0, 255)), 180, 230);
 				B.Add(Box);
@@ -57,22 +57,22 @@ export FRuiNode StressTest() {
 				const float Dt = FMath::Min(static_cast<float>(Now - *Last), 0.05f);
 				*Last = Now;
 				++(*Frames);
-				for (RuiDemo::FStressBox& Box : Boxes->Current)
+				for (RuitkDemo::FStressBox& Box : Boxes->Current)
 				{
 					Box.Pos += Box.Vel * Dt;
-					if (Box.Pos.X < 0.0f || Box.Pos.X > RuiDemo::StressAreaW - Box.Size)
+					if (Box.Pos.X < 0.0f || Box.Pos.X > RuitkDemo::StressAreaW - Box.Size)
 					{
 						Box.Vel.X *= -1.0f;
-						Box.Pos.X = FMath::Clamp<double>(Box.Pos.X, 0.0, RuiDemo::StressAreaW - Box.Size);
+						Box.Pos.X = FMath::Clamp<double>(Box.Pos.X, 0.0, RuitkDemo::StressAreaW - Box.Size);
 					}
-					if (Box.Pos.Y < 0.0f || Box.Pos.Y > RuiDemo::StressAreaH - Box.Size)
+					if (Box.Pos.Y < 0.0f || Box.Pos.Y > RuitkDemo::StressAreaH - Box.Size)
 					{
 						Box.Vel.Y *= -1.0f;
-						Box.Pos.Y = FMath::Clamp<double>(Box.Pos.Y, 0.0, RuiDemo::StressAreaH - Box.Size);
+						Box.Pos.Y = FMath::Clamp<double>(Box.Pos.Y, 0.0, RuitkDemo::StressAreaH - Box.Size);
 					}
 				}
 				const float Elapsed = static_cast<float>(Now - *Start);
-				RuiDemo::FStressStats S;
+				RuitkDemo::FStressStats S;
 				S.Elapsed = Elapsed;
 				S.Frames = *Frames;
 				S.AvgFps = Elapsed > 0.0f ? *Frames / Elapsed : 0.0f;
@@ -89,9 +89,9 @@ export FRuiNode StressTest() {
 			Host->RequestFrame(*Loop);
 			return [Cancelled]() { *Cancelled = true; };
 		},
-		RUI::Deps(bRunning, Version));
+		Ruitk::Deps(bRunning, Version));
 
-	const RuiDemo::FStressStats S = Stats;
+	const RuitkDemo::FStressStats S = Stats;
 	FString Status;
 	if (S.bFinished)
 	{
@@ -143,9 +143,9 @@ export FRuiNode StressTest() {
 					</Button>
 				</HorizontalBox>
 				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
-				<Box WidthOverride={ RuiDemo::StressAreaW } HeightOverride={ RuiDemo::StressAreaH }>
+				<Box WidthOverride={ RuitkDemo::StressAreaW } HeightOverride={ RuitkDemo::StressAreaH }>
 					<Overlay>
-						@for (const RuiDemo::FStressBox& StressBox : Boxes->Current) {
+						@for (const RuitkDemo::FStressBox& StressBox : Boxes->Current) {
 							return (
 								<Box
 									key={ StressBox.Id }

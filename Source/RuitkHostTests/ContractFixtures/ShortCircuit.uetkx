@@ -1,4 +1,4 @@
-export FRuiNode ShortCircuit(bool bShow = false) {
+export FRuitkNode ShortCircuit(bool bShow = false) {
 	auto [Count, SetCount] = UseState(0);
 	return (
 		<VerticalBox>

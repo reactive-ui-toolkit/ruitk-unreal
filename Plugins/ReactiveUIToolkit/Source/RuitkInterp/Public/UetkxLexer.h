@@ -21,7 +21,7 @@
 // UNITS: all indices are Unicode CODE POINTS (D-18 — sidecar offsets and corpus cases are
 // code points; the corpus includes non-BMP cases). Callers convert once via ToCodePoints.
 // Contract corpus: ide-extensions/lsp-server/test-fixtures/uetkx-scanner-cases.json — run by
-// the ReactiveUI.Uetkx.Scanner automation test AND lsp-server's node --test (D-22).
+// the Ruitk.Uetkx.Scanner automation test AND lsp-server's node --test (D-22).
 
 #pragma once
 

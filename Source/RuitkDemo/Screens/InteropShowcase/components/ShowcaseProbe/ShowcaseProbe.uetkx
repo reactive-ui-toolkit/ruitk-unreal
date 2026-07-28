@@ -1,7 +1,7 @@
 // Reads the activation the showcase provides (a descendant of the provider).
-export FRuiNode ShowcaseProbe() {
-	const bool bActive = RUI::CommonUI::UseIsActive();
+export FRuitkNode ShowcaseProbe() {
+	const bool bActive = Ruitk::CommonUI::UseIsActive();
 	return (
-		<TextBlock Text={ RUI::Fmt(TEXT("screen is {}"), bActive ? TEXT("ACTIVE") : TEXT("INACTIVE")) } />
+		<TextBlock Text={ Ruitk::Fmt(TEXT("screen is {}"), bActive ? TEXT("ACTIVE") : TEXT("INACTIVE")) } />
 	);
 }

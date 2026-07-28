@@ -591,7 +591,7 @@ export interface UetkxComponentDecl {
   hookCalls: string[];
   next: number;
   // ES-modules (G-10): true for the deprecated `component Name(...) { }` wrapper (fires 2320);
-  // false for the new plain form `[export] FRuiNode Name(...) { }`.
+  // false for the new plain form `[export] FRuitkNode Name(...) { }`.
   legacySyntax: boolean;
 }
 
@@ -638,7 +638,7 @@ export interface UetkxValueDecl {
 }
 
 /** `[export] <Type> Name(params) { body }` — a module-level UTIL function (G-03/U-01): not
- *  `Use`-prefixed, not FRuiNode-returning. C++-identical (FUetkxUtilDecl). */
+ *  `Use`-prefixed, not FRuitkNode-returning. C++-identical (FUetkxUtilDecl). */
 export interface UetkxUtilDecl {
   name: string;
   nameAt: number;
@@ -708,21 +708,21 @@ export const HOOK_NAMES = [
  *  C++-identical (FUetkxFileScan::AutoIncludedHeaders). */
 export const AUTO_INCLUDED_HEADERS = [
   "CoreMinimal.h",
-  "RuiContext.h",
-  "RuiCoreElements.h",
-  "RuiSignal.h",
-  "RuiSlateElements.h",
-  "RuiStyle.h",
-  "RuiRouter.h",
-  "RuiAssetBrush.h",
-  "RuiFieldHooks.h",
-  "RuiUmgElement.h",
-  "RuiSignalViewModel.h",
-  "RuiHostWidget.h",
-  "RuiWorldSubsystem.h",
-  "RuiActivation.h",
-  "RuiActivatableScreen.h",
-  "RuiMvvmViewModel.h",
+  "RuitkContext.h",
+  "RuitkCoreElements.h",
+  "RuitkSignal.h",
+  "RuitkSlateElements.h",
+  "RuitkStyle.h",
+  "RuitkRouter.h",
+  "RuitkAssetBrush.h",
+  "RuitkFieldHooks.h",
+  "RuitkUmgElement.h",
+  "RuitkSignalViewModel.h",
+  "RuitkHostWidget.h",
+  "RuitkWorldSubsystem.h",
+  "RuitkActivation.h",
+  "RuitkActivatableScreen.h",
+  "RuitkMvvmViewModel.h",
   "UObject/StrongObjectPtr.h",
   "Engine/World.h",
 ];
@@ -1597,7 +1597,7 @@ function parseComponent(src: number[], ci: number, exported: boolean, out: Uetkx
   return bclose + 1;
 }
 
-/** ES-modules (U-02): `[export] FRuiNode Name(Type Param = Default, ...) { body }` — the new
+/** ES-modules (U-02): `[export] FRuitkNode Name(Type Param = Default, ...) { body }` — the new
  *  plain-declaration component form. The BODY parsing (markup returns, jsx-range scan, hook-call
  *  scan, rules-of-hooks) is IDENTICAL to the legacy wrapper's tail — kept as a separate
  *  near-duplicate rather than refactored into a shared helper (the legacy path is load-bearing
@@ -1728,7 +1728,7 @@ function parseNewHook(
 }
 
 /** ES-modules (U-02): `[export] <Ret> Name(params) { body }` — a module-level UTIL function (not
- *  `Use`-prefixed, not FRuiNode-returning). C++-identical (ParseNewUtil). */
+ *  `Use`-prefixed, not FRuitkNode-returning). C++-identical (ParseNewUtil). */
 function parseNewUtil(
   src: number[],
   declStart: number,
@@ -1838,13 +1838,13 @@ function parseNewFormDecl(src: number[], start: number, exported: boolean, declS
     }
     const paramText = fromCodePoints(src, head.triggerAt + 1, pc - head.triggerAt - 1);
 
-    if (type === "FRuiNode") {
+    if (type === "FRuitkNode") {
       if (looksLikeHook) {
         pushDiag(
           out,
           "UETKX2321",
           0,
-          `\`${name}\` is \`Use\`-prefixed but returns FRuiNode — did you mean a component? (hooks must not return markup nodes)`,
+          `\`${name}\` is \`Use\`-prefixed but returns FRuitkNode — did you mean a component? (hooks must not return markup nodes)`,
           head.nameAt,
           name.length,
         );
@@ -2122,7 +2122,7 @@ export function scanFile(source: string, basename: string, resyncOnBodyError = f
   const pendingExportList: PendingExportName[] = out.exportListEntries;
 
   const wrapperDeprecation =
-    "wrapper syntax is deprecated — write a plain typed declaration (`export FRuiNode Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run `-run=RUIMigrateEsModules`. Removed in the next minor.";
+    "wrapper syntax is deprecated — write a plain typed declaration (`export FRuitkNode Name(...)` / `export <Type> UseName(...)` / `export <Type> Name = ...`); run `-run=RuitkMigrateEsModules`. Removed in the next minor.";
 
   // declarations: a SEQUENCE of components/hooks/modules/values/utils in any order (mixed-decl v1)
   while (i < n) {

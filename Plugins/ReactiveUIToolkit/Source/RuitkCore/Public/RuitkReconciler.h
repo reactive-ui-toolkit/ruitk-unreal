@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// FRuiReconciler — the fiber reconciler, ported from reconciler.gd with the D-08 React
+// FRuitkReconciler — the fiber reconciler, ported from reconciler.gd with the D-08 React
 // adoptions the Godot port hasn't made yet:
 //
 //   render phase  -> begin work descending (reconcile children, run components with
@@ -22,28 +22,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiFiber.h"
-#include "RuiHostConfig.h"
-#include "RuiCoreMisc.h"
-#include "RuiContextHandle.h"
+#include "RuitkNode.h"
+#include "RuitkFiber.h"
+#include "RuitkHostConfig.h"
+#include "RuitkCoreMisc.h"
+#include "RuitkContextHandle.h"
 
-class RUITKCORE_API FRuiReconciler
+class RUITKCORE_API FRuitkReconciler
 {
 public:
 	/** Host outlives the reconciler (the root object owns both — mount-surface contract). */
-	FRuiReconciler(IRuiHostConfig& InHost, FRuiHostHandle InRootContainer);
-	~FRuiReconciler();
+	FRuitkReconciler(IRuitkHostConfig& InHost, FRuitkHostHandle InRootContainer);
+	~FRuitkReconciler();
 
-	FRuiReconciler(const FRuiReconciler&) = delete;
-	FRuiReconciler& operator=(const FRuiReconciler&) = delete;
+	FRuitkReconciler(const FRuitkReconciler&) = delete;
+	FRuitkReconciler& operator=(const FRuitkReconciler&) = delete;
 
 	/** Mount / replace the root vnode. Initial render is always synchronous (no empty
 	 *  first frame). */
-	void Render(FRuiNode RootNode);
+	void Render(FRuitkNode RootNode);
 
 	/** Mark a fiber dirty and coalesce a re-render (hook setters land here). */
-	void ScheduleUpdateOnFiber(FRuiFiber* Fiber);
+	void ScheduleUpdateOnFiber(FRuitkFiber* Fiber);
 	void RequestUpdate();
 
 	/** Run any pending work NOW, synchronously and unsliced (tests, HMR, mount surfaces). */
@@ -55,7 +55,7 @@ public:
 
 	/** Every live reconciler (mounted roots register in ctor/dtor) — how HMR reaches the
 	 *  running UIs without plumbing. Game-thread only. */
-	static void ForEachLive(TFunctionRef<void(FRuiReconciler&)> Fn);
+	static void ForEachLive(TFunctionRef<void(FRuitkReconciler&)> Fn);
 
 	/** Tear down: cleanups, refs nulled, host nodes released, fibers freed. */
 	void Unmount();
@@ -63,14 +63,14 @@ public:
 	bool IsMounted() const { return RootCurrent != nullptr; }
 
 	// --- introspection (tests / rui.Stats / the Inspector) ---
-	FRuiFiber* GetRootFiber() const { return RootCurrent; }
+	FRuitkFiber* GetRootFiber() const { return RootCurrent; }
 	int32 NumLiveFibers() const { return Slab.NumLive(); }
-	IRuiHostConfig& GetHost() { return Host; }
+	IRuitkHostConfig& GetHost() { return Host; }
 
-	// --- internal API for the hooks layer (FRuiContext) — \internal ---
-	void NotifyEffectKinds(FRuiFiber& Fiber, bool bHasPassive, bool bHasLayout);
-	static const IRuiProvidedValue* ResolveProvidedOnCommitted(const FRuiFiber* From, const void* Key);
-	void OnProvidedValueChanged(FRuiFiber& ProviderFiber, const void* Key);
+	// --- internal API for the hooks layer (FRuitkContext) — \internal ---
+	void NotifyEffectKinds(FRuitkFiber& Fiber, bool bHasPassive, bool bHasLayout);
+	static const IRuitkProvidedValue* ResolveProvidedOnCommitted(const FRuitkFiber* From, const void* Key);
+	void OnProvidedValueChanged(FRuitkFiber& ProviderFiber, const void* Key);
 
 private:
 	// --- scheduling ---
@@ -79,84 +79,84 @@ private:
 
 	// --- render phase ---
 	void BeginRender();
-	FRuiFiber* PerformUnit(FRuiFiber* Fiber);
-	FRuiFiber* BeginFunction(FRuiFiber* Fiber);
-	FRuiFiber* BeginErrorBoundary(FRuiFiber* Fiber);
-	void RenderComponent(FRuiFiber* Fiber); // output lands in State->LastOutput (shared once)
-	void CompleteWork(FRuiFiber* Fiber);
-	void PushProvidedContext(FRuiFiber* Fiber);
-	void PopProvidedContext(FRuiFiber* Fiber);
+	FRuitkFiber* PerformUnit(FRuitkFiber* Fiber);
+	FRuitkFiber* BeginFunction(FRuitkFiber* Fiber);
+	FRuitkFiber* BeginErrorBoundary(FRuitkFiber* Fiber);
+	void RenderComponent(FRuitkFiber* Fiber); // output lands in State->LastOutput (shared once)
+	void CompleteWork(FRuitkFiber* Fiber);
+	void PushProvidedContext(FRuitkFiber* Fiber);
+	void PopProvidedContext(FRuitkFiber* Fiber);
 
 	// --- child reconciliation ---
-	FRuiFiber* ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* OldFiber, const FRuiNode& VNode, int32 Index);
+	FRuitkFiber* ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber, const FRuitkNode& VNode, int32 Index);
 	/** Returns true when the fast-leaf-list path fully handled the children in place. */
-	bool ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFirst, const FRuiChildren& ChildVNodes);
-	bool TryFastLeafList(FRuiFiber* ParentFiber, FRuiFiber* OldFirst, const TArray<FRuiNode>& VNodes, bool bIgnoreKeys);
-	bool KeysStable(FRuiFiber* OldFirst, const TArray<FRuiNode>& VNodes) const;
-	void DeleteFiber(FRuiFiber* ParentFiber, FRuiFiber* OldFiber);
-	void MarkReorder(FRuiFiber* ParentFiber);
-	bool HasContextChanged(const FRuiFiber* Fiber) const;
-	void AppendEffect(FRuiFiber* Fiber);
+	bool ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirst, const FRuitkChildren& ChildVNodes);
+	bool TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirst, const TArray<FRuitkNode>& VNodes, bool bIgnoreKeys);
+	bool KeysStable(FRuitkFiber* OldFirst, const TArray<FRuitkNode>& VNodes) const;
+	void DeleteFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber);
+	void MarkReorder(FRuitkFiber* ParentFiber);
+	bool HasContextChanged(const FRuitkFiber* Fiber) const;
+	void AppendEffect(FRuitkFiber* Fiber);
 
 	// --- commit phase ---
 	void CommitRoot();
-	void CommitPlacement(FRuiFiber* Fiber);
-	void CommitUpdate(FRuiFiber* Fiber);
-	void CommitDeletion(FRuiFiber* Fiber);
-	void CommitPortalRetarget(FRuiFiber* Fiber);
-	void CommitLayoutEffects(FRuiFiber* Fiber);
+	void CommitPlacement(FRuitkFiber* Fiber);
+	void CommitUpdate(FRuitkFiber* Fiber);
+	void CommitDeletion(FRuitkFiber* Fiber);
+	void CommitPortalRetarget(FRuitkFiber* Fiber);
+	void CommitLayoutEffects(FRuitkFiber* Fiber);
 	void FlushPassive();
-	void RunCleanups(FRuiFiber* Fiber);
-	void RunCleanupsRecursive(FRuiFiber* Fiber);
-	void DisposeFiberState(FRuiFiber* Fiber);
-	void NullRefsRecursive(FRuiFiber* Fiber);
-	void EnforceChildOrder(FRuiFiber* ParentFiber);
-	void CollectHostChildren(FRuiFiber* Fiber, TArray<FRuiHostHandle>& Out) const;
-	void ReleaseHostNodes(FRuiFiber* Fiber);
-	void DetachPortalChildren(FRuiFiber* Fiber);
-	FRuiHostHandle HostParentNode(FRuiFiber* Fiber, bool& bOutViaPortal, FRuiPortalHandle& OutPortal) const;
+	void RunCleanups(FRuitkFiber* Fiber);
+	void RunCleanupsRecursive(FRuitkFiber* Fiber);
+	void DisposeFiberState(FRuitkFiber* Fiber);
+	void NullRefsRecursive(FRuitkFiber* Fiber);
+	void EnforceChildOrder(FRuitkFiber* ParentFiber);
+	void CollectHostChildren(FRuitkFiber* Fiber, TArray<FRuitkHostHandle>& Out) const;
+	void ReleaseHostNodes(FRuitkFiber* Fiber);
+	void DetachPortalChildren(FRuitkFiber* Fiber);
+	FRuitkHostHandle HostParentNode(FRuitkFiber* Fiber, bool& bOutViaPortal, FRuitkPortalHandle& OutPortal) const;
 
 	// --- error latch (D-10) ---
-	void HandleRenderFailure(FRuiFiber* FailedFiber, const FString& Reason);
-	void AdoptPendingEbActivation(FRuiFiber* BoundaryFiber);
+	void HandleRenderFailure(FRuitkFiber* FailedFiber, const FString& Reason);
+	void AdoptPendingEbActivation(FRuitkFiber* BoundaryFiber);
 
 	// --- tree lifecycle ---
-	void ReleaseFiberTree(FRuiFiber* Fiber);
+	void ReleaseFiberTree(FRuitkFiber* Fiber);
 	/** Reclaim the fresh WIP fibers of an abandoned pass (restart / aborted mount). */
-	void ReleaseAbandonedChildren(FRuiFiber* Parent);
+	void ReleaseAbandonedChildren(FRuitkFiber* Parent);
 
 	// --- helpers ---
-	static FRuiFiber* OldFirst(FRuiFiber* Fiber) { return Fiber ? Fiber->Child : nullptr; }
-	static bool AnyKeyed(const TArray<FRuiNode>& VNodes);
-	static FRuiKey FiberKey(const FRuiFiber* F);
-	static FRuiKey VNodeKey(const FRuiNode& VNode, int32 Index);
-	static bool ChildrenSame(const FRuiChildren& A, const FRuiChildren& B);
-	bool PropsEqual(const FRuiFiber* Fiber) const;
-	const TArray<FRuiNode>& NormalizedChildren(const FRuiChildren& Children) const;
+	static FRuitkFiber* OldFirst(FRuitkFiber* Fiber) { return Fiber ? Fiber->Child : nullptr; }
+	static bool AnyKeyed(const TArray<FRuitkNode>& VNodes);
+	static FRuitkKey FiberKey(const FRuitkFiber* F);
+	static FRuitkKey VNodeKey(const FRuitkNode& VNode, int32 Index);
+	static bool ChildrenSame(const FRuitkChildren& A, const FRuitkChildren& B);
+	bool PropsEqual(const FRuitkFiber* Fiber) const;
+	const TArray<FRuitkNode>& NormalizedChildren(const FRuitkChildren& Children) const;
 
 private:
-	IRuiHostConfig& Host;
-	FRuiHostHandle RootContainer;
-	FRuiFiberSlab Slab;
+	IRuitkHostConfig& Host;
+	FRuitkHostHandle RootContainer;
+	FRuitkFiberSlab Slab;
 
-	TOptional<FRuiNode> RootVNode;
-	FRuiFiber* RootCurrent = nullptr;
+	TOptional<FRuitkNode> RootVNode;
+	FRuitkFiber* RootCurrent = nullptr;
 
-	FRuiFiber* WipRoot = nullptr;
-	FRuiFiber* NextUnit = nullptr;
+	FRuitkFiber* WipRoot = nullptr;
+	FRuitkFiber* NextUnit = nullptr;
 
-	FRuiFiber* FirstEffect = nullptr;
-	FRuiFiber* LastEffect = nullptr;
-	TArray<FRuiFiber*> Deletions;
-	TSet<FRuiFiber*> ReorderSet;
-	TArray<FRuiFiber*> PendingPassive;
+	FRuitkFiber* FirstEffect = nullptr;
+	FRuitkFiber* LastEffect = nullptr;
+	TArray<FRuitkFiber*> Deletions;
+	TSet<FRuitkFiber*> ReorderSet;
+	TArray<FRuitkFiber*> PendingPassive;
 
 	/** Persistent full-keyed map (GO-08): cleared per call, never re-allocated per frame. */
-	TMap<FRuiKey, FRuiFiber*> KeyMap;
+	TMap<FRuitkKey, FRuitkFiber*> KeyMap;
 
 	/** Providers pushed this pass (parallel stack so ascend/skip paths pop exactly what
 	 *  descend pushed, even across restarts). */
-	TArray<FRuiFiber*> ProviderStack;
+	TArray<FRuitkFiber*> ProviderStack;
 
 	/** A mount-pass render failure records its boundary activation by key-path — the WIP
 	 *  fiber that carried it is abandoned with the pass and has no committed twin, so the
@@ -164,13 +164,13 @@ private:
 	 *  (deterministic positional keys make the path stable across identical passes). */
 	struct FPendingEbActivation
 	{
-		TArray<FRuiKey> Path; // boundary-up-to-root key path
+		TArray<FRuitkKey> Path; // boundary-up-to-root key path
 		FString Reason;
 	};
 	TArray<FPendingEbActivation> PendingEbActivations;
 
 	bool bIsCommitting = false;
-	TArray<FRuiFiber*> DeferredUpdates;
+	TArray<FRuitkFiber*> DeferredUpdates;
 	bool bWorkActive = false;
 	bool bRestart = false;
 	bool bTickPending = false;
@@ -179,5 +179,5 @@ private:
 	static constexpr int32 MaxRestarts = 25;
 
 	/** Scratch for NormalizedChildren's empty case. */
-	static const TArray<FRuiNode> EmptyChildren;
+	static const TArray<FRuitkNode> EmptyChildren;
 };

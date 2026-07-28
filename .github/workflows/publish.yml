@@ -149,7 +149,7 @@ jobs:
   # stands the runner up — the job body documents the plan so arming is wiring, not design).
   verify-engines:
     needs: release-plugin
-    if: needs.release-plugin.outputs.new_tag == 'true' && vars.RUI_CI_ENGINE_ARMED == 'true'
+    if: needs.release-plugin.outputs.new_tag == 'true' && vars.RUITK_CI_ENGINE_ARMED == 'true'
     strategy:
       fail-fast: false
       matrix:

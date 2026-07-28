@@ -12,7 +12,7 @@ export const ElementPage: FC<{ tag: string }> = ({ tag }) => {
   const attrs = Object.entries(el.attrs ?? {})
   const events = attrs.filter(([, type]) => type === 'event')
   const props = attrs.filter(([, type]) => type !== 'event')
-  const slateClass = `S${tag}` // D-33: tag = Slate class minus the S (SRuiCanvas keeps the Rui mark)
+  const slateClass = `S${tag}` // D-33: tag = Slate class minus the S (SRuitkCanvas keeps the Ruitk mark)
 
   const sample =
     `<${tag}` +
@@ -29,7 +29,7 @@ export const ElementPage: FC<{ tag: string }> = ({ tag }) => {
       <Typography variant="body1" paragraph>
         The <code>{slateClass}</code> Slate widget as a markup tag (D-33: the tag is the class
         minus its <code>S</code>; every prop and event below is the exact Unreal name). Factory:{' '}
-        <code>{el.factory ?? `RUI::Slate::${tag}`}</code>.{' '}
+        <code>{el.factory ?? `Ruitk::Slate::${tag}`}</code>.{' '}
         {el.children ? 'Accepts children.' : 'A leaf widget — children are a compile error.'}
         {el.sinceUE &&
           ` Requires Unreal Engine ${el.sinceUE} or newer — the Slate widget does not exist in earlier engines (mounting there logs an unknown-adapter warning; the plugin still compiles).`}
@@ -128,7 +128,7 @@ export const ElementPage: FC<{ tag: string }> = ({ tag }) => {
 
       <Alert severity="info">
         This page is generated from the compiler-exported schema — the same vocabulary the VS
-        Code / VS2022 extensions complete against — refreshed by the <code>RUIExportSchema</code>{' '}
+        Code / VS2022 extensions complete against — refreshed by the <code>RuitkExportSchema</code>{' '}
         commandlet.
       </Alert>
     </Box>

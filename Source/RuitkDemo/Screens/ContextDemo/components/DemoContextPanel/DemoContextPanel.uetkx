@@ -1,7 +1,7 @@
-import "@RuiDemoSupport.h"
+import "@RuitkDemoSupport.h"
 
-export FRuiNode DemoContextPanel(FString Label = FString(TEXT("Primary Panel"))) {
-	const FLinearColor Theme = UseContext(RuiDemo::GDemoThemeCtx);
+export FRuitkNode DemoContextPanel(FString Label = FString(TEXT("Primary Panel"))) {
+	const FLinearColor Theme = UseContext(RuitkDemo::GDemoThemeCtx);
 
 	return (
 		<Border

@@ -79,7 +79,7 @@ procedure); a drift is a release blocker until reconciled or `.pending`-pinned.
 
 - `node ide-extensions/scripts/changelog.mjs verify` + `node scripts/verify-mirror.mjs`
 - `node scripts/check-headers.mjs` + `node scripts/lint-skills.mjs` + `node scripts/docs-drift.mjs`
-- The affected suites per dev-process's gate ladder (incl. `ReactiveUI.Boot`)
+- The affected suites per dev-process's gate ladder (incl. `Ruitk.Boot`)
 - Packaging sanity when shipping the plugin: `scripts/package-plugin.ps1` per supported engine
   version (`-StrictIncludes` is what Fab's toolchain effectively does), then the
   **packaged-fidelity test**: unzip into a FRESH project, enable the plugin, expect the

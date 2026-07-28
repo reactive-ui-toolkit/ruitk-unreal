@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-021 — "ours feeding theirs": the REVERSE MVVM bridge. URuiSignalViewModel is a FieldNotify
-// UObject whose fields Rui code writes (from an effect or event) and which broadcasts on change,
-// so a UMG widget bound to it updates when Rui state moves. It implements INotifyFieldValueChanged
+// TD-021 — "ours feeding theirs": the REVERSE MVVM bridge. URuitkSignalViewModel is a FieldNotify
+// UObject whose fields Ruitk code writes (from an effect or event) and which broadcasts on change,
+// so a UMG widget bound to it updates when Ruitk state moves. It implements INotifyFieldValueChanged
 // directly over the engine FieldNotification module — NO ModelViewViewModel-plugin dependency, so
 // it works whether or not that plugin is enabled (UseField already reads it the other direction).
 //
-// It exposes a small generic field set (Int/Float/Bool/Text). Rui pushes a value with the typed
-// setters or Set(FRuiValue) (routes by kind); each setter skips-when-equal and broadcasts.
+// It exposes a small generic field set (Int/Float/Bool/Text). Ruitk pushes a value with the typed
+// setters or Set(FRuitkValue) (routes by kind); each setter skips-when-equal and broadcasts.
 
 #pragma once
 
@@ -15,13 +15,13 @@
 #include "FieldNotificationDelegate.h"
 #include "FieldNotificationId.h"
 #include "INotifyFieldValueChanged.h"
-#include "RuiTypes.h"
+#include "RuitkTypes.h"
 #include "UObject/Object.h"
 
-#include "RuiSignalViewModel.generated.h"
+#include "RuitkSignalViewModel.generated.h"
 
 UCLASS(BlueprintType)
-class RUITKUMG_API URuiSignalViewModel : public UObject, public INotifyFieldValueChanged
+class RUITKUMG_API URuitkSignalViewModel : public UObject, public INotifyFieldValueChanged
 {
 	GENERATED_BODY()
 
@@ -45,8 +45,8 @@ public:
 	void SetBool(bool InValue);
 	void SetText(const FText& InValue);
 
-	/** Push an FRuiValue into the matching field by kind (the Rui->VM bridge entry point). */
-	void Set(const FRuiValue& Value);
+	/** Push an FRuitkValue into the matching field by kind (the Ruitk->VM bridge entry point). */
+	void Set(const FRuitkValue& Value);
 
 	// ── INotifyFieldValueChanged (over the engine FieldNotification module) ─────────────────
 

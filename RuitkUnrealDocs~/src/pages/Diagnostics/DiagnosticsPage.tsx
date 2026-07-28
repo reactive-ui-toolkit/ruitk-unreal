@@ -18,7 +18,7 @@ const EXAMPLES: Array<[string, string, string]> = [
   ['UETKX2100', 'err', 'component name must be PascalCase'],
   ['UETKX2101', 'err', 'no `component`, `hook`, or `module` declaration found'],
   ['UETKX2203', 'warn', 'hook name should start with `Use`'],
-  ['UETKX2320', 'warn', '`component` wrapper syntax is deprecated — write a plain typed declaration; run `-run=RUIMigrateEsModules`. Removed in the next minor.'],
+  ['UETKX2320', 'warn', '`component` wrapper syntax is deprecated — write a plain typed declaration; run `-run=RuitkMigrateEsModules`. Removed in the next minor.'],
   ['UETKX3006', 'err', 'template `hook` declarations are not supported — write a C++ template in a `module`'],
   ['UETKX3007', 'err', "the component's final markup `return ( ... )` must be at the top level of the body"],
   ['UETKX2317', 'hint', '`X.h` is auto-included by the generated prelude — this line is redundant'],

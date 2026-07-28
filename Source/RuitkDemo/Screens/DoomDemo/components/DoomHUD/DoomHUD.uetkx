@@ -7,7 +7,7 @@ import { DoomFace } from "../DoomFace/DoomFace"
 // read off state.Player / state at the call site and passed in as VALUE props, so plain
 // props equality re-renders exactly when a number changes. Panel proportions carry the
 // Unity flex-grow weights via Slot.Fill.
-export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 0, RuiDoom::EWeaponType Weapon = RuiDoom::EWeaponType::Pistol, TArray<int32> Ammo = TArray<int32>(), TArray<bool> OwnedWeapons = TArray<bool>(), RuiDoom::EKeyCard Keys = RuiDoom::EKeyCard::None, int32 Score = 0, int32 KillCount = 0, int32 KillTotal = 0, FString MapName = FString(), int32 FaceState = 0) {
+export FRuitkNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 0, RuitkDoom::EWeaponType Weapon = RuitkDoom::EWeaponType::Pistol, TArray<int32> Ammo = TArray<int32>(), TArray<bool> OwnedWeapons = TArray<bool>(), RuitkDoom::EKeyCard Keys = RuitkDoom::EKeyCard::None, int32 Score = 0, int32 KillCount = 0, int32 KillTotal = 0, FString MapName = FString(), int32 FaceState = 0) {
 	const FLinearColor BarBg(0.12f, 0.10f, 0.08f, 1.0f);
 	const FLinearColor PanelBg(0.20f, 0.16f, 0.10f, 1.0f);
 	const FLinearColor TopBorder(0.85f, 0.55f, 0.20f, 1.0f);
@@ -17,26 +17,26 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 	const FLinearColor DotBorder(0.4f, 0.4f, 0.4f, 1.0f);
 
 	static const TCHAR* AmmoLabels[] = {TEXT("BUL"), TEXT("SHL"), TEXT("RKT"), TEXT("CEL")};
-	const int32 AmmoMax[] = {RuiDoom::C::MAX_BULLETS, RuiDoom::C::MAX_SHELLS, RuiDoom::C::MAX_ROCKETS,
-								RuiDoom::C::MAX_CELLS};
+	const int32 AmmoMax[] = {RuitkDoom::C::MAX_BULLETS, RuitkDoom::C::MAX_SHELLS, RuitkDoom::C::MAX_ROCKETS,
+								RuitkDoom::C::MAX_CELLS};
 
 	// Current-weapon ammo readout (the Unity CurrentAmmoLabel switch, verbatim mapping).
 	auto AmmoAt = [&](int32 i) { return Ammo.IsValidIndex(i) ? Ammo[i] : 0; };
 	FString CurrentAmmo;
 	switch (Weapon)
 	{
-	case RuiDoom::EWeaponType::Pistol:
-	case RuiDoom::EWeaponType::Chaingun:
+	case RuitkDoom::EWeaponType::Pistol:
+	case RuitkDoom::EWeaponType::Chaingun:
 		CurrentAmmo = FString::FromInt(AmmoAt(0));
 		break;
-	case RuiDoom::EWeaponType::Shotgun:
+	case RuitkDoom::EWeaponType::Shotgun:
 		CurrentAmmo = FString::FromInt(AmmoAt(1));
 		break;
-	case RuiDoom::EWeaponType::RocketLauncher:
+	case RuitkDoom::EWeaponType::RocketLauncher:
 		CurrentAmmo = FString::FromInt(AmmoAt(2));
 		break;
-	case RuiDoom::EWeaponType::PlasmaRifle:
-	case RuiDoom::EWeaponType::BFG9000:
+	case RuitkDoom::EWeaponType::PlasmaRifle:
+	case RuitkDoom::EWeaponType::BFG9000:
 		CurrentAmmo = FString::FromInt(AmmoAt(3));
 		break;
 	default:
@@ -49,14 +49,14 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 	const FLinearColor YellowKey(0.95f, 0.85f, 0.20f, 1.0f);
 	const FLinearColor RedKey(0.95f, 0.20f, 0.20f, 1.0f);
 	auto KeyOff = [](const FLinearColor& C) { return FLinearColor(C.R * 0.15f, C.G * 0.15f, C.B * 0.15f, 1.0f); };
-	const bool bHasBlue = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Blue);
-	const bool bHasYellow = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Yellow);
-	const bool bHasRed = EnumHasAnyFlags(Keys, RuiDoom::EKeyCard::Red);
+	const bool bHasBlue = EnumHasAnyFlags(Keys, RuitkDoom::EKeyCard::Blue);
+	const bool bHasYellow = EnumHasAnyFlags(Keys, RuitkDoom::EKeyCard::Yellow);
+	const bool bHasRed = EnumHasAnyFlags(Keys, RuitkDoom::EKeyCard::Red);
 
 	return (
 		<Box
-			WidthOverride={ static_cast<float>(RuiDoom::C::VIEWPORT_W) }
-			HeightOverride={ static_cast<float>(RuiDoom::C::HUD_HEIGHT) }
+			WidthOverride={ static_cast<float>(RuitkDoom::C::VIEWPORT_W) }
+			HeightOverride={ static_cast<float>(RuitkDoom::C::HUD_HEIGHT) }
 		>
 			<!-- Top border 3px (Unity BorderTopWidth=3) + the bar background. -->
 			<Border BorderImage="WhiteBrush" BorderBackgroundColor={ TopBorder } Padding="0,3,0,0">
@@ -107,7 +107,7 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 										Slot.HAlign="center"
 										Slot.Padding="0,2,0,0" />
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("{}%"), Health) }
+										Text={ Ruitk::Fmt(TEXT("{}%"), Health) }
 										Font.Size={ 24.0f }
 										ColorAndOpacity={ RedNum }
 										Justification="center"
@@ -146,7 +146,7 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 											return (
 												<Box key={ FName(*FString::Printf(TEXT("arm%d"), i)) } WidthOverride={ 20.0f }>
 													<TextBlock
-														Text={ RUI::Fmt(TEXT("{}"), i + 1) }
+														Text={ Ruitk::Fmt(TEXT("{}"), i + 1) }
 														Font.Size={ 11.0f }
 														ColorAndOpacity={ bOwned ? RedNum : DimClr }
 														Justification="center" />
@@ -177,7 +177,7 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 										Slot.HAlign="center"
 										Slot.Padding="0,2,0,0" />
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("{}%"), Armor) }
+										Text={ Ruitk::Fmt(TEXT("{}%"), Armor) }
 										Font.Size={ 24.0f }
 										ColorAndOpacity={ RedNum }
 										Justification="center"
@@ -255,7 +255,7 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 													ColorAndOpacity={ LabelClr }
 													Slot.Fill={ 1.0f } />
 												<TextBlock
-													Text={ RUI::Fmt(TEXT("{} / {}"), Have, AmmoMax[i]) }
+													Text={ Ruitk::Fmt(TEXT("{} / {}"), Have, AmmoMax[i]) }
 													Font.Size={ 11.0f }
 													ColorAndOpacity={ RedNum } />
 											</HorizontalBox>
@@ -281,14 +281,14 @@ export FRuiNode DoomHUD(int32 Health = 100, int32 Armor = 0, int32 ArmorClass = 
 										Slot.HAlign="center"
 										Slot.Padding="0,4" />
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("KILLS  {} / {}"), KillCount, KillTotal) }
+										Text={ Ruitk::Fmt(TEXT("KILLS  {} / {}"), KillCount, KillTotal) }
 										Font.Size={ 12.0f }
 										ColorAndOpacity={ RedNum }
 										Justification="center"
 										Slot.HAlign="center"
 										Slot.Padding="0,2,0,0" />
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("SCORE  {}"), Score) }
+										Text={ Ruitk::Fmt(TEXT("SCORE  {}"), Score) }
 										Font.Size={ 12.0f }
 										ColorAndOpacity={ RedNum }
 										Justification="center"

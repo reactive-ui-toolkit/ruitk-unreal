@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ExpandableButton (WIDGET_COMPLETION_PLAN wave 2) — SExpandableButton on the SRuiExpandableArea
+// ExpandableButton (WIDGET_COMPLETION_PLAN wave 2) — SExpandableButton on the SRuitkExpandableArea
 // wrapper pattern: the engine widget's three content slots are CONSTRUCT-ONLY named slots, so
 // the wrapper feeds them persistent SBox holders and the reconciler reparents role-tagged
 // children into the holders (`slot.role = "collapsed" | "expanded" | body`). Texts + expansion
@@ -9,25 +9,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiElementAdapter.h"
-#include "RuiSlateElements.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkSlateElements.h"
 #include "Widgets/Input/SExpandableButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/SCompoundWidget.h"
 
 /** Props: label texts + controlled expansion (all masked — no engine setters) + the two
  *  FReply click events. */
-struct RUITKSLATE_API FRuiExpandableButtonProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuitkExpandableButtonProps final : public FRuitkPropsBase
 {
-	RUI_PROP(FText, CollapsedText, 0)
-	RUI_PROP(FText, ExpandedText, 1)
-	RUI_PROP(bool, bIsExpanded, 2)
-	RUI_PROP_EVENT(OnExpansionClicked, 3)
-	RUI_PROP_EVENT(OnCloseClicked, 4)
+	RUITK_PROP(FText, CollapsedText, 0)
+	RUITK_PROP(FText, ExpandedText, 1)
+	RUITK_PROP(bool, bIsExpanded, 2)
+	RUITK_PROP_EVENT(OnExpansionClicked, 3)
+	RUITK_PROP_EVENT(OnCloseClicked, 4)
 
-	virtual bool Equals(const FRuiPropsBase& OtherBase) const override
+	virtual bool Equals(const FRuitkPropsBase& OtherBase) const override
 	{
-		const FRuiExpandableButtonProps& Other = static_cast<const FRuiExpandableButtonProps&>(OtherBase);
+		const FRuitkExpandableButtonProps& Other = static_cast<const FRuitkExpandableButtonProps&>(OtherBase);
 		auto TextEq = [](const FText& A, const FText& B) { return A.IdenticalTo(B) || A.ToString() == B.ToString(); };
 		return BaseFieldsEqual(Other) && TextEq(CollapsedText, Other.CollapsedText) &&
 			   TextEq(ExpandedText, Other.ExpandedText) && bIsExpanded == Other.bIsExpanded &&
@@ -36,10 +36,10 @@ struct RUITKSLATE_API FRuiExpandableButtonProps final : public FRuiPropsBase
 };
 
 /** Wraps SExpandableButton with three SBox holders the reconciler reparents children into. */
-class RUITKSLATE_API SRuiExpandableButton final : public SCompoundWidget
+class RUITKSLATE_API SRuitkExpandableButton final : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiExpandableButton) : _IsExpanded(true) {}
+	SLATE_BEGIN_ARGS(SRuitkExpandableButton) : _IsExpanded(true) {}
 	SLATE_ARGUMENT(FText, CollapsedText)
 	SLATE_ARGUMENT(FText, ExpandedText)
 	SLATE_ARGUMENT(bool, IsExpanded)
@@ -61,18 +61,18 @@ private:
 	TSharedPtr<SBox> BodyBox;
 };
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	RUITKSLATE_API FRuiElementTypeId ExpandableButtonType();
+	RUITKSLATE_API FRuitkElementTypeId ExpandableButtonType();
 
 	/** An expanding button. Optional children carry `slot.role="collapsed"` / `"expanded"`
 	 *  (button faces); any other child is the expanded body content. */
-	RUITKSLATE_API FRuiNode ExpandableButton(FRuiExpandableButtonProps Props = FRuiExpandableButtonProps(),
-												  TArray<FRuiNode> Children = TArray<FRuiNode>(),
-												  FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuitkNode ExpandableButton(FRuitkExpandableButtonProps Props = FRuitkExpandableButtonProps(),
+												  TArray<FRuitkNode> Children = TArray<FRuitkNode>(),
+												  FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{
 		void RegisterExpandableButtonAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

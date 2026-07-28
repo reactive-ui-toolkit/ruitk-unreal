@@ -5,7 +5,7 @@
 #include "Framework/Docking/TabManager.h"
 #include "Logging/LogMacros.h"
 #include "Logging/MessageLog.h"
-#include "RuiReconciler.h"
+#include "RuitkReconciler.h"
 #include "ToolMenus.h"
 #include "UetkxHmrController.h"
 
@@ -33,7 +33,7 @@ namespace
 	{
 		const FUetkxHmrController& Controller = FUetkxHmrController::Get();
 		int32 LiveRoots = 0;
-		FRuiReconciler::ForEachLive([&LiveRoots](FRuiReconciler&) { ++LiveRoots; });
+		FRuitkReconciler::ForEachLive([&LiveRoots](FRuitkReconciler&) { ++LiveRoots; });
 		const FUetkxHmrStatus& Status = Controller.GetStatus();
 		UE_LOG(LogRuiMenu, Display, TEXT("[ReactiveUetkx] HMR %s — live roots: %d, swaps: %d, errors: %d"),
 			   Controller.IsActive() ? TEXT("ACTIVE") : TEXT("idle"), LiveRoots, Status.Swaps, Status.Errors);

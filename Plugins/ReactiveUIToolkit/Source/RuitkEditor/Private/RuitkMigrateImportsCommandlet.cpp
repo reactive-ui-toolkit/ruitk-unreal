@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RUIMigrateImportsCommandlet.h"
+#include "RuitkMigrateImportsCommandlet.h"
 
 #include "HAL/FileManager.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
-#include "RUICompileCommandlet.h"
+#include "RuitkCompileCommandlet.h"
 #include "UetkxCodegen.h"
 #include "UetkxDriver.h"
 #include "UetkxFileScan.h"
@@ -696,7 +696,7 @@ int32 URUIMigrateImportsCommandlet::Main(const FString& Params)
 	int32 CrossModule = 0;
 	RunInsertImportsPass(Files, Resolver, CrossModule);
 	const int32 Errors = RunZeroDiagGate(Files, Resolver, CrossModule, /*bRequireZero2320*/ false, TSet<FString>(),
-										 TEXT("RUIMigrateImports"));
+										 TEXT("RuitkMigrateImports"));
 	return Errors == 0 ? 0 : 1;
 }
 
@@ -763,7 +763,7 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 				}
 				// Header span: [`component`, the body `{`) — BodyAt is one past the `{`.
 				Rewrites.Add({D.At, D.BodyAt - 1,
-							  FString::Printf(TEXT("FRuiNode %s(%s) "), *D.Name, *FString::Join(Parts, TEXT(", ")))});
+							  FString::Printf(TEXT("FRuitkNode %s(%s) "), *D.Name, *FString::Join(Parts, TEXT(", ")))});
 				++ComponentsRewritten;
 			}
 			else if (Ord.Key == EUetkxDeclKind::Hook)
@@ -906,6 +906,6 @@ int32 URUIMigrateEsModulesCommandlet::Main(const FString& Params)
 
 	// ── Pass 5: the zero-diagnostics gate — zero errors AND zero 2320 outside the reported skips.
 	const int32 Errors = RunZeroDiagGate(Files, Resolver, CrossModule, /*bRequireZero2320*/ true, SkippedFiles,
-										 TEXT("RUIMigrateEsModules"));
+										 TEXT("RuitkMigrateEsModules"));
 	return Errors == 0 ? 0 : 1;
 }

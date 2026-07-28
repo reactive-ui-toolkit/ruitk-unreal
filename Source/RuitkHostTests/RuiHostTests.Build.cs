@@ -2,12 +2,12 @@
 
 using UnrealBuildTool;
 
-// ALL automation tests live here (the ReactiveUI.* suite hierarchy — MASTER_PLAN §4), in the
+// ALL automation tests live here (the Ruitk.* suite hierarchy — MASTER_PLAN §4), in the
 // host project rather than the plugin, so the shipped plugin stays lean. Editor-type module:
-// suites run via `UnrealEditor-Cmd -ExecCmds="Automation RunTests ReactiveUI; Quit"` headless.
-public class RuiHostTests : ModuleRules
+// suites run via `UnrealEditor-Cmd -ExecCmds="Automation RunTests Ruitk; Quit"` headless.
+public class RuitkHostTests : ModuleRules
 {
-	public RuiHostTests(ReadOnlyTargetRules Target) : base(Target)
+	public RuitkHostTests(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IWYUSupport = IWYUSupport.Full;
@@ -26,7 +26,7 @@ public class RuiHostTests : ModuleRules
 			"Projects",         // IPluginManager (the Boot suite)
 			"RuitkCore",   // the mock-host core suites
 			"RuitkSlate",  // the Slate host suites + reorder spike
-			"RuiDemo",          // the Demos suite mounts the gallery
+			"RuitkDemo",          // the Demos suite mounts the gallery
 			"RuitkInterp", // the .uetkx scanner/parser suites + VM/Hmr
 			"RuitkToolchain", // the codegen suites
 			"RuitkEditor", // the TD-006 .uetkx preview suite (FUetkxPreview)

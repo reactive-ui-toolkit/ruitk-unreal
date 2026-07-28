@@ -5,49 +5,49 @@
 // build — not in the first downstream consumer. Also the honest IWYU check for our own
 // public surface. Add each new public header to this list in the same commit.
 
-#include "RuiTypes.h"
-#include "RuiPropsBase.h"
-#include "RuiElementRegistry.h"
-#include "RuiNode.h"
-#include "RuiHostConfig.h"
-#include "RuiHooksInternal.h"
-#include "RuiComponentState.h"
-#include "RuiFiber.h"
-#include "RuiContextHandle.h"
-#include "RuiCoreMisc.h"
-#include "RuiContext.h"
-#include "RuiReconciler.h"
-#include "RuiSignal.h"
-#include "RuiCoreElements.h"
+#include "RuitkTypes.h"
+#include "RuitkPropsBase.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkNode.h"
+#include "RuitkHostConfig.h"
+#include "RuitkHooksInternal.h"
+#include "RuitkComponentState.h"
+#include "RuitkFiber.h"
+#include "RuitkContextHandle.h"
+#include "RuitkCoreMisc.h"
+#include "RuitkContext.h"
+#include "RuitkReconciler.h"
+#include "RuitkSignal.h"
+#include "RuitkCoreElements.h"
 
 // Instantiate the templates a header-only consumer would (template errors surface at
 // instantiation, not parse).
-namespace RuiCoreChecks
+namespace RuitkCoreChecks
 {
 	static void CompileCheck()
 	{
-		TRuiSetter<int32> IntSetter;
-		TRuiSetter<FString> StrSetter;
+		TRuitkSetter<int32> IntSetter;
+		TRuitkSetter<FString> StrSetter;
 		(void)(IntSetter == IntSetter);
 		(void)(StrSetter == StrSetter);
 
-		FRuiDeps D = RUI::Deps(1, 2.0f, TEXT("x"), FName(TEXT("n")));
-		(void)RUI::DepsChanged(D, D);
+		FRuitkDeps D = Ruitk::Deps(1, 2.0f, TEXT("x"), FName(TEXT("n")));
+		(void)Ruitk::DepsChanged(D, D);
 
-		TRuiStateCell<int32> State(0);
-		TRuiRefCell<float> Ref(0.0f);
-		TRuiMemoCell<FString> Memo;
-		TRuiDeferredCell<int32> Deferred;
+		TRuitkStateCell<int32> State(0);
+		TRuitkRefCell<float> Ref(0.0f);
+		TRuitkMemoCell<FString> Memo;
+		TRuitkDeferredCell<int32> Deferred;
 		(void)State;
 		(void)Ref;
 		(void)Memo;
 		(void)Deferred;
 
-		FRuiFiberSlab Slab;
-		FRuiFiber* F = Slab.Acquire();
+		FRuitkFiberSlab Slab;
+		FRuitkFiber* F = Slab.Acquire();
 		Slab.Release(F);
 	}
 
 	// Never called; exists so the linker keeps the instantiations honest without running.
 	void* Sink = (void*)&CompileCheck;
-} // namespace RuiCoreChecks
+} // namespace RuitkCoreChecks

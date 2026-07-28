@@ -28,7 +28,7 @@
 
 #include "CoreMinimal.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// Phase 2 (original): when true, CastFrame uses Raycast::Cast (portal walker on the
 	// sector graph). When false, falls back to the original DDA grid walker. Toggle off if
@@ -74,4 +74,4 @@ namespace RuiDoom
 
 	/** Render tint for a mobj (pain flash, Shotgunner/Zombieman palette swaps). */
 	RUITKDEMO_API FColor TintForMobj(EMobjKind K, EAIState S);
-} // namespace RuiDoom
+} // namespace RuitkDoom

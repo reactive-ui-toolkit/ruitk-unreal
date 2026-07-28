@@ -1,18 +1,18 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-012 tail — SComboBox wrapper. The selected display and each dropdown row are FRuiRoot sub-roots
+// TD-012 tail — SComboBox wrapper. The selected display and each dropdown row are FRuitkRoot sub-roots
 // built from the shared RenderOption closure. Selection is controlled (SetSelectedItem never re-fires
 // OnSelectionChanged — that only fires on a user pick, filtered by ESelectInfo::Direct).
 
-#include "RuiComboBox.h"
+#include "RuitkComboBox.h"
 
-#include "RuiElementAdapter.h"
-#include "RuiRoot.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkRoot.h"
 #include "Widgets/Input/SComboBox.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/SNullWidget.h"
 
-void SRuiComboBox::Construct(const FArguments&)
+void SRuitkComboBox::Construct(const FArguments&)
 {
 	SAssignNew(SelectedHolder, SBox);
 	// clang-format off
@@ -20,9 +20,9 @@ void SRuiComboBox::Construct(const FArguments&)
 	[
 		SAssignNew(Combo, SComboBox<FItemType>)
 		.OptionsSource(&Options)
-		.OnGenerateWidget(this, &SRuiComboBox::HandleGenerateRow)
-		.OnComboBoxOpening(this, &SRuiComboBox::HandleMenuOpening)
-		.OnSelectionChanged(this, &SRuiComboBox::HandleSelectionChanged)
+		.OnGenerateWidget(this, &SRuitkComboBox::HandleGenerateRow)
+		.OnComboBoxOpening(this, &SRuitkComboBox::HandleMenuOpening)
+		.OnSelectionChanged(this, &SRuitkComboBox::HandleSelectionChanged)
 		[
 			SelectedHolder.ToSharedRef()
 		]
@@ -30,7 +30,7 @@ void SRuiComboBox::Construct(const FArguments&)
 	// clang-format on
 }
 
-SRuiComboBox::~SRuiComboBox()
+SRuitkComboBox::~SRuitkComboBox()
 {
 	// Tear down every reconciler sub-root this widget owns (rows + the selected display) so their
 	// hooks/effects clean up rather than leaking with the widget (bughunt IW-2).
@@ -42,7 +42,7 @@ SRuiComboBox::~SRuiComboBox()
 	}
 }
 
-void SRuiComboBox::SetOptions(TArray<FItemType> InOptions)
+void SRuitkComboBox::SetOptions(TArray<FItemType> InOptions)
 {
 	Options = MoveTemp(InOptions);
 	if (Combo.IsValid())
@@ -57,13 +57,13 @@ void SRuiComboBox::SetOptions(TArray<FItemType> InOptions)
 	RefreshSelectedDisplay();
 }
 
-void SRuiComboBox::SetRenderer(TSharedPtr<FRuiItemRenderer> InRenderer)
+void SRuitkComboBox::SetRenderer(TSharedPtr<FRuitkItemRenderer> InRenderer)
 {
 	Renderer = MoveTemp(InRenderer);
 	RefreshSelectedDisplay();
 }
 
-void SRuiComboBox::SetSelectedIndex(int32 Index)
+void SRuitkComboBox::SetSelectedIndex(int32 Index)
 {
 	if (Index == SelectedIndex)
 	{
@@ -79,23 +79,23 @@ void SRuiComboBox::SetSelectedIndex(int32 Index)
 	RefreshSelectedDisplay();
 }
 
-FRuiNode SRuiComboBox::BuildNodeFor(const FItemType& Item) const
+FRuitkNode SRuitkComboBox::BuildNodeFor(const FItemType& Item) const
 {
 	if (!Item.IsValid() || !Renderer.IsValid() || !(*Renderer))
 	{
-		return FRuiNode();
+		return FRuitkNode();
 	}
 	return (*Renderer)(*Item, Options.IndexOfByKey(Item));
 }
 
-void SRuiComboBox::RefreshSelectedDisplay()
+void SRuitkComboBox::RefreshSelectedDisplay()
 {
 	if (!SelectedHolder.IsValid())
 	{
 		return;
 	}
 	const FItemType Selected = Options.IsValidIndex(SelectedIndex) ? Options[SelectedIndex] : nullptr;
-	FRuiNode Node = BuildNodeFor(Selected);
+	FRuitkNode Node = BuildNodeFor(Selected);
 	if (SelectedRoot.IsValid())
 	{
 		SelectedRoot->Update(MoveTemp(Node));
@@ -103,21 +103,21 @@ void SRuiComboBox::RefreshSelectedDisplay()
 	}
 	else
 	{
-		SelectedRoot = FRuiRoot::Create(MoveTemp(Node));
+		SelectedRoot = FRuitkRoot::Create(MoveTemp(Node));
 		SelectedRoot->FlushSync();
 	}
 	SelectedHolder->SetContent(SelectedRoot->GetWidget());
 }
 
-TSharedRef<SWidget> SRuiComboBox::HandleGenerateRow(FItemType Item)
+TSharedRef<SWidget> SRuitkComboBox::HandleGenerateRow(FItemType Item)
 {
-	TSharedRef<FRuiRoot> Row = FRuiRoot::Create(BuildNodeFor(Item));
+	TSharedRef<FRuitkRoot> Row = FRuitkRoot::Create(BuildNodeFor(Item));
 	Row->FlushSync();
 	RowRoots.Add(Row);
 	return Row->GetWidget();
 }
 
-void SRuiComboBox::HandleSelectionChanged(FItemType Item, ESelectInfo::Type /*SelectInfo*/)
+void SRuitkComboBox::HandleSelectionChanged(FItemType Item, ESelectInfo::Type /*SelectInfo*/)
 {
 	const int32 Index = Item.IsValid() ? Options.IndexOfByKey(Item) : INDEX_NONE;
 	SelectedIndex = Index;
@@ -129,18 +129,18 @@ void SRuiComboBox::HandleSelectionChanged(FItemType Item, ESelectInfo::Type /*Se
 	// (bughunt IW-3 / B6-1).
 	if (!bApplyingSelection && Index != INDEX_NONE && OnSelectionChanged.IsBound())
 	{
-		OnSelectionChanged.Execute(FRuiValue(Index));
+		OnSelectionChanged.Execute(FRuitkValue(Index));
 	}
 }
 
-void SRuiComboBox::HandleMenuOpening()
+void SRuitkComboBox::HandleMenuOpening()
 {
 	UnmountRowRoots(); // each open regenerates fresh rows; retire the prior open's sub-roots
 }
 
-void SRuiComboBox::UnmountRowRoots()
+void SRuitkComboBox::UnmountRowRoots()
 {
-	for (const TSharedPtr<FRuiRoot>& Row : RowRoots)
+	for (const TSharedPtr<FRuitkRoot>& Row : RowRoots)
 	{
 		if (Row.IsValid())
 		{
@@ -150,7 +150,7 @@ void SRuiComboBox::UnmountRowRoots()
 	RowRoots.Reset();
 }
 
-void SRuiComboBox::OpenMenu()
+void SRuitkComboBox::OpenMenu()
 {
 	UnmountRowRoots(); // a fresh open regenerates the visible rows (retire the previous ones)
 	if (Combo.IsValid())
@@ -159,12 +159,12 @@ void SRuiComboBox::OpenMenu()
 	}
 }
 
-int32 SRuiComboBox::NumGeneratedRows() const
+int32 SRuitkComboBox::NumGeneratedRows() const
 {
 	return RowRoots.Num();
 }
 
-TSharedPtr<SWidget> SRuiComboBox::GetSelectedContent() const
+TSharedPtr<SWidget> SRuitkComboBox::GetSelectedContent() const
 {
 	return SelectedRoot.IsValid() ? TSharedPtr<SWidget>(SelectedRoot->GetWidget()) : nullptr;
 }
@@ -173,22 +173,22 @@ TSharedPtr<SWidget> SRuiComboBox::GetSelectedContent() const
 // Adapter (Leaf; options are data)
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiComboBoxAdapter final : public IRuiElementAdapter
+class FRuitkComboBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		return SNew(SRuiComboBox);
+		return SNew(SRuitkComboBox);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiComboBox& W = static_cast<SRuiComboBox&>(Widget);
-		const FRuiComboBoxProps& N = static_cast<const FRuiComboBoxProps&>(New);
-		const FRuiComboBoxProps* O = static_cast<const FRuiComboBoxProps*>(Old);
+		SRuitkComboBox& W = static_cast<SRuitkComboBox&>(Widget);
+		const FRuitkComboBoxProps& N = static_cast<const FRuitkComboBoxProps&>(New);
+		const FRuitkComboBoxProps* O = static_cast<const FRuitkComboBoxProps*>(Old);
 		if (N.HasOptions() && (O == nullptr || !O->HasOptions() || !(N.Options == O->Options)))
 		{
 			W.SetOptions(N.Options);
@@ -212,19 +212,19 @@ public:
 // Type, factory, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId ComboBoxType()
+	FRuitkElementTypeId ComboBoxType()
 	{
-		return RUI::InternElementType(FName(TEXT("ComboBox")));
+		return Ruitk::InternElementType(FName(TEXT("ComboBox")));
 	}
 
-	FRuiNode ComboBox(FRuiComboBoxProps Props, FRuiKey Key)
+	FRuitkNode ComboBox(FRuitkComboBoxProps Props, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = ComboBoxType();
-		Node.Props = MakeShared<FRuiComboBoxProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkComboBoxProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
@@ -233,7 +233,7 @@ namespace RUI::Slate
 	{
 		void RegisterComboBoxAdapter()
 		{
-			RegisterAdapter(ComboBoxType(), MakeUnique<FRuiComboBoxAdapter>());
+			RegisterAdapter(ComboBoxType(), MakeUnique<FRuitkComboBoxAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

@@ -8,12 +8,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 
-#include "RuiDemoGameMode.generated.h"
+#include "RuitkDemoGameMode.generated.h"
 
-class FRuiRoot;
+class FRuitkRoot;
 
 UCLASS()
-class ARuiDemoGameMode : public AGameModeBase
+class ARuitkDemoGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
@@ -22,5 +22,5 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-	TSharedPtr<FRuiRoot> Root;
+	TSharedPtr<FRuitkRoot> Root;
 };

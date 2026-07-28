@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Editor.Preview — TD-006: the in-editor .uetkx read-only preview core (FUetkxPreview).
+// Ruitk.Editor.Preview — TD-006: the in-editor .uetkx read-only preview core (FUetkxPreview).
 // HMR v2 (D-HMR-8) deleted the interpreter, so the preview no longer approximates a component — it
-// scans a source for its component name and mounts the COMPILED component by name (the one RUICompile
+// scans a source for its component name and mounts the COMPILED component by name (the one RuitkCompile
 // /HMR registered). This suite verifies: a compiled component mounts its REAL live widget; an
 // uncompiled component reports "not compiled yet" (never a wrong approximation); no-component / parse
 // errors yield a placeholder + diagnostics, never a crash.
 
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
-#include "RuiNode.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
+#include "RuitkNode.h"
 #include "UetkxPreview.h"
 #include "Widgets/SWidget.h"
 #include "Widgets/Text/STextBlock.h"
@@ -20,20 +20,20 @@
 namespace EditorPreviewTest
 {
 	// A compiled component: the preview mounts THIS (the real thing), so its render is observable.
-	static FRuiNodeArray PreviewHello(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PreviewHello(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::TextBlock(FString(TEXT("HELLO_RAN_LIVE")))};
+		return {Ruitk::TextBlock(FString(TEXT("HELLO_RAN_LIVE")))};
 	}
 
 	// A compiled child referenced by another component — the preview mounts the real tree, so a
 	// compiled child now DOES run live (the opposite of the deleted interpreter's inert stub).
-	static FRuiNodeArray PreviewChildComp(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PreviewChildComp(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::TextBlock(FString(TEXT("CHILD_RAN_LIVE")))};
+		return {Ruitk::TextBlock(FString(TEXT("CHILD_RAN_LIVE")))};
 	}
-	static FRuiNodeArray PreviewHost(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PreviewHost(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::FC(&PreviewChildComp)};
+		return {Ruitk::FC(&PreviewChildComp)};
 	}
 
 	static void CollectTexts(SWidget& Root, TArray<FString>& Out)
@@ -78,15 +78,15 @@ namespace EditorPreviewTest
 	}
 } // namespace EditorPreviewTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiEditorPreviewTest, "ReactiveUI.Editor.Preview",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkEditorPreviewTest, "Ruitk.Editor.Preview",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiEditorPreviewTest::RunTest(const FString&)
+bool FRuitkEditorPreviewTest::RunTest(const FString&)
 {
 	using namespace EditorPreviewTest;
 
 	// ── a compiled component mounts its REAL live widget ────────────────────────────────────────
 	{
-		RUI::RegisterNamedFactory(FName(TEXT("PreviewHello")), []() { return RUI::FC(&PreviewHello); });
+		Ruitk::RegisterNamedFactory(FName(TEXT("PreviewHello")), []() { return Ruitk::FC(&PreviewHello); });
 		const FString Source = TEXT("component PreviewHello {\n\treturn (\n\t\t<VerticalBox></VerticalBox>\n\t);\n}\n");
 		TSharedRef<FUetkxPreview> Preview = FUetkxPreview::FromSource(Source, TEXT("PreviewHello"));
 		TestTrue(TEXT("compiled component mounts"), Preview->IsValid());
@@ -149,7 +149,7 @@ bool FRuiEditorPreviewTest::RunTest(const FString&)
 	// ── the preview mounts the REAL compiled tree: a referenced compiled child RUNS live ─────────
 	//    (HMR v2: the preview is the true component, not the interpreter's inert stub — effects run.)
 	{
-		RUI::RegisterNamedFactory(FName(TEXT("PreviewHostComp")), []() { return RUI::FC(&PreviewHost); });
+		Ruitk::RegisterNamedFactory(FName(TEXT("PreviewHostComp")), []() { return Ruitk::FC(&PreviewHost); });
 		const FString Source = TEXT("component PreviewHostComp {\n\treturn ( <PreviewChildComp/> );\n}\n");
 		TSharedRef<FUetkxPreview> Preview = FUetkxPreview::FromSource(Source, TEXT("PreviewHostComp"));
 		TestTrue(TEXT("host mounts"), Preview->IsValid());

@@ -7,22 +7,22 @@
 #include "Misc/AutomationTest.h"
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
-#include "RuiMockHost.h"
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-static FRuiNodeArray BootComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray BootComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [V, SetV] = Ctx.UseState<int32>(42);
-	return {RUI::TextBlock(FString::Printf(TEXT("boot %d"), V))};
+	return {Ruitk::TextBlock(FString::Printf(TEXT("boot %d"), V))};
 }
-RUI_COMPONENT(BootComp)
+RUITK_COMPONENT(BootComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBootTest, "ReactiveUI.Boot",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBootTest, "Ruitk.Boot",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBootTest::RunTest(const FString&)
+bool FRuitkBootTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[boot] 1/3 plugin + modules loaded"));
 	TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("ReactiveUIToolkit"));
@@ -36,8 +36,8 @@ bool FRuiBootTest::RunTest(const FString&)
 			 FModuleManager::Get().IsModuleLoaded(TEXT("RuitkInterp")));
 
 	AddInfo(TEXT("[boot] 2/3 a root mounts on the host seam"));
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&BootComp));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&BootComp));
 	FMockNode* Node = H.ChildAt(0);
 	if (!TestNotNull(TEXT("root mounted a node"), Node))
 	{

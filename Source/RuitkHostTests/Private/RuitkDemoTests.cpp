@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Demos — the demos_test.gd analogue: every gallery entry mounts headlessly and
+// Ruitk.Demos — the demos_test.gd analogue: every gallery entry mounts headlessly and
 // unmounts clean (zero live fibers), a real button click drives state through a screen, and
 // the shell's menu switches screens (old screen unmounted, new one mounted).
 
 #include "Misc/AutomationTest.h"
-#include "RuiDemoScreens.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateHost.h"
+#include "RuitkDemoScreens.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateHost.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Text/STextBlock.h"
 
@@ -79,23 +79,23 @@ namespace DemoTest
 	}
 } // namespace DemoTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDemosTest, "ReactiveUI.Demos",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDemosTest, "Ruitk.Demos",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiDemosTest::RunTest(const FString&)
+bool FRuitkDemosTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[demos] every compiled .uetkx screen self-registered its factory"));
-	for (const FName& Name : RuiDemo::GetCompiledScreenNames())
+	for (const FName& Name : RuitkDemo::GetCompiledScreenNames())
 	{
-		// RUI::Named falls back to an empty Fragment — a missing registration would
+		// Ruitk::Named falls back to an empty Fragment — a missing registration would
 		// otherwise "mount" invisibly. This is the seam between the gallery and the
-		// committed generated code (RuiDemo.Uetkx.gen.cpp).
-		TestTrue(FString::Printf(TEXT("'%s' registered"), *Name.ToString()), RUI::HasNamedFactory(Name));
+		// committed generated code (RuitkDemo.Uetkx.gen.cpp).
+		TestTrue(FString::Printf(TEXT("'%s' registered"), *Name.ToString()), Ruitk::HasNamedFactory(Name));
 	}
 
 	AddInfo(TEXT("[demos] every gallery entry mounts headlessly and unmounts clean"));
-	for (const RuiDemo::FRuiDemoEntry& Entry : RuiDemo::GetGalleryEntries())
+	for (const RuitkDemo::FRuitkDemoEntry& Entry : RuitkDemo::GetGalleryEntries())
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(Entry.Make());
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Entry.Make());
 		Root->FlushSync();
 		TestTrue(FString::Printf(TEXT("'%s' mounted something"), *Entry.Name),
 				 Root->GetWidget()->GetRootPanel()->GetChildren()->Num() > 0);
@@ -106,7 +106,7 @@ bool FRuiDemosTest::RunTest(const FString&)
 
 	AddInfo(TEXT("[demos] a real click drives the counter screen"));
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RuiDemo::GetGalleryEntries()[1].Make()); // Counter
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(RuitkDemo::GetGalleryEntries()[1].Make()); // Counter
 		Root->FlushSync();
 		SWidget& RootWidget = Root->GetWidget().Get();
 		// SimpleCounter became the two-counter HMR field-test vehicle (custom hook + UseState
@@ -123,14 +123,14 @@ bool FRuiDemosTest::RunTest(const FString&)
 
 	AddInfo(TEXT("[demos] the interop screens render their headless fallbacks (audit Phase 4)"));
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("UmgHostDemo"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("UmgHostDemo"))));
 		Root->FlushSync();
 		TestTrue(TEXT("UmgHostDemo renders the no-world fallback headless"),
 				 DemoTest::ContainsText(Root->GetWidget().Get(), TEXT("press Play")));
 		Root->Unmount();
 	}
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("CommonUiDemo"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("CommonUiDemo"))));
 		Root->FlushSync();
 		SWidget& W = Root->GetWidget().Get();
 		TestTrue(TEXT("CommonUiDemo renders the toggle half headless"),
@@ -142,7 +142,7 @@ bool FRuiDemosTest::RunTest(const FString&)
 
 	AddInfo(TEXT("[demos] the shell menu switches screens (remount on switch)"));
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RuiDemo::GalleryRoot());
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(RuitkDemo::GalleryRoot());
 		Root->FlushSync();
 		SWidget& RootWidget = Root->GetWidget().Get();
 		TestTrue(TEXT("starts on Hello World"), DemoTest::ContainsText(RootWidget, TEXT("Hello, world!")));

@@ -9,27 +9,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiPropsBase.h"
+#include "RuitkNode.h"
+#include "RuitkPropsBase.h"
 #include "Widgets/SCompoundWidget.h"
 
 template <typename OptionType> class SSegmentedControl;
 
 /** SSegmentedControl<int32> (Leaf): one text segment per `Labels` entry (value = index).
  *  `SelectedIndex` is the controlled selection; OnSelectionChanged fires the picked index. */
-struct RUITKSLATE_API FRuiSegmentedControlProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuitkSegmentedControlProps final : public FRuitkPropsBase
 {
-	RUI_PROP(TArray<FString>, Labels, 0) // construct-only (segments bake)
-	RUI_PROP(int32, SelectedIndex, 1)	 // controlled runtime
-	RUI_PROP_EVENT(OnSelectionChanged, 2)
-	RUI_PROPS_BODY(FRuiSegmentedControlProps, RUI_EQ(Labels) RUI_EQ(SelectedIndex) RUI_EQ(OnSelectionChanged))
+	RUITK_PROP(TArray<FString>, Labels, 0) // construct-only (segments bake)
+	RUITK_PROP(int32, SelectedIndex, 1)	 // controlled runtime
+	RUITK_PROP_EVENT(OnSelectionChanged, 2)
+	RUITK_PROPS_BODY(FRuitkSegmentedControlProps, RUITK_EQ(Labels) RUITK_EQ(SelectedIndex) RUITK_EQ(OnSelectionChanged))
 };
 
 /** Wraps SSegmentedControl<int32> with a stable callback holder + the controlled-selection surface. */
-class RUITKSLATE_API SRuiSegmentedControl final : public SCompoundWidget
+class RUITKSLATE_API SRuitkSegmentedControl final : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiSegmentedControl) : _InitialIndex(0) {}
+	SLATE_BEGIN_ARGS(SRuitkSegmentedControl) : _InitialIndex(0) {}
 	SLATE_ARGUMENT(TArray<FString>, Labels)
 	SLATE_ARGUMENT(int32, InitialIndex)
 	SLATE_END_ARGS()
@@ -39,25 +39,25 @@ public:
 	void SetSelectedIndex(int32 Index);
 	int32 GetSelectedIndex() const;
 	int32 NumSegments() const;
-	void SetOnSelectionChanged(FRuiCallback InCb) { OnSelectionChanged = MoveTemp(InCb); }
+	void SetOnSelectionChanged(FRuitkCallback InCb) { OnSelectionChanged = MoveTemp(InCb); }
 
 private:
 	void HandleValueChanged(int32 Value);
 
 	TSharedPtr<SSegmentedControl<int32>> Control;
-	FRuiCallback OnSelectionChanged;
+	FRuitkCallback OnSelectionChanged;
 };
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	RUITKSLATE_API FRuiElementTypeId SegmentedControlType();
+	RUITKSLATE_API FRuitkElementTypeId SegmentedControlType();
 
 	/** A labelled segmented selector (tab bar). Labels bake the segments; SelectedIndex is controlled. */
-	RUITKSLATE_API FRuiNode SegmentedControl(FRuiSegmentedControlProps Props = FRuiSegmentedControlProps(),
-												  FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuitkNode SegmentedControl(FRuitkSegmentedControlProps Props = FRuitkSegmentedControlProps(),
+												  FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{
 		void RegisterSegmentedControlAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

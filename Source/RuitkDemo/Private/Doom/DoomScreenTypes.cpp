@@ -4,7 +4,7 @@
 
 #include "Engine/Texture2D.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	const TSharedRef<FSlateBrush>& FDoomBrushPool::Solid()
 	{
@@ -55,4 +55,4 @@ namespace RuiDoom
 	{
 		Pool.Empty();
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

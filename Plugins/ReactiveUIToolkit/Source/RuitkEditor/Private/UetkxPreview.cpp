@@ -4,15 +4,15 @@
 
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
-#include "RuiCoreElements.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkCoreElements.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "UetkxCodegen.h"
 #include "UetkxFileScan.h"
 #include "Widgets/Text/STextBlock.h"
 
 // HMR v2 (D-HMR-8): the interpreter is deleted, so the preview mounts the COMPILED component by name
-// (the one HMR/RUICompile registered). It reflects the LAST COMPILED state — after an edit, a save
+// (the one HMR/RuitkCompile registered). It reflects the LAST COMPILED state — after an edit, a save
 // recompiles it (and, with HMR mode on, Live Coding patches it live). This is the real component, not
 // an approximation; its effects run as they would in PIE.
 
@@ -61,12 +61,12 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const
 	{
 		const FName Exact(*(FUetkxCodegen::FileNamespaceFor(ProjectRelPath, Basename) + TEXT("::") + Wanted));
 		FName ResolvedExact;
-		if (RUI::ResolveNamed(Exact, ResolvedExact) == RUI::EResolveNamed::Hit)
+		if (Ruitk::ResolveNamed(Exact, ResolvedExact) == Ruitk::EResolveNamed::Hit)
 		{
 			ComponentId = Exact;
 		}
 	}
-	if (!RUI::HasNamedFactory(ComponentId))
+	if (!Ruitk::HasNamedFactory(ComponentId))
 	{
 		// TD-026 (ES-modules M3): a PRIVATE component never registers a named factory (tree-shaken
 		// by design) — "not compiled yet" would be a lie; say what actually unlocks the preview.
@@ -79,7 +79,7 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const
 			return Preview;
 		}
 		Preview->Messages.Add(FString::Printf(
-			TEXT("[preview] component '%s' is not compiled yet — save the file (or run RUICompile) so it registers, "
+			TEXT("[preview] component '%s' is not compiled yet — save the file (or run RuitkCompile) so it registers, "
 				 "then reopen the preview. The preview mounts the COMPILED component."),
 			*Wanted));
 		return Preview;
@@ -87,7 +87,7 @@ TSharedRef<FUetkxPreview> FUetkxPreview::FromSource(const FString& Source, const
 
 	// Mount the real compiled component (interactive; effects run as in PIE).
 	Preview->ComponentName = Wanted;
-	Preview->Root = FRuiRoot::Create(RUI::Named(ComponentId));
+	Preview->Root = FRuitkRoot::Create(Ruitk::Named(ComponentId));
 	Preview->Root->FlushSync();
 	Preview->bMounted = true;
 	Preview->Messages.Add(FString::Printf(TEXT("[preview] mounted the compiled component '%s' (live)."), *Wanted));

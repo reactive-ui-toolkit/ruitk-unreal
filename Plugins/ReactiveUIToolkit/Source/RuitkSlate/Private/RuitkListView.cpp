@@ -1,49 +1,49 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-022 — item-model views. The virtualization comes from Slate's SListView / STileView; the
-// reactive half is SRuiListRow, a table row that owns a per-row FRuiRoot sub-root. Each row is an
+// reactive half is SRuitkListRow, a table row that owns a per-row FRuitkRoot sub-root. Each row is an
 // independent little reconciler: it renders RenderItem(item, index) into its own widget tree, and
 // when the parent hands a fresh RenderItem closure the row re-renders that sub-root in place (no
 // widget churn — the SListView row is reused, only its content is re-reconciled).
 
-#include "RuiListView.h"
+#include "RuitkListView.h"
 
-#include "RuiElementAdapter.h"
-#include "RuiRoot.h"
-#include "RuiSlateLog.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateLog.h"
 #include "Widgets/Views/STableRow.h"
 #include "Widgets/Views/STableViewBase.h"
 #include "Widgets/Views/STileView.h"
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
-// SRuiListRow — one generated row; owns a detached FRuiRoot rendering the item's subtree.
+// SRuitkListRow — one generated row; owns a detached FRuitkRoot rendering the item's subtree.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class SRuiListRow : public STableRow<TSharedPtr<FRuiValue>>
+class SRuitkListRow : public STableRow<TSharedPtr<FRuitkValue>>
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiListRow) {}
+	SLATE_BEGIN_ARGS(SRuitkListRow) {}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments&, const TSharedRef<STableViewBase>& OwnerTable,
-				   const TWeakPtr<SRuiListView>& InOwner, const TSharedPtr<FRuiValue>& InItem)
+				   const TWeakPtr<SRuitkListView>& InOwner, const TSharedPtr<FRuitkValue>& InItem)
 	{
 		Owner = InOwner;
 		Item = InItem;
 
-		FRuiNode Node;
-		if (const TSharedPtr<SRuiListView> Pinned = Owner.Pin())
+		FRuitkNode Node;
+		if (const TSharedPtr<SRuitkListView> Pinned = Owner.Pin())
 		{
 			Node = Pinned->BuildNodeFor(Item);
 		}
-		RowRoot = FRuiRoot::Create(MoveTemp(Node));
+		RowRoot = FRuitkRoot::Create(MoveTemp(Node));
 		RowRoot->FlushSync();
 
-		STableRow<TSharedPtr<FRuiValue>>::Construct(
-			STableRow<TSharedPtr<FRuiValue>>::FArguments()[RowRoot->GetWidget()], OwnerTable);
+		STableRow<TSharedPtr<FRuitkValue>>::Construct(
+			STableRow<TSharedPtr<FRuitkValue>>::FArguments()[RowRoot->GetWidget()], OwnerTable);
 	}
 
-	virtual ~SRuiListRow() override
+	virtual ~SRuitkListRow() override
 	{
 		// Explicit teardown so the sub-root's effect cleanups run deterministically when the list
 		// recycles/drops the row (before the shared ref would otherwise unwind).
@@ -61,8 +61,8 @@ public:
 		{
 			return;
 		}
-		FRuiNode Node;
-		if (const TSharedPtr<SRuiListView> Pinned = Owner.Pin())
+		FRuitkNode Node;
+		if (const TSharedPtr<SRuitkListView> Pinned = Owner.Pin())
 		{
 			Node = Pinned->BuildNodeFor(Item);
 		}
@@ -71,44 +71,44 @@ public:
 	}
 
 private:
-	TWeakPtr<SRuiListView> Owner;
-	TSharedPtr<FRuiValue> Item;
-	TSharedPtr<FRuiRoot> RowRoot;
+	TWeakPtr<SRuitkListView> Owner;
+	TSharedPtr<FRuitkValue> Item;
+	TSharedPtr<FRuitkRoot> RowRoot;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
-// SRuiListView — wraps SListView/STileView and owns the row bookkeeping.
+// SRuitkListView — wraps SListView/STileView and owns the row bookkeeping.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-void SRuiListView::Construct(const FArguments& InArgs)
+void SRuitkListView::Construct(const FArguments& InArgs)
 {
 	ViewKind = InArgs._ViewKind;
 
-	if (ViewKind == ERuiItemViewKind::Tile)
+	if (ViewKind == ERuitkItemViewKind::Tile)
 	{
 		ListWidget =
 			SNew(STileView<FItemType>)
 				.ItemWidth(InArgs._ItemWidth)
 				.ItemHeight(InArgs._ItemHeight)
 				.ListItemsSource(&Items)
-				.OnGenerateTile(this, &SRuiListView::HandleGenerateRow)
+				.OnGenerateTile(this, &SRuitkListView::HandleGenerateRow)
 				.SelectionMode(TAttribute<ESelectionMode::Type>::CreateLambda([this]() { return SelectionModeValue; }))
-				.OnSelectionChanged(this, &SRuiListView::HandleSelectionChanged);
+				.OnSelectionChanged(this, &SRuitkListView::HandleSelectionChanged);
 	}
 	else
 	{
 		ListWidget =
 			SNew(SListView<FItemType>)
 				.ListItemsSource(&Items)
-				.OnGenerateRow(this, &SRuiListView::HandleGenerateRow)
+				.OnGenerateRow(this, &SRuitkListView::HandleGenerateRow)
 				.SelectionMode(TAttribute<ESelectionMode::Type>::CreateLambda([this]() { return SelectionModeValue; }))
-				.OnSelectionChanged(this, &SRuiListView::HandleSelectionChanged);
+				.OnSelectionChanged(this, &SRuitkListView::HandleSelectionChanged);
 	}
 
 	ChildSlot[ListWidget.ToSharedRef()];
 }
 
-void SRuiListView::SetItems(TArray<FItemType> InItems)
+void SRuitkListView::SetItems(TArray<FItemType> InItems)
 {
 	Items = MoveTemp(InItems);
 	if (ListWidget.IsValid())
@@ -117,14 +117,14 @@ void SRuiListView::SetItems(TArray<FItemType> InItems)
 	}
 }
 
-void SRuiListView::SetRenderer(TSharedPtr<FRuiItemRenderer> InRenderer)
+void SRuitkListView::SetRenderer(TSharedPtr<FRuitkItemRenderer> InRenderer)
 {
 	Renderer = MoveTemp(InRenderer);
 	// The reactive path: every live row re-runs the new closure against its own sub-root.
 	int32 Live = 0;
 	for (int32 i = LiveRows.Num() - 1; i >= 0; --i)
 	{
-		if (const TSharedPtr<SRuiListRow> Row = LiveRows[i].Pin())
+		if (const TSharedPtr<SRuitkListRow> Row = LiveRows[i].Pin())
 		{
 			Row->Rebuild();
 			++Live;
@@ -136,27 +136,27 @@ void SRuiListView::SetRenderer(TSharedPtr<FRuiItemRenderer> InRenderer)
 	}
 }
 
-void SRuiListView::SetSelectionMode(ESelectionMode::Type InMode)
+void SRuitkListView::SetSelectionMode(ESelectionMode::Type InMode)
 {
 	SelectionModeValue = InMode;
 }
 
-void SRuiListView::SetOnSelectionChanged(FRuiCallback InCallback)
+void SRuitkListView::SetOnSelectionChanged(FRuitkCallback InCallback)
 {
 	OnSelectionChanged = MoveTemp(InCallback);
 }
 
-FRuiNode SRuiListView::BuildNodeFor(const FItemType& Item) const
+FRuitkNode SRuitkListView::BuildNodeFor(const FItemType& Item) const
 {
 	if (!Item.IsValid() || !Renderer.IsValid() || !(*Renderer))
 	{
-		return FRuiNode(); // empty fragment — renders nothing
+		return FRuitkNode(); // empty fragment — renders nothing
 	}
 	const int32 Index = Items.IndexOfByKey(Item);
 	return (*Renderer)(*Item, Index);
 }
 
-void SRuiListView::TrackRow(const TSharedRef<SRuiListRow>& Row)
+void SRuitkListView::TrackRow(const TSharedRef<SRuitkListRow>& Row)
 {
 	for (int32 i = LiveRows.Num() - 1; i >= 0; --i)
 	{
@@ -168,7 +168,7 @@ void SRuiListView::TrackRow(const TSharedRef<SRuiListRow>& Row)
 	LiveRows.Add(Row);
 }
 
-void SRuiListView::ForceGenerateRows(FVector2D ViewportSize)
+void SRuitkListView::ForceGenerateRows(FVector2D ViewportSize)
 {
 	if (!ListWidget.IsValid())
 	{
@@ -183,10 +183,10 @@ void SRuiListView::ForceGenerateRows(FVector2D ViewportSize)
 	ListWidget->Tick(Geometry, 0.0, 0.0f);
 }
 
-int32 SRuiListView::NumGeneratedRows() const
+int32 SRuitkListView::NumGeneratedRows() const
 {
 	int32 Live = 0;
-	for (const TWeakPtr<SRuiListRow>& Row : LiveRows)
+	for (const TWeakPtr<SRuitkListRow>& Row : LiveRows)
 	{
 		if (Row.IsValid())
 		{
@@ -196,21 +196,21 @@ int32 SRuiListView::NumGeneratedRows() const
 	return Live;
 }
 
-TSharedRef<ITableRow> SRuiListView::HandleGenerateRow(FItemType Item, const TSharedRef<STableViewBase>& OwnerTable)
+TSharedRef<ITableRow> SRuitkListView::HandleGenerateRow(FItemType Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
-	TSharedRef<SRuiListRow> Row = SNew(SRuiListRow, OwnerTable, TWeakPtr<SRuiListView>(SharedThis(this)), Item);
+	TSharedRef<SRuitkListRow> Row = SNew(SRuitkListRow, OwnerTable, TWeakPtr<SRuitkListView>(SharedThis(this)), Item);
 	TrackRow(Row);
 	return Row;
 }
 
-void SRuiListView::HandleSelectionChanged(FItemType Item, ESelectInfo::Type SelectInfo)
+void SRuitkListView::HandleSelectionChanged(FItemType Item, ESelectInfo::Type SelectInfo)
 {
 	if (!OnSelectionChanged.IsBound())
 	{
 		return;
 	}
 	const int32 Index = Item.IsValid() ? Items.IndexOfByKey(Item) : INDEX_NONE;
-	OnSelectionChanged.Execute(FRuiValue(Index));
+	OnSelectionChanged.Execute(FRuitkValue(Index));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -237,7 +237,7 @@ namespace
 	}
 
 	/** Apply the four shared item-view props; Old==nullptr applies everything set. */
-	template <typename TProps> void ApplyItemViewShared(SRuiListView& W, const TProps* O, const TProps& N)
+	template <typename TProps> void ApplyItemViewShared(SRuitkListView& W, const TProps* O, const TProps& N)
 	{
 		if (N.HasItems() && (O == nullptr || !O->HasItems() || !(N.Items == O->Items)))
 		{
@@ -263,61 +263,61 @@ namespace
 // Adapters
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiListViewAdapter final : public IRuiElementAdapter
+class FRuitkListViewAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
 	// Live rows + sub-roots are per-instance state — never pool this widget.
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		return SNew(SRuiListView).ViewKind(ERuiItemViewKind::List);
+		return SNew(SRuitkListView).ViewKind(ERuitkItemViewKind::List);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiListView& W = static_cast<SRuiListView&>(Widget);
-		ApplyItemViewShared(W, static_cast<const FRuiListViewProps*>(Old), static_cast<const FRuiListViewProps&>(New));
+		SRuitkListView& W = static_cast<SRuitkListView&>(Widget);
+		ApplyItemViewShared(W, static_cast<const FRuitkListViewProps*>(Old), static_cast<const FRuitkListViewProps&>(New));
 	}
 };
 
-class FRuiTileViewAdapter final : public IRuiElementAdapter
+class FRuitkTileViewAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool IsPoolable() const override { return false; }
 
 	// Tile cell size is construct-only (STileView bakes its panel around it) — a change rebuilds.
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiTileViewProps::ItemWidth_Bit) | (1ull << FRuiTileViewProps::ItemHeight_Bit);
+		return (1ull << FRuitkTileViewProps::ItemWidth_Bit) | (1ull << FRuitkTileViewProps::ItemHeight_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiTileViewProps& O = static_cast<const FRuiTileViewProps&>(Old);
-		const FRuiTileViewProps& N = static_cast<const FRuiTileViewProps&>(New);
+		const FRuitkTileViewProps& O = static_cast<const FRuitkTileViewProps&>(Old);
+		const FRuitkTileViewProps& N = static_cast<const FRuitkTileViewProps&>(New);
 		// Has-bit gated (SEP-REBUILD-1 class): removing a cell-size prop is not a construct-only change.
 		const bool bW = N.HasItemWidth() && (!O.HasItemWidth() || !(O.ItemWidth == N.ItemWidth));
 		const bool bH = N.HasItemHeight() && (!O.HasItemHeight() || !(O.ItemHeight == N.ItemHeight));
 		return bW || bH;
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiTileViewProps& P = static_cast<const FRuiTileViewProps&>(Props);
-		return SNew(SRuiListView)
-			.ViewKind(ERuiItemViewKind::Tile)
+		const FRuitkTileViewProps& P = static_cast<const FRuitkTileViewProps&>(Props);
+		return SNew(SRuitkListView)
+			.ViewKind(ERuitkItemViewKind::Tile)
 			.ItemWidth(P.HasItemWidth() ? P.ItemWidth : 128.0f)
 			.ItemHeight(P.HasItemHeight() ? P.ItemHeight : 128.0f);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiListView& W = static_cast<SRuiListView&>(Widget);
-		ApplyItemViewShared(W, static_cast<const FRuiTileViewProps*>(Old), static_cast<const FRuiTileViewProps&>(New));
+		SRuitkListView& W = static_cast<SRuitkListView&>(Widget);
+		ApplyItemViewShared(W, static_cast<const FRuitkTileViewProps*>(Old), static_cast<const FRuitkTileViewProps&>(New));
 	}
 };
 
@@ -325,48 +325,48 @@ public:
 // Types, factories, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId ListViewType()
+	FRuitkElementTypeId ListViewType()
 	{
-		return RUI::InternElementType(FName(TEXT("ListView")));
+		return Ruitk::InternElementType(FName(TEXT("ListView")));
 	}
-	FRuiElementTypeId TileViewType()
+	FRuitkElementTypeId TileViewType()
 	{
-		return RUI::InternElementType(FName(TEXT("TileView")));
+		return Ruitk::InternElementType(FName(TEXT("TileView")));
 	}
 
-	FRuiNode ListView(FRuiListViewProps Props, FRuiKey Key)
+	FRuitkNode ListView(FRuitkListViewProps Props, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = ListViewType();
-		Node.Props = MakeShared<FRuiListViewProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkListViewProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
 
-	FRuiNode TileView(FRuiTileViewProps Props, FRuiKey Key)
+	FRuitkNode TileView(FRuitkTileViewProps Props, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = TileViewType();
-		Node.Props = MakeShared<FRuiTileViewProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkTileViewProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
 
-	TSharedPtr<FRuiItemRenderer> MakeItemRenderer(FRuiItemRenderer Fn)
+	TSharedPtr<FRuitkItemRenderer> MakeItemRenderer(FRuitkItemRenderer Fn)
 	{
-		return MakeShared<FRuiItemRenderer>(MoveTemp(Fn));
+		return MakeShared<FRuitkItemRenderer>(MoveTemp(Fn));
 	}
 
 	namespace Detail
 	{
 		void RegisterItemViewAdapters()
 		{
-			RegisterAdapter(ListViewType(), MakeUnique<FRuiListViewAdapter>());
-			RegisterAdapter(TileViewType(), MakeUnique<FRuiTileViewAdapter>());
+			RegisterAdapter(ListViewType(), MakeUnique<FRuitkListViewAdapter>());
+			RegisterAdapter(TileViewType(), MakeUnique<FRuitkTileViewAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

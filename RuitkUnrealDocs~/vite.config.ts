@@ -33,7 +33,7 @@ function readPluginVersion(): string {
 
 // ── host-element tables — read from the compiler-exported schema ─────────────
 // The SAME vocabulary the LSP serves (ide-extensions/lsp-server/src/uetkx-schema.json,
-// refreshed by the RUIExportSchema commandlet), so the per-widget prop/event tables can
+// refreshed by the RuitkExportSchema commandlet), so the per-widget prop/event tables can
 // never drift from the tooling — the docs and the editor read one source of truth.
 type UetkxSchema = {
   v?: number

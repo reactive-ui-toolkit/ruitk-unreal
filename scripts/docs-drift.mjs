@@ -38,11 +38,11 @@ function readUetkxSchema() {
   return JSON.parse(raw);
 }
 
-/** Core hooks = the Ctx member hooks in RuiContext.h (Use* + ProvideContext, minus *Impl)
- *  + UseSignal/UseSignalKey (RuiSignal.h) + UsePresence (RuiPresence.h) — the audited 23. */
+/** Core hooks = the Ctx member hooks in RuitkContext.h (Use* + ProvideContext, minus *Impl)
+ *  + UseSignal/UseSignalKey (RuitkSignal.h) + UsePresence (RuitkPresence.h) — the audited 23. */
 function countCoreHooks() {
   const ctx = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuiContext.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkContext.h'),
     'utf8',
   );
   const names = new Set();
@@ -52,31 +52,31 @@ function countCoreHooks() {
   return names.size + 2 /* UseSignal, UseSignalKey */ + 1 /* UsePresence */;
 }
 
-/** Wrapped Slate widgets = the public FRuiNode factories in RuitkSlate + core TextBlock. */
+/** Wrapped Slate widgets = the public FRuitkNode factories in RuitkSlate + core TextBlock. */
 function countWidgetFactories() {
   const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkSlate/Public');
   const names = new Set();
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.h')) continue;
     const text = readFileSync(resolve(dir, f), 'utf8');
-    for (const m of text.matchAll(/RUITKSLATE_API FRuiNode ([A-Z]\w+)\s*\(/g)) {
+    for (const m of text.matchAll(/RUITKSLATE_API FRuitkNode ([A-Z]\w+)\s*\(/g)) {
       names.add(m[1]);
     }
   }
-  return names.size + 1; // + RUI::TextBlock (core)
+  return names.size + 1; // + Ruitk::TextBlock (core)
 }
 
-/** Gallery screens = the screen directories under Source/RuiDemo/Screens. */
+/** Gallery screens = the screen directories under Source/RuitkDemo/Screens. */
 function countGalleryScreens() {
-  return readdirSync(resolve(REPO_ROOT, 'Source/RuiDemo/Screens'), { withFileTypes: true }).filter(
+  return readdirSync(resolve(REPO_ROOT, 'Source/RuitkDemo/Screens'), { withFileTypes: true }).filter(
     (e) => e.isDirectory(),
   ).length;
 }
 
-/** Router hooks = the RUITKCORE_API Use* free functions in RuiRouter.h. */
+/** Router hooks = the RUITKCORE_API Use* free functions in RuitkRouter.h. */
 function countRouterHooks() {
   const text = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuiRouter.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkRouter.h'),
     'utf8',
   );
   const names = new Set();
@@ -95,7 +95,7 @@ function countHooksCatalog(category) {
 
 /** Automation tests = IMPLEMENT_*_AUTOMATION_TEST macros in the test module. */
 function countAutomationTests() {
-  const dir = resolve(REPO_ROOT, 'Source/RuiHostTests/Private');
+  const dir = resolve(REPO_ROOT, 'Source/RuitkHostTests/Private');
   let count = 0;
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.cpp')) continue;
@@ -180,7 +180,7 @@ const CHECKS = [
     },
   },
   {
-    // ...and the ROUTER entries must cover every RuiRouter.h hook.
+    // ...and the ROUTER entries must cover every RuitkRouter.h hook.
     file: 'RuitkUnrealDocs~/src/hooksCatalog.ts',
     pattern: /(\d+) router hook entries/,
     source: () => {

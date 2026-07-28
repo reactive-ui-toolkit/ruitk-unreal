@@ -6,7 +6,7 @@ import Badge from "./LabScopeBadge"
 import { PanelBackground } from "~/Screens/SimpleCounter/SimpleCounter.style"
 import { PanelBackground as ContextPanelBg } from "../../../ContextDemo/ContextDemo.style"
 
-export FRuiNode LabScopeProof() {
+export FRuitkNode LabScopeProof() {
 	return (
 		<VerticalBox>
 			<Badge />

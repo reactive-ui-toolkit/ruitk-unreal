@@ -1,5 +1,5 @@
 # Line endings are pinned to LF for everything text. Two of this repo's CI gates compare
-# BYTES (`RUICompile -check` on committed generated code; scripts/verify-mirror.mjs on the
+# BYTES (`RuitkCompile -check` on committed generated code; scripts/verify-mirror.mjs on the
 # changelog mirror) — CRLF normalization drift between Windows dev machines and Linux CI
 # would false-fail both. The codegen emitter also always writes LF (MASTER_PLAN D-19).
 * text=auto eol=lf

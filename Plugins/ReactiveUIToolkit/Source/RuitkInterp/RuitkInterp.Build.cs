@@ -21,7 +21,7 @@ public class RuitkInterp : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
-			"RuitkCore",  // reconciler override/named-factory/hook-sig seams + FRuiValue
+			"RuitkCore",  // reconciler override/named-factory/hook-sig seams + FRuitkValue
 			"RuitkSlate", // interp element builders construct the typed Slate props
 		});
 	}

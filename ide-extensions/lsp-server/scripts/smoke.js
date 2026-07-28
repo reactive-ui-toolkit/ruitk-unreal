@@ -154,7 +154,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // ── F5 round-2 pins (B1/B2): no basename nudge; broken parses still validate markup ──────
   const mmUri = "file:///tmp/LabCard.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: mmUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode LasCard() {\n\treturn ( <Spacer /> );\n}\n" } });
+    text: "export FRuitkNode LasCard() {\n\treturn ( <Spacer /> );\n}\n" } });
   await settle();
   if ((diagnostics[mmUri] || []).some((d) => String(d.code) === "UETKX0103"))
     fail("0103 basename nudge must be GONE under ES modules");
@@ -163,20 +163,20 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // ── F5 round-16 pins (TB-27/TB-28): fragment early returns + `return null` scan clean ────
   const frUri = "file:///tmp/FragGate.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: frUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode FragGate() {\n\tauto [Count, Inc] = UseState<int32>(0);\n\n\treturn (<></>);\n\n\treturn (\n\t\t<Border>\n\t\t\t<TextBlock Text={FText::AsNumber(Count)} />\n\t\t</Border>\n\t);\n}\n" } });
+    text: "export FRuitkNode FragGate() {\n\tauto [Count, Inc] = UseState<int32>(0);\n\n\treturn (<></>);\n\n\treturn (\n\t\t<Border>\n\t\t\t<TextBlock Text={FText::AsNumber(Count)} />\n\t\t</Border>\n\t);\n}\n" } });
   await settle();
   const frErrors = (diagnostics[frUri] || []).filter((d) => d.severity === 1);
   if (frErrors.length > 0)
     fail("fragment early return must scan clean (TB-27): " + JSON.stringify(frErrors.map((d) => d.code)));
   const rnUri = "file:///tmp/NullGate.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: rnUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode NullGate(bool bHidden = false) {\n\tif (bHidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n" } });
+    text: "export FRuitkNode NullGate(bool bHidden = false) {\n\tif (bHidden) {\n\t\treturn null;\n\t}\n\treturn ( <Spacer /> );\n}\n" } });
   await settle();
   if ((diagnostics[rnUri] || []).length > 0)
     fail("early `return null;` must be first-class (TB-28): " + JSON.stringify((diagnostics[rnUri] || []).map((d) => d.code)));
   const rnOnlyUri = "file:///tmp/NullOnly.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: rnOnlyUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode NullOnly() {\n\treturn null;\n}\n" } });
+    text: "export FRuitkNode NullOnly() {\n\treturn null;\n}\n" } });
   await settle();
   if ((diagnostics[rnOnlyUri] || []).some((d) => String(d.code) === "UETKX2101"))
     fail("a null-only component must satisfy the markup-return requirement (TB-28)");
@@ -184,7 +184,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
 
   const brokenUri = "file:///tmp/Broken.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: brokenUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Broken() {\n\treturn ( <Bosrder>\n\t\t<Button ContesntPadding="12,4" />\n\t</Border> );\n}\n' } });
+    text: 'export FRuitkNode Broken() {\n\treturn ( <Bosrder>\n\t\t<Button ContesntPadding="12,4" />\n\t</Border> );\n}\n' } });
   await settle();
   const brokenDiags = diagnostics[brokenUri] || [];
   if (!brokenDiags.some((d) => String(d.code) === "UETKX2307"))
@@ -196,11 +196,11 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // R5-4: component-prop validation — an unknown prop on a USER component 0105s
   const cpDir = fs.mkdtempSync(path.join(os.tmpdir(), "uetkx-props-"));
   fs.writeFileSync(path.join(cpDir, "Demo.uproject"), "{}");
-  fs.writeFileSync(path.join(cpDir, "Card.uetkx"), 'export FRuiNode Card(FString Label = FString(), int32 Count = 0) {\n\treturn ( <Spacer /> );\n}\n');
+  fs.writeFileSync(path.join(cpDir, "Card.uetkx"), 'export FRuitkNode Card(FString Label = FString(), int32 Count = 0) {\n\treturn ( <Spacer /> );\n}\n');
   const userPath = path.join(cpDir, "User.uetkx").replace(/\\/g, "/");
   const userUri = "file:///" + userPath;
   notify("textDocument/didOpen", { textDocument: { uri: userUri, languageId: "uetkx", version: 1,
-    text: 'import { Card } from "./Card"\nexport FRuiNode User() {\n\treturn ( <Card Labsssel="x" Label="ok" Count="5" /> );\n}\n' } });
+    text: 'import { Card } from "./Card"\nexport FRuitkNode User() {\n\treturn ( <Card Labsssel="x" Label="ok" Count="5" /> );\n}\n' } });
   await settle();
   const propDiags = diagnostics[userUri] || [];
   if (!propDiags.some((d) => String(d.code) === "UETKX0105" && /Labsssel/.test(d.message)))
@@ -217,7 +217,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // binding initializer is broken (clang suppresses the callee error in that cascade)
   const typoUri = "file:///tmp/Typo.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: typoUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode Typo() {\n\tauto [bOpen, SetOpen] = UseSstate<bool>(true);\n\treturn ( <Button OnClicked={ SetOpsen(!bOpen) }>x</Button> );\n}\n" } });
+    text: "export FRuitkNode Typo() {\n\tauto [bOpen, SetOpen] = UseSstate<bool>(true);\n\treturn ( <Button OnClicked={ SetOpsen(!bOpen) }>x</Button> );\n}\n" } });
   await settle();
   const typoDiags = diagnostics[typoUri] || [];
   if (!typoDiags.some((d) => String(d.code) === "UETKX2310" && /SetOpsen/.test(d.message)))
@@ -228,7 +228,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // LSP is the only place a typo'd value can surface), numeric/margin formats, expr-only kinds.
   const valUri = "file:///tmp/Vals.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: valUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Vals() {\n\treturn ( <Border HAlign="cesssssnter" VAlign="Top" Padding="1">\n\t\t<TextBlock Text="x" Slot.HAlign="cesssssnter" Justification="centre" />\n\t\t<Box WidthOverride="abc" HAlign Ref="nope" />\n\t\t<Button ContentPadding="1,2,3">y</Button>\n\t\t<Spacer Size="1,2" />\n\t\t<Spacer RenderOpacity="abc" RenderScale Slot.Padding="1,2,3" ColorAndOpacity="red" />\n\t\t<Spacer RenderOpacity="0.5" Enabled />\n\t</Border> );\n}\n' } });
+    text: 'export FRuitkNode Vals() {\n\treturn ( <Border HAlign="cesssssnter" VAlign="Top" Padding="1">\n\t\t<TextBlock Text="x" Slot.HAlign="cesssssnter" Justification="centre" />\n\t\t<Box WidthOverride="abc" HAlign Ref="nope" />\n\t\t<Button ContentPadding="1,2,3">y</Button>\n\t\t<Spacer Size="1,2" />\n\t\t<Spacer RenderOpacity="abc" RenderScale Slot.Padding="1,2,3" ColorAndOpacity="red" />\n\t\t<Spacer RenderOpacity="0.5" Enabled />\n\t</Border> );\n}\n' } });
   await settle();
   const valDiags = diagnostics[valUri] || [];
   const has2311 = (re) => valDiags.some((d) => String(d.code) === "UETKX2311" && re.test(d.message));
@@ -256,7 +256,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // and the schema fix: Slot.Column/Slot.Row are REAL GridPanel keys (were false-flagged)
   const paUri = "file:///tmp/Parents.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: paUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Parents() {\n\treturn ( <VerticalBox>\n\t\t<Spacer key="a" Slot.Fill="1" />\n\t\t<Spacer key="a" Slot.ZOrder="2" />\n\t\t<Border Padding="1" Padding="2"><TextBlock Text="x" Slot.Padding="4" /></Border>\n\t\t<GridPanel><Spacer Slot.Column="1" Slot.Row="0" /></GridPanel>\n\t</VerticalBox> );\n}\n' } });
+    text: 'export FRuitkNode Parents() {\n\treturn ( <VerticalBox>\n\t\t<Spacer key="a" Slot.Fill="1" />\n\t\t<Spacer key="a" Slot.ZOrder="2" />\n\t\t<Border Padding="1" Padding="2"><TextBlock Text="x" Slot.Padding="4" /></Border>\n\t\t<GridPanel><Spacer Slot.Column="1" Slot.Row="0" /></GridPanel>\n\t</VerticalBox> );\n}\n' } });
   await settle();
   const paDiags = diagnostics[paUri] || [];
   if (!paDiags.some((d) => String(d.code) === "UETKX0109" && /Padding.*Border/.test(d.message)))
@@ -277,7 +277,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   const suPath = path.join(suDir, "Old.uetkx").replace(/\\/g, "/");
   const suUri = "file:///" + suPath;
   notify("textDocument/didOpen", { textDocument: { uri: suUri, languageId: "uetkx", version: 1,
-    text: "export FRuiNode Old() {\n\treturn ( <SearchableComboBox /> );\n}\n" } });
+    text: "export FRuitkNode Old() {\n\treturn ( <SearchableComboBox /> );\n}\n" } });
   await settle();
   const suDiags = diagnostics[suUri] || [];
   if (!suDiags.some((d) => String(d.code) === "UETKX2313" && /needs UE 5\.7\+.*5\.6.*null slot/.test(d.message)))
@@ -286,10 +286,10 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   console.log("sinceUE gate OK (2313 from EngineAssociation)");
 
   // R12: event payload misuse — reading Value.<Field> that the event never carries compiles
-  // fine (FRuiValue exposes every field) and is silently default at runtime forever
+  // fine (FRuitkValue exposes every field) and is silently default at runtime forever
   const epUri = "file:///tmp/Payload.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: epUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Payload() {\n\treturn ( <VerticalBox>\n\t\t<Button OnClicked={ UseLog(Value.TextValue) }>a</Button>\n\t\t<EditableTextBox OnTextChanged={ UseLog(Value.BoolValue) } />\n\t\t<EditableTextBox OnTextCommitted={ UseLog(Value.TextValue) } />\n\t</VerticalBox> );\n}\n' } });
+    text: 'export FRuitkNode Payload() {\n\treturn ( <VerticalBox>\n\t\t<Button OnClicked={ UseLog(Value.TextValue) }>a</Button>\n\t\t<EditableTextBox OnTextChanged={ UseLog(Value.BoolValue) } />\n\t\t<EditableTextBox OnTextCommitted={ UseLog(Value.TextValue) } />\n\t</VerticalBox> );\n}\n' } });
   await settle();
   const epDiags = diagnostics[epUri] || [];
   if (!epDiags.some((d) => String(d.code) === "UETKX2312" && /OnClicked carries no payload.*TextValue/.test(d.message)))
@@ -305,7 +305,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // no instant diagnostic (only clangd's ~6s-later error). Now the 2310 lint fires at once.
   const cdUri = "file:///tmp/CtorDecl.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: cdUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode CtorDecl() {\n\tconst FLinearColor PasnelBsg(0.20f, 0.16f, 0.10f, 1.0f);\n\treturn ( <Border BorderBackgroundColor={ PanelBg }><Spacer /></Border> );\n}\n' } });
+    text: 'export FRuitkNode CtorDecl() {\n\tconst FLinearColor PasnelBsg(0.20f, 0.16f, 0.10f, 1.0f);\n\treturn ( <Border BorderBackgroundColor={ PanelBg }><Spacer /></Border> );\n}\n' } });
   await settle();
   const cdDiags = diagnostics[cdUri] || [];
   if (!cdDiags.some((d) => String(d.code) === "UETKX2310" && /PanelBg.*PasnelBsg/.test(d.message)))
@@ -316,7 +316,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // routing) while every exact-case check silently disarmed for it; now a precise 0112.
   const csUri = "file:///tmp/Casing.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: csUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Casing() {\n\treturn ( <VerticalBox>\n\t\t<Spacer slot.fill="1" renderopacity="0.5" />\n\t\t<Box halign="center"><Spacer /></Box>\n\t\t<Spacer Slot.Fill="1" />\n\t</VerticalBox> );\n}\n' } });
+    text: 'export FRuitkNode Casing() {\n\treturn ( <VerticalBox>\n\t\t<Spacer slot.fill="1" renderopacity="0.5" />\n\t\t<Box halign="center"><Spacer /></Box>\n\t\t<Spacer Slot.Fill="1" />\n\t</VerticalBox> );\n}\n' } });
   await settle();
   const csDiags = diagnostics[csUri] || [];
   if (!csDiags.some((d) => String(d.code) === "UETKX0112" && /'Slot\.Fill', not 'slot\.fill'/.test(d.message)))
@@ -334,7 +334,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // R14c: attr-name completion — whole-token textEdit + Slot. prefix narrowing (the
   // `slot.Clipping` accident: VS Code used to filter/replace only the word after the dot)
   const acUri = "file:///tmp/AttrComp.uetkx";
-  const acText = 'export FRuiNode AttrComp() {\n\treturn ( <Border slot.C ><Spacer /></Border> );\n}\n';
+  const acText = 'export FRuitkNode AttrComp() {\n\treturn ( <Border slot.C ><Spacer /></Border> );\n}\n';
   notify("textDocument/didOpen", { textDocument: { uri: acUri, languageId: "uetkx", version: 1, text: acText } });
   const acPos = { line: 1, character: acText.split("\n")[1].indexOf("slot.C") + "slot.C".length };
   const acRes = await request("textDocument/completion", { textDocument: { uri: acUri }, position: acPos });
@@ -354,7 +354,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // accepting it tripped the 0111 the validator just learned. Also: attrs already present
   // (0109 on accept) and sinceUE-gated tags (2313 on accept) must not be offered.
   const pyUri = "file:///tmp/Parity.uetkx";
-  const pyText = 'export FRuiNode Parity() {\n\treturn ( <VerticalBox>\n\t\t<TextBlock Text="x" Slot.HAlign="center" Slot. />\n\t\t<Border><Spacer S /></Border>\n\t</VerticalBox> );\n}\n';
+  const pyText = 'export FRuitkNode Parity() {\n\treturn ( <VerticalBox>\n\t\t<TextBlock Text="x" Slot.HAlign="center" Slot. />\n\t\t<Border><Spacer S /></Border>\n\t</VerticalBox> );\n}\n';
   notify("textDocument/didOpen", { textDocument: { uri: pyUri, languageId: "uetkx", version: 1, text: pyText } });
   const pyLine2 = pyText.split("\n")[2];
   const pyRes = await request("textDocument/completion", { textDocument: { uri: pyUri },
@@ -417,7 +417,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   const xImpUri = "file:///" + xImpPath;
   const xStyleUri = "file:///" + xStylePath.replace(/\\/g, "/");
   fs.writeFileSync(path.join(xDir, "Source", "XScreen.uetkx"),
-    'import { XPanelBg } from "./X.style"\nexport FRuiNode XScreen() {\n\treturn ( <Border BorderBackgroundColor={ XPanelBg }><Spacer /></Border> );\n}\n');
+    'import { XPanelBg } from "./X.style"\nexport FRuitkNode XScreen() {\n\treturn ( <Border BorderBackgroundColor={ XPanelBg }><Spacer /></Border> );\n}\n');
   notify("textDocument/didOpen", { textDocument: { uri: xStyleUri, languageId: "uetkx", version: 1,
     text: fs.readFileSync(xStylePath, "utf8") } });
   notify("textDocument/didOpen", { textDocument: { uri: xImpUri, languageId: "uetkx", version: 1,
@@ -454,7 +454,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.writeFileSync(path.join(uDir, "Source", "Y.style.uetkx"), "export FLinearColor YPanelBg = { 0.1f, 0.1f, 0.1f, 1.0f };\n");
   const uImpPath = path.join(uDir, "Source", "YScreen.uetkx").replace(/\\/g, "/");
   const uImpUri = "file:///" + uImpPath;
-  const uClean = 'import { YPanelBg } from "./Y.style"\nexport FRuiNode YScreen() {\n\treturn ( <Border BorderBackgroundColor={ YPanelBg }><Spacer /></Border> );\n}\n';
+  const uClean = 'import { YPanelBg } from "./Y.style"\nexport FRuitkNode YScreen() {\n\treturn ( <Border BorderBackgroundColor={ YPanelBg }><Spacer /></Border> );\n}\n';
   fs.writeFileSync(path.join(uDir, "Source", "YScreen.uetkx"), uClean);
   notify("textDocument/didOpen", { textDocument: { uri: uImpUri, languageId: "uetkx", version: 1, text: uClean } });
   await settle();
@@ -515,7 +515,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   const wImpUri = "file:///" + wImpPath;
   const wStyleUri = "file:///" + wStylePath.replace(/\\/g, "/");
   fs.writeFileSync(path.join(wDir, "Source", "WScreen.uetkx"),
-    'import { WPanelBg } from "./W.style"\nexport FRuiNode WScreen() {\n\treturn ( <Border BorderBackgroundColor={ WPanelBg }><Spacer /></Border> );\n}\n');
+    'import { WPanelBg } from "./W.style"\nexport FRuitkNode WScreen() {\n\treturn ( <Border BorderBackgroundColor={ WPanelBg }><Spacer /></Border> );\n}\n');
   notify("textDocument/didOpen", { textDocument: { uri: wImpUri, languageId: "uetkx", version: 1,
     text: fs.readFileSync(path.join(wDir, "Source", "WScreen.uetkx"), "utf8") } });
   await settle();
@@ -546,11 +546,11 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.writeFileSync(path.join(tDir, "Demo.uproject"), "{}");
   fs.mkdirSync(path.join(tDir, "Source"), { recursive: true });
   fs.writeFileSync(path.join(tDir, "Source", "YComp.uetkx"),
-    "export FRuiNode YComp() {\n\treturn ( <Spacer /> );\n}\n");
+    "export FRuitkNode YComp() {\n\treturn ( <Spacer /> );\n}\n");
   const tImpPath = path.join(tDir, "Source", "TagScreen.uetkx").replace(/\\/g, "/");
   const tImpUri = "file:///" + tImpPath;
   notify("textDocument/didOpen", { textDocument: { uri: tImpUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> <NoSuchComp /> </VerticalBox> );\n}\n' } });
+    text: 'export FRuitkNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> <NoSuchComp /> </VerticalBox> );\n}\n' } });
   await settle();
   const tDiags = diagnostics[tImpUri] || [];
   if (!tDiags.some((d) => String(d.code) === "UETKX2305" && d.message.includes('add: import { YComp } from "./YComp"')))
@@ -559,7 +559,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
     fail("a tag no file exports must 2307 live: " + JSON.stringify(tDiags.map((d) => d.code)));
   // import it — both usage diags for YComp must clear
   notify("textDocument/didChange", { textDocument: { uri: tImpUri, version: 2 },
-    contentChanges: [{ text: 'import { YComp } from "./YComp"\nexport FRuiNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> </VerticalBox> );\n}\n' }] });
+    contentChanges: [{ text: 'import { YComp } from "./YComp"\nexport FRuitkNode TagScreen() {\n\treturn ( <VerticalBox> <YComp /> </VerticalBox> );\n}\n' }] });
   await settle();
   if ((diagnostics[tImpUri] || []).some((d) => /^UETKX23/.test(String(d.code))))
     fail("importing the component must clear the tag diags: " + JSON.stringify((diagnostics[tImpUri] || []).map((d) => d.code)));
@@ -575,7 +575,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.writeFileSync(path.join(sDir, "Source", "Sub", "NearThing.uetkx"), "export FLinearColor NearTint = { 0.2f, 0.2f, 0.2f, 1.0f };\n");
   const sImpPath = path.join(sDir, "Source", "Sub", "SpecUser.uetkx").replace(/\\/g, "/");
   const sImpUri = "file:///" + sImpPath;
-  const sText = 'import { NearTint } from "./"\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n';
+  const sText = 'import { NearTint } from "./"\nexport FRuitkNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n';
   notify("textDocument/didOpen", { textDocument: { uri: sImpUri, languageId: "uetkx", version: 1, text: sText } });
   const sRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
     position: { line: 0, character: sText.split("\n")[0].indexOf('"./') + 3 } });
@@ -588,7 +588,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   if (!near.textEdit || near.textEdit.range.start.character !== sText.split("\n")[0].indexOf('"./') + 1)
     fail("specifier completion must REPLACE from just after the quote (no ././ append): " + JSON.stringify(near.textEdit));
   // single-quote trigger parity
-  const sqText = "import { NearTint } from './'\nexport FRuiNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n";
+  const sqText = "import { NearTint } from './'\nexport FRuitkNode SpecUser() {\n\treturn ( <Spacer /> );\n}\n";
   notify("textDocument/didChange", { textDocument: { uri: sImpUri, version: 2 }, contentChanges: [{ text: sqText }] });
   const sqRes = await request("textDocument/completion", { textDocument: { uri: sImpUri },
     position: { line: 0, character: sqText.split("\n")[0].indexOf("'./") + 3 } });
@@ -602,7 +602,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   fs.writeFileSync(path.join(tgDir, "Demo.uproject"), '{"EngineAssociation": "5.6"}');
   const tgPath = path.join(tgDir, "Tags.uetkx").replace(/\\/g, "/");
   const tgUri = "file:///" + tgPath;
-  const tgText = "export FRuiNode Tags() {\n\treturn ( <S );\n}\n";
+  const tgText = "export FRuitkNode Tags() {\n\treturn ( <S );\n}\n";
   notify("textDocument/didOpen", { textDocument: { uri: tgUri, languageId: "uetkx", version: 1, text: tgText } });
   const tgRes = await request("textDocument/completion", { textDocument: { uri: tgUri },
     position: { line: 1, character: tgText.split("\n")[1].indexOf("<S") + 2 } });
@@ -618,7 +618,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
   // the owner's exact mangle, plus a did-you-mean and the valid spelling staying clean
   const brUri = "file:///tmp/Brush.uetkx";
   notify("textDocument/didOpen", { textDocument: { uri: brUri, languageId: "uetkx", version: 1,
-    text: 'export FRuiNode Brush() {\n\treturn ( <VerticalBox>\n\t\t<Border BorderImage="WhissssssteBrush"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrus"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrush"><Spacer /></Border>\n\t</VerticalBox> );\n}\n' } });
+    text: 'export FRuitkNode Brush() {\n\treturn ( <VerticalBox>\n\t\t<Border BorderImage="WhissssssteBrush"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrus"><Spacer /></Border>\n\t\t<Border BorderImage="WhiteBrush"><Spacer /></Border>\n\t</VerticalBox> );\n}\n' } });
   await settle();
   const brDiags = diagnostics[brUri] || [];
   if (!brDiags.some((d) => String(d.code) === "UETKX2311" && /WhissssssteBrush.*not a brush registered in FCoreStyle/.test(d.message)))
@@ -631,7 +631,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
 
   // R13: brush + bool value completion
   const bcUri = "file:///tmp/BrushComp.uetkx";
-  const bcText = 'export FRuiNode BrushComp() {\n\treturn ( <Border BorderImage=""><TextBlock Text="t" AutoWrapText="" /></Border> );\n}\n';
+  const bcText = 'export FRuitkNode BrushComp() {\n\treturn ( <Border BorderImage=""><TextBlock Text="t" AutoWrapText="" /></Border> );\n}\n';
   notify("textDocument/didOpen", { textDocument: { uri: bcUri, languageId: "uetkx", version: 1, text: bcText } });
   const bcLine = bcText.split("\n")[1];
   const bcRes = await request("textDocument/completion", { textDocument: { uri: bcUri },
@@ -648,7 +648,7 @@ const settle = (ms = 300) => new Promise((r) => setTimeout(r, ms));
 
   // R10: value completion — ctrl+space inside `HAlign="|"` offers the closed vocabulary
   const vcUri = "file:///tmp/ValComp.uetkx";
-  const vcText = 'export FRuiNode ValComp() {\n\treturn ( <Border HAlign="" /> );\n}\n';
+  const vcText = 'export FRuitkNode ValComp() {\n\treturn ( <Border HAlign="" /> );\n}\n';
   notify("textDocument/didOpen", { textDocument: { uri: vcUri, languageId: "uetkx", version: 1, text: vcText } });
   const vcPos = { line: 1, character: vcText.split("\n")[1].indexOf('""') + 1 };
   const vcRes = await request("textDocument/completion", { textDocument: { uri: vcUri }, position: vcPos });

@@ -7,9 +7,9 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
-#include "RuiDemoSupport.h"
-#include "RuiHostWidget.h"
-#include "RuiSignalViewModel.h"
+#include "RuitkDemoSupport.h"
+#include "RuitkHostWidget.h"
+#include "RuitkSignalViewModel.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
 
 // ── UDemoHostUserWidget (G1: ours inside theirs) ─────────────────────────────────────────────
@@ -21,13 +21,13 @@ TSharedRef<SWidget> UDemoHostUserWidget::RebuildWidget()
 		UVerticalBox* Root = WidgetTree->ConstructWidget<UVerticalBox>();
 
 		UTextBlock* Caption = WidgetTree->ConstructWidget<UTextBlock>();
-		Caption->SetText(NSLOCTEXT("RuiDemo", "UmgHostCaption",
-								   "▲ A hand-built UMG UserWidget. The panel below it is a URuiHostWidget —"
+		Caption->SetText(NSLOCTEXT("RuitkDemo", "UmgHostCaption",
+								   "▲ A hand-built UMG UserWidget. The panel below it is a URuitkHostWidget —"
 								   " OUR component, mounted INSIDE this UMG tree by name:"));
 		Caption->SetAutoWrapText(true);
 		Root->AddChildToVerticalBox(Caption);
 
-		URuiHostWidget* Host = WidgetTree->ConstructWidget<URuiHostWidget>();
+		URuitkHostWidget* Host = WidgetTree->ConstructWidget<URuitkHostWidget>();
 		Host->ComponentName = FName(TEXT("UmgHostInner"));
 		if (UVerticalBoxSlot* HostSlot = Root->AddChildToVerticalBox(Host))
 		{
@@ -54,10 +54,10 @@ TSharedRef<SWidget> UDemoVmBoundWidget::RebuildWidget()
 void UDemoVmBoundWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	URuiSignalViewModel* Vm = RuiDemo::GetSharedVm();
+	URuitkSignalViewModel* Vm = RuitkDemo::GetSharedVm();
 	// Their side of the bridge: a standard FieldNotify subscription on OUR viewmodel — the
 	// same interface any Epic-MVVM binding uses; no ReactiveUI API in sight.
-	VmHandle = Vm->AddFieldValueChangedDelegate(URuiSignalViewModel::FFieldNotificationClassDescriptor::Int,
+	VmHandle = Vm->AddFieldValueChangedDelegate(URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int,
 												INotifyFieldValueChanged::FFieldValueChangedDelegate::CreateUObject(
 													this, &UDemoVmBoundWidget::OnVmFieldChanged));
 	RefreshText();
@@ -67,8 +67,8 @@ void UDemoVmBoundWidget::NativeDestruct()
 {
 	if (VmHandle.IsValid())
 	{
-		RuiDemo::GetSharedVm()->RemoveFieldValueChangedDelegate(
-			URuiSignalViewModel::FFieldNotificationClassDescriptor::Int, VmHandle);
+		RuitkDemo::GetSharedVm()->RemoveFieldValueChangedDelegate(
+			URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int, VmHandle);
 		VmHandle.Reset();
 	}
 	Super::NativeDestruct();
@@ -83,8 +83,8 @@ void UDemoVmBoundWidget::RefreshText()
 {
 	if (ValueText)
 	{
-		ValueText->SetText(FText::Format(NSLOCTEXT("RuiDemo", "VmBound", "▲ UMG TextBlock via FieldNotify: {0}"),
-										 FText::AsNumber(RuiDemo::GetSharedVm()->Int)));
+		ValueText->SetText(FText::Format(NSLOCTEXT("RuitkDemo", "VmBound", "▲ UMG TextBlock via FieldNotify: {0}"),
+										 FText::AsNumber(RuitkDemo::GetSharedVm()->Int)));
 	}
 }
 
@@ -104,9 +104,9 @@ TSharedRef<SWidget> UDemoStackHostWidget::RebuildWidget()
 		UVerticalBox* Root = WidgetTree->ConstructWidget<UVerticalBox>();
 
 		UTextBlock* Caption = WidgetTree->ConstructWidget<UTextBlock>();
-		Caption->SetText(NSLOCTEXT("RuiDemo", "StackCaption",
+		Caption->SetText(NSLOCTEXT("RuitkDemo", "StackCaption",
 								   "▲ A REAL UCommonActivatableWidgetStack. The screen on it is a"
-								   " URuiActivatableScreen hosting the ActivationProbe component:"));
+								   " URuitkActivatableScreen hosting the ActivationProbe component:"));
 		Caption->SetAutoWrapText(true);
 		Root->AddChildToVerticalBox(Caption);
 
@@ -118,7 +118,7 @@ TSharedRef<SWidget> UDemoStackHostWidget::RebuildWidget()
 
 		UButton* Toggle = WidgetTree->ConstructWidget<UButton>();
 		ToggleLabel = WidgetTree->ConstructWidget<UTextBlock>();
-		ToggleLabel->SetText(NSLOCTEXT("RuiDemo", "StackPop", "Pop the screen (deactivates it)"));
+		ToggleLabel->SetText(NSLOCTEXT("RuitkDemo", "StackPop", "Pop the screen (deactivates it)"));
 		Toggle->AddChild(ToggleLabel);
 		Toggle->OnClicked.AddDynamic(this, &UDemoStackHostWidget::OnToggleClicked);
 		Root->AddChildToVerticalBox(Toggle);
@@ -150,7 +150,7 @@ void UDemoStackHostWidget::OnToggleClicked()
 		ActiveScreen = nullptr;
 		if (ToggleLabel)
 		{
-			ToggleLabel->SetText(NSLOCTEXT("RuiDemo", "StackPush", "Push a screen (activates it)"));
+			ToggleLabel->SetText(NSLOCTEXT("RuitkDemo", "StackPush", "Push a screen (activates it)"));
 		}
 	}
 	else
@@ -158,7 +158,7 @@ void UDemoStackHostWidget::OnToggleClicked()
 		ActiveScreen = Stack->AddWidget<UDemoActivatableScreen>(UDemoActivatableScreen::StaticClass());
 		if (ToggleLabel)
 		{
-			ToggleLabel->SetText(NSLOCTEXT("RuiDemo", "StackPop", "Pop the screen (deactivates it)"));
+			ToggleLabel->SetText(NSLOCTEXT("RuitkDemo", "StackPop", "Pop the screen (deactivates it)"));
 		}
 	}
 }

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Schema — pins the exported vocabulary JSON (what the LSP's markup
+// Ruitk.Uetkx.Schema — pins the exported vocabulary JSON (what the LSP's markup
 // intelligence consumes, Phase 5) and the New Component template (which must compile through
 // the real pipeline — the template lives next to the grammar for exactly this reason).
 
@@ -29,9 +29,9 @@ static bool HasString(const TArray<TSharedPtr<FJsonValue>>& Arr, const TCHAR* Va
 	return false;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxSchemaTest, "ReactiveUI.Uetkx.Schema",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxSchemaTest, "Ruitk.Uetkx.Schema",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxSchemaTest::RunTest(const FString&)
+bool FRuitkUetkxSchemaTest::RunTest(const FString&)
 {
 	// ── the exported vocabulary ────────────────────────────────────────────────────────────
 	{
@@ -50,11 +50,11 @@ bool FRuiUetkxSchemaTest::RunTest(const FString&)
 		TestEqual(TEXT("63 host tags"), Elements->Values.Num(), 63);
 		const TSharedPtr<FJsonObject> Switcher = Elements->GetObjectField(TEXT("WidgetSwitcher"));
 		TestEqual(TEXT("WidgetSwitcher factory"), Switcher->GetStringField(TEXT("factory")),
-				  FString(TEXT("RUI::Slate::WidgetSwitcher")));
+				  FString(TEXT("Ruitk::Slate::WidgetSwitcher")));
 		TestEqual(TEXT("WidgetIndex is int"),
 				  Switcher->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("WidgetIndex")), FString(TEXT("int")));
 		const TSharedPtr<FJsonObject> Button = Elements->GetObjectField(TEXT("Button"));
-		TestEqual(TEXT("Button factory"), Button->GetStringField(TEXT("factory")), FString(TEXT("RUI::Slate::Button")));
+		TestEqual(TEXT("Button factory"), Button->GetStringField(TEXT("factory")), FString(TEXT("Ruitk::Slate::Button")));
 		TestTrue(TEXT("Button takes children"), Button->GetBoolField(TEXT("children")));
 		TestEqual(TEXT("OnClicked is an event"),
 				  Button->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("OnClicked")), FString(TEXT("event")));
@@ -64,7 +64,7 @@ bool FRuiUetkxSchemaTest::RunTest(const FString&)
 			FString(TEXT("text")));
 		TestEqual(
 			TEXT("DrawFn is expression-only"),
-			Elements->GetObjectField(TEXT("RuiCanvas"))->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("DrawFn")),
+			Elements->GetObjectField(TEXT("RuitkCanvas"))->GetObjectField(TEXT("attrs"))->GetStringField(TEXT("DrawFn")),
 			FString(TEXT("expr")));
 		TestFalse(TEXT("Spacer is childless"),
 				  Elements->GetObjectField(TEXT("Spacer"))->GetBoolField(TEXT("children")));
@@ -105,7 +105,7 @@ bool FRuiUetkxSchemaTest::RunTest(const FString&)
 		FFileHelper::LoadFileToString(Source, *Created);
 		// ES-modules (M7): the scaffold uses the NEW plain-declaration grammar — no wrapper, no 2320.
 		TestTrue(TEXT("declares the component (new plain grammar)"),
-				 Source.Contains(TEXT("export FRuiNode MyPanel() {")));
+				 Source.Contains(TEXT("export FRuitkNode MyPanel() {")));
 		const FUetkxCompileOutput Out = FUetkxCodegen::CompileSource(Source, TEXT("MyPanel"));
 		TestTrue(TEXT("template compiles clean (zero diagnostics)"), Out.bOk && Out.Diags.Num() == 0);
 

@@ -13,7 +13,7 @@ const ROWS: Array<[string, string]> = [
   ['Output', 'Retained Slate widgets patched in place, not a virtual DOM re-painted to pixels.'],
   ['Hooks', 'PascalCase — UseState, UseEffect, UseMemo (C++/family convention).'],
   ['Events', 'The Unreal delegate name — OnClicked, OnCheckStateChanged — never onClick/onChange.'],
-  ['Elements', 'The Slate class minus its S — VerticalBox, TextBlock, Slider; custom widgets carry the Rui mark.'],
+  ['Elements', 'The Slate class minus its S — VerticalBox, TextBlock, Slider; custom widgets carry the Ruitk mark.'],
   ['Transitions', 'UseTransition is synchronous — there is no concurrent renderer to defer to.'],
   ['Error boundaries', 'Structural, declared in markup — C++ cannot try/catch across a render the way JS can.'],
 ]

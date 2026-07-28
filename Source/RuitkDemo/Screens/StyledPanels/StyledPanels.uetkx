@@ -1,4 +1,4 @@
-export FRuiNode StyledPanels() {
+export FRuitkNode StyledPanels() {
 	auto [bDim, SetDim] = UseState<bool>(false);
 	auto [Text, SetText] = UseState<FString>(FString(TEXT("type here")));
 
@@ -25,11 +25,11 @@ export FRuiNode StyledPanels() {
 				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
 				@if (bDim) {
 					return (
-						<TextBlock Text={ RUI::Fmt(TEXT("mirror: {}"), Text) } classes="rui-demo-dim" />
+						<TextBlock Text={ Ruitk::Fmt(TEXT("mirror: {}"), Text) } classes="rui-demo-dim" />
 					);
 				} @else {
 					return (
-						<TextBlock Text={ RUI::Fmt(TEXT("mirror: {}"), Text) } />
+						<TextBlock Text={ Ruitk::Fmt(TEXT("mirror: {}"), Text) } />
 					);
 				}
 			</VerticalBox>

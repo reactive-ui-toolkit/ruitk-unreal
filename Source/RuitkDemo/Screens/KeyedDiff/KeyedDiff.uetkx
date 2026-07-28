@@ -1,4 +1,4 @@
-export FRuiNode KeyedDiff() {
+export FRuitkNode KeyedDiff() {
 	static const TCHAR* Seed[] = {TEXT("Alpha"), TEXT("Bravo"), TEXT("Charlie"), TEXT("Delta"),
 									TEXT("Echo"), TEXT("Foxtrot"), TEXT("Golf")};
 	auto SeedItems = []() {
@@ -77,7 +77,7 @@ export FRuiNode KeyedDiff() {
 					Font.Size={ 16.0f }
 					ColorAndOpacity={ FLinearColor(1.0f, 0.8f, 0.4f) } />
 				<TextBlock Text="Reorder, insert, and remove keyed rows -- rows stay mounted while order changes." />
-				<TextBlock Text={ RUI::Fmt(TEXT("Operations performed: {}"), Ops) } />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("Operations performed: {}"), Ops) } />
 				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
 				<HorizontalBox>
 					<Button OnClicked={ DoReset() } ContentPadding="12,4" Slot.Padding="0,0,6,0">Reset</Button>
@@ -99,9 +99,9 @@ export FRuiNode KeyedDiff() {
 				@for (int32 i = 0; i < Items.Num(); ++i) {
 					return (
 						<HorizontalBox key={ FName(*Items[i]) }>
-							<TextBlock Text={ RUI::Fmt(TEXT("Key: {}"), Items[i]) } />
+							<TextBlock Text={ Ruitk::Fmt(TEXT("Key: {}"), Items[i]) } />
 							<TextBlock
-								Text={ RUI::Fmt(TEXT("   Index {}"), i) }
+								Text={ Ruitk::Fmt(TEXT("   Index {}"), i) }
 								Font.Size={ 9.0f }
 								ColorAndOpacity={ FLinearColor(0.3f, 0.9f, 0.9f) }
 								Slot.Padding="10,0,0,0" />

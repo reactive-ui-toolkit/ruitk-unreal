@@ -1,12 +1,12 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiFieldHooks.h"
+#include "RuitkFieldHooks.h"
 
 namespace
 {
 	/** The subscription cell payload — the DESTRUCTOR unbinds (the family contract: hook
 	 *  cells release external subscriptions in ~cell, so unmount needs no extra plumbing). */
-	struct FRuiFieldSub
+	struct FRuitkFieldSub
 	{
 		TWeakInterfacePtr<INotifyFieldValueChanged> Vm;
 		UE::FieldNotification::FFieldId FieldId;
@@ -26,18 +26,18 @@ namespace
 			FieldId = UE::FieldNotification::FFieldId();
 		}
 
-		~FRuiFieldSub() { Unbind(); }
+		~FRuitkFieldSub() { Unbind(); }
 	};
 } // namespace
 
-namespace RUI::Umg::Private
+namespace Ruitk::Umg::Private
 {
-	bool UseFieldSubscription(FRuiContext& Ctx, UObject* ViewModel, FName FieldName)
+	bool UseFieldSubscription(FRuitkContext& Ctx, UObject* ViewModel, FName FieldName)
 	{
 		// a bump-counter state slot: the broadcast increments it, scheduling this component
 		auto [Tick, SetTick] = Ctx.UseState<int32>(0);
-		TRuiSetter<int32> Bump = SetTick;
-		TSharedRef<TRuiRef<FRuiFieldSub>> Sub = Ctx.UseRef<FRuiFieldSub>();
+		TRuitkSetter<int32> Bump = SetTick;
+		TSharedRef<TRuitkRef<FRuitkFieldSub>> Sub = Ctx.UseRef<FRuitkFieldSub>();
 
 		INotifyFieldValueChanged* Notify = Cast<INotifyFieldValueChanged>(ViewModel);
 		UE::FieldNotification::FFieldId WantId;
@@ -46,7 +46,7 @@ namespace RUI::Umg::Private
 			WantId = Notify->GetFieldNotificationDescriptor().GetField(ViewModel->GetClass(), FieldName);
 		}
 
-		FRuiFieldSub& Held = Sub->Current;
+		FRuitkFieldSub& Held = Sub->Current;
 		const bool bSameTarget = Held.Vm.Get() == Notify && Held.FieldId == WantId && Held.Handle.IsValid();
 		if (!bSameTarget)
 		{
@@ -63,4 +63,4 @@ namespace RUI::Umg::Private
 		}
 		return Held.Handle.IsValid();
 	}
-} // namespace RUI::Umg::Private
+} // namespace Ruitk::Umg::Private

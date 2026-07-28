@@ -1,6 +1,6 @@
-// The component URuiHostWidget mounts BY NAME (no import needed anywhere — `export`
+// The component URuitkHostWidget mounts BY NAME (no import needed anywhere — `export`
 // registers it): live proof that hooks/state work while hosted inside a UMG tree.
-export FRuiNode UmgHostInner() {
+export FRuitkNode UmgHostInner() {
 	auto [Count, SetCount] = UseState<int32>(0);
 
 	return (
@@ -11,14 +11,14 @@ export FRuiNode UmgHostInner() {
 		>
 			<VerticalBox>
 				<TextBlock
-					Text="▼ ReactiveUI again — mounted INSIDE that UMG widget by URuiHostWidget"
+					Text="▼ ReactiveUI again — mounted INSIDE that UMG widget by URuitkHostWidget"
 					Font.Size={ 11.0f }
 					ColorAndOpacity={ FLinearColor(0.6f, 1.0f, 0.7f) } />
 				<HorizontalBox>
 					<Button OnClicked={ SetCount(Count + 1) } ContentPadding="10,3" Slot.Padding="0,4,6,0">
 						+1
 					</Button>
-					<TextBlock Text={ RUI::Fmt(TEXT(" hooks work in here: {}"), Count) } Slot.Padding="0,7,0,0" />
+					<TextBlock Text={ Ruitk::Fmt(TEXT(" hooks work in here: {}"), Count) } Slot.Padding="0,7,0,0" />
 				</HorizontalBox>
 			</VerticalBox>
 		</Border>

@@ -1,6 +1,6 @@
 import { StatusChip } from "./StatusChip"
 
-export FRuiNode Showcase() {
+export FRuitkNode Showcase() {
 	auto [Mode, SetMode] = UseState<int32>(0);
 	TFunction<void(int32)> Set = SetMode;
 	const int32 ModeNow = Mode;
@@ -12,7 +12,7 @@ export FRuiNode Showcase() {
 	return (
 		<VerticalBox classes="card">
 			<!-- markup comment survives -->
-			{ RUI::TextBlock(FString::Printf(TEXT("mode=%d"), ModeNow)) }
+			{ Ruitk::TextBlock(FString::Printf(TEXT("mode=%d"), ModeNow)) }
 			plain text run
 			<>
 				<Spacer Size={ FVector2D(1.0f, 2.0f) } />

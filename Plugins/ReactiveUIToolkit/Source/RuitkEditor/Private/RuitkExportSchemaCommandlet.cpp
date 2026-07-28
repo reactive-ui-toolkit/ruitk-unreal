@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RUIExportSchemaCommandlet.h"
+#include "RuitkExportSchemaCommandlet.h"
 
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"

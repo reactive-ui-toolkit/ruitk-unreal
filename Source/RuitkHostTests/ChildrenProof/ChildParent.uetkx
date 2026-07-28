@@ -1,6 +1,6 @@
 import { ChildHost } from "./ChildHost"
 
-export FRuiNode ChildParent() {
+export FRuitkNode ChildParent() {
 	return (
 		<ChildHost>
 			<TextBlock Text="FORWARDED-A" />

@@ -80,7 +80,7 @@ export const CompanionFilesPage: FC = () => (
       The old <code>hook</code>/<code>module</code> wrapper keywords are deprecated (
       <code>UETKX2320</code>, removed in a later minor): a hook is now just a{' '}
       <code>Use</code>-prefixed function, and a style module is a set of plain value exports.{' '}
-      <code>-run=RUIMigrateEsModules</code> converts existing companions automatically — including
+      <code>-run=RuitkMigrateEsModules</code> converts existing companions automatically — including
       flipping importers of a hoisted module to <code>import * as</code>.
     </Alert>
   </Box>

@@ -5,14 +5,14 @@
 // Expansion is controlled (SetExpanded skip-when-equal against the live state; OnExpansionChanged
 // forwards the user's toggle).
 
-#include "RuiExpandableArea.h"
+#include "RuitkExpandableArea.h"
 
-#include "RuiElementAdapter.h"
+#include "RuitkElementAdapter.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SExpandableArea.h"
 #include "Widgets/SNullWidget.h"
 
-void SRuiExpandableArea::Construct(const FArguments& InArgs)
+void SRuitkExpandableArea::Construct(const FArguments& InArgs)
 {
 	SAssignNew(HeaderBox, SBox);
 	SAssignNew(BodyBox, SBox);
@@ -22,7 +22,7 @@ void SRuiExpandableArea::Construct(const FArguments& InArgs)
 	[
 		SAssignNew(Area, SExpandableArea)
 		.InitiallyCollapsed(!InArgs._InitiallyExpanded)
-		.OnAreaExpansionChanged(this, &SRuiExpandableArea::HandleExpansionChanged)
+		.OnAreaExpansionChanged(this, &SRuitkExpandableArea::HandleExpansionChanged)
 		.HeaderContent()
 		[
 			HeaderBox.ToSharedRef()
@@ -35,7 +35,7 @@ void SRuiExpandableArea::Construct(const FArguments& InArgs)
 	// clang-format on
 }
 
-void SRuiExpandableArea::SetExpanded(bool bExpanded)
+void SRuitkExpandableArea::SetExpanded(bool bExpanded)
 {
 	// Self-notifying skip (D-16): the widget's own toggle lands on an equal value.
 	if (Area.IsValid() && Area->IsExpanded() != bExpanded)
@@ -49,12 +49,12 @@ void SRuiExpandableArea::SetExpanded(bool bExpanded)
 	}
 }
 
-bool SRuiExpandableArea::IsExpanded() const
+bool SRuitkExpandableArea::IsExpanded() const
 {
 	return Area.IsValid() && Area->IsExpanded();
 }
 
-void SRuiExpandableArea::SetRoleContent(FName Role, const TSharedPtr<SWidget>& Content)
+void SRuitkExpandableArea::SetRoleContent(FName Role, const TSharedPtr<SWidget>& Content)
 {
 	const TSharedRef<SWidget> Widget = Content.IsValid() ? Content.ToSharedRef() : SNullWidget::NullWidget;
 	if (Role == FName(TEXT("header")))
@@ -70,7 +70,7 @@ void SRuiExpandableArea::SetRoleContent(FName Role, const TSharedPtr<SWidget>& C
 	}
 }
 
-void SRuiExpandableArea::ClearContent(const TSharedRef<SWidget>& Content)
+void SRuitkExpandableArea::ClearContent(const TSharedRef<SWidget>& Content)
 {
 	auto BoxHolds = [&Content](const TSharedPtr<SBox>& Box) -> bool
 	{
@@ -91,7 +91,7 @@ void SRuiExpandableArea::ClearContent(const TSharedRef<SWidget>& Content)
 	}
 }
 
-TSharedPtr<SWidget> SRuiExpandableArea::GetRoleContent(FName Role) const
+TSharedPtr<SWidget> SRuitkExpandableArea::GetRoleContent(FName Role) const
 {
 	const TSharedPtr<SBox>& Box = (Role == FName(TEXT("header"))) ? HeaderBox : BodyBox;
 	if (!Box.IsValid())
@@ -107,13 +107,13 @@ TSharedPtr<SWidget> SRuiExpandableArea::GetRoleContent(FName Role) const
 	return Content == SNullWidget::NullWidget ? nullptr : TSharedPtr<SWidget>(Content);
 }
 
-void SRuiExpandableArea::HandleExpansionChanged(bool bExpanded)
+void SRuitkExpandableArea::HandleExpansionChanged(bool bExpanded)
 {
 	// Only a genuine USER toggle forwards the event; a programmatic (controlled) change is suppressed
 	// via bApplyingExpansion (bughunt B9).
 	if (!bApplyingExpansion && OnExpansionChanged.IsBound())
 	{
-		OnExpansionChanged.Execute(FRuiValue(bExpanded));
+		OnExpansionChanged.Execute(FRuitkValue(bExpanded));
 	}
 }
 
@@ -124,36 +124,36 @@ void SRuiExpandableArea::HandleExpansionChanged(bool bExpanded)
 namespace
 {
 	/** The child's role ("header" | "body"); absent/other -> "body". */
-	FName RoleOf(const FRuiStyleDict* SlotProps)
+	FName RoleOf(const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps != nullptr)
 		{
-			if (const FRuiValue* V = SlotProps->Find(FName(TEXT("slot.role"))))
+			if (const FRuitkValue* V = SlotProps->Find(FName(TEXT("slot.role"))))
 			{
-				return V->Kind == FRuiValue::EKind::Name ? V->NameValue : FName(*V->StringValue);
+				return V->Kind == FRuitkValue::EKind::Name ? V->NameValue : FName(*V->StringValue);
 			}
 		}
 		return FName(TEXT("body"));
 	}
 } // namespace
 
-class FRuiExpandableAreaAdapter final : public IRuiElementAdapter
+class FRuitkExpandableAreaAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiExpandableAreaProps& P = static_cast<const FRuiExpandableAreaProps&>(Props);
-		return SNew(SRuiExpandableArea).InitiallyExpanded(P.HasbIsExpanded() ? P.bIsExpanded : true);
+		const FRuitkExpandableAreaProps& P = static_cast<const FRuitkExpandableAreaProps&>(Props);
+		return SNew(SRuitkExpandableArea).InitiallyExpanded(P.HasbIsExpanded() ? P.bIsExpanded : true);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiExpandableArea& W = static_cast<SRuiExpandableArea&>(Widget);
-		const FRuiExpandableAreaProps& N = static_cast<const FRuiExpandableAreaProps&>(New);
-		const FRuiExpandableAreaProps* O = static_cast<const FRuiExpandableAreaProps*>(Old);
+		SRuitkExpandableArea& W = static_cast<SRuitkExpandableArea&>(Widget);
+		const FRuitkExpandableAreaProps& N = static_cast<const FRuitkExpandableAreaProps&>(New);
+		const FRuitkExpandableAreaProps* O = static_cast<const FRuitkExpandableAreaProps*>(Old);
 		if (N.HasbIsExpanded() && (O == nullptr || !O->HasbIsExpanded() || !(N.bIsExpanded == O->bIsExpanded)))
 		{
 			W.SetExpanded(N.bIsExpanded);
@@ -165,20 +165,20 @@ public:
 	}
 
 	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32,
-							 const FRuiStyleDict* SlotProps) override
+							 const FRuitkStyleDict* SlotProps) override
 	{
-		static_cast<SRuiExpandableArea&>(Parent).SetRoleContent(RoleOf(SlotProps), Child);
+		static_cast<SRuitkExpandableArea&>(Parent).SetRoleContent(RoleOf(SlotProps), Child);
 	}
 
 	virtual void RemoveChild(SWidget& Parent, const TSharedRef<SWidget>& Child) override
 	{
-		static_cast<SRuiExpandableArea&>(Parent).ClearContent(Child);
+		static_cast<SRuitkExpandableArea&>(Parent).ClearContent(Child);
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 	{
-		SRuiExpandableArea& W = static_cast<SRuiExpandableArea&>(Parent);
+		SRuitkExpandableArea& W = static_cast<SRuitkExpandableArea&>(Parent);
 		for (const TSharedRef<SWidget>& Child : Ordered)
 		{
 			W.SetRoleContent(RoleOf(SlotPropsOf(Child)), Child);
@@ -186,9 +186,9 @@ public:
 	}
 
 	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-									  const FRuiStyleDict* SlotProps) override
+									  const FRuitkStyleDict* SlotProps) override
 	{
-		SRuiExpandableArea& W = static_cast<SRuiExpandableArea&>(Parent);
+		SRuitkExpandableArea& W = static_cast<SRuitkExpandableArea&>(Parent);
 		W.ClearContent(Child); // role may have changed — drop then re-route
 		W.SetRoleContent(RoleOf(SlotProps), Child);
 	}
@@ -198,20 +198,20 @@ public:
 // Type, factory, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId ExpandableAreaType()
+	FRuitkElementTypeId ExpandableAreaType()
 	{
-		return RUI::InternElementType(FName(TEXT("ExpandableArea")));
+		return Ruitk::InternElementType(FName(TEXT("ExpandableArea")));
 	}
 
-	FRuiNode ExpandableArea(FRuiExpandableAreaProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode ExpandableArea(FRuitkExpandableAreaProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = ExpandableAreaType();
-		Node.Props = MakeShared<FRuiExpandableAreaProps>(MoveTemp(Props));
-		Node.Children = RUI::MakeChildren(MoveTemp(Children));
+		Node.Props = MakeShared<FRuitkExpandableAreaProps>(MoveTemp(Props));
+		Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
@@ -220,7 +220,7 @@ namespace RUI::Slate
 	{
 		void RegisterExpandableAreaAdapter()
 		{
-			RegisterAdapter(ExpandableAreaType(), MakeUnique<FRuiExpandableAreaAdapter>());
+			RegisterAdapter(ExpandableAreaType(), MakeUnique<FRuitkExpandableAreaAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

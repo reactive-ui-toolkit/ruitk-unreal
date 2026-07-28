@@ -1,28 +1,28 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiUmgElement.h"
+#include "RuitkUmgElement.h"
 
 #include "Blueprint/UserWidget.h"
-#include "RuiElementAdapter.h"
-#include "RuiMarshal.h"
-#include "RuiSlateHost.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkMarshal.h"
+#include "RuitkSlateHost.h"
 #include "Slate/SObjectWidget.h"
 #include "UObject/UnrealType.h"
 #include "Widgets/SNullWidget.h"
 #include "Widgets/Text/STextBlock.h"
 
-int32 RUI::Umg::ApplyPropMap(UUserWidget* Widget, const FRuiStyleDict& WidgetProps)
+int32 Ruitk::Umg::ApplyPropMap(UUserWidget* Widget, const FRuitkStyleDict& WidgetProps)
 {
 	if (Widget == nullptr || WidgetProps.Num() == 0)
 	{
 		return 0;
 	}
-	// One conversion table for every seam: the per-property dispatch lives in RuiMarshal
+	// One conversion table for every seam: the per-property dispatch lives in RuitkMarshal
 	// (MarshalToProperty — B13 kind-validation rules preserved there verbatim).
 	int32 Applied = 0;
-	for (const TPair<FName, FRuiValue>& Pair : WidgetProps)
+	for (const TPair<FName, FRuitkValue>& Pair : WidgetProps)
 	{
-		if (RUI::Umg::MarshalToProperty(Widget, Pair.Key, Pair.Value))
+		if (Ruitk::Umg::MarshalToProperty(Widget, Pair.Key, Pair.Value))
 		{
 			++Applied;
 		}
@@ -38,15 +38,15 @@ int32 RUI::Umg::ApplyPropMap(UUserWidget* Widget, const FRuiStyleDict& WidgetPro
 
 namespace
 {
-	class FRuiUmgAdapter final : public IRuiElementAdapter
+	class FRuitkUmgAdapter final : public IRuitkElementAdapter
 	{
 	public:
-		virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+		virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
-		virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& PropsBase,
-												 const TSharedPtr<FRuiEventProxy>&) override
+		virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& PropsBase,
+												 const TSharedPtr<FRuitkEventProxy>&) override
 		{
-			const FRuiUmgProps& Props = static_cast<const FRuiUmgProps&>(PropsBase);
+			const FRuitkUmgProps& Props = static_cast<const FRuitkUmgProps&>(PropsBase);
 			UWorld* World = Props.World.Get();
 			UClass* WidgetClass = Props.WidgetClass.Get();
 			if (!World || !WidgetClass)
@@ -60,15 +60,15 @@ namespace
 			}
 			// Apply the initial prop map, then TakeWidget -> SObjectWidget (holds the strong UObject
 			// ref: the hosted widget lives exactly as long as its Slate representation, UMG's contract).
-			RUI::Umg::ApplyPropMap(Widget, Props.WidgetProps);
+			Ruitk::Umg::ApplyPropMap(Widget, Props.WidgetProps);
 			return Widget->TakeWidget();
 		}
 
-		virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+		virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 		{
 			// Re-apply the prop map on change: recover the hosted UUserWidget from its SObjectWidget.
-			const FRuiUmgProps& N = static_cast<const FRuiUmgProps&>(New);
-			const FRuiUmgProps* O = static_cast<const FRuiUmgProps*>(Old);
+			const FRuitkUmgProps& N = static_cast<const FRuitkUmgProps&>(New);
+			const FRuitkUmgProps* O = static_cast<const FRuitkUmgProps*>(Old);
 			if (!N.HasWidgetProps())
 			{
 				return;
@@ -81,7 +81,7 @@ namespace
 			{
 				if (UUserWidget* Hosted = static_cast<SObjectWidget&>(Widget).GetWidgetObject())
 				{
-					RUI::Umg::ApplyPropMap(Hosted, N.WidgetProps);
+					Ruitk::Umg::ApplyPropMap(Hosted, N.WidgetProps);
 				}
 			}
 		}
@@ -91,24 +91,24 @@ namespace
 			return 0b11; // WidgetClass + World are construct-only; WidgetProps applies in place
 		}
 
-		virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+		virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 		{
-			const FRuiUmgProps& O = static_cast<const FRuiUmgProps&>(Old);
-			const FRuiUmgProps& N = static_cast<const FRuiUmgProps&>(New);
+			const FRuitkUmgProps& O = static_cast<const FRuitkUmgProps&>(Old);
+			const FRuitkUmgProps& N = static_cast<const FRuitkUmgProps&>(New);
 			return !(O.WidgetClass == N.WidgetClass) || !(O.World == N.World);
 		}
 
 		virtual bool IsPoolable() const override { return false; } // carries a live UObject
 	};
 
-	FRuiElementTypeId UmgElementType()
+	FRuitkElementTypeId UmgElementType()
 	{
-		static const FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("UmgUserWidget")));
+		static const FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("UmgUserWidget")));
 		return Id;
 	}
 } // namespace
 
-namespace RUI::Umg
+namespace Ruitk::Umg
 {
 	void RegisterUmgAdapters()
 	{
@@ -118,35 +118,35 @@ namespace RUI::Umg
 			return;
 		}
 		bOnce = true;
-		RUI::Slate::RegisterAdapter(UmgElementType(), MakeUnique<FRuiUmgAdapter>());
+		Ruitk::Slate::RegisterAdapter(UmgElementType(), MakeUnique<FRuitkUmgAdapter>());
 	}
 
-	static FRuiNode MakeUmgNode(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuiStyleDict WidgetProps,
-								FRuiKey Key)
+	static FRuitkNode MakeUmgNode(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps,
+								FRuitkKey Key)
 	{
 		RegisterUmgAdapters();
-		FRuiUmgProps Props;
+		FRuitkUmgProps Props;
 		Props.SetWidgetClass(MoveTemp(WidgetClass));
 		Props.SetWorld(World);
 		if (WidgetProps.Num() > 0)
 		{
 			Props.SetWidgetProps(MoveTemp(WidgetProps));
 		}
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = UmgElementType();
-		Node.Props = MakeShared<FRuiUmgProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkUmgProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
 
-	FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuiKey Key)
+	FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkKey Key)
 	{
-		return MakeUmgNode(MoveTemp(WidgetClass), World, FRuiStyleDict(), Key);
+		return MakeUmgNode(MoveTemp(WidgetClass), World, FRuitkStyleDict(), Key);
 	}
 
-	FRuiNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuiStyleDict WidgetProps, FRuiKey Key)
+	FRuitkNode UserWidget(TSubclassOf<UUserWidget> WidgetClass, UWorld* World, FRuitkStyleDict WidgetProps, FRuitkKey Key)
 	{
 		return MakeUmgNode(MoveTemp(WidgetClass), World, MoveTemp(WidgetProps), Key);
 	}
-} // namespace RUI::Umg
+} // namespace Ruitk::Umg

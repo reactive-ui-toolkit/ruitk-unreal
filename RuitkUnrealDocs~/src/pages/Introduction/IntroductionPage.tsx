@@ -4,11 +4,11 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 import { ROADMAP_URL } from '../../links'
 import Styles from './IntroductionPage.style'
 
-const QUICK_SAMPLE = `export FRuiNode Counter() {
+const QUICK_SAMPLE = `export FRuitkNode Counter() {
 	auto [Count, SetCount] = UseState<int32>(0);
 	return (
 		<VerticalBox>
-			<TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />
+			<TextBlock Text={ Ruitk::Fmt(TEXT("Count: {}"), Count) } />
 			<Button OnClicked={ SetCount(Count + 1) }>+1</Button>
 		</VerticalBox>
 	);

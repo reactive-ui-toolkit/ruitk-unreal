@@ -1,94 +1,94 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiContext.h"
-#include "RuiReconciler.h"
+#include "RuitkContext.h"
+#include "RuitkReconciler.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiCoreHooks, Log, All);
 
-const TCHAR* RuiHookKindName(ERuiHookKind Kind)
+const TCHAR* RuitkHookKindName(ERuitkHookKind Kind)
 {
 	switch (Kind)
 	{
-	case ERuiHookKind::State:
+	case ERuitkHookKind::State:
 		return TEXT("state");
-	case ERuiHookKind::Reducer:
+	case ERuitkHookKind::Reducer:
 		return TEXT("reducer");
-	case ERuiHookKind::Ref:
+	case ERuitkHookKind::Ref:
 		return TEXT("ref");
-	case ERuiHookKind::Memo:
+	case ERuitkHookKind::Memo:
 		return TEXT("memo");
-	case ERuiHookKind::Deferred:
+	case ERuitkHookKind::Deferred:
 		return TEXT("deferred");
-	case ERuiHookKind::Transition:
+	case ERuitkHookKind::Transition:
 		return TEXT("transition");
-	case ERuiHookKind::Stable:
+	case ERuitkHookKind::Stable:
 		return TEXT("stable");
-	case ERuiHookKind::SafeArea:
+	case ERuitkHookKind::SafeArea:
 		return TEXT("safe_area");
-	case ERuiHookKind::Signal:
+	case ERuitkHookKind::Signal:
 		return TEXT("signal");
-	case ERuiHookKind::Tween:
+	case ERuitkHookKind::Tween:
 		return TEXT("tween");
-	case ERuiHookKind::TweenValue:
+	case ERuitkHookKind::TweenValue:
 		return TEXT("tween_value");
-	case ERuiHookKind::Animate:
+	case ERuitkHookKind::Animate:
 		return TEXT("animate");
-	case ERuiHookKind::Sfx:
+	case ERuitkHookKind::Sfx:
 		return TEXT("sfx");
-	case ERuiHookKind::Effect:
+	case ERuitkHookKind::Effect:
 		return TEXT("effect");
-	case ERuiHookKind::LayoutEffect:
+	case ERuitkHookKind::LayoutEffect:
 		return TEXT("layout_effect");
 	}
 	return TEXT("?");
 }
 
-TWeakPtr<FRuiComponentState> FRuiContext::StateWeak() const
+TWeakPtr<FRuitkComponentState> FRuitkContext::StateWeak() const
 {
 	return StateShared;
 }
 
-void FRuiContext::Record(ERuiHookKind Kind)
+void FRuitkContext::Record(ERuitkHookKind Kind)
 {
 	// TB-13: the HMR session needs the flattened hook sequence too — shape-change detection
 	// across a Live Coding patch is what drives the family reset rule.
-	if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
+	if (FRuitkConfig::IsHookValidationEnabled() || Ruitk::IsHmrHookTracking())
 	{
 		State.HookLog.Add(Kind);
 	}
 }
 
-void FRuiContext::WarnOnce(FName Key, const FString& Msg)
+void FRuitkContext::WarnOnce(FName Key, const FString& Msg)
 {
 	if (State.DiagWarned.Contains(Key))
 	{
 		return;
 	}
 	State.DiagWarned.Add(Key);
-	FRuiDiagnostics::Emit(Msg);
+	FRuitkDiagnostics::Emit(Msg);
 	UE_LOG(LogRuiCoreHooks, Warning, TEXT("%s"), *Msg);
 }
 
-void FRuiContext::NotifyEffects()
+void FRuitkContext::NotifyEffects()
 {
 	Reconciler.NotifyEffectKinds(Fiber, !State.Effects.IsEmpty(), !State.LayoutEffects.IsEmpty());
 }
 
-void FRuiContext::ReconcilerOnProvidedChanged(const void* Key)
+void FRuitkContext::ReconcilerOnProvidedChanged(const void* Key)
 {
 	Reconciler.OnProvidedValueChanged(Fiber, Key);
 }
 
-void FRuiContext::StubSlot(ERuiHookKind Kind, const TCHAR* HookName, const TCHAR* Owner)
+void FRuitkContext::StubSlot(ERuitkHookKind Kind, const TCHAR* HookName, const TCHAR* Owner)
 {
 	Record(Kind);
 	const int32 i = State.HookIndex++;
-	State.EnsureCellShape(i, FRuiMarkerCell::StaticTypeHash(), Kind); // TB-13
+	State.EnsureCellShape(i, FRuitkMarkerCell::StaticTypeHash(), Kind); // TB-13
 	if (i >= State.Hooks.Num())
 	{
-		State.Hooks.Emplace(MakeUnique<FRuiMarkerCell>(Kind));
+		State.Hooks.Emplace(MakeUnique<FRuitkMarkerCell>(Kind));
 	}
-	FRuiMarkerCell* Cell = static_cast<FRuiMarkerCell*>(State.Hooks[i].Get());
+	FRuitkMarkerCell* Cell = static_cast<FRuitkMarkerCell*>(State.Hooks[i].Get());
 	if (!Cell->bWarned)
 	{
 		Cell->bWarned = true;
@@ -99,29 +99,29 @@ void FRuiContext::StubSlot(ERuiHookKind Kind, const TCHAR* HookName, const TCHAR
 	}
 }
 
-// ── UseSfx sink (RuiHooksInternal.h) ───────────────────────────────────────────────────────
+// ── UseSfx sink (RuitkHooksInternal.h) ───────────────────────────────────────────────────────
 
 namespace
 {
-	TFunction<void(FName, const FRuiValue&)>& SfxSinkRef()
+	TFunction<void(FName, const FRuitkValue&)>& SfxSinkRef()
 	{
-		static TFunction<void(FName, const FRuiValue&)> Sink;
+		static TFunction<void(FName, const FRuitkValue&)> Sink;
 		return Sink;
 	}
 } // namespace
 
-namespace RUI
+namespace Ruitk
 {
-	void SetSfxSink(TFunction<void(FName Bus, const FRuiValue& Payload)> Sink)
+	void SetSfxSink(TFunction<void(FName Bus, const FRuitkValue& Payload)> Sink)
 	{
 		SfxSinkRef() = MoveTemp(Sink);
 	}
 
-	void DispatchSfx(FName Bus, const FRuiValue& Payload)
+	void DispatchSfx(FName Bus, const FRuitkValue& Payload)
 	{
-		if (const TFunction<void(FName, const FRuiValue&)>& Sink = SfxSinkRef())
+		if (const TFunction<void(FName, const FRuitkValue&)>& Sink = SfxSinkRef())
 		{
 			Sink(Bus, Payload);
 		}
 	}
-} // namespace RUI
+} // namespace Ruitk

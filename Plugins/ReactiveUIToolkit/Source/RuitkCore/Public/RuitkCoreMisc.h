@@ -23,7 +23,7 @@ DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuiDeletions, STATGROU
 // Config (rui.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct RUITKCORE_API FRuiConfig
+struct RUITKCORE_API FRuitkConfig
 {
 	/** Chunk the render phase across frames on a budget (commit stays atomic). Off by
 	 *  default — synchronous renders are simplest and fast for normal UIs. */
@@ -45,7 +45,7 @@ struct RUITKCORE_API FRuiConfig
 // Diagnostics counters (diagnostics.gd) — cheap, opt-in, test-assertable
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct RUITKCORE_API FRuiDiagnostics
+struct RUITKCORE_API FRuitkDiagnostics
 {
 	static bool bEnabled;
 
@@ -106,14 +106,14 @@ struct RUITKCORE_API FRuiDiagnostics
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Cooperative render-error latch (D-10). UE ships without C++ exceptions, so there is no
-// throw path: a failing render CALLS RUI::FailRender(...) and returns whatever it can; the
+// throw path: a failing render CALLS Ruitk::FailRender(...) and returns whatever it can; the
 // reconciler checks the latch after each component render and unwinds the WIP subtree to
 // the nearest error boundary (safe pre-commit — double buffering keeps `current` intact).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI
+namespace Ruitk
 {
-	/** Signal "this render failed" (usable via the RUI_RENDER_FAIL macro for file/line). */
+	/** Signal "this render failed" (usable via the RUITK_RENDER_FAIL macro for file/line). */
 	RUITKCORE_API void FailRender(const FString& Reason);
 
 	/** Reconciler-side: consume the latch (returns unset optional when no failure). */
@@ -122,7 +122,7 @@ namespace RUI
 	/** True while a component render is on the stack (debug in-render assert support). */
 	RUITKCORE_API bool IsRendering();
 	RUITKCORE_API void SetRendering(bool bInRendering);
-} // namespace RUI
+} // namespace Ruitk
 
-#define RUI_RENDER_FAIL(Fmt, ...)                                                                                      \
-	RUI::FailRender(FString::Printf(TEXT("%s(%d): ") Fmt, TEXT(__FILE__), __LINE__, ##__VA_ARGS__))
+#define RUITK_RENDER_FAIL(Fmt, ...)                                                                                      \
+	Ruitk::FailRender(FString::Printf(TEXT("%s(%d): ") Fmt, TEXT(__FILE__), __LINE__, ##__VA_ARGS__))

@@ -1,33 +1,33 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Widgets.ExpandableArea — TD-012 tail: the two-named-slot widget. Drives the adapter
+// Ruitk.Widgets.ExpandableArea — TD-012 tail: the two-named-slot widget. Drives the adapter
 // directly (as the slot suite does) to prove role-based child routing (header/body), controlled
 // expansion (skip-when-equal SetExpanded), and content removal.
 
 #include "Misc/AutomationTest.h"
-#include "RuiElementAdapter.h"
-#include "RuiElementRegistry.h"
-#include "RuiExpandableArea.h"
-#include "RuiTypes.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkExpandableArea.h"
+#include "RuitkTypes.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiExpandableAreaTest, "ReactiveUI.Widgets.ExpandableArea",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkExpandableAreaTest, "Ruitk.Widgets.ExpandableArea",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiExpandableAreaTest::RunTest(const FString&)
+bool FRuitkExpandableAreaTest::RunTest(const FString&)
 {
-	IRuiElementAdapter* Adapter = RUI::Slate::FindAdapter(RUI::Slate::ExpandableAreaType());
+	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(Ruitk::Slate::ExpandableAreaType());
 	if (!TestNotNull(TEXT("ExpandableArea adapter registered"), Adapter))
 	{
 		return false;
 	}
 
 	// Construct expanded.
-	FRuiExpandableAreaProps Props;
+	FRuitkExpandableAreaProps Props;
 	Props.SetbIsExpanded(true);
 	TSharedRef<SWidget> Widget = Adapter->CreateWidget(Props, nullptr);
-	SRuiExpandableArea& Area = static_cast<SRuiExpandableArea&>(Widget.Get());
+	SRuitkExpandableArea& Area = static_cast<SRuitkExpandableArea&>(Widget.Get());
 	Adapter->ApplyDiff(Area, nullptr, Props);
 	TestTrue(TEXT("starts expanded"), Area.IsExpanded());
 
@@ -35,10 +35,10 @@ bool FRuiExpandableAreaTest::RunTest(const FString&)
 	TSharedRef<SWidget> Header = SNew(STextBlock).Text(FText::FromString(TEXT("H")));
 	TSharedRef<SWidget> Body = SNew(STextBlock).Text(FText::FromString(TEXT("B")));
 
-	FRuiStyleDict HeaderSlot;
-	HeaderSlot.Add(FName(TEXT("slot.role")), FRuiValue(FName(TEXT("header"))));
-	FRuiStyleDict BodySlot;
-	BodySlot.Add(FName(TEXT("slot.role")), FRuiValue(FName(TEXT("body"))));
+	FRuitkStyleDict HeaderSlot;
+	HeaderSlot.Add(FName(TEXT("slot.role")), FRuitkValue(FName(TEXT("header"))));
+	FRuitkStyleDict BodySlot;
+	BodySlot.Add(FName(TEXT("slot.role")), FRuitkValue(FName(TEXT("body"))));
 
 	Adapter->InsertChild(Area, Header, 0, &HeaderSlot);
 	Adapter->InsertChild(Area, Body, 1, &BodySlot);
@@ -47,17 +47,17 @@ bool FRuiExpandableAreaTest::RunTest(const FString&)
 
 	// A child with no role defaults to the body holder.
 	{
-		FRuiExpandableAreaProps P2;
+		FRuitkExpandableAreaProps P2;
 		P2.SetbIsExpanded(true);
 		TSharedRef<SWidget> W2 = Adapter->CreateWidget(P2, nullptr);
-		SRuiExpandableArea& A2 = static_cast<SRuiExpandableArea&>(W2.Get());
+		SRuitkExpandableArea& A2 = static_cast<SRuitkExpandableArea&>(W2.Get());
 		TSharedRef<SWidget> Only = SNew(STextBlock).Text(FText::FromString(TEXT("X")));
 		Adapter->InsertChild(A2, Only, 0, nullptr);
 		TestTrue(TEXT("role-less child defaults to body"), A2.GetRoleContent(FName(TEXT("body"))) == Only);
 	}
 
 	// Controlled collapse: a new prop value drives SetExpanded.
-	FRuiExpandableAreaProps Collapsed;
+	FRuitkExpandableAreaProps Collapsed;
 	Collapsed.SetbIsExpanded(false);
 	Adapter->ApplyDiff(Area, &Props, Collapsed);
 	TestFalse(TEXT("controlled prop collapsed it"), Area.IsExpanded());

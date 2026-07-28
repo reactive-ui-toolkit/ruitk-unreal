@@ -8,9 +8,9 @@
 // SBackgroundBlur / SInvalidationPanel are ordinary setter-based single-content wraps;
 // SEnableBox / SScissorRectBox are content-only.
 
-#include "RuiElementAdapter.h"
-#include "RuiEventProxy.h"
-#include "RuiSlateElements.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkEventProxy.h"
+#include "RuitkSlateElements.h"
 
 #include "Styling/StyleDefaults.h"
 #include "Widgets/Colors/SColorBlock.h"
@@ -38,7 +38,7 @@
 namespace
 {
 	// One compare-and-set row (the B2 convention).
-#define RUI_ROW(Prop, ApplyExpr)                                                                                       \
+#define RUITK_ROW(Prop, ApplyExpr)                                                                                       \
 	if (N.Has##Prop() && (O == nullptr || !O->Has##Prop() || !(N.Prop == O->Prop)))                                    \
 	{                                                                                                                  \
 		ApplyExpr;                                                                                                     \
@@ -46,7 +46,7 @@ namespace
 
 	// One construct-only change gate (the Separator convention, bughunt SEP-REBUILD-1: gate on
 	// the Has-bits so REMOVING a prop never forces a spurious rebuild).
-#define RUI_CTOR_CHANGED(Prop) (N.Has##Prop() && (!O.Has##Prop() || !(O.Prop == N.Prop)))
+#define RUITK_CTOR_CHANGED(Prop) (N.Has##Prop() && (!O.Has##Prop() || !(O.Prop == N.Prop)))
 
 	EOrientation OrientOf(FName V)
 	{
@@ -58,31 +58,31 @@ namespace
 // SColorBlock — fully construct-only (no engine setters); every prop is masked.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiColorBlockAdapter final : public IRuiElementAdapter
+class FRuitkColorBlockAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiColorBlockProps::Color_Bit) | (1ull << FRuiColorBlockProps::Size_Bit) |
-			   (1ull << FRuiColorBlockProps::bUseSRGB_Bit) |
-			   (1ull << FRuiColorBlockProps::bShowBackgroundForAlpha_Bit) |
-			   (1ull << FRuiColorBlockProps::bColorIsHSV_Bit) | (1ull << FRuiColorBlockProps::AlphaDisplayMode_Bit);
+		return (1ull << FRuitkColorBlockProps::Color_Bit) | (1ull << FRuitkColorBlockProps::Size_Bit) |
+			   (1ull << FRuitkColorBlockProps::bUseSRGB_Bit) |
+			   (1ull << FRuitkColorBlockProps::bShowBackgroundForAlpha_Bit) |
+			   (1ull << FRuitkColorBlockProps::bColorIsHSV_Bit) | (1ull << FRuitkColorBlockProps::AlphaDisplayMode_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiColorBlockProps& O = static_cast<const FRuiColorBlockProps&>(Old);
-		const FRuiColorBlockProps& N = static_cast<const FRuiColorBlockProps&>(New);
-		return RUI_CTOR_CHANGED(Color) || RUI_CTOR_CHANGED(Size) || RUI_CTOR_CHANGED(bUseSRGB) ||
-			   RUI_CTOR_CHANGED(bShowBackgroundForAlpha) || RUI_CTOR_CHANGED(bColorIsHSV) ||
-			   RUI_CTOR_CHANGED(AlphaDisplayMode);
+		const FRuitkColorBlockProps& O = static_cast<const FRuitkColorBlockProps&>(Old);
+		const FRuitkColorBlockProps& N = static_cast<const FRuitkColorBlockProps&>(New);
+		return RUITK_CTOR_CHANGED(Color) || RUITK_CTOR_CHANGED(Size) || RUITK_CTOR_CHANGED(bUseSRGB) ||
+			   RUITK_CTOR_CHANGED(bShowBackgroundForAlpha) || RUITK_CTOR_CHANGED(bColorIsHSV) ||
+			   RUITK_CTOR_CHANGED(AlphaDisplayMode);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiColorBlockProps& P = static_cast<const FRuiColorBlockProps&>(Props);
+		const FRuitkColorBlockProps& P = static_cast<const FRuitkColorBlockProps&>(Props);
 		const EColorBlockAlphaDisplayMode Alpha =
 			P.AlphaDisplayMode == FName(TEXT("separate")) ? EColorBlockAlphaDisplayMode::Separate
 			: P.AlphaDisplayMode == FName(TEXT("ignore")) ? EColorBlockAlphaDisplayMode::Ignore
@@ -96,36 +96,36 @@ public:
 			.AlphaDisplayMode(Alpha);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {} // all masked
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {} // all masked
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // SSimpleGradient / SComplexGradient — construct-only paint leaves; fully masked.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSimpleGradientAdapter final : public IRuiElementAdapter
+class FRuitkSimpleGradientAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiSimpleGradientProps::StartColor_Bit) | (1ull << FRuiSimpleGradientProps::EndColor_Bit) |
-			   (1ull << FRuiSimpleGradientProps::Orientation_Bit) |
-			   (1ull << FRuiSimpleGradientProps::bHasAlphaBackground_Bit);
+		return (1ull << FRuitkSimpleGradientProps::StartColor_Bit) | (1ull << FRuitkSimpleGradientProps::EndColor_Bit) |
+			   (1ull << FRuitkSimpleGradientProps::Orientation_Bit) |
+			   (1ull << FRuitkSimpleGradientProps::bHasAlphaBackground_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiSimpleGradientProps& O = static_cast<const FRuiSimpleGradientProps&>(Old);
-		const FRuiSimpleGradientProps& N = static_cast<const FRuiSimpleGradientProps&>(New);
-		return RUI_CTOR_CHANGED(StartColor) || RUI_CTOR_CHANGED(EndColor) || RUI_CTOR_CHANGED(Orientation) ||
-			   RUI_CTOR_CHANGED(bHasAlphaBackground);
+		const FRuitkSimpleGradientProps& O = static_cast<const FRuitkSimpleGradientProps&>(Old);
+		const FRuitkSimpleGradientProps& N = static_cast<const FRuitkSimpleGradientProps&>(New);
+		return RUITK_CTOR_CHANGED(StartColor) || RUITK_CTOR_CHANGED(EndColor) || RUITK_CTOR_CHANGED(Orientation) ||
+			   RUITK_CTOR_CHANGED(bHasAlphaBackground);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiSimpleGradientProps& P = static_cast<const FRuiSimpleGradientProps&>(Props);
+		const FRuitkSimpleGradientProps& P = static_cast<const FRuitkSimpleGradientProps&>(Props);
 		return SNew(SSimpleGradient)
 			.StartColor(P.HasStartColor() ? P.StartColor : FLinearColor::Black)
 			.EndColor(P.HasEndColor() ? P.EndColor : FLinearColor::White)
@@ -133,33 +133,33 @@ public:
 			.HasAlphaBackground(P.HasbHasAlphaBackground() && P.bHasAlphaBackground);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 };
 
-class FRuiComplexGradientAdapter final : public IRuiElementAdapter
+class FRuitkComplexGradientAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiComplexGradientProps::GradientColors_Bit) |
-			   (1ull << FRuiComplexGradientProps::Orientation_Bit) |
-			   (1ull << FRuiComplexGradientProps::bHasAlphaBackground_Bit) |
-			   (1ull << FRuiComplexGradientProps::DesiredSizeOverride_Bit);
+		return (1ull << FRuitkComplexGradientProps::GradientColors_Bit) |
+			   (1ull << FRuitkComplexGradientProps::Orientation_Bit) |
+			   (1ull << FRuitkComplexGradientProps::bHasAlphaBackground_Bit) |
+			   (1ull << FRuitkComplexGradientProps::DesiredSizeOverride_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiComplexGradientProps& O = static_cast<const FRuiComplexGradientProps&>(Old);
-		const FRuiComplexGradientProps& N = static_cast<const FRuiComplexGradientProps&>(New);
-		return RUI_CTOR_CHANGED(GradientColors) || RUI_CTOR_CHANGED(Orientation) ||
-			   RUI_CTOR_CHANGED(bHasAlphaBackground) || RUI_CTOR_CHANGED(DesiredSizeOverride);
+		const FRuitkComplexGradientProps& O = static_cast<const FRuitkComplexGradientProps&>(Old);
+		const FRuitkComplexGradientProps& N = static_cast<const FRuitkComplexGradientProps&>(New);
+		return RUITK_CTOR_CHANGED(GradientColors) || RUITK_CTOR_CHANGED(Orientation) ||
+			   RUITK_CTOR_CHANGED(bHasAlphaBackground) || RUITK_CTOR_CHANGED(DesiredSizeOverride);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiComplexGradientProps& P = static_cast<const FRuiComplexGradientProps&>(Props);
+		const FRuitkComplexGradientProps& P = static_cast<const FRuitkComplexGradientProps&>(Props);
 		return SNew(SComplexGradient)
 			.GradientColors(P.GradientColors)
 			.Orientation(P.HasOrientation() ? OrientOf(P.Orientation) : Orient_Vertical)
@@ -168,67 +168,67 @@ public:
 															: TOptional<FVector2D>());
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // SHyperlink — construct-only text/padding (masked) + OnNavigate through the event proxy.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiHyperlinkAdapter final : public IRuiElementAdapter
+class FRuitkHyperlinkAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiHyperlinkProps::Text_Bit) | (1ull << FRuiHyperlinkProps::Padding_Bit);
+		return (1ull << FRuitkHyperlinkProps::Text_Bit) | (1ull << FRuitkHyperlinkProps::Padding_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiHyperlinkProps& O = static_cast<const FRuiHyperlinkProps&>(Old);
-		const FRuiHyperlinkProps& N = static_cast<const FRuiHyperlinkProps&>(New);
+		const FRuitkHyperlinkProps& O = static_cast<const FRuitkHyperlinkProps&>(Old);
+		const FRuitkHyperlinkProps& N = static_cast<const FRuitkHyperlinkProps&>(New);
 		const bool bText = N.HasText() && (!O.HasText() || !O.Text.IdenticalTo(N.Text));
-		return bText || RUI_CTOR_CHANGED(Padding);
+		return bText || RUITK_CTOR_CHANGED(Padding);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiHyperlinkProps& P = static_cast<const FRuiHyperlinkProps&>(Props);
+		const FRuitkHyperlinkProps& P = static_cast<const FRuitkHyperlinkProps&>(Props);
 		return SNew(SHyperlink)
 			.Text(P.Text)
 			.Padding(P.HasPadding() ? P.Padding : FMargin(0.0f))
-			.OnNavigate(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleVoid,
-												  static_cast<int32>(FRuiHyperlinkProps::OnNavigate_Bit)));
+			.OnNavigate(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleVoid,
+												  static_cast<int32>(FRuitkHyperlinkProps::OnNavigate_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiHyperlinkProps& N = static_cast<const FRuiHyperlinkProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiHyperlinkProps::OnNavigate_Bit), N.OnNavigate);
+		const FRuitkHyperlinkProps& N = static_cast<const FRuitkHyperlinkProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkHyperlinkProps::OnNavigate_Bit), N.OnNavigate);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // SEnableBox / SScissorRectBox — content-only containers.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiEnableBoxAdapter final : public IRuiElementAdapter
+class FRuitkEnableBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SEnableBox);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
 	{
@@ -237,17 +237,17 @@ public:
 	}
 };
 
-class FRuiScissorRectBoxAdapter final : public IRuiElementAdapter
+class FRuitkScissorRectBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SScissorRectBox);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
 	{
@@ -260,25 +260,25 @@ public:
 // SBackgroundBlur — setter-based single content.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiBackgroundBlurAdapter final : public IRuiElementAdapter
+class FRuitkBackgroundBlurAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SBackgroundBlur);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SBackgroundBlur& W = static_cast<SBackgroundBlur&>(Widget);
-		const FRuiBackgroundBlurProps& N = static_cast<const FRuiBackgroundBlurProps&>(New);
-		const FRuiBackgroundBlurProps* O = static_cast<const FRuiBackgroundBlurProps*>(Old);
-		RUI_ROW(BlurStrength, W.SetBlurStrength(N.BlurStrength))
-		RUI_ROW(BlurRadius, W.SetBlurRadius(TOptional<int32>(N.BlurRadius)))
-		RUI_ROW(bApplyAlphaToBlur, W.SetApplyAlphaToBlur(N.bApplyAlphaToBlur))
-		RUI_ROW(Padding, W.SetPadding(N.Padding))
+		const FRuitkBackgroundBlurProps& N = static_cast<const FRuitkBackgroundBlurProps&>(New);
+		const FRuitkBackgroundBlurProps* O = static_cast<const FRuitkBackgroundBlurProps*>(Old);
+		RUITK_ROW(BlurStrength, W.SetBlurStrength(N.BlurStrength))
+		RUITK_ROW(BlurRadius, W.SetBlurRadius(TOptional<int32>(N.BlurRadius)))
+		RUITK_ROW(bApplyAlphaToBlur, W.SetApplyAlphaToBlur(N.bApplyAlphaToBlur))
+		RUITK_ROW(Padding, W.SetPadding(N.Padding))
 	}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
@@ -292,22 +292,22 @@ public:
 // SInvalidationPanel — setter-based single content (opt-in paint cache).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiInvalidationPanelAdapter final : public IRuiElementAdapter
+class FRuitkInvalidationPanelAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SInvalidationPanel);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SInvalidationPanel& W = static_cast<SInvalidationPanel&>(Widget);
-		const FRuiInvalidationPanelProps& N = static_cast<const FRuiInvalidationPanelProps&>(New);
-		const FRuiInvalidationPanelProps* O = static_cast<const FRuiInvalidationPanelProps*>(Old);
-		RUI_ROW(bCanCache, W.SetCanCache(N.bCanCache))
+		const FRuitkInvalidationPanelProps& N = static_cast<const FRuitkInvalidationPanelProps&>(New);
+		const FRuitkInvalidationPanelProps* O = static_cast<const FRuitkInvalidationPanelProps*>(Old);
+		RUITK_ROW(bCanCache, W.SetCanCache(N.bCanCache))
 	}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
@@ -322,75 +322,75 @@ public:
 // reconstruct mask; the two user-edit events flow through the proxy.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiVolumeControlAdapter final : public IRuiElementAdapter
+class FRuitkVolumeControlAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiVolumeControlProps::Volume_Bit) | (1ull << FRuiVolumeControlProps::bMuted_Bit);
+		return (1ull << FRuitkVolumeControlProps::Volume_Bit) | (1ull << FRuitkVolumeControlProps::bMuted_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiVolumeControlProps& O = static_cast<const FRuiVolumeControlProps&>(Old);
-		const FRuiVolumeControlProps& N = static_cast<const FRuiVolumeControlProps&>(New);
-		return RUI_CTOR_CHANGED(Volume) || RUI_CTOR_CHANGED(bMuted);
+		const FRuitkVolumeControlProps& O = static_cast<const FRuitkVolumeControlProps&>(Old);
+		const FRuitkVolumeControlProps& N = static_cast<const FRuitkVolumeControlProps&>(New);
+		return RUITK_CTOR_CHANGED(Volume) || RUITK_CTOR_CHANGED(bMuted);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiVolumeControlProps& P = static_cast<const FRuiVolumeControlProps&>(Props);
+		const FRuitkVolumeControlProps& P = static_cast<const FRuitkVolumeControlProps&>(Props);
 		return SNew(SVolumeControl)
 			.Volume(P.HasVolume() ? P.Volume : 1.0f)
 			.Muted(P.HasbMuted() && P.bMuted)
 			.OnVolumeChanged(
-				FOnFloatValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleFloat,
-											   static_cast<int32>(FRuiVolumeControlProps::OnVolumeChanged_Bit)))
+				FOnFloatValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleFloat,
+											   static_cast<int32>(FRuitkVolumeControlProps::OnVolumeChanged_Bit)))
 			.OnMuteChanged(
-				SVolumeControl::FOnMuted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleBool,
-												   static_cast<int32>(FRuiVolumeControlProps::OnMuteChanged_Bit)));
+				SVolumeControl::FOnMuted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleBool,
+												   static_cast<int32>(FRuitkVolumeControlProps::OnMuteChanged_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiVolumeControlProps& N = static_cast<const FRuiVolumeControlProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiVolumeControlProps::OnVolumeChanged_Bit), N.OnVolumeChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiVolumeControlProps::OnMuteChanged_Bit), N.OnMuteChanged);
+		const FRuitkVolumeControlProps& N = static_cast<const FRuitkVolumeControlProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkVolumeControlProps::OnVolumeChanged_Bit), N.OnVolumeChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkVolumeControlProps::OnMuteChanged_Bit), N.OnMuteChanged);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // STextScroller (wave 2) — construct-only options (masked); Start/Suspend/Reset via P2.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiTextScrollerAdapter final : public IRuiElementAdapter
+class FRuitkTextScrollerAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiTextScrollerProps::Speed_Bit) | (1ull << FRuiTextScrollerProps::StartDelay_Bit) |
-			   (1ull << FRuiTextScrollerProps::EndDelay_Bit) | (1ull << FRuiTextScrollerProps::ScrollOrientation_Bit);
+		return (1ull << FRuitkTextScrollerProps::Speed_Bit) | (1ull << FRuitkTextScrollerProps::StartDelay_Bit) |
+			   (1ull << FRuitkTextScrollerProps::EndDelay_Bit) | (1ull << FRuitkTextScrollerProps::ScrollOrientation_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiTextScrollerProps& O = static_cast<const FRuiTextScrollerProps&>(Old);
-		const FRuiTextScrollerProps& N = static_cast<const FRuiTextScrollerProps&>(New);
-		return RUI_CTOR_CHANGED(Speed) || RUI_CTOR_CHANGED(StartDelay) || RUI_CTOR_CHANGED(EndDelay) ||
-			   RUI_CTOR_CHANGED(ScrollOrientation);
+		const FRuitkTextScrollerProps& O = static_cast<const FRuitkTextScrollerProps&>(Old);
+		const FRuitkTextScrollerProps& N = static_cast<const FRuitkTextScrollerProps&>(New);
+		return RUITK_CTOR_CHANGED(Speed) || RUITK_CTOR_CHANGED(StartDelay) || RUITK_CTOR_CHANGED(EndDelay) ||
+			   RUITK_CTOR_CHANGED(ScrollOrientation);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiTextScrollerProps& P = static_cast<const FRuiTextScrollerProps&>(Props);
+		const FRuitkTextScrollerProps& P = static_cast<const FRuitkTextScrollerProps&>(Props);
 		FTextScrollerOptions Options;
 		if (P.HasSpeed())
 		{
@@ -409,7 +409,7 @@ public:
 			.ScrollOrientation(P.HasScrollOrientation() ? OrientOf(P.ScrollOrientation) : Orient_Horizontal);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
 	{
@@ -430,23 +430,23 @@ public:
 // ones don't invalidate, so we invalidate layout explicitly (the Canvas precedent).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiRadialBoxAdapter final : public IRuiElementAdapter
+class FRuitkRadialBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 
-	virtual uint64 GetReconstructMask() const override { return 1ull << FRuiRadialBoxProps::PreferredWidth_Bit; }
+	virtual uint64 GetReconstructMask() const override { return 1ull << FRuitkRadialBoxProps::PreferredWidth_Bit; }
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiRadialBoxProps& O = static_cast<const FRuiRadialBoxProps&>(Old);
-		const FRuiRadialBoxProps& N = static_cast<const FRuiRadialBoxProps&>(New);
-		return RUI_CTOR_CHANGED(PreferredWidth);
+		const FRuitkRadialBoxProps& O = static_cast<const FRuitkRadialBoxProps&>(Old);
+		const FRuitkRadialBoxProps& N = static_cast<const FRuitkRadialBoxProps&>(New);
+		return RUITK_CTOR_CHANGED(PreferredWidth);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiRadialBoxProps& P = static_cast<const FRuiRadialBoxProps&>(Props);
+		const FRuitkRadialBoxProps& P = static_cast<const FRuitkRadialBoxProps&>(Props);
 		return SNew(SRadialBox)
 			.PreferredWidth(P.HasPreferredWidth() ? P.PreferredWidth : 100.f)
 			.UseAllottedWidth(P.HasbUseAllottedWidth() && P.bUseAllottedWidth)
@@ -456,24 +456,24 @@ public:
 			.SectorCentralAngle(P.HasSectorCentralAngle() ? P.SectorCentralAngle : 360.f);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SRadialBox& W = static_cast<SRadialBox&>(Widget);
-		const FRuiRadialBoxProps& N = static_cast<const FRuiRadialBoxProps&>(New);
-		const FRuiRadialBoxProps* O = static_cast<const FRuiRadialBoxProps*>(Old);
+		const FRuitkRadialBoxProps& N = static_cast<const FRuitkRadialBoxProps&>(New);
+		const FRuitkRadialBoxProps* O = static_cast<const FRuitkRadialBoxProps*>(Old);
 		bool bTouched = false;
-		RUI_ROW(bUseAllottedWidth, W.SetUseAllottedWidth(N.bUseAllottedWidth))
-		RUI_ROW(StartingAngle, (W.SetStartingAngle(N.StartingAngle), bTouched = true))
-		RUI_ROW(bDistributeItemsEvenly, (W.SetDistributeItemsEvenly(N.bDistributeItemsEvenly), bTouched = true))
-		RUI_ROW(AngleBetweenItems, (W.SetAngleBetweenItems(N.AngleBetweenItems), bTouched = true))
-		RUI_ROW(SectorCentralAngle, (W.SetSectorCentralAngle(N.SectorCentralAngle), bTouched = true))
+		RUITK_ROW(bUseAllottedWidth, W.SetUseAllottedWidth(N.bUseAllottedWidth))
+		RUITK_ROW(StartingAngle, (W.SetStartingAngle(N.StartingAngle), bTouched = true))
+		RUITK_ROW(bDistributeItemsEvenly, (W.SetDistributeItemsEvenly(N.bDistributeItemsEvenly), bTouched = true))
+		RUITK_ROW(AngleBetweenItems, (W.SetAngleBetweenItems(N.AngleBetweenItems), bTouched = true))
+		RUITK_ROW(SectorCentralAngle, (W.SetSectorCentralAngle(N.SectorCentralAngle), bTouched = true))
 		if (bTouched)
 		{
 			W.Invalidate(EInvalidateWidgetReason::Layout); // the inline setters skip invalidation
 		}
 	}
 
-	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32, const FRuiStyleDict*) override
+	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32, const FRuitkStyleDict*) override
 	{
 		SRadialBox::FScopedWidgetSlotArguments Slot = static_cast<SRadialBox&>(Parent).AddSlot();
 		Slot.AttachWidget(Child);
@@ -485,7 +485,7 @@ public:
 	}
 
 	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-								 TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)>) override
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)>) override
 	{
 		SRadialBox& W = static_cast<SRadialBox&>(Parent);
 		for (const TSharedRef<SWidget>& Child : Ordered)
@@ -505,22 +505,22 @@ public:
 // reconstruct mask; drags report through OnValueChanged (+ capture begin/end).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-template <typename TWidget, typename TProps> class TRuiColorPickerAdapter : public IRuiElementAdapter
+template <typename TWidget, typename TProps> class TRuitkColorPickerAdapter : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override { return 1ull << TProps::SelectedColor_Bit; }
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
 		const TProps& O = static_cast<const TProps&>(Old);
 		const TProps& N = static_cast<const TProps&>(New);
 		return N.HasSelectedColor() && (!O.HasSelectedColor() || !(O.SelectedColor == N.SelectedColor));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
 		const TProps& N = static_cast<const TProps&>(New);
 		Proxy.SetHandler(static_cast<int32>(TProps::OnValueChanged_Bit), N.OnValueChanged);
@@ -528,28 +528,28 @@ public:
 		Proxy.SetHandler(static_cast<int32>(TProps::OnMouseCaptureEnd_Bit), N.OnMouseCaptureEnd);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {}
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {}
 
 protected:
-	template <typename TArgs> void FillCommon(TArgs& Args, const TProps& P, const TSharedPtr<FRuiEventProxy>& Proxy)
+	template <typename TArgs> void FillCommon(TArgs& Args, const TProps& P, const TSharedPtr<FRuitkEventProxy>& Proxy)
 	{
 		Args.SelectedColor(P.HasSelectedColor() ? P.SelectedColor : FLinearColor::White)
-			.OnValueChanged(FOnLinearColorValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleColor,
+			.OnValueChanged(FOnLinearColorValueChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleColor,
 																 static_cast<int32>(TProps::OnValueChanged_Bit)))
-			.OnMouseCaptureBegin(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleVoid,
+			.OnMouseCaptureBegin(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleVoid,
 														   static_cast<int32>(TProps::OnMouseCaptureBegin_Bit)))
-			.OnMouseCaptureEnd(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleVoid,
+			.OnMouseCaptureEnd(FSimpleDelegate::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleVoid,
 														 static_cast<int32>(TProps::OnMouseCaptureEnd_Bit)));
 	}
 };
 
-class FRuiColorWheelAdapter final : public TRuiColorPickerAdapter<SColorWheel, FRuiColorWheelProps>
+class FRuitkColorWheelAdapter final : public TRuitkColorPickerAdapter<SColorWheel, FRuitkColorWheelProps>
 {
 public:
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiColorWheelProps& P = static_cast<const FRuiColorWheelProps&>(Props);
+		const FRuitkColorWheelProps& P = static_cast<const FRuitkColorWheelProps&>(Props);
 		SColorWheel::FArguments Args;
 		FillCommon(Args, P, Proxy);
 		TSharedRef<SColorWheel> W = SNew(SColorWheel);
@@ -558,13 +558,13 @@ public:
 	}
 };
 
-class FRuiColorSpectrumAdapter final : public TRuiColorPickerAdapter<SColorSpectrum, FRuiColorSpectrumProps>
+class FRuitkColorSpectrumAdapter final : public TRuitkColorPickerAdapter<SColorSpectrum, FRuitkColorSpectrumProps>
 {
 public:
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiColorSpectrumProps& P = static_cast<const FRuiColorSpectrumProps&>(Props);
+		const FRuitkColorSpectrumProps& P = static_cast<const FRuitkColorSpectrumProps&>(Props);
 		SColorSpectrum::FArguments Args;
 		FillCommon(Args, P, Proxy);
 		TSharedRef<SColorSpectrum> W = SNew(SColorSpectrum);
@@ -577,23 +577,23 @@ public:
 // SLayeredImage (wave 2) — SImage + live overlay layers (brush identity, B11 reset rule).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiLayeredImageAdapter final : public IRuiElementAdapter
+class FRuitkLayeredImageAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
 		return SNew(SLayeredImage);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SLayeredImage& W = static_cast<SLayeredImage&>(Widget);
-		const FRuiLayeredImageProps& N = static_cast<const FRuiLayeredImageProps&>(New);
-		const FRuiLayeredImageProps* O = static_cast<const FRuiLayeredImageProps*>(Old);
-		RUI_ROW(ColorAndOpacity, W.SetColorAndOpacity(FSlateColor(N.ColorAndOpacity)))
-		RUI_ROW(DesiredSizeOverride, W.SetDesiredSizeOverride(N.DesiredSizeOverride))
+		const FRuitkLayeredImageProps& N = static_cast<const FRuitkLayeredImageProps&>(New);
+		const FRuitkLayeredImageProps* O = static_cast<const FRuitkLayeredImageProps*>(Old);
+		RUITK_ROW(ColorAndOpacity, W.SetColorAndOpacity(FSlateColor(N.ColorAndOpacity)))
+		RUITK_ROW(DesiredSizeOverride, W.SetDesiredSizeOverride(N.DesiredSizeOverride))
 		// Base brush: pointer-backed — reset on removal (B11), else the widget dangles.
 		if (O != nullptr && O->HasImage() && !N.HasImage())
 		{
@@ -601,7 +601,7 @@ public:
 		}
 		else
 		{
-			RUI_ROW(Image, W.SetImage(N.Image.Get()))
+			RUITK_ROW(Image, W.SetImage(N.Image.Get()))
 		}
 		// Layers: identity-diffed as a list; any change rebuilds the layer stack (cheap).
 		const bool bLayersRemoved = O != nullptr && O->HasLayers() && !N.HasLayers();
@@ -624,39 +624,39 @@ public:
 // SInputKeySelector (wave 2) — live SelectedKey; capture-behavior args construct-only.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiInputKeySelectorAdapter final : public IRuiElementAdapter
+class FRuitkInputKeySelectorAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiInputKeySelectorProps::KeySelectionText_Bit) |
-			   (1ull << FRuiInputKeySelectorProps::NoKeySpecifiedText_Bit) |
-			   (1ull << FRuiInputKeySelectorProps::bAllowModifierKeys_Bit) |
-			   (1ull << FRuiInputKeySelectorProps::bAllowGamepadKeys_Bit) |
-			   (1ull << FRuiInputKeySelectorProps::bEscapeCancelsSelection_Bit);
+		return (1ull << FRuitkInputKeySelectorProps::KeySelectionText_Bit) |
+			   (1ull << FRuitkInputKeySelectorProps::NoKeySpecifiedText_Bit) |
+			   (1ull << FRuitkInputKeySelectorProps::bAllowModifierKeys_Bit) |
+			   (1ull << FRuitkInputKeySelectorProps::bAllowGamepadKeys_Bit) |
+			   (1ull << FRuitkInputKeySelectorProps::bEscapeCancelsSelection_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiInputKeySelectorProps& O = static_cast<const FRuiInputKeySelectorProps&>(Old);
-		const FRuiInputKeySelectorProps& N = static_cast<const FRuiInputKeySelectorProps&>(New);
+		const FRuitkInputKeySelectorProps& O = static_cast<const FRuitkInputKeySelectorProps&>(Old);
+		const FRuitkInputKeySelectorProps& N = static_cast<const FRuitkInputKeySelectorProps&>(New);
 		auto TextChanged = [](bool bNewHas, bool bOldHas, const FText& A, const FText& B)
 		{ return bNewHas && (!bOldHas || !(B.IdenticalTo(A) || B.ToString() == A.ToString())); };
 		return TextChanged(N.HasKeySelectionText(), O.HasKeySelectionText(), O.KeySelectionText, N.KeySelectionText) ||
 			   TextChanged(N.HasNoKeySpecifiedText(), O.HasNoKeySpecifiedText(), O.NoKeySpecifiedText,
 						   N.NoKeySpecifiedText) ||
-			   RUI_CTOR_CHANGED(bAllowModifierKeys) || RUI_CTOR_CHANGED(bAllowGamepadKeys) ||
-			   RUI_CTOR_CHANGED(bEscapeCancelsSelection);
+			   RUITK_CTOR_CHANGED(bAllowModifierKeys) || RUITK_CTOR_CHANGED(bAllowGamepadKeys) ||
+			   RUITK_CTOR_CHANGED(bEscapeCancelsSelection);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiInputKeySelectorProps& P = static_cast<const FRuiInputKeySelectorProps&>(Props);
-		TWeakPtr<FRuiEventProxy> WeakProxy = Proxy;
+		const FRuitkInputKeySelectorProps& P = static_cast<const FRuitkInputKeySelectorProps&>(Props);
+		TWeakPtr<FRuitkEventProxy> WeakProxy = Proxy;
 		return SNew(SInputKeySelector)
 			.SelectedKey(P.HasSelectedKey() ? FInputChord(FKey(P.SelectedKey)) : FInputChord())
 			.KeySelectionText(P.KeySelectionText)
@@ -667,32 +667,32 @@ public:
 			.OnKeySelected(SInputKeySelector::FOnKeySelected::CreateLambda(
 				[WeakProxy](const FInputChord& Chord)
 				{
-					if (TSharedPtr<FRuiEventProxy> Pinned = WeakProxy.Pin())
+					if (TSharedPtr<FRuitkEventProxy> Pinned = WeakProxy.Pin())
 					{
 						// Key-only payload (TD-016: modifiers are the multi-field trigger).
 						Pinned->HandleName(Chord.Key.GetFName(),
-										   static_cast<int32>(FRuiInputKeySelectorProps::OnKeySelected_Bit));
+										   static_cast<int32>(FRuitkInputKeySelectorProps::OnKeySelected_Bit));
 					}
 				}))
 			.OnIsSelectingKeyChanged(SInputKeySelector::FOnIsSelectingKeyChanged::CreateSP(
-				Proxy.ToSharedRef(), &FRuiEventProxy::HandleVoid,
-				static_cast<int32>(FRuiInputKeySelectorProps::OnIsSelectingKeyChanged_Bit)));
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleVoid,
+				static_cast<int32>(FRuitkInputKeySelectorProps::OnIsSelectingKeyChanged_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiInputKeySelectorProps& N = static_cast<const FRuiInputKeySelectorProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiInputKeySelectorProps::OnKeySelected_Bit), N.OnKeySelected);
-		Proxy.SetHandler(static_cast<int32>(FRuiInputKeySelectorProps::OnIsSelectingKeyChanged_Bit),
+		const FRuitkInputKeySelectorProps& N = static_cast<const FRuitkInputKeySelectorProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkInputKeySelectorProps::OnKeySelected_Bit), N.OnKeySelected);
+		Proxy.SetHandler(static_cast<int32>(FRuitkInputKeySelectorProps::OnIsSelectingKeyChanged_Bit),
 						 N.OnIsSelectingKeyChanged);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SInputKeySelector& W = static_cast<SInputKeySelector&>(Widget);
-		const FRuiInputKeySelectorProps& N = static_cast<const FRuiInputKeySelectorProps&>(New);
-		const FRuiInputKeySelectorProps* O = static_cast<const FRuiInputKeySelectorProps*>(Old);
-		RUI_ROW(SelectedKey, W.SetSelectedKey(FInputChord(FKey(N.SelectedKey))))
+		const FRuitkInputKeySelectorProps& N = static_cast<const FRuitkInputKeySelectorProps&>(New);
+		const FRuitkInputKeySelectorProps* O = static_cast<const FRuitkInputKeySelectorProps*>(Old);
+		RUITK_ROW(SelectedKey, W.SetSelectedKey(FInputChord(FKey(N.SelectedKey))))
 	}
 };
 
@@ -700,35 +700,35 @@ public:
 // SEditableText (wave 2) — the raw single-line edit; full live setters; D-16 caret rule.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiRawEditableTextAdapter final : public IRuiElementAdapter
+class FRuitkRawEditableTextAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 	// Stateful (caret/selection): IsPoolable() already excludes event-bearing leaves.
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
 		return SNew(SEditableText)
-			.OnTextChanged(FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleText,
-													static_cast<int32>(FRuiEditableTextProps::OnTextChanged_Bit)))
+			.OnTextChanged(FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleText,
+													static_cast<int32>(FRuitkEditableTextProps::OnTextChanged_Bit)))
 			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuiEditableTextProps::OnTextCommitted_Bit)));
+				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+										   static_cast<int32>(FRuitkEditableTextProps::OnTextCommitted_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiEditableTextProps& N = static_cast<const FRuiEditableTextProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiEditableTextProps::OnTextChanged_Bit), N.OnTextChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiEditableTextProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		const FRuitkEditableTextProps& N = static_cast<const FRuitkEditableTextProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkEditableTextProps::OnTextChanged_Bit), N.OnTextChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkEditableTextProps::OnTextCommitted_Bit), N.OnTextCommitted);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SEditableText& W = static_cast<SEditableText&>(Widget);
-		const FRuiEditableTextProps& N = static_cast<const FRuiEditableTextProps&>(New);
-		const FRuiEditableTextProps* O = static_cast<const FRuiEditableTextProps*>(Old);
+		const FRuitkEditableTextProps& N = static_cast<const FRuitkEditableTextProps&>(New);
+		const FRuitkEditableTextProps* O = static_cast<const FRuitkEditableTextProps*>(Old);
 		// D-16: skip-when-equal against the WIDGET so the caret survives the typing round-trip.
 		if (N.HasText() && W.GetText().ToString() != N.Text.ToString())
 		{
@@ -740,9 +740,9 @@ public:
 		{
 			W.SetHintText(N.HintText);
 		}
-		RUI_ROW(bIsReadOnly, W.SetIsReadOnly(N.bIsReadOnly))
-		RUI_ROW(bIsPassword, W.SetIsPassword(N.bIsPassword))
-		RUI_ROW(MinDesiredWidth, W.SetMinDesiredWidth(N.MinDesiredWidth))
+		RUITK_ROW(bIsReadOnly, W.SetIsReadOnly(N.bIsReadOnly))
+		RUITK_ROW(bIsPassword, W.SetIsPassword(N.bIsPassword))
+		RUITK_ROW(MinDesiredWidth, W.SetMinDesiredWidth(N.MinDesiredWidth))
 	}
 };
 
@@ -750,46 +750,46 @@ public:
 // SInlineEditableTextBlock (wave 2) — click-to-edit label; bMultiLine construct-only.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiInlineEditableTextBlockAdapter final : public IRuiElementAdapter
+class FRuitkInlineEditableTextBlockAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return 1ull << FRuiInlineEditableTextBlockProps::bMultiLine_Bit;
+		return 1ull << FRuitkInlineEditableTextBlockProps::bMultiLine_Bit;
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiInlineEditableTextBlockProps& O = static_cast<const FRuiInlineEditableTextBlockProps&>(Old);
-		const FRuiInlineEditableTextBlockProps& N = static_cast<const FRuiInlineEditableTextBlockProps&>(New);
-		return RUI_CTOR_CHANGED(bMultiLine);
+		const FRuitkInlineEditableTextBlockProps& O = static_cast<const FRuitkInlineEditableTextBlockProps&>(Old);
+		const FRuitkInlineEditableTextBlockProps& N = static_cast<const FRuitkInlineEditableTextBlockProps&>(New);
+		return RUITK_CTOR_CHANGED(bMultiLine);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiInlineEditableTextBlockProps& P = static_cast<const FRuiInlineEditableTextBlockProps&>(Props);
+		const FRuitkInlineEditableTextBlockProps& P = static_cast<const FRuitkInlineEditableTextBlockProps&>(Props);
 		return SNew(SInlineEditableTextBlock)
 			.MultiLine(P.HasbMultiLine() && P.bMultiLine)
 			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuiInlineEditableTextBlockProps::OnTextCommitted_Bit)));
+				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+										   static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiInlineEditableTextBlockProps& N = static_cast<const FRuiInlineEditableTextBlockProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiInlineEditableTextBlockProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		const FRuitkInlineEditableTextBlockProps& N = static_cast<const FRuitkInlineEditableTextBlockProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkInlineEditableTextBlockProps::OnTextCommitted_Bit), N.OnTextCommitted);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SInlineEditableTextBlock& W = static_cast<SInlineEditableTextBlock&>(Widget);
-		const FRuiInlineEditableTextBlockProps& N = static_cast<const FRuiInlineEditableTextBlockProps&>(New);
-		const FRuiInlineEditableTextBlockProps* O = static_cast<const FRuiInlineEditableTextBlockProps*>(Old);
+		const FRuitkInlineEditableTextBlockProps& N = static_cast<const FRuitkInlineEditableTextBlockProps&>(New);
+		const FRuitkInlineEditableTextBlockProps* O = static_cast<const FRuitkInlineEditableTextBlockProps*>(Old);
 		// No widget-side text getter — diff against the previous PROPS (commit-to-commit).
 		if (N.HasText() && (O == nullptr || !O->HasText() ||
 							!(N.Text.IdenticalTo(O->Text) || N.Text.ToString() == O->Text.ToString())))
@@ -802,8 +802,8 @@ public:
 		{
 			W.SetHintText(N.HintText);
 		}
-		RUI_ROW(bIsReadOnly, W.SetReadOnly(N.bIsReadOnly))
-		RUI_ROW(WrapTextAt, W.SetWrapTextAt(N.WrapTextAt))
+		RUITK_ROW(bIsReadOnly, W.SetReadOnly(N.bIsReadOnly))
+		RUITK_ROW(WrapTextAt, W.SetWrapTextAt(N.WrapTextAt))
 	}
 };
 
@@ -811,32 +811,32 @@ public:
 // SVirtualKeyboardEntry (wave 2) — mobile OS-keyboard field; Text live, the rest masked.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiVirtualKeyboardEntryAdapter final : public IRuiElementAdapter
+class FRuitkVirtualKeyboardEntryAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiVirtualKeyboardEntryProps::HintText_Bit) |
-			   (1ull << FRuiVirtualKeyboardEntryProps::bIsReadOnly_Bit) |
-			   (1ull << FRuiVirtualKeyboardEntryProps::KeyboardType_Bit);
+		return (1ull << FRuitkVirtualKeyboardEntryProps::HintText_Bit) |
+			   (1ull << FRuitkVirtualKeyboardEntryProps::bIsReadOnly_Bit) |
+			   (1ull << FRuitkVirtualKeyboardEntryProps::KeyboardType_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiVirtualKeyboardEntryProps& O = static_cast<const FRuiVirtualKeyboardEntryProps&>(Old);
-		const FRuiVirtualKeyboardEntryProps& N = static_cast<const FRuiVirtualKeyboardEntryProps&>(New);
+		const FRuitkVirtualKeyboardEntryProps& O = static_cast<const FRuitkVirtualKeyboardEntryProps&>(Old);
+		const FRuitkVirtualKeyboardEntryProps& N = static_cast<const FRuitkVirtualKeyboardEntryProps&>(New);
 		const bool bHint = N.HasHintText() && (!O.HasHintText() || !(N.HintText.IdenticalTo(O.HintText) ||
 																	 N.HintText.ToString() == O.HintText.ToString()));
-		return bHint || RUI_CTOR_CHANGED(bIsReadOnly) || RUI_CTOR_CHANGED(KeyboardType);
+		return bHint || RUITK_CTOR_CHANGED(bIsReadOnly) || RUITK_CTOR_CHANGED(KeyboardType);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiVirtualKeyboardEntryProps& P = static_cast<const FRuiVirtualKeyboardEntryProps&>(Props);
+		const FRuitkVirtualKeyboardEntryProps& P = static_cast<const FRuitkVirtualKeyboardEntryProps&>(Props);
 		const EKeyboardType Keyboard = P.KeyboardType == FName(TEXT("number"))	   ? Keyboard_Number
 									   : P.KeyboardType == FName(TEXT("web"))	   ? Keyboard_Web
 									   : P.KeyboardType == FName(TEXT("email"))	   ? Keyboard_Email
@@ -848,24 +848,24 @@ public:
 			.IsReadOnly(P.HasbIsReadOnly() && P.bIsReadOnly)
 			.KeyboardType(Keyboard)
 			.OnTextChanged(
-				FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleText,
-										 static_cast<int32>(FRuiVirtualKeyboardEntryProps::OnTextChanged_Bit)))
+				FOnTextChanged::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleText,
+										 static_cast<int32>(FRuitkVirtualKeyboardEntryProps::OnTextChanged_Bit)))
 			.OnTextCommitted(
-				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleTextCommit,
-										   static_cast<int32>(FRuiVirtualKeyboardEntryProps::OnTextCommitted_Bit)));
+				FOnTextCommitted::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleTextCommit,
+										   static_cast<int32>(FRuitkVirtualKeyboardEntryProps::OnTextCommitted_Bit)));
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiVirtualKeyboardEntryProps& N = static_cast<const FRuiVirtualKeyboardEntryProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiVirtualKeyboardEntryProps::OnTextChanged_Bit), N.OnTextChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiVirtualKeyboardEntryProps::OnTextCommitted_Bit), N.OnTextCommitted);
+		const FRuitkVirtualKeyboardEntryProps& N = static_cast<const FRuitkVirtualKeyboardEntryProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkVirtualKeyboardEntryProps::OnTextChanged_Bit), N.OnTextChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkVirtualKeyboardEntryProps::OnTextCommitted_Bit), N.OnTextCommitted);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
 		SVirtualKeyboardEntry& W = static_cast<SVirtualKeyboardEntry&>(Widget);
-		const FRuiVirtualKeyboardEntryProps& N = static_cast<const FRuiVirtualKeyboardEntryProps&>(New);
+		const FRuitkVirtualKeyboardEntryProps& N = static_cast<const FRuitkVirtualKeyboardEntryProps&>(New);
 		if (N.HasText() && W.GetText().ToString() != N.Text.ToString()) // D-16
 		{
 			W.SetText(N.Text);
@@ -877,45 +877,45 @@ public:
 // SColorGradingWheel (wave 2; AdvancedWidgets module) — live attribute setters throughout.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiColorGradingWheelAdapter final : public IRuiElementAdapter
+class FRuitkColorGradingWheelAdapter final : public IRuitkElementAdapter
 {
 	using SWheel = UE::ColorGrading::SColorGradingWheel;
 
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool HasEvents() const override { return true; }
 
 	// The attribute setters are PROTECTED in the engine class - construct-only from outside.
 	virtual uint64 GetReconstructMask() const override
 	{
-		return (1ull << FRuiColorGradingWheelProps::SelectedColor_Bit) |
-			   (1ull << FRuiColorGradingWheelProps::DesiredWheelSize_Bit) |
-			   (1ull << FRuiColorGradingWheelProps::ExponentDisplacement_Bit);
+		return (1ull << FRuitkColorGradingWheelProps::SelectedColor_Bit) |
+			   (1ull << FRuitkColorGradingWheelProps::DesiredWheelSize_Bit) |
+			   (1ull << FRuitkColorGradingWheelProps::ExponentDisplacement_Bit);
 	}
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiColorGradingWheelProps& O = static_cast<const FRuiColorGradingWheelProps&>(Old);
-		const FRuiColorGradingWheelProps& N = static_cast<const FRuiColorGradingWheelProps&>(New);
-		return RUI_CTOR_CHANGED(SelectedColor) || RUI_CTOR_CHANGED(DesiredWheelSize) ||
-			   RUI_CTOR_CHANGED(ExponentDisplacement);
+		const FRuitkColorGradingWheelProps& O = static_cast<const FRuitkColorGradingWheelProps&>(Old);
+		const FRuitkColorGradingWheelProps& N = static_cast<const FRuitkColorGradingWheelProps&>(New);
+		return RUITK_CTOR_CHANGED(SelectedColor) || RUITK_CTOR_CHANGED(DesiredWheelSize) ||
+			   RUITK_CTOR_CHANGED(ExponentDisplacement);
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-											 const TSharedPtr<FRuiEventProxy>& Proxy) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 	{
-		const FRuiColorGradingWheelProps& P = static_cast<const FRuiColorGradingWheelProps&>(Props);
+		const FRuitkColorGradingWheelProps& P = static_cast<const FRuitkColorGradingWheelProps&>(Props);
 		SWheel::FArguments Args;
 		Args.SelectedColor(P.HasSelectedColor() ? P.SelectedColor : FLinearColor::White)
 			.OnValueChanged(SWheel::FOnColorGradingWheelValueChanged::CreateSP(
-				Proxy.ToSharedRef(), &FRuiEventProxy::HandleColorRef,
-				static_cast<int32>(FRuiColorGradingWheelProps::OnValueChanged_Bit)))
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleColorRef,
+				static_cast<int32>(FRuitkColorGradingWheelProps::OnValueChanged_Bit)))
 			.OnMouseCaptureBegin(SWheel::FOnColorGradingWheelMouseCapture::CreateSP(
-				Proxy.ToSharedRef(), &FRuiEventProxy::HandleColorRef,
-				static_cast<int32>(FRuiColorGradingWheelProps::OnMouseCaptureBegin_Bit)))
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleColorRef,
+				static_cast<int32>(FRuitkColorGradingWheelProps::OnMouseCaptureBegin_Bit)))
 			.OnMouseCaptureEnd(SWheel::FOnColorGradingWheelMouseCapture::CreateSP(
-				Proxy.ToSharedRef(), &FRuiEventProxy::HandleColorRef,
-				static_cast<int32>(FRuiColorGradingWheelProps::OnMouseCaptureEnd_Bit)));
+				Proxy.ToSharedRef(), &FRuitkEventProxy::HandleColorRef,
+				static_cast<int32>(FRuitkColorGradingWheelProps::OnMouseCaptureEnd_Bit)));
 		if (P.HasDesiredWheelSize())
 		{
 			Args.DesiredWheelSize(P.DesiredWheelSize);
@@ -929,219 +929,219 @@ public:
 		return W;
 	}
 
-	virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 	{
-		const FRuiColorGradingWheelProps& N = static_cast<const FRuiColorGradingWheelProps&>(New);
-		Proxy.SetHandler(static_cast<int32>(FRuiColorGradingWheelProps::OnValueChanged_Bit), N.OnValueChanged);
-		Proxy.SetHandler(static_cast<int32>(FRuiColorGradingWheelProps::OnMouseCaptureBegin_Bit),
+		const FRuitkColorGradingWheelProps& N = static_cast<const FRuitkColorGradingWheelProps&>(New);
+		Proxy.SetHandler(static_cast<int32>(FRuitkColorGradingWheelProps::OnValueChanged_Bit), N.OnValueChanged);
+		Proxy.SetHandler(static_cast<int32>(FRuitkColorGradingWheelProps::OnMouseCaptureBegin_Bit),
 						 N.OnMouseCaptureBegin);
-		Proxy.SetHandler(static_cast<int32>(FRuiColorGradingWheelProps::OnMouseCaptureEnd_Bit), N.OnMouseCaptureEnd);
+		Proxy.SetHandler(static_cast<int32>(FRuitkColorGradingWheelProps::OnMouseCaptureEnd_Bit), N.OnMouseCaptureEnd);
 	}
 
-	virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {} // all masked
+	virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {} // all masked
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Type ids + factories + registration
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
 	namespace
 	{
 		template <typename TProps>
-		FRuiNode MakeHostNodeB3(FRuiElementTypeId Type, TProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+		FRuitkNode MakeHostNodeB3(FRuitkElementTypeId Type, TProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 		{
-			FRuiNode Node;
-			Node.Kind = ERuiNodeKind::Host;
+			FRuitkNode Node;
+			Node.Kind = ERuitkNodeKind::Host;
 			Node.ElementType = Type;
 			Node.Props = MakeShared<TProps>(MoveTemp(Props));
-			Node.Children = RUI::MakeChildren(MoveTemp(Children));
+			Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 			Node.Key = Key;
 			return Node;
 		}
 
-		FRuiElementTypeId ColorBlockType()
+		FRuitkElementTypeId ColorBlockType()
 		{
-			return RUI::InternElementType(FName(TEXT("ColorBlock")));
+			return Ruitk::InternElementType(FName(TEXT("ColorBlock")));
 		}
-		FRuiElementTypeId SimpleGradientType()
+		FRuitkElementTypeId SimpleGradientType()
 		{
-			return RUI::InternElementType(FName(TEXT("SimpleGradient")));
+			return Ruitk::InternElementType(FName(TEXT("SimpleGradient")));
 		}
-		FRuiElementTypeId ComplexGradientType()
+		FRuitkElementTypeId ComplexGradientType()
 		{
-			return RUI::InternElementType(FName(TEXT("ComplexGradient")));
+			return Ruitk::InternElementType(FName(TEXT("ComplexGradient")));
 		}
-		FRuiElementTypeId HyperlinkType()
+		FRuitkElementTypeId HyperlinkType()
 		{
-			return RUI::InternElementType(FName(TEXT("Hyperlink")));
+			return Ruitk::InternElementType(FName(TEXT("Hyperlink")));
 		}
-		FRuiElementTypeId EnableBoxType()
+		FRuitkElementTypeId EnableBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("EnableBox")));
+			return Ruitk::InternElementType(FName(TEXT("EnableBox")));
 		}
-		FRuiElementTypeId ScissorRectBoxType()
+		FRuitkElementTypeId ScissorRectBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("ScissorRectBox")));
+			return Ruitk::InternElementType(FName(TEXT("ScissorRectBox")));
 		}
-		FRuiElementTypeId BackgroundBlurType()
+		FRuitkElementTypeId BackgroundBlurType()
 		{
-			return RUI::InternElementType(FName(TEXT("BackgroundBlur")));
+			return Ruitk::InternElementType(FName(TEXT("BackgroundBlur")));
 		}
-		FRuiElementTypeId InvalidationPanelType()
+		FRuitkElementTypeId InvalidationPanelType()
 		{
-			return RUI::InternElementType(FName(TEXT("InvalidationPanel")));
+			return Ruitk::InternElementType(FName(TEXT("InvalidationPanel")));
 		}
-		FRuiElementTypeId VolumeControlType()
+		FRuitkElementTypeId VolumeControlType()
 		{
-			return RUI::InternElementType(FName(TEXT("VolumeControl")));
+			return Ruitk::InternElementType(FName(TEXT("VolumeControl")));
 		}
-		FRuiElementTypeId TextScrollerType()
+		FRuitkElementTypeId TextScrollerType()
 		{
-			return RUI::InternElementType(FName(TEXT("TextScroller")));
+			return Ruitk::InternElementType(FName(TEXT("TextScroller")));
 		}
-		FRuiElementTypeId RadialBoxType()
+		FRuitkElementTypeId RadialBoxType()
 		{
-			return RUI::InternElementType(FName(TEXT("RadialBox")));
+			return Ruitk::InternElementType(FName(TEXT("RadialBox")));
 		}
-		FRuiElementTypeId ColorWheelType()
+		FRuitkElementTypeId ColorWheelType()
 		{
-			return RUI::InternElementType(FName(TEXT("ColorWheel")));
+			return Ruitk::InternElementType(FName(TEXT("ColorWheel")));
 		}
-		FRuiElementTypeId ColorSpectrumType()
+		FRuitkElementTypeId ColorSpectrumType()
 		{
-			return RUI::InternElementType(FName(TEXT("ColorSpectrum")));
+			return Ruitk::InternElementType(FName(TEXT("ColorSpectrum")));
 		}
-		FRuiElementTypeId LayeredImageType()
+		FRuitkElementTypeId LayeredImageType()
 		{
-			return RUI::InternElementType(FName(TEXT("LayeredImage")));
+			return Ruitk::InternElementType(FName(TEXT("LayeredImage")));
 		}
-		FRuiElementTypeId InputKeySelectorType()
+		FRuitkElementTypeId InputKeySelectorType()
 		{
-			return RUI::InternElementType(FName(TEXT("InputKeySelector")));
+			return Ruitk::InternElementType(FName(TEXT("InputKeySelector")));
 		}
-		FRuiElementTypeId EditableTextType()
+		FRuitkElementTypeId EditableTextType()
 		{
-			return RUI::InternElementType(FName(TEXT("EditableText")));
+			return Ruitk::InternElementType(FName(TEXT("EditableText")));
 		}
-		FRuiElementTypeId InlineEditableTextBlockType()
+		FRuitkElementTypeId InlineEditableTextBlockType()
 		{
-			return RUI::InternElementType(FName(TEXT("InlineEditableTextBlock")));
+			return Ruitk::InternElementType(FName(TEXT("InlineEditableTextBlock")));
 		}
-		FRuiElementTypeId VirtualKeyboardEntryType()
+		FRuitkElementTypeId VirtualKeyboardEntryType()
 		{
-			return RUI::InternElementType(FName(TEXT("VirtualKeyboardEntry")));
+			return Ruitk::InternElementType(FName(TEXT("VirtualKeyboardEntry")));
 		}
-		FRuiElementTypeId ColorGradingWheelType()
+		FRuitkElementTypeId ColorGradingWheelType()
 		{
-			return RUI::InternElementType(FName(TEXT("ColorGradingWheel")));
+			return Ruitk::InternElementType(FName(TEXT("ColorGradingWheel")));
 		}
 	} // namespace
 
-	FRuiNode ColorBlock(FRuiColorBlockProps Props, FRuiKey Key)
+	FRuitkNode ColorBlock(FRuitkColorBlockProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(ColorBlockType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(ColorBlockType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode SimpleGradient(FRuiSimpleGradientProps Props, FRuiKey Key)
+	FRuitkNode SimpleGradient(FRuitkSimpleGradientProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(SimpleGradientType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(SimpleGradientType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode ComplexGradient(FRuiComplexGradientProps Props, FRuiKey Key)
+	FRuitkNode ComplexGradient(FRuitkComplexGradientProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(ComplexGradientType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(ComplexGradientType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode Hyperlink(FRuiHyperlinkProps Props, FRuiKey Key)
+	FRuitkNode Hyperlink(FRuitkHyperlinkProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(HyperlinkType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(HyperlinkType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode EnableBox(FRuiEnableBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode EnableBox(FRuitkEnableBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(EnableBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode ScissorRectBox(FRuiScissorRectBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode ScissorRectBox(FRuitkScissorRectBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(ScissorRectBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode BackgroundBlur(FRuiBackgroundBlurProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode BackgroundBlur(FRuitkBackgroundBlurProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(BackgroundBlurType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode InvalidationPanel(FRuiInvalidationPanelProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode InvalidationPanel(FRuitkInvalidationPanelProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(InvalidationPanelType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode VolumeControl(FRuiVolumeControlProps Props, FRuiKey Key)
+	FRuitkNode VolumeControl(FRuitkVolumeControlProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(VolumeControlType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(VolumeControlType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode TextScroller(FRuiTextScrollerProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode TextScroller(FRuitkTextScrollerProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(TextScrollerType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode RadialBox(FRuiRadialBoxProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode RadialBox(FRuitkRadialBoxProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeHostNodeB3(RadialBoxType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
-	FRuiNode ColorWheel(FRuiColorWheelProps Props, FRuiKey Key)
+	FRuitkNode ColorWheel(FRuitkColorWheelProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(ColorWheelType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(ColorWheelType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode ColorSpectrum(FRuiColorSpectrumProps Props, FRuiKey Key)
+	FRuitkNode ColorSpectrum(FRuitkColorSpectrumProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(ColorSpectrumType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(ColorSpectrumType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode LayeredImage(FRuiLayeredImageProps Props, FRuiKey Key)
+	FRuitkNode LayeredImage(FRuitkLayeredImageProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(LayeredImageType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(LayeredImageType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode InputKeySelector(FRuiInputKeySelectorProps Props, FRuiKey Key)
+	FRuitkNode InputKeySelector(FRuitkInputKeySelectorProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(InputKeySelectorType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(InputKeySelectorType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode EditableText(FRuiEditableTextProps Props, FRuiKey Key)
+	FRuitkNode EditableText(FRuitkEditableTextProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(EditableTextType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(EditableTextType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode InlineEditableTextBlock(FRuiInlineEditableTextBlockProps Props, FRuiKey Key)
+	FRuitkNode InlineEditableTextBlock(FRuitkInlineEditableTextBlockProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(InlineEditableTextBlockType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(InlineEditableTextBlockType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode VirtualKeyboardEntry(FRuiVirtualKeyboardEntryProps Props, FRuiKey Key)
+	FRuitkNode VirtualKeyboardEntry(FRuitkVirtualKeyboardEntryProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(VirtualKeyboardEntryType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(VirtualKeyboardEntryType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
-	FRuiNode ColorGradingWheel(FRuiColorGradingWheelProps Props, FRuiKey Key)
+	FRuitkNode ColorGradingWheel(FRuitkColorGradingWheelProps Props, FRuitkKey Key)
 	{
-		return MakeHostNodeB3(ColorGradingWheelType(), MoveTemp(Props), TArray<FRuiNode>(), Key);
+		return MakeHostNodeB3(ColorGradingWheelType(), MoveTemp(Props), TArray<FRuitkNode>(), Key);
 	}
 
 	namespace Detail
 	{
 		void RegisterBatch3WidgetAdapters()
 		{
-			RegisterAdapter(ColorBlockType(), MakeUnique<FRuiColorBlockAdapter>());
-			RegisterAdapter(SimpleGradientType(), MakeUnique<FRuiSimpleGradientAdapter>());
-			RegisterAdapter(ComplexGradientType(), MakeUnique<FRuiComplexGradientAdapter>());
-			RegisterAdapter(HyperlinkType(), MakeUnique<FRuiHyperlinkAdapter>());
-			RegisterAdapter(EnableBoxType(), MakeUnique<FRuiEnableBoxAdapter>());
-			RegisterAdapter(ScissorRectBoxType(), MakeUnique<FRuiScissorRectBoxAdapter>());
-			RegisterAdapter(BackgroundBlurType(), MakeUnique<FRuiBackgroundBlurAdapter>());
-			RegisterAdapter(InvalidationPanelType(), MakeUnique<FRuiInvalidationPanelAdapter>());
-			RegisterAdapter(VolumeControlType(), MakeUnique<FRuiVolumeControlAdapter>());
-			RegisterAdapter(TextScrollerType(), MakeUnique<FRuiTextScrollerAdapter>());
-			RegisterAdapter(RadialBoxType(), MakeUnique<FRuiRadialBoxAdapter>());
-			RegisterAdapter(ColorWheelType(), MakeUnique<FRuiColorWheelAdapter>());
-			RegisterAdapter(ColorSpectrumType(), MakeUnique<FRuiColorSpectrumAdapter>());
-			RegisterAdapter(LayeredImageType(), MakeUnique<FRuiLayeredImageAdapter>());
-			RegisterAdapter(InputKeySelectorType(), MakeUnique<FRuiInputKeySelectorAdapter>());
-			RegisterAdapter(EditableTextType(), MakeUnique<FRuiRawEditableTextAdapter>());
-			RegisterAdapter(InlineEditableTextBlockType(), MakeUnique<FRuiInlineEditableTextBlockAdapter>());
-			RegisterAdapter(VirtualKeyboardEntryType(), MakeUnique<FRuiVirtualKeyboardEntryAdapter>());
-			RegisterAdapter(ColorGradingWheelType(), MakeUnique<FRuiColorGradingWheelAdapter>());
+			RegisterAdapter(ColorBlockType(), MakeUnique<FRuitkColorBlockAdapter>());
+			RegisterAdapter(SimpleGradientType(), MakeUnique<FRuitkSimpleGradientAdapter>());
+			RegisterAdapter(ComplexGradientType(), MakeUnique<FRuitkComplexGradientAdapter>());
+			RegisterAdapter(HyperlinkType(), MakeUnique<FRuitkHyperlinkAdapter>());
+			RegisterAdapter(EnableBoxType(), MakeUnique<FRuitkEnableBoxAdapter>());
+			RegisterAdapter(ScissorRectBoxType(), MakeUnique<FRuitkScissorRectBoxAdapter>());
+			RegisterAdapter(BackgroundBlurType(), MakeUnique<FRuitkBackgroundBlurAdapter>());
+			RegisterAdapter(InvalidationPanelType(), MakeUnique<FRuitkInvalidationPanelAdapter>());
+			RegisterAdapter(VolumeControlType(), MakeUnique<FRuitkVolumeControlAdapter>());
+			RegisterAdapter(TextScrollerType(), MakeUnique<FRuitkTextScrollerAdapter>());
+			RegisterAdapter(RadialBoxType(), MakeUnique<FRuitkRadialBoxAdapter>());
+			RegisterAdapter(ColorWheelType(), MakeUnique<FRuitkColorWheelAdapter>());
+			RegisterAdapter(ColorSpectrumType(), MakeUnique<FRuitkColorSpectrumAdapter>());
+			RegisterAdapter(LayeredImageType(), MakeUnique<FRuitkLayeredImageAdapter>());
+			RegisterAdapter(InputKeySelectorType(), MakeUnique<FRuitkInputKeySelectorAdapter>());
+			RegisterAdapter(EditableTextType(), MakeUnique<FRuitkRawEditableTextAdapter>());
+			RegisterAdapter(InlineEditableTextBlockType(), MakeUnique<FRuitkInlineEditableTextBlockAdapter>());
+			RegisterAdapter(VirtualKeyboardEntryType(), MakeUnique<FRuitkVirtualKeyboardEntryAdapter>());
+			RegisterAdapter(ColorGradingWheelType(), MakeUnique<FRuitkColorGradingWheelAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate
 
-#undef RUI_ROW
-#undef RUI_CTOR_CHANGED
+#undef RUITK_ROW
+#undef RUITK_CTOR_CHANGED

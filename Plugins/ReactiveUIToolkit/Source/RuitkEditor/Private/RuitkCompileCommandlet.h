@@ -1,17 +1,17 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// `-run=RUICompile [-full] [-check]` — the CLI/CI entry to the .uetkx compiler.
+// `-run=RuitkCompile [-full] [-check]` — the CLI/CI entry to the .uetkx compiler.
 //   (default) incremental sweep of Source/ + Plugins/ (stale files only)
 //   -full     recompile everything
 //   -check    the CI drift gate: NO writes; exits non-zero when any committed .inl or
 //             aggregator differs from a fresh in-memory compile, or any source has errors.
-// Thin glue: all semantics live in FUetkxDriver (tested by ReactiveUI.Uetkx.Driver).
+// Thin glue: all semantics live in FUetkxDriver (tested by Ruitk.Uetkx.Driver).
 
 #pragma once
 
 #include "Commandlets/Commandlet.h"
 #include "CoreMinimal.h"
-#include "RUICompileCommandlet.generated.h"
+#include "RuitkCompileCommandlet.generated.h"
 
 UCLASS()
 class URUICompileCommandlet : public UCommandlet

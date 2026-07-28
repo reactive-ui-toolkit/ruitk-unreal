@@ -3,7 +3,7 @@
 using UnrealBuildTool;
 
 // Editor-only surface (Phases 3-4, 8): the compile-on-save watcher (three triggers + busy
-// guard/deadman + MessageLog "ReactiveUI" de-dup), RUICompile/RUIExportSchema/RUIContractDump
+// guard/deadman + MessageLog "ReactiveUI" de-dup), RuitkCompile/RuitkExportSchema/RuitkContractDump
 // commandlets, .uetkx asset actions (browser visibility, New Component, open-external), and
 // later the Inspector tab. Deps added with the code, per D-27:
 //   CoreUObject, Engine, UnrealEd, DirectoryWatcher, Projects, RuitkCore,
@@ -25,8 +25,8 @@ public class RuitkEditor : ModuleRules
 			"CoreUObject",		 // commandlet UCLASSes
 			"Engine",			 // UCommandlet base
 			"Projects",			 // sweep roots
-			"RuitkCore",	 // FRuiNode / FRuiRoot (the preview panel, TD-006)
-			"RuitkSlate",	 // FRuiRoot mount surface (the preview panel, TD-006)
+			"RuitkCore",	 // FRuitkNode / FRuitkRoot (the preview panel, TD-006)
+			"RuitkSlate",	 // FRuitkRoot mount surface (the preview panel, TD-006)
 			"RuitkInterp",	 // FUetkxFileScan parser (preview scan — HMR v2 deleted the interpreter)
 			"RuitkToolchain", // FUetkxDriver / FUetkxCodegen
 			"InputCore",			 // SEditableTextBox in the preview panel

@@ -1,4 +1,4 @@
-export FRuiNode Err2323() {
+export FRuitkNode Err2323() {
 	return (
 		<Spacer />
 	);

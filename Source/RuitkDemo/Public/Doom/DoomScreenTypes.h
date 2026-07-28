@@ -18,7 +18,7 @@
 
 class UTexture2D;
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	/** One rendered quad. POD-ish; rebuilt per frame by the builders (TArray reuse, no churn). */
 	struct FDoomQuad
@@ -65,4 +65,4 @@ namespace RuiDoom
 		};
 		TMap<FName, FPair> Pool;
 	};
-} // namespace RuiDoom
+} // namespace RuitkDoom

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RUICompileCommandlet.h"
+#include "RuitkCompileCommandlet.h"
 
 #include "HAL/FileManager.h"
 #include "Misc/Paths.h"
@@ -46,7 +46,7 @@ int32 URUICompileCommandlet::Main(const FString& Params)
 		{
 			UE_LOG(LogRUICompile, Error, TEXT("%s"), *Message);
 		}
-		UE_LOG(LogRUICompile, Display, TEXT("RUICompile -check: %d file(s), %d drifted, %d error(s)"), Check.Total,
+		UE_LOG(LogRUICompile, Display, TEXT("RuitkCompile -check: %d file(s), %d drifted, %d error(s)"), Check.Total,
 			   Check.Drift, Check.Errors);
 		return Check.Passed() ? 0 : 1;
 	}
@@ -56,7 +56,7 @@ int32 URUICompileCommandlet::Main(const FString& Params)
 	// collisions error), and the aggregators + orphan sweep + fingerprint cover the combined set.
 	const bool bForce = HasSwitch(Switches, TEXT("full")) || FUetkxDriver::FingerprintMismatch();
 	const FUetkxSweepResult Sweep = FUetkxDriver::CompileAllRoots(Roots, bForce);
-	UE_LOG(LogRUICompile, Display, TEXT("RUICompile: %d file(s) — %d compiled, %d up-to-date, %d error(s)"),
+	UE_LOG(LogRUICompile, Display, TEXT("RuitkCompile: %d file(s) — %d compiled, %d up-to-date, %d error(s)"),
 		   Sweep.Total, Sweep.Compiled, Sweep.Skipped, Sweep.Errors);
 	return Sweep.Errors == 0 ? 0 : 1;
 }

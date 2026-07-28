@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.IncludeRetirement — INCLUDE_RETIREMENT_PLAN.md §B end to end through the
+// Ruitk.Uetkx.IncludeRetirement — INCLUDE_RETIREMENT_PLAN.md §B end to end through the
 // COMPILED pipeline (HostImportProof.uetkx -> committed .inl -> MSVC -> runtime mount): the
 // `import "@Misc/DateTime.h"` host include actually emits the #include the setup code needs
 // (FDateTime is NOT on the auto-included prelude list, so this proves the real thing, not a
 // header that would have compiled anyway).
 
 #include "Misc/AutomationTest.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -34,13 +34,13 @@ namespace IncludeRetirementTest
 	}
 } // namespace IncludeRetirementTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxIncludeRetirementTest, "ReactiveUI.Uetkx.IncludeRetirement",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxIncludeRetirementTest, "Ruitk.Uetkx.IncludeRetirement",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxIncludeRetirementTest::RunTest(const FString&)
+bool FRuitkUetkxIncludeRetirementTest::RunTest(const FString&)
 {
-	TestTrue(TEXT("HostImportProof registered"), RUI::HasNamedFactory(FName(TEXT("HostImportProof"))));
+	TestTrue(TEXT("HostImportProof registered"), Ruitk::HasNamedFactory(FName(TEXT("HostImportProof"))));
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("HostImportProof"))));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("HostImportProof"))));
 	Root->FlushSync();
 	SWidget& W = Root->GetWidget().Get();
 	TestTrue(TEXT("FDateTime from the @-imported header rendered"),

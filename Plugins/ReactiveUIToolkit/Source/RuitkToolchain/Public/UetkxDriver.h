@@ -54,12 +54,12 @@ class RUITKTOOLCHAIN_API FUetkxDriver
 {
 public:
 	/** Bump when generated-code SHAPE changes — the fingerprint that re-stales everything.
-	 *  v2: two-phase (`RUI_UETKX_DECL_PHASE`) aggregator + fwd-decl emit + `#line` directives (M6/M7).
+	 *  v2: two-phase (`RUITK_UETKX_DECL_PHASE`) aggregator + fwd-decl emit + `#line` directives (M6/M7).
 	 *  v3: ES-modules (U-10) — value/util emission, the import-alias rewrite plane, and the TD-026
-	 *  file-qualified runtime identity for private components (RuiPriv_<Basename>::<Name> keys).
+	 *  file-qualified runtime identity for private components (RuitkPriv_<Basename>::<Name> keys).
 	 *  v4: FILE_SCOPED_EXPORTS — every decl emits inside its file's namespace (FileNamespaceFor),
 	 *  imported references rewrite to qualified targets, and EVERY component's runtime identity is
-	 *  the FQN (FS-01..FS-04; RuiPriv_ retired; the 2106 ledger retired). Bumping this regenerates
+	 *  the FQN (FS-01..FS-04; RuitkPriv_ retired; the 2106 ledger retired). Bumping this regenerates
 	 *  every committed .inl/aggregator on the first sweep — the entire upgrade migration. */
 	static constexpr int32 CodegenVersion = 4;
 
@@ -80,7 +80,7 @@ public:
 
 	/** Find every *.uetkx under RootDir (recursive). Paths under a `ContractFixtures`
 	 *  directory are excluded — those are the D-22 harness's inputs, compiled only by
-	 *  RUIContractDump/ReactiveUI.Contract, never by the sweep. */
+	 *  RuitkContractDump/Ruitk.Contract, never by the sweep. */
 	static TArray<FString> FindAll(const FString& RootDir);
 
 	/** Cheap poll: does anything under RootDir need work? */
@@ -106,7 +106,7 @@ public:
 	 *  gate compares these against disk). */
 	static TMap<FString, FString> BuildAggregators(const TArray<FString>& UetkxPaths);
 
-	/** The CI drift gate (`RUICompile -check`): recompile every .uetkx under Roots IN MEMORY
+	/** The CI drift gate (`RuitkCompile -check`): recompile every .uetkx under Roots IN MEMORY
 	 *  and compare against the committed outputs — content-based, mtime-independent (git does
 	 *  not preserve mtimes), no writes. Line endings are normalized before comparing. */
 	static FUetkxCheckResult CheckDrift(const TArray<FString>& Roots);

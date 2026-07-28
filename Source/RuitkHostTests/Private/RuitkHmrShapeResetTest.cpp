@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Hooks.HmrShapeReset — TB-13: the family HMR rule "state preserved on a stable
+// Ruitk.Hooks.HmrShapeReset — TB-13: the family HMR rule "state preserved on a stable
 // hook shape, RESET on a real shape change". v1's interpreter enforced it via its AST
 // signature; v2 (Live-Coding patches) detects it at render time: while the HMR session is
 // tracking, a component whose FLATTENED hook sequence differs across a generation boundary
@@ -9,16 +9,16 @@
 // error (rui.HookValidation) and must NOT reset.
 
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiNode.h"
-#include "RuiReconciler.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateHost.h"
+#include "RuitkContext.h"
+#include "RuitkNode.h"
+#include "RuitkReconciler.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateHost.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_HMRSHAPE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_HMRSHAPE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 namespace HmrShapeTest
 {
@@ -28,12 +28,12 @@ namespace HmrShapeTest
 	static TFunction<void(int32)> SetAOut;
 	static TFunction<void(int32)> SetBOut;
 
-	static FRuiNodeArray ShapeComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray ShapeComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		if (Mode == 1)
 		{
 			// the added hook BEFORE the states — the classic ordinal-shift shape
-			Ctx.UseMemo<int32>([]() { return 42; }, RUI::Deps());
+			Ctx.UseMemo<int32>([]() { return 42; }, Ruitk::Deps());
 		}
 		auto [A, SetA] = Ctx.UseState<int32>(1);
 		auto [B, SetB] = Ctx.UseState<int32>(2);
@@ -41,22 +41,22 @@ namespace HmrShapeTest
 		SeenB = B;
 		SetAOut = [SetA](int32 V) { SetA(V); };
 		SetBOut = [SetB](int32 V) { SetB(V); };
-		return {RUI::TextBlock(FString::Printf(TEXT("%d/%d"), A, B))};
+		return {Ruitk::TextBlock(FString::Printf(TEXT("%d/%d"), A, B))};
 	}
-	RUI_COMPONENT(ShapeComp)
+	RUITK_COMPONENT(ShapeComp)
 } // namespace HmrShapeTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiHmrShapeResetTest, "ReactiveUI.Hooks.HmrShapeReset", RUI_HMRSHAPE_TEST_FLAGS)
-bool FRuiHmrShapeResetTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkHmrShapeResetTest, "Ruitk.Hooks.HmrShapeReset", RUITK_HMRSHAPE_TEST_FLAGS)
+bool FRuitkHmrShapeResetTest::RunTest(const FString&)
 {
 	using namespace HmrShapeTest;
 	// Case 3 DELIBERATELY provokes the rules-of-hooks path — its [Hooks][order] error logs
 	// are the expected diagnostic (validation is on in editor test runs), not a failure.
 	AddExpectedError(TEXT("[Hooks][order]"), EAutomationExpectedErrorFlags::Contains, 0);
 	Mode = 0;
-	RUI::SetHmrHookTracking(true);
+	Ruitk::SetHmrHookTracking(true);
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&ShapeComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&ShapeComp));
 	TestEqual(TEXT("defaults at mount"), SeenA, 1);
 	SetAOut(5);
 	SetBOut(9);
@@ -65,8 +65,8 @@ bool FRuiHmrShapeResetTest::RunTest(const FString&)
 	TestEqual(TEXT("B driven"), SeenB, 9);
 
 	// 1) cosmetic patch (same hook shape) across a generation boundary — state SURVIVES
-	RUI::BumpHmrGeneration();
-	FRuiReconciler::ForEachLive([](FRuiReconciler& R) { R.HmrRefreshAll(); });
+	Ruitk::BumpHmrGeneration();
+	FRuitkReconciler::ForEachLive([](FRuitkReconciler& R) { R.HmrRefreshAll(); });
 	Root->FlushSync();
 	TestEqual(TEXT("stable shape: A preserved across the patch"), SeenA, 5);
 	TestEqual(TEXT("stable shape: B preserved across the patch"), SeenB, 9);
@@ -74,8 +74,8 @@ bool FRuiHmrShapeResetTest::RunTest(const FString&)
 	// 2) the hook LIST changes across a generation boundary — clean RESET (the family rule),
 	//    never a neighbor's value.
 	Mode = 1;
-	RUI::BumpHmrGeneration();
-	FRuiReconciler::ForEachLive([](FRuiReconciler& R) { R.HmrRefreshAll(); });
+	Ruitk::BumpHmrGeneration();
+	FRuitkReconciler::ForEachLive([](FRuitkReconciler& R) { R.HmrRefreshAll(); });
 	Root->FlushSync(); // detection render (reads misaligned cells) + schedules the reset render
 	Root->FlushSync(); // the clean re-render
 	TestEqual(TEXT("shape change: A reset to its default"), SeenA, 1);
@@ -90,12 +90,12 @@ bool FRuiHmrShapeResetTest::RunTest(const FString&)
 	Root->FlushSync();
 	TestEqual(TEXT("re-driven under the new shape"), SeenA, 7);
 	Mode = 0;
-	FRuiReconciler::ForEachLive([](FRuiReconciler& R) { R.HmrRefreshAll(); });
+	FRuitkReconciler::ForEachLive([](FRuitkReconciler& R) { R.HmrRefreshAll(); });
 	Root->FlushSync();
 	Root->FlushSync();
 	TestEqual(TEXT("rules-of-hooks shape break: cells rebuilt safely (no type confusion)"), SeenA, 1);
 
-	RUI::SetHmrHookTracking(false);
+	Ruitk::SetHmrHookTracking(false);
 	SetAOut = nullptr;
 	SetBOut = nullptr;
 	return true;
@@ -114,27 +114,27 @@ namespace HmrMemoTest
 	static int32 SeenState = -1;
 	static TFunction<void(int32)> SetStateOut;
 
-	static FRuiNodeArray MemoComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray MemoComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const int32 Memoized = Ctx.UseMemo<int32>([]() { return FactorySource; }, RUI::Deps());
+		const int32 Memoized = Ctx.UseMemo<int32>([]() { return FactorySource; }, Ruitk::Deps());
 		auto [S, SetS] = Ctx.UseState<int32>(0);
 		SeenMemo = Memoized;
 		SeenState = S;
 		SetStateOut = [SetS](int32 V) { SetS(V); };
-		return {RUI::TextBlock(FString::Printf(TEXT("%d/%d"), Memoized, S))};
+		return {Ruitk::TextBlock(FString::Printf(TEXT("%d/%d"), Memoized, S))};
 	}
-	RUI_COMPONENT(MemoComp)
+	RUITK_COMPONENT(MemoComp)
 } // namespace HmrMemoTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiHmrMemoInvalidateTest, "ReactiveUI.Hooks.HmrMemoInvalidate",
-								 RUI_HMRSHAPE_TEST_FLAGS)
-bool FRuiHmrMemoInvalidateTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkHmrMemoInvalidateTest, "Ruitk.Hooks.HmrMemoInvalidate",
+								 RUITK_HMRSHAPE_TEST_FLAGS)
+bool FRuitkHmrMemoInvalidateTest::RunTest(const FString&)
 {
 	using namespace HmrMemoTest;
 	FactorySource = 1;
-	RUI::SetHmrHookTracking(true);
+	Ruitk::SetHmrHookTracking(true);
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&MemoComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&MemoComp));
 	TestEqual(TEXT("memo computed at mount"), SeenMemo, 1);
 	SetStateOut(5);
 	Root->FlushSync();
@@ -147,13 +147,13 @@ bool FRuiHmrMemoInvalidateTest::RunTest(const FString&)
 	TestEqual(TEXT("no boundary: memo cache holds (mount-only deps)"), SeenMemo, 1);
 
 	// across the boundary the derivation recomputes; the STATE survives
-	RUI::BumpHmrGeneration();
-	FRuiReconciler::ForEachLive([](FRuiReconciler& R) { R.HmrRefreshAll(); });
+	Ruitk::BumpHmrGeneration();
+	FRuitkReconciler::ForEachLive([](FRuitkReconciler& R) { R.HmrRefreshAll(); });
 	Root->FlushSync();
 	TestEqual(TEXT("post-patch: memo recomputed from the new code"), SeenMemo, 2);
 	TestEqual(TEXT("post-patch: state preserved"), SeenState, 6);
 
-	RUI::SetHmrHookTracking(false);
+	Ruitk::SetHmrHookTracking(false);
 	SetStateOut = nullptr;
 	return true;
 }

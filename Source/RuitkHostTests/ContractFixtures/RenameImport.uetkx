@@ -1,6 +1,6 @@
 import { StatusChip as Chip } from "./StatusChip"
 
-export FRuiNode RenameImport() {
+export FRuitkNode RenameImport() {
 	return (
 		<VerticalBox>
 			<Chip Label="renamed" />

@@ -1,26 +1,26 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// SRuiRoot + FRuiRoot — the mount surfaces (family: ReactiveRoot.create; hold the returned
-// root for the UI's lifetime, Unmount() runs every cleanup). SRuiRoot is a plain compound
-// widget whose inner overlay hosts the reconciler's top-level children; FRuiRoot owns the
+// SRuitkRoot + FRuitkRoot — the mount surfaces (family: ReactiveRoot.create; hold the returned
+// root for the UI's lifetime, Unmount() runs every cleanup). SRuitkRoot is a plain compound
+// widget whose inner overlay hosts the reconciler's top-level children; FRuitkRoot owns the
 // host + reconciler + widget and wires the three mount surfaces: detached (tests/tools),
 // game viewport, and an SWindow. (The editor-tab surface ships with Phase 8's Inspector.)
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiReconciler.h"
-#include "RuiSlateHost.h"
+#include "RuitkNode.h"
+#include "RuitkReconciler.h"
+#include "RuitkSlateHost.h"
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/SOverlay.h"
 
 class SWindow;
 
-class RUITKSLATE_API SRuiRoot : public SCompoundWidget
+class RUITKSLATE_API SRuitkRoot : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiRoot) {}
+	SLATE_BEGIN_ARGS(SRuitkRoot) {}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -36,26 +36,26 @@ private:
  * Keep the returned shared ref alive for the UI's lifetime; Unmount() (or destruction)
  * tears down: effect cleanups, refs nulled, widgets detached, fibers freed.
  */
-class RUITKSLATE_API FRuiRoot
+class RUITKSLATE_API FRuitkRoot
 {
 public:
-	/** Detached: the SRuiRoot widget exists but is not parented anywhere (tests, tools,
+	/** Detached: the SRuitkRoot widget exists but is not parented anywhere (tests, tools,
 	 *  callers that place GetWidget() themselves). */
-	static TSharedRef<FRuiRoot> Create(FRuiNode RootNode);
+	static TSharedRef<FRuitkRoot> Create(FRuitkNode RootNode);
 
 	/** Game viewport overlay (AddViewportWidgetContent). Requires a live GameViewport —
 	 *  logs an error and returns a detached root otherwise. */
-	static TSharedRef<FRuiRoot> CreateInViewport(FRuiNode RootNode, int32 ZOrder = 10);
+	static TSharedRef<FRuitkRoot> CreateInViewport(FRuitkNode RootNode, int32 ZOrder = 10);
 
 	/** Fill an existing SWindow's content slot. */
-	static TSharedRef<FRuiRoot> CreateInWindow(const TSharedRef<SWindow>& Window, FRuiNode RootNode);
+	static TSharedRef<FRuitkRoot> CreateInWindow(const TSharedRef<SWindow>& Window, FRuitkNode RootNode);
 
-	~FRuiRoot();
-	FRuiRoot(const FRuiRoot&) = delete;
-	FRuiRoot& operator=(const FRuiRoot&) = delete;
+	~FRuitkRoot();
+	FRuitkRoot(const FRuitkRoot&) = delete;
+	FRuitkRoot& operator=(const FRuitkRoot&) = delete;
 
 	/** Replace the root vnode (top-level re-render; synchronous). */
-	void Update(FRuiNode RootNode);
+	void Update(FRuitkNode RootNode);
 
 	/** Run any pending coalesced work NOW (tests, HMR, teardown fences). */
 	void FlushSync();
@@ -65,19 +65,19 @@ public:
 
 	bool IsMounted() const { return Reconciler.IsValid() && Reconciler->IsMounted(); }
 
-	TSharedRef<SRuiRoot> GetWidget() const { return Widget.ToSharedRef(); }
-	FRuiReconciler& GetReconciler() { return *Reconciler; }
-	FRuiSlateHost& GetHost() { return *Host; }
+	TSharedRef<SRuitkRoot> GetWidget() const { return Widget.ToSharedRef(); }
+	FRuitkReconciler& GetReconciler() { return *Reconciler; }
+	FRuitkSlateHost& GetHost() { return *Host; }
 
 private:
-	FRuiRoot() = default;
-	static TSharedRef<FRuiRoot> CreateDetachedInternal(FRuiNode RootNode);
+	FRuitkRoot() = default;
+	static TSharedRef<FRuitkRoot> CreateDetachedInternal(FRuitkNode RootNode);
 
-	// Host must outlive the reconciler (the reconciler holds IRuiHostConfig&); members
+	// Host must outlive the reconciler (the reconciler holds IRuitkHostConfig&); members
 	// destroy in reverse declaration order, so keep this order.
-	TUniquePtr<FRuiSlateHost> Host;
-	TUniquePtr<FRuiReconciler> Reconciler;
-	TSharedPtr<SRuiRoot> Widget;
+	TUniquePtr<FRuitkSlateHost> Host;
+	TUniquePtr<FRuitkReconciler> Reconciler;
+	TSharedPtr<SRuitkRoot> Widget;
 
 	/** Which surface we attached to (for Unmount detach). */
 	TWeakPtr<SWindow> MountedWindow;

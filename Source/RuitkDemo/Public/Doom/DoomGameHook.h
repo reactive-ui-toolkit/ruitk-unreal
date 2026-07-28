@@ -13,7 +13,7 @@
 // while released re-captures (and is swallowed, never fired).
 //
 // Markup calls it as a user hook — the compiler injects Ctx:
-//   auto View = RuiDoom::UseDoomGame(Level, Diff, RestartVersion);
+//   auto View = RuitkDoom::UseDoomGame(Level, Diff, RestartVersion);
 
 #pragma once
 
@@ -23,9 +23,9 @@
 
 #include "CoreMinimal.h"
 
-class FRuiContext;
+class FRuitkContext;
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	/** What the game screen renders from. Pointers live as long as the component (hook-owned);
 	 *  pass `Version` down to child components — the state object mutates in place, so version
@@ -40,5 +40,5 @@ namespace RuiDoom
 	};
 
 	/** The game loop. A change to Level/Diff/RestartVersion starts a fresh NewGame. */
-	RUITKDEMO_API FDoomGameView UseDoomGame(FRuiContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion);
-} // namespace RuiDoom
+	RUITKDEMO_API FDoomGameView UseDoomGame(FRuitkContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion);
+} // namespace RuitkDoom

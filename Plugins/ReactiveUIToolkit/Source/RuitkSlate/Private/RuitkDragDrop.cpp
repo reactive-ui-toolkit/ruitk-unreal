@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-004 drag-and-drop half — adapters/factories over the wrapper widgets + operation declared in
-// RuiDragDrop.h. The events are plain FRuiCallbacks invoked from the widget overrides (Slate DnD is
+// RuitkDragDrop.h. The events are plain FRuitkCallbacks invoked from the widget overrides (Slate DnD is
 // an override surface, not a delegate one — so no event proxy).
 
-#include "RuiDragDrop.h"
+#include "RuitkDragDrop.h"
 
-#include "RuiElementAdapter.h"
+#include "RuitkElementAdapter.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Text/STextBlock.h"
 
-TSharedPtr<SWidget> FRuiDragDropOp::GetDefaultDecorator() const
+TSharedPtr<SWidget> FRuitkDragDropOp::GetDefaultDecorator() const
 {
 	return SNew(SBorder)[SNew(STextBlock).Text(FText::FromName(DragType))];
 }
@@ -19,22 +19,22 @@ TSharedPtr<SWidget> FRuiDragDropOp::GetDefaultDecorator() const
 // Adapters
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiDragSourceAdapter final : public IRuiElementAdapter
+class FRuitkDragSourceAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		return SNew(SRuiDragSource);
+		return SNew(SRuitkDragSource);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiDragSource& W = static_cast<SRuiDragSource&>(Widget);
-		const FRuiDragSourceProps& N = static_cast<const FRuiDragSourceProps&>(New);
-		const FRuiDragSourceProps* O = static_cast<const FRuiDragSourceProps*>(Old);
+		SRuitkDragSource& W = static_cast<SRuitkDragSource&>(Widget);
+		const FRuitkDragSourceProps& N = static_cast<const FRuitkDragSourceProps&>(New);
+		const FRuitkDragSourceProps* O = static_cast<const FRuitkDragSourceProps*>(Old);
 		if (N.HasDragType() && (O == nullptr || !O->HasDragType() || !(N.DragType == O->DragType)))
 		{
 			W.SetDragType(N.DragType);
@@ -55,26 +55,26 @@ public:
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
 	{
-		static_cast<SRuiDragSource&>(Parent).SetContent(Child);
+		static_cast<SRuitkDragSource&>(Parent).SetContent(Child);
 	}
 };
 
-class FRuiDropTargetAdapter final : public IRuiElementAdapter
+class FRuitkDropTargetAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::SingleContent; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::SingleContent; }
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase&, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase&, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		return SNew(SRuiDropTarget);
+		return SNew(SRuitkDropTarget);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiDropTarget& W = static_cast<SRuiDropTarget&>(Widget);
-		const FRuiDropTargetProps& N = static_cast<const FRuiDropTargetProps&>(New);
-		const FRuiDropTargetProps* O = static_cast<const FRuiDropTargetProps*>(Old);
+		SRuitkDropTarget& W = static_cast<SRuitkDropTarget&>(Widget);
+		const FRuitkDropTargetProps& N = static_cast<const FRuitkDropTargetProps&>(New);
+		const FRuitkDropTargetProps* O = static_cast<const FRuitkDropTargetProps*>(Old);
 		if (N.HasAcceptTypes() && (O == nullptr || !O->HasAcceptTypes() || !(N.AcceptTypes == O->AcceptTypes)))
 		{
 			W.SetAcceptTypes(N.AcceptTypes);
@@ -95,7 +95,7 @@ public:
 
 	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) override
 	{
-		static_cast<SRuiDropTarget&>(Parent).SetContent(Child);
+		static_cast<SRuitkDropTarget&>(Parent).SetContent(Child);
 	}
 };
 
@@ -103,38 +103,38 @@ public:
 // Types, factories, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId DragSourceType()
+	FRuitkElementTypeId DragSourceType()
 	{
-		return RUI::InternElementType(FName(TEXT("DragSource")));
+		return Ruitk::InternElementType(FName(TEXT("DragSource")));
 	}
-	FRuiElementTypeId DropTargetType()
+	FRuitkElementTypeId DropTargetType()
 	{
-		return RUI::InternElementType(FName(TEXT("DropTarget")));
+		return Ruitk::InternElementType(FName(TEXT("DropTarget")));
 	}
 
 	namespace
 	{
 		template <typename TProps>
-		FRuiNode MakeDnDNode(FRuiElementTypeId Type, TProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+		FRuitkNode MakeDnDNode(FRuitkElementTypeId Type, TProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 		{
-			FRuiNode Node;
-			Node.Kind = ERuiNodeKind::Host;
+			FRuitkNode Node;
+			Node.Kind = ERuitkNodeKind::Host;
 			Node.ElementType = Type;
 			Node.Props = MakeShared<TProps>(MoveTemp(Props));
-			Node.Children = RUI::MakeChildren(MoveTemp(Children));
+			Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 			Node.Key = Key;
 			return Node;
 		}
 	} // namespace
 
-	FRuiNode DragSource(FRuiDragSourceProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode DragSource(FRuitkDragSourceProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeDnDNode(DragSourceType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
 
-	FRuiNode DropTarget(FRuiDropTargetProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode DropTarget(FRuitkDropTargetProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
 		return MakeDnDNode(DropTargetType(), MoveTemp(Props), MoveTemp(Children), Key);
 	}
@@ -143,8 +143,8 @@ namespace RUI::Slate
 	{
 		void RegisterDragDropAdapters()
 		{
-			RegisterAdapter(DragSourceType(), MakeUnique<FRuiDragSourceAdapter>());
-			RegisterAdapter(DropTargetType(), MakeUnique<FRuiDropTargetAdapter>());
+			RegisterAdapter(DragSourceType(), MakeUnique<FRuitkDragSourceAdapter>());
+			RegisterAdapter(DropTargetType(), MakeUnique<FRuitkDropTargetAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

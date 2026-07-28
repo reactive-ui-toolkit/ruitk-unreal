@@ -1,4 +1,4 @@
-export FRuiNode StatusChip(FString Label = FString(TEXT("ok"))) {
+export FRuitkNode StatusChip(FString Label = FString(TEXT("ok"))) {
 	return (
 		<Border Padding="4" BorderImage="WhiteBrush">
 			<TextBlock Text={ FText::FromString(Label) } />

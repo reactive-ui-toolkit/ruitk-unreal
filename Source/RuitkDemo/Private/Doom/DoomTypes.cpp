@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 #include "Doom/DoomTypes.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// ── FMapDef ────────────────────────────────────────────────────────────────────────────────
 
@@ -381,4 +381,4 @@ namespace RuiDoom
 		}
 		return -1;
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

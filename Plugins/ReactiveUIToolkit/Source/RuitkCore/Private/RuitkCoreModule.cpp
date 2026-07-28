@@ -3,12 +3,12 @@
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
 #include "Logging/LogMacros.h"
-#include "RuiCultureSync.h"
+#include "RuitkCultureSync.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiCore, Log, All);
 
 // Phase 1 (MASTER_PLAN §3) fills this module with the reconciler. The startup banner below is
-// load-bearing already: the ReactiveUI.Boot suite and the packaged-fidelity test (fresh project,
+// load-bearing already: the Ruitk.Boot suite and the packaged-fidelity test (fresh project,
 // enable plugin, expect the banner in the log) both key off it — the exact analogue of the Godot
 // repo's "a silent Output means the plugin is NOT running" rule.
 class FRuitkCoreModule : public IModuleInterface
@@ -25,10 +25,10 @@ public:
 
 		// Culture-change → root re-render (Phase 7 localization): live roots re-render when the
 		// text revision bumps, healing anything a component baked under the previous culture.
-		RUI::RegisterCultureSync();
+		Ruitk::RegisterCultureSync();
 	}
 
-	virtual void ShutdownModule() override { RUI::UnregisterCultureSync(); }
+	virtual void ShutdownModule() override { Ruitk::UnregisterCultureSync(); }
 };
 
 IMPLEMENT_MODULE(FRuitkCoreModule, RuitkCore)

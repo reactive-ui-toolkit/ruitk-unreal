@@ -14,7 +14,7 @@
 
 import * as LabStyle from "../../AcceptanceLab.style"
 
-export FRuiNode LabCard(FString Label = FString(TEXT("Card")), int32 Count = 0) {
+export FRuitkNode LabCard(FString Label = FString(TEXT("Card")), int32 Count = 0) {
 	// Simple derived value from a prop — exercises reading component props in the setup block.
 	const FLinearColor Tint = Count > 0 ? LabStyle::Good : LabStyle::Warn;
 
@@ -30,7 +30,7 @@ export FRuiNode LabCard(FString Label = FString(TEXT("Card")), int32 Count = 0) 
 					Text={ FText::FromString(Label) }
 					Font.Size={ 12.0f }
 					ColorAndOpacity={ LabStyle::Accent } />
-				<TextBlock Text={ RUI::Fmt(TEXT("value = {}"), Count) } ColorAndOpacity={ Tint } />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("value = {}"), Count) } ColorAndOpacity={ Tint } />
 			</VerticalBox>
 		</Border>
 	);

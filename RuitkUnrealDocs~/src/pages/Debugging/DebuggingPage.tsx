@@ -26,7 +26,7 @@ export const DebuggingPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       Each <code>.uetkx</code> compiles to a committed <code>*.uetkx.inl</code> beside it. It is
-      plain, readable C++ — the <code>RUI::FC</code> / <code>RUI::Slate::*</code> calls your markup
+      plain, readable C++ — the <code>Ruitk::FC</code> / <code>Ruitk::Slate::*</code> calls your markup
       lowered to. Reading it is the fastest way to confirm what the compiler actually produced, and
       you can set breakpoints in it directly.
     </Typography>

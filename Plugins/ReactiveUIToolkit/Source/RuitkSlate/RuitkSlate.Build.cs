@@ -2,8 +2,8 @@
 
 using UnrealBuildTool;
 
-// The Slate host (Phase 2): FRuiSlateHost + the per-widget adapter registry, SRuiRoot, the
-// widget pool, SRuiCanvas (draw_fn), and style v1. The ONLY module that talks to concrete
+// The Slate host (Phase 2): FRuitkSlateHost + the per-widget adapter registry, SRuitkRoot, the
+// widget pool, SRuitkCanvas (draw_fn), and style v1. The ONLY module that talks to concrete
 // Slate APIs on behalf of the reconciler (MASTER_PLAN D-11..D-13).
 // Deps added WITH the code that uses them (IWYU-clean skeletons), per D-27:
 //   SlateCore, Slate, InputCore, RuitkCore.
@@ -17,7 +17,7 @@ public class RuitkSlate : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
-			"RuitkCore",  // the host implements the core's IRuiHostConfig seam
+			"RuitkCore",  // the host implements the core's IRuitkHostConfig seam
 			"SlateCore",       // SWidget, FReply, slot types (public headers reference them)
 			"Slate",           // concrete widgets (STextBlock, SButton, panels), FSlateApplication
 			"InputCore",       // key/pointer types reaching through Slate delegates
@@ -32,7 +32,7 @@ public class RuitkSlate : ModuleRules
 		});
 
 		// SSearchableComboBox (BATCH-3, sinceUE 5.7) lives in Developer/ToolWidgets; the adapter
-		// compiles out below 5.7 (RuiWidgetAdaptersB4.cpp version gate), so the dependency is
+		// compiles out below 5.7 (RuitkWidgetAdaptersB4.cpp version gate), so the dependency is
 		// gated identically. 5.6 linked WITHOUT this line only because the adapter never compiled
 		// there — the first real 5.7 build surfaced the undeclared dependency (TB-29).
 		if (Target.Version.MajorVersion > 5 || (Target.Version.MajorVersion == 5 && Target.Version.MinorVersion >= 7))

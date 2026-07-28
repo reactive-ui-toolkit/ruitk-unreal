@@ -7,14 +7,14 @@
 // is post-v1 (TD-001). C++-semantics adaptations are commented inline (§5 deviations).
 
 #include "Misc/AutomationTest.h"
-#include "RuiMockHost.h"
-#include "RuiContext.h"
-#include "RuiSignal.h"
-#include "RuiCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkContext.h"
+#include "RuitkSignal.h"
+#include "RuitkCoreElements.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 // Shared test-component plumbing: statics reset per test (components must be free functions
 // for registry identity — D-05).
@@ -23,15 +23,15 @@ namespace CoreTestState
 	static int32 RenderCountA = 0;
 	static int32 RenderCountB = 0;
 	static int32 RenderCountC = 0;
-	static TRuiSetter<int32> SetterA;
-	static TRuiSetter<int32> SetterB;
+	static TRuitkSetter<int32> SetterA;
+	static TRuitkSetter<int32> SetterB;
 	static TArray<FString> Log;
 
 	static void ResetAll()
 	{
 		RenderCountA = RenderCountB = RenderCountC = 0;
-		SetterA = TRuiSetter<int32>();
-		SetterB = TRuiSetter<int32>();
+		SetterA = TRuitkSetter<int32>();
+		SetterB = TRuitkSetter<int32>();
 		Log.Reset();
 	}
 } // namespace CoreTestState
@@ -40,24 +40,24 @@ namespace CoreTestState
 // Update path (update_test.gd)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-static FRuiNodeArray UpdateTestComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray UpdateTestComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [V, SetV] = Ctx.UseState<int32>(0);
 	++CoreTestState::RenderCountA;
 	CoreTestState::SetterA = SetV;
-	return {RUI::TextBlock(FString::Printf(TEXT("v=%d"), V))};
+	return {Ruitk::TextBlock(FString::Printf(TEXT("v=%d"), V))};
 }
-RUI_COMPONENT(UpdateTestComp)
+RUITK_COMPONENT(UpdateTestComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreUpdateTest, "ReactiveUI.Update.CoalescedDiff", RUI_TEST_FLAGS)
-bool FRuiCoreUpdateTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreUpdateTest, "Ruitk.Update.CoalescedDiff", RUITK_TEST_FLAGS)
+bool FRuitkCoreUpdateTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
-	FRuiTestHarness H;
+	FRuitkTestHarness H;
 
 	AddInfo(TEXT("[update] 1/3 initial render"));
-	H.Mount(RUI::FC(&UpdateTestComp));
+	H.Mount(Ruitk::FC(&UpdateTestComp));
 	TestEqual(TEXT("initial render count == 1"), RenderCountA, 1);
 	FMockNode* Label = H.ChildAt(0);
 	if (!TestNotNull(TEXT("label mounted"), Label))
@@ -86,7 +86,7 @@ bool FRuiCoreUpdateTest::RunTest(const FString&)
 // Effects (deps + cleanup ordering + unmount)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-static FRuiNodeArray EffectsComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray EffectsComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Count, SetCount] = Ctx.UseState<int32>(0);
 	auto [Other, SetOther] = Ctx.UseState<int32>(0);
@@ -94,25 +94,25 @@ static FRuiNodeArray EffectsComp(FRuiContext& Ctx, const FRuiEmptyProps&, const 
 	CoreTestState::SetterB = SetOther;
 	const int32 Cur = Count;
 	Ctx.UseEffect(
-		[Cur]() -> FRuiEffectCleanup
+		[Cur]() -> FRuitkEffectCleanup
 		{
 			CoreTestState::Log.Add(FString::Printf(TEXT("setup:%d"), Cur));
 			return [Cur]() { CoreTestState::Log.Add(FString::Printf(TEXT("cleanup:%d"), Cur)); };
 		},
-		RUI::Deps(Count));
-	return {RUI::TextBlock(TEXT("x"))};
+		Ruitk::Deps(Count));
+	return {Ruitk::TextBlock(TEXT("x"))};
 }
-RUI_COMPONENT(EffectsComp)
+RUITK_COMPONENT(EffectsComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreEffectsTest, "ReactiveUI.Core.Effects", RUI_TEST_FLAGS)
-bool FRuiCoreEffectsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreEffectsTest, "Ruitk.Core.Effects", RUITK_TEST_FLAGS)
+bool FRuitkCoreEffectsTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
 	{
-		FRuiTestHarness H;
+		FRuitkTestHarness H;
 		AddInfo(TEXT("[effects] mount"));
-		H.Mount(RUI::FC(&EffectsComp));
+		H.Mount(Ruitk::FC(&EffectsComp));
 		TestEqual(TEXT("effect runs on mount"), FString::Join(Log, TEXT(",")), FString(TEXT("setup:0")));
 
 		AddInfo(TEXT("[effects] dep change -> cleanup then setup"));
@@ -139,20 +139,20 @@ bool FRuiCoreEffectsTest::RunTest(const FString&)
 // Bailout + SUBTREE-SKIP (D-08.1 — the adopted React mechanism, asserted directly)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct FLabelProps final : public FRuiPropsBase
+struct FLabelProps final : public FRuitkPropsBase
 {
-	RUI_PROP(FString, LabelText, 0)
-	RUI_PROPS_BODY(FLabelProps, RUI_EQ(LabelText))
+	RUITK_PROP(FString, LabelText, 0)
+	RUITK_PROPS_BODY(FLabelProps, RUITK_EQ(LabelText))
 };
 
-static FRuiNodeArray BailChildComp(FRuiContext&, const FLabelProps& Props, const TArray<FRuiNode>&)
+static FRuitkNodeArray BailChildComp(FRuitkContext&, const FLabelProps& Props, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountB;
-	return {RUI::TextBlock(Props.LabelText)};
+	return {Ruitk::TextBlock(Props.LabelText)};
 }
-RUI_COMPONENT(BailChildComp)
+RUITK_COMPONENT(BailChildComp)
 
-static FRuiNodeArray BailParentComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray BailParentComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountA;
 	auto [S, SetS] = Ctx.UseState<int32>(0);
@@ -160,19 +160,19 @@ static FRuiNodeArray BailParentComp(FRuiContext& Ctx, const FRuiEmptyProps&, con
 	FLabelProps ChildProps;
 	ChildProps.SetLabelText(TEXT("static"));
 	return {
-		RUI::TextBlock(FString::Printf(TEXT("count %d"), S)),
-		RUI::FC(&BailChildComp, MoveTemp(ChildProps)),
+		Ruitk::TextBlock(FString::Printf(TEXT("count %d"), S)),
+		Ruitk::FC(&BailChildComp, MoveTemp(ChildProps)),
 	};
 }
-RUI_COMPONENT(BailParentComp)
+RUITK_COMPONENT(BailParentComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreBailoutTest, "ReactiveUI.Core.Bailout", RUI_TEST_FLAGS)
-bool FRuiCoreBailoutTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreBailoutTest, "Ruitk.Core.Bailout", RUITK_TEST_FLAGS)
+bool FRuitkCoreBailoutTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&BailParentComp));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&BailParentComp));
 	TestEqual(TEXT("initial parent renders"), RenderCountA, 1);
 	TestEqual(TEXT("initial child renders"), RenderCountB, 1);
 
@@ -185,39 +185,39 @@ bool FRuiCoreBailoutTest::RunTest(const FString&)
 
 // A → B(static passthrough) → C(leaf): bumping A re-renders A; B bails on Equals (fresh but
 // equal props); B's cached output hands C IDENTICAL vnodes -> C takes the SUBTREE-SKIP path.
-static FRuiNodeArray SkipLeafComp(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SkipLeafComp(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountC;
-	return {RUI::TextBlock(TEXT("leaf"))};
+	return {Ruitk::TextBlock(TEXT("leaf"))};
 }
-RUI_COMPONENT(SkipLeafComp)
+RUITK_COMPONENT(SkipLeafComp)
 
-static FRuiNodeArray SkipMidComp(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SkipMidComp(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountB;
-	return {RUI::FC(&SkipLeafComp)};
+	return {Ruitk::FC(&SkipLeafComp)};
 }
-RUI_COMPONENT(SkipMidComp)
+RUITK_COMPONENT(SkipMidComp)
 
-static FRuiNodeArray SkipTopComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SkipTopComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountA;
 	auto [S, SetS] = Ctx.UseState<int32>(0);
 	CoreTestState::SetterA = SetS;
 	return {
-		RUI::TextBlock(FString::Printf(TEXT("top %d"), S)),
-		RUI::FC(&SkipMidComp),
+		Ruitk::TextBlock(FString::Printf(TEXT("top %d"), S)),
+		Ruitk::FC(&SkipMidComp),
 	};
 }
-RUI_COMPONENT(SkipTopComp)
+RUITK_COMPONENT(SkipTopComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreSubtreeSkipTest, "ReactiveUI.Core.SubtreeSkip", RUI_TEST_FLAGS)
-bool FRuiCoreSubtreeSkipTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreSubtreeSkipTest, "Ruitk.Core.SubtreeSkip", RUITK_TEST_FLAGS)
+bool FRuitkCoreSubtreeSkipTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&SkipTopComp));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&SkipTopComp));
 	TestEqual(TEXT("mount: top"), RenderCountA, 1);
 	TestEqual(TEXT("mount: mid"), RenderCountB, 1);
 	TestEqual(TEXT("mount: leaf"), RenderCountC, 1);
@@ -238,29 +238,29 @@ bool FRuiCoreSubtreeSkipTest::RunTest(const FString&)
 
 namespace CoreTestState
 {
-	static TRuiSetter<TArray<FString>> KeySetter;
+	static TRuitkSetter<TArray<FString>> KeySetter;
 }
 
-static FRuiNodeArray KeyedComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray KeyedComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Ids, SetIds] = Ctx.UseState<TArray<FString>>(TArray<FString>{TEXT("a"), TEXT("b"), TEXT("c")});
 	CoreTestState::KeySetter = SetIds;
-	TArray<FRuiNode> Items;
+	TArray<FRuitkNode> Items;
 	for (const FString& Id : Ids)
 	{
-		Items.Add(RuiTest::Box(RuiTest::BoxProps(Id), {}, FRuiKey(Id)));
+		Items.Add(RuitkTest::Box(RuitkTest::BoxProps(Id), {}, FRuitkKey(Id)));
 	}
-	return {RuiTest::Box(RuiTest::BoxProps(TEXT("list")), MoveTemp(Items))};
+	return {RuitkTest::Box(RuitkTest::BoxProps(TEXT("list")), MoveTemp(Items))};
 }
-RUI_COMPONENT(KeyedComp)
+RUITK_COMPONENT(KeyedComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreKeyedTest, "ReactiveUI.Core.KeyedReorder", RUI_TEST_FLAGS)
-bool FRuiCoreKeyedTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreKeyedTest, "Ruitk.Core.KeyedReorder", RUITK_TEST_FLAGS)
+bool FRuitkCoreKeyedTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&KeyedComp));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&KeyedComp));
 	FMockNode* List = H.ChildAt(0);
 	if (!TestNotNull(TEXT("list mounted"), List) || !TestEqual(TEXT("3 children"), List->Children.Num(), 3))
 	{
@@ -290,54 +290,54 @@ bool FRuiCoreKeyedTest::RunTest(const FString&)
 // Context: typed handles, defaults, distinct identity, change propagation, survives bailout
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-static TRuiContext<FString> GThemeCtx(FString(TEXT("fallback")), FName(TEXT("Theme")));
+static TRuitkContext<FString> GThemeCtx(FString(TEXT("fallback")), FName(TEXT("Theme")));
 
 namespace CoreTestState
 {
 	static FString SeenContext;
-	static TRuiSetter<FString> ThemeSetter;
+	static TRuitkSetter<FString> ThemeSetter;
 } // namespace CoreTestState
 
-static FRuiNodeArray CtxConsumerComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray CtxConsumerComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	++CoreTestState::RenderCountB;
 	auto [S, SetS] = Ctx.UseState<int32>(0); // gives the test a handle to force re-render
 	CoreTestState::SetterB = SetS;
 	CoreTestState::SeenContext = Ctx.UseContext(GThemeCtx);
-	return {RUI::TextBlock(CoreTestState::SeenContext)};
+	return {Ruitk::TextBlock(CoreTestState::SeenContext)};
 }
-RUI_COMPONENT(CtxConsumerComp)
+RUITK_COMPONENT(CtxConsumerComp)
 
-static FRuiNodeArray CtxProviderComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray CtxProviderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Theme, SetTheme] = Ctx.UseState<FString>(FString(TEXT("dark")));
 	CoreTestState::ThemeSetter = SetTheme;
 	Ctx.ProvideContext(GThemeCtx, Theme);
-	return {RUI::FC(&CtxConsumerComp)};
+	return {Ruitk::FC(&CtxConsumerComp)};
 }
-RUI_COMPONENT(CtxProviderComp)
+RUITK_COMPONENT(CtxProviderComp)
 
-static FRuiNodeArray CtxGrandparentComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray CtxGrandparentComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [S, SetS] = Ctx.UseState<int32>(0);
 	CoreTestState::SetterA = SetS;
 	return {
-		RUI::TextBlock(FString::Printf(TEXT("gp %d"), S)),
-		RUI::FC(&CtxProviderComp),
+		Ruitk::TextBlock(FString::Printf(TEXT("gp %d"), S)),
+		Ruitk::FC(&CtxProviderComp),
 	};
 }
-RUI_COMPONENT(CtxGrandparentComp)
+RUITK_COMPONENT(CtxGrandparentComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCoreContextTest, "ReactiveUI.Core.Context", RUI_TEST_FLAGS)
-bool FRuiCoreContextTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreContextTest, "Ruitk.Core.Context", RUITK_TEST_FLAGS)
+bool FRuitkCoreContextTest::RunTest(const FString&)
 {
 	using namespace CoreTestState;
 	ResetAll();
 	SeenContext.Empty();
 	{
 		AddInfo(TEXT("[context] provider -> consumer + change propagation through bailouts"));
-		FRuiTestHarness H;
-		H.Mount(RUI::FC(&CtxProviderComp));
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&CtxProviderComp));
 		TestEqual(TEXT("consumer sees provided value"), SeenContext, FString(TEXT("dark")));
 		TestEqual(TEXT("consumer rendered once"), RenderCountB, 1);
 
@@ -350,22 +350,22 @@ bool FRuiCoreContextTest::RunTest(const FString&)
 		AddInfo(TEXT("[context] no provider -> handle default"));
 		ResetAll();
 		SeenContext.Empty();
-		FRuiTestHarness H;
-		H.Mount(RUI::FC(&CtxConsumerComp));
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&CtxConsumerComp));
 		TestEqual(TEXT("unprovided handle returns default"), SeenContext, FString(TEXT("fallback")));
 	}
 	{
 		AddInfo(TEXT("[context] distinct handles have distinct identity"));
-		TRuiContext<int32> A(1);
-		TRuiContext<int32> B(1);
+		TRuitkContext<int32> A(1);
+		TRuitkContext<int32> B(1);
 		TestTrue(TEXT("identity differs despite equal defaults"), A.Key() != B.Key());
 	}
 	{
 		AddInfo(TEXT("[context] survives provider bailout (carried provided map pushes on descend)"));
 		ResetAll();
 		SeenContext.Empty();
-		FRuiTestHarness H;
-		H.Mount(RUI::FC(&CtxGrandparentComp));
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&CtxGrandparentComp));
 		TestEqual(TEXT("initial context"), SeenContext, FString(TEXT("dark")));
 		SetterA(1); // grandparent re-renders; provider bails (fresh-but-equal props)
 		H.Pump();

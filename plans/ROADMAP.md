@@ -20,7 +20,7 @@
 > (`FUetkxFileScan::AutoIncludedHeaders()`, `__has_include`-guarded for optional modules);
 > `import "@Header.h"` is the nameless host-include form (family shape, ported from Unity's
 > `import "@Namespace"`); redundant includes get the UETKX2317 hint (2316 reserved post-v1);
-> `-run=RUIMigrateImports -tidy` migrated the demo tree (20 files). Godot-side convergence
+> `-run=RuitkMigrateImports -tidy` migrated the demo tree (20 files). Godot-side convergence
 > tracked as TD-030. Battery 128/128 on UE 5.6. Same day: marketplace listing overhaul
 > (extensions 0.3.1, `plans/archive/EXTENSION_LISTING_PLAN.md`) + Discord/repo-link
 > descriptions (0.4.1).
@@ -38,7 +38,7 @@
 >
 > **STATUS UPDATE — 2026-07-15 (`feat/v1-gate-closeout`).** Localization SHIPPED (the last
 > Phase-7 production gap): verified gather pipeline for markup text + culture-change → root
-> re-render (`RuiCultureSync`), suite `ReactiveUI.Loc`; plugin 0.4.0. TD-020 (embedded-C++
+> re-render (`RuitkCultureSync`), suite `Ruitk.Loc`; plugin 0.4.0. TD-020 (embedded-C++
 > completion), TD-028 (host-widget props/VM channel), TD-029 (CommonUI desired focus) all
 > RESOLVED; extensions 0.2.0. Router gallery demo added (17 screens). Battery 108/108 on
 > UE 5.6. The consolidated backlog now lives in `plans/REMAINING.md`; finished campaign docs
@@ -150,8 +150,8 @@ this one is the readable copy.)* v1.0 does not go public until ALL of these are 
   offline and C++ smarts when a project index is available; Rider gets syntax highlighting.
 - **The interop story ships** — it's the whole thesis: our UI inside a designer's UMG widget,
   their UMG widgets inside ours, live data from an Epic viewmodel, and a screen living on a
-  CommonUI menu stack — each with a demo. (In code these are `URuiHostWidget`, `RUI::Umg`,
-  `UseField`, and `URuiActivatableScreen`.)
+  CommonUI menu stack — each with a demo. (In code these are `URuitkHostWidget`, `Ruitk::Umg`,
+  `UseField`, and `URuitkActivatableScreen`.)
 - The production essentials: localization, safe asset/texture lifetime, focus that survives
   re-renders, and popups/menus (portals).
 - The demo project shows all of it, the docs site documents all of it, and every performance
@@ -195,7 +195,7 @@ each ends with tests that prove it. Plain-English meaning of each:
   editor understands `.uetkx` files — completion, errors, formatting — and the C++ written inside
   them gets the same intelligence a normal C++ file gets (a projection trick we've already built
   twice, for Godot and Unity).
-- **Phase 6 — Epic interop.** The UMG host widget (our UI inside theirs), `RUI::Umg` (their widgets
+- **Phase 6 — Epic interop.** The UMG host widget (our UI inside theirs), `Ruitk::Umg` (their widgets
   inside ours), CommonUI activatable screens, and the MVVM `UseField`/`UseViewModel` hooks.
 - **Phase 7 — The hard production gaps.** List virtualization, localization (FText gathering from
   markup), asset/brush lifetime, focus preservation across re-renders, animation primitives,
@@ -268,12 +268,12 @@ reconciler core, and anything touching a CI gate always stay on the strongest mo
 |---|---|---|---|
 | 0 | Ecosystem & repo bootstrap | COMPLETE 2026-07-10 | PR #4 merged; UE 5.6 editor build 45/45 green; all engine-free gates live (owner: re-add the ruleset with this repo's check names) |
 | 1 | Core reconciler + hooks | COMPLETE | Fiber reconciler (subtree-skip, O(1) context, keyed diff, error-boundary latch) + all 23 hooks + signals/Suspense; 23 mock-host suites + Bench.Core (feat/core-library) |
-| 2 | Slate host + first widgets | COMPLETE | Adapter registry, bind-once-swap-inner event proxy, SRuiRoot mount surfaces, 15 core widgets, style v1, GO-05 pool, focus fences, demo gallery (feat/core-library) |
-| 3 | `.uetkx` compiler + build integration | COMPLETE | Lexer/parser/scan → committed reflection-free `.inl` + aggregators, schema-v2 sidecars, staleness machinery, RUICompile/RUIExportSchema/RUIContractDump commandlets, formatter (feat/uetkx-compiler) |
-| 4 | ~~Interpreter +~~ hot reload | COMPLETE (re-scoped by HMR v2) | ~~D-20 expression VM + markup interpreter, FRuiHmr swap/link/reset + status line, editor watcher (3 triggers, MessageLog), rui.Hmr.AutoLiveCoding~~ — **SUPERSEDED 2026-07-14 (audit):** HMR v2 (`plans/archive/HMR_V2_PLAN.md`) deleted the interpreter/expression VM; hot reload = Live-Coding recompile via `FUetkxHmrController` + `FUetkxWatcher`, the `ReactiveUetkx` menu/window/settings, `ReactiveUetkx.HMR.*` console cmds (no `rui.Hmr.AutoLiveCoding` CVar exists) |
+| 2 | Slate host + first widgets | COMPLETE | Adapter registry, bind-once-swap-inner event proxy, SRuitkRoot mount surfaces, 15 core widgets, style v1, GO-05 pool, focus fences, demo gallery (feat/core-library) |
+| 3 | `.uetkx` compiler + build integration | COMPLETE | Lexer/parser/scan → committed reflection-free `.inl` + aggregators, schema-v2 sidecars, staleness machinery, RuitkCompile/RuitkExportSchema/RuitkContractDump commandlets, formatter (feat/uetkx-compiler) |
+| 4 | ~~Interpreter +~~ hot reload | COMPLETE (re-scoped by HMR v2) | ~~D-20 expression VM + markup interpreter, FRuitkHmr swap/link/reset + status line, editor watcher (3 triggers, MessageLog), rui.Hmr.AutoLiveCoding~~ — **SUPERSEDED 2026-07-14 (audit):** HMR v2 (`plans/archive/HMR_V2_PLAN.md`) deleted the interpreter/expression VM; hot reload = Live-Coding recompile via `FUetkxHmrController` + `FUetkxWatcher`, the `ReactiveUetkx` menu/window/settings, `ReactiveUetkx.HMR.*` console cmds (no `rui.Hmr.AutoLiveCoding` CVar exists) |
 | 5 | IDE extensions (LSP, VS Code, VS2022) | COMPLETE | uetkx-language-server (schema completions/hover, sidecar diags, formatting) + VS Code + VS2022 extensions; embedded-C++ clangd proxy + VS2022 polish added (feat/uetkx-*) |
-| 6 | UMG / CommonUI / MVVM interop | COMPLETE | Phase-6 core (URuiHostWidget, RUI::Umg::UserWidget, URuiWorldSubsystem, UseField) + TD-021 CommonUI activatables, MVVM global collection, UMG prop-map bridge (feat/uetkx-*) |
-| 7 | Production gaps (lists, loc, focus, animation, portals, widget batch 2) | COMPLETE 2026-07-15 | Lists (virtualized ListView/TileView), focus, animation + SFX hooks (~~media~~ — only `UseSfx` exists, audit 2026-07-14), portals, widget batch-2 + specials, drag-and-drop, exit animations — all shipped. ~~Localization (FText gathering) DEFERRED~~ — **SHIPPED 2026-07-15** (gather from `*.uetkx.inl` + culture-change re-render; suite `ReactiveUI.Loc`; 0.4.0) |
+| 6 | UMG / CommonUI / MVVM interop | COMPLETE | Phase-6 core (URuitkHostWidget, Ruitk::Umg::UserWidget, URuitkWorldSubsystem, UseField) + TD-021 CommonUI activatables, MVVM global collection, UMG prop-map bridge (feat/uetkx-*) |
+| 7 | Production gaps (lists, loc, focus, animation, portals, widget batch 2) | COMPLETE 2026-07-15 | Lists (virtualized ListView/TileView), focus, animation + SFX hooks (~~media~~ — only `UseSfx` exists, audit 2026-07-14), portals, widget batch-2 + specials, drag-and-drop, exit animations — all shipped. ~~Localization (FText gathering) DEFERRED~~ — **SHIPPED 2026-07-15** (gather from `*.uetkx.inl` + culture-change re-render; suite `Ruitk.Loc`; 0.4.0) |
 | 8 | Demos, docs site, benchmarks | COMPLETE 2026-07-25 | Gallery ✅ (17 screens on the compiled path, incl. RouterDemo), Bench baselines ✅ (re-run 2026-07-15); docs site ✅ (34 built-out page sections: guides + reference + Integration + Localization + generated per-widget catalog + per-hook references, 9 docs-drift checks green). Doom demo ✅ BUILT 2026-07-15 + owner-playtested 2026-07-16 (3 rounds). The demo VIDEO is a Phase-9 release asset (REMAINING §2); v1.x demo-scope decisions tracked (REMAINING §4) |
 | 9 | Release & publishing | IN PROGRESS | GitHub releases live through plugin 0.13.0 / extensions 0.7.0 (publish.yml, tag-gated); license settled (Reactive UI Toolkit Community License). Remaining, in order (**the runway lives in [REMAINING.md](REMAINING.md) §1–§2**): finish the field-test matrix (8/9/5b owner-PASSED 2026-07-25; 10-series + a formal 1–7 sitting open) → drain `PENDING_CHANGELOG.md` (rounds 10–16 + FSE staged) via release-process → per-engine zips + packaged-fidelity test (UE 5.7 reinstall needed for its leg) → Fab listing/upload + demo video + Discord (owner-gated) |
 

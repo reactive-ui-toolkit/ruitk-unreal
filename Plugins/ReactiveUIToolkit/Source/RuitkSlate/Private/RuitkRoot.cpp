@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiRoot.h"
+#include "RuitkRoot.h"
 
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateLog.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateLog.h"
 #include "Widgets/SWindow.h"
 
-void SRuiRoot::Construct(const FArguments&)
+void SRuitkRoot::Construct(const FArguments&)
 {
 	// clang-format off
 	ChildSlot
@@ -18,26 +18,26 @@ void SRuiRoot::Construct(const FArguments&)
 	// clang-format on
 }
 
-TSharedRef<FRuiRoot> FRuiRoot::CreateDetachedInternal(FRuiNode RootNode)
+TSharedRef<FRuitkRoot> FRuitkRoot::CreateDetachedInternal(FRuitkNode RootNode)
 {
-	TSharedRef<FRuiRoot> Root = MakeShareable(new FRuiRoot());
-	Root->Host = MakeUnique<FRuiSlateHost>();
-	Root->Widget = SNew(SRuiRoot);
-	const FRuiHostHandle RootHandle =
-		Root->Host->WrapExternalPanel(Root->Widget->GetRootPanel(), RUI::Slate::OverlayType());
-	Root->Reconciler = MakeUnique<FRuiReconciler>(*Root->Host, RootHandle);
+	TSharedRef<FRuitkRoot> Root = MakeShareable(new FRuitkRoot());
+	Root->Host = MakeUnique<FRuitkSlateHost>();
+	Root->Widget = SNew(SRuitkRoot);
+	const FRuitkHostHandle RootHandle =
+		Root->Host->WrapExternalPanel(Root->Widget->GetRootPanel(), Ruitk::Slate::OverlayType());
+	Root->Reconciler = MakeUnique<FRuitkReconciler>(*Root->Host, RootHandle);
 	Root->Reconciler->Render(MoveTemp(RootNode));
 	return Root;
 }
 
-TSharedRef<FRuiRoot> FRuiRoot::Create(FRuiNode RootNode)
+TSharedRef<FRuitkRoot> FRuitkRoot::Create(FRuitkNode RootNode)
 {
 	return CreateDetachedInternal(MoveTemp(RootNode));
 }
 
-TSharedRef<FRuiRoot> FRuiRoot::CreateInViewport(FRuiNode RootNode, int32 ZOrder)
+TSharedRef<FRuitkRoot> FRuitkRoot::CreateInViewport(FRuitkNode RootNode, int32 ZOrder)
 {
-	TSharedRef<FRuiRoot> Root = CreateDetachedInternal(MoveTemp(RootNode));
+	TSharedRef<FRuitkRoot> Root = CreateDetachedInternal(MoveTemp(RootNode));
 	UGameViewportClient* Viewport = GEngine != nullptr ? GEngine->GameViewport : nullptr;
 	if (Viewport == nullptr)
 	{
@@ -51,20 +51,20 @@ TSharedRef<FRuiRoot> FRuiRoot::CreateInViewport(FRuiNode RootNode, int32 ZOrder)
 	return Root;
 }
 
-TSharedRef<FRuiRoot> FRuiRoot::CreateInWindow(const TSharedRef<SWindow>& Window, FRuiNode RootNode)
+TSharedRef<FRuitkRoot> FRuitkRoot::CreateInWindow(const TSharedRef<SWindow>& Window, FRuitkNode RootNode)
 {
-	TSharedRef<FRuiRoot> Root = CreateDetachedInternal(MoveTemp(RootNode));
+	TSharedRef<FRuitkRoot> Root = CreateDetachedInternal(MoveTemp(RootNode));
 	Window->SetContent(Root->GetWidget());
 	Root->MountedWindow = Window;
 	return Root;
 }
 
-FRuiRoot::~FRuiRoot()
+FRuitkRoot::~FRuitkRoot()
 {
 	Unmount();
 }
 
-void FRuiRoot::Update(FRuiNode RootNode)
+void FRuitkRoot::Update(FRuitkNode RootNode)
 {
 	if (Reconciler.IsValid())
 	{
@@ -72,7 +72,7 @@ void FRuiRoot::Update(FRuiNode RootNode)
 	}
 }
 
-void FRuiRoot::FlushSync()
+void FRuitkRoot::FlushSync()
 {
 	if (Reconciler.IsValid())
 	{
@@ -80,7 +80,7 @@ void FRuiRoot::FlushSync()
 	}
 }
 
-void FRuiRoot::Unmount()
+void FRuitkRoot::Unmount()
 {
 	if (Reconciler.IsValid() && Reconciler->IsMounted())
 	{

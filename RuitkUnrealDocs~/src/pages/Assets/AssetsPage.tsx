@@ -4,7 +4,7 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
 const BRUSH = `// Point a Slate brush at a UObject (a UTexture2D, material, etc.) and use it
 // anywhere a brush is expected — Image, Border, Button background.
-TSharedPtr<FSlateBrush> Icon = RUI::Umg::MakeAssetBrush(
+TSharedPtr<FSlateBrush> Icon = Ruitk::Umg::MakeAssetBrush(
 	IconTexture, /*ImageSize*/ FVector2D(32.0f, 32.0f), /*Tint*/ FLinearColor::White);
 
 <Image Image={ Icon } />`
@@ -24,7 +24,7 @@ export const AssetsPage: FC = () => (
       Asset brushes
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>RUI::Umg::MakeAssetBrush(ResourceObject, ImageSize, Tint)</code> builds a brush pointing
+      <code>Ruitk::Umg::MakeAssetBrush(ResourceObject, ImageSize, Tint)</code> builds a brush pointing
       at any drawable <code>UObject</code> — a <code>UTexture2D</code>, a UI material, a render
       target. Load or resolve the object however you normally would (a{' '}
       <code>TObjectPtr</code>, a soft reference you resolve, an asset manager lookup) and pass it in.

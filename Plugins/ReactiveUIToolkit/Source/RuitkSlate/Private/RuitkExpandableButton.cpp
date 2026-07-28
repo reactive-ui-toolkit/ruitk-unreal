@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiExpandableButton.h"
+#include "RuitkExpandableButton.h"
 
-#include "RuiEventProxy.h"
+#include "RuitkEventProxy.h"
 #include "Widgets/SNullWidget.h"
 
-void SRuiExpandableButton::Construct(const FArguments& InArgs)
+void SRuitkExpandableButton::Construct(const FArguments& InArgs)
 {
 	SAssignNew(CollapsedBox, SBox);
 	SAssignNew(ExpandedBox, SBox);
@@ -36,7 +36,7 @@ void SRuiExpandableButton::Construct(const FArguments& InArgs)
 	// clang-format on
 }
 
-void SRuiExpandableButton::SetRoleContent(FName Role, const TSharedPtr<SWidget>& Content)
+void SRuitkExpandableButton::SetRoleContent(FName Role, const TSharedPtr<SWidget>& Content)
 {
 	const TSharedRef<SWidget> W = Content.IsValid() ? Content.ToSharedRef() : SNullWidget::NullWidget;
 	if (Role == FName(TEXT("collapsed")))
@@ -53,7 +53,7 @@ void SRuiExpandableButton::SetRoleContent(FName Role, const TSharedPtr<SWidget>&
 	}
 }
 
-void SRuiExpandableButton::ClearContent(const TSharedRef<SWidget>& Content)
+void SRuitkExpandableButton::ClearContent(const TSharedRef<SWidget>& Content)
 {
 	for (const TSharedPtr<SBox>& Holder : {CollapsedBox, ExpandedBox, BodyBox})
 	{
@@ -68,35 +68,35 @@ void SRuiExpandableButton::ClearContent(const TSharedRef<SWidget>& Content)
 
 namespace
 {
-	FName ButtonRoleOf(const FRuiStyleDict* SlotProps)
+	FName ButtonRoleOf(const FRuitkStyleDict* SlotProps)
 	{
 		if (SlotProps != nullptr)
 		{
-			if (const FRuiValue* V = SlotProps->Find(FName(TEXT("slot.role"))))
+			if (const FRuitkValue* V = SlotProps->Find(FName(TEXT("slot.role"))))
 			{
-				return V->Kind == FRuiValue::EKind::Name ? V->NameValue : FName(*V->StringValue);
+				return V->Kind == FRuitkValue::EKind::Name ? V->NameValue : FName(*V->StringValue);
 			}
 		}
 		return FName(TEXT("body"));
 	}
 
-	class FRuiExpandableButtonAdapter final : public IRuiElementAdapter
+	class FRuitkExpandableButtonAdapter final : public IRuitkElementAdapter
 	{
 	public:
-		virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::MultiSlot; }
+		virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::MultiSlot; }
 		virtual bool HasEvents() const override { return true; }
 
 		virtual uint64 GetReconstructMask() const override
 		{
-			return (1ull << FRuiExpandableButtonProps::CollapsedText_Bit) |
-				   (1ull << FRuiExpandableButtonProps::ExpandedText_Bit) |
-				   (1ull << FRuiExpandableButtonProps::bIsExpanded_Bit);
+			return (1ull << FRuitkExpandableButtonProps::CollapsedText_Bit) |
+				   (1ull << FRuitkExpandableButtonProps::ExpandedText_Bit) |
+				   (1ull << FRuitkExpandableButtonProps::bIsExpanded_Bit);
 		}
 
-		virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+		virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 		{
-			const FRuiExpandableButtonProps& O = static_cast<const FRuiExpandableButtonProps&>(Old);
-			const FRuiExpandableButtonProps& N = static_cast<const FRuiExpandableButtonProps&>(New);
+			const FRuitkExpandableButtonProps& O = static_cast<const FRuitkExpandableButtonProps&>(Old);
+			const FRuitkExpandableButtonProps& N = static_cast<const FRuitkExpandableButtonProps&>(New);
 			auto TextChanged = [](bool bNewHas, bool bOldHas, const FText& OldV, const FText& NewV)
 			{ return bNewHas && (!bOldHas || !(NewV.IdenticalTo(OldV) || NewV.ToString() == OldV.ToString())); };
 			return TextChanged(N.HasCollapsedText(), O.HasCollapsedText(), O.CollapsedText, N.CollapsedText) ||
@@ -104,48 +104,48 @@ namespace
 				   (N.HasbIsExpanded() && (!O.HasbIsExpanded() || O.bIsExpanded != N.bIsExpanded));
 		}
 
-		virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props,
-												 const TSharedPtr<FRuiEventProxy>& Proxy) override
+		virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+												 const TSharedPtr<FRuitkEventProxy>& Proxy) override
 		{
-			const FRuiExpandableButtonProps& P = static_cast<const FRuiExpandableButtonProps&>(Props);
-			return SNew(SRuiExpandableButton)
+			const FRuitkExpandableButtonProps& P = static_cast<const FRuitkExpandableButtonProps&>(Props);
+			return SNew(SRuitkExpandableButton)
 				.CollapsedText(P.CollapsedText)
 				.ExpandedText(P.ExpandedText)
 				.IsExpanded(!P.HasbIsExpanded() || P.bIsExpanded)
 				.OnExpansionClicked(
-					FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleReply,
-										 static_cast<int32>(FRuiExpandableButtonProps::OnExpansionClicked_Bit)))
+					FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleReply,
+										 static_cast<int32>(FRuitkExpandableButtonProps::OnExpansionClicked_Bit)))
 				.OnCloseClicked(
-					FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuiEventProxy::HandleReply,
-										 static_cast<int32>(FRuiExpandableButtonProps::OnCloseClicked_Bit)));
+					FOnClicked::CreateSP(Proxy.ToSharedRef(), &FRuitkEventProxy::HandleReply,
+										 static_cast<int32>(FRuitkExpandableButtonProps::OnCloseClicked_Bit)));
 		}
 
-		virtual void SyncEventHandlers(FRuiEventProxy& Proxy, const FRuiPropsBase& New) override
+		virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) override
 		{
-			const FRuiExpandableButtonProps& N = static_cast<const FRuiExpandableButtonProps&>(New);
-			Proxy.SetHandler(static_cast<int32>(FRuiExpandableButtonProps::OnExpansionClicked_Bit),
+			const FRuitkExpandableButtonProps& N = static_cast<const FRuitkExpandableButtonProps&>(New);
+			Proxy.SetHandler(static_cast<int32>(FRuitkExpandableButtonProps::OnExpansionClicked_Bit),
 							 N.OnExpansionClicked);
-			Proxy.SetHandler(static_cast<int32>(FRuiExpandableButtonProps::OnCloseClicked_Bit), N.OnCloseClicked);
+			Proxy.SetHandler(static_cast<int32>(FRuitkExpandableButtonProps::OnCloseClicked_Bit), N.OnCloseClicked);
 		}
 
-		virtual void ApplyDiff(SWidget&, const FRuiPropsBase*, const FRuiPropsBase&) override {} // all masked
+		virtual void ApplyDiff(SWidget&, const FRuitkPropsBase*, const FRuitkPropsBase&) override {} // all masked
 
 		virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32,
-								 const FRuiStyleDict* SlotProps) override
+								 const FRuitkStyleDict* SlotProps) override
 		{
-			static_cast<SRuiExpandableButton&>(Parent).SetRoleContent(ButtonRoleOf(SlotProps), Child);
+			static_cast<SRuitkExpandableButton&>(Parent).SetRoleContent(ButtonRoleOf(SlotProps), Child);
 		}
 
 		virtual void RemoveChild(SWidget& Parent, const TSharedRef<SWidget>& Child) override
 		{
-			static_cast<SRuiExpandableButton&>(Parent).ClearContent(Child);
+			static_cast<SRuitkExpandableButton&>(Parent).ClearContent(Child);
 		}
 
 		virtual void
 		ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
-						TFunctionRef<const FRuiStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
+						TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf) override
 		{
-			SRuiExpandableButton& W = static_cast<SRuiExpandableButton&>(Parent);
+			SRuitkExpandableButton& W = static_cast<SRuitkExpandableButton&>(Parent);
 			for (const TSharedRef<SWidget>& Child : Ordered)
 			{
 				W.SetRoleContent(ButtonRoleOf(SlotPropsOf(Child)), Child);
@@ -153,27 +153,27 @@ namespace
 		}
 
 		virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
-										  const FRuiStyleDict* SlotProps) override
+										  const FRuitkStyleDict* SlotProps) override
 		{
-			static_cast<SRuiExpandableButton&>(Parent).SetRoleContent(ButtonRoleOf(SlotProps), Child);
+			static_cast<SRuitkExpandableButton&>(Parent).SetRoleContent(ButtonRoleOf(SlotProps), Child);
 		}
 	};
 } // namespace
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId ExpandableButtonType()
+	FRuitkElementTypeId ExpandableButtonType()
 	{
-		return RUI::InternElementType(FName(TEXT("ExpandableButton")));
+		return Ruitk::InternElementType(FName(TEXT("ExpandableButton")));
 	}
 
-	FRuiNode ExpandableButton(FRuiExpandableButtonProps Props, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode ExpandableButton(FRuitkExpandableButtonProps Props, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = ExpandableButtonType();
-		Node.Props = MakeShared<FRuiExpandableButtonProps>(MoveTemp(Props));
-		Node.Children = RUI::MakeChildren(MoveTemp(Children));
+		Node.Props = MakeShared<FRuitkExpandableButtonProps>(MoveTemp(Props));
+		Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
@@ -182,7 +182,7 @@ namespace RUI::Slate
 	{
 		void RegisterExpandableButtonAdapter()
 		{
-			RegisterAdapter(ExpandableButtonType(), MakeUnique<FRuiExpandableButtonAdapter>());
+			RegisterAdapter(ExpandableButtonType(), MakeUnique<FRuitkExpandableButtonAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

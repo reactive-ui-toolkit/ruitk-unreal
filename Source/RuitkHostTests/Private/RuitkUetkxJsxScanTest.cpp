@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.JsxScan — pins the position-gated whitelist: markup after boundary tokens
+// Ruitk.Uetkx.JsxScan — pins the position-gated whitelist: markup after boundary tokens
 // is found; `a < b` comparisons never are; unbalanced markup terminates the scan with
 // End == -1 (the caller diagnoses — family T1.2).
 
@@ -19,9 +19,9 @@ namespace JsxScanTest
 	}
 } // namespace JsxScanTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxJsxScanTest, "ReactiveUI.Uetkx.JsxScan",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxJsxScanTest, "Ruitk.Uetkx.JsxScan",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxJsxScanTest::RunTest(const FString&)
+bool FRuitkUetkxJsxScanTest::RunTest(const FString&)
 {
 	using namespace JsxScanTest;
 

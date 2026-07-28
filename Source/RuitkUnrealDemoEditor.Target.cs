@@ -15,7 +15,7 @@ public class RuitkUnrealDemoEditorTarget : TargetRules
 		// to each engine's defaults, which is exactly what the 5.6–5.8 matrix (D-28) needs.
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
-		ExtraModuleNames.Add("RuiDemo");
-		ExtraModuleNames.Add("RuiHostTests");
+		ExtraModuleNames.Add("RuitkDemo");
+		ExtraModuleNames.Add("RuitkHostTests");
 	}
 }

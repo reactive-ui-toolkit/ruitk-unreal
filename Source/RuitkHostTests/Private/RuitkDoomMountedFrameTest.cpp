@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Doom.MountedFrame — mounted-framebuffer invariants of the REAL game screen (the
+// Ruitk.Doom.MountedFrame — mounted-framebuffer invariants of the REAL game screen (the
 // field-test class the sim suite can't reach: markup -> reconciler -> live SCanvas slots).
 // Born as the probe that caught the invisible-tint bug: every quad routed ColorAndOpacity
 // through the style dict, the Image adapter had no handler, and the two alpha-0 full-viewport
@@ -9,9 +9,9 @@
 #include "Doom/DoomTypes.h"
 
 #include "Misc/AutomationTest.h"
-#include "RuiElementRegistry.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/SCanvas.h"
 
@@ -44,16 +44,16 @@ namespace DoomMounted
 	}
 } // namespace DoomMounted
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomMountedFrameTest, "ReactiveUI.Doom.MountedFrame",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomMountedFrameTest, "Ruitk.Doom.MountedFrame",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiDoomMountedFrameTest::RunTest(const FString&)
+bool FRuitkDoomMountedFrameTest::RunTest(const FString&)
 {
-	if (!RUI::HasNamedFactory(FName(TEXT("DoomGameScreen"))))
+	if (!Ruitk::HasNamedFactory(FName(TEXT("DoomGameScreen"))))
 	{
 		AddError(TEXT("DoomGameScreen is not registered"));
 		return false;
 	}
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("DoomGameScreen"))));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("DoomGameScreen"))));
 	Root->FlushSync();
 
 	SWidget* CanvasW = DoomMounted::FindByType(Root->GetWidget().Get(), FName(TEXT("SCanvas")));
@@ -91,7 +91,7 @@ bool FRuiDoomMountedFrameTest::RunTest(const FString&)
 			TSharedRef<SWidget> Child = Children->GetChildAt(i);
 			TestEqual(TEXT("flash quad is an SImage"), Child->GetType(), FName(TEXT("SImage")));
 			TestTrue(TEXT("flash quad covers the viewport"),
-					 Slot.GetSize().X >= RuiDoom::C::VIEWPORT_W && Slot.GetSize().Y >= RuiDoom::C::VIEWPORT_H);
+					 Slot.GetSize().X >= RuitkDoom::C::VIEWPORT_W && Slot.GetSize().Y >= RuitkDoom::C::VIEWPORT_H);
 			const FLinearColor Tint = static_cast<DoomMounted::FImageTintPeek&>(static_cast<SImage&>(Child.Get()))
 										  .GetColorAndOpacityAttribute()
 										  .Get()

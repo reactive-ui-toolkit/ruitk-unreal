@@ -21,7 +21,7 @@ export type Section = {
 
 // One page per host tag, GENERATED from the compiler-exported schema injected by
 // vite.config.ts (__HOST_TAGS__ / __HOST_ELEMENTS__ ← ide-extensions/lsp-server/src/
-// uetkx-schema.json, refreshed by RUIExportSchema) — the docs and the LSP read one
+// uetkx-schema.json, refreshed by RuitkExportSchema) — the docs and the LSP read one
 // vocabulary, so the catalog can never drift from the tooling.
 const componentPages: Page[] = HOST_TAGS.map((tag) => {
   const attrs = Object.keys(HOST_ELEMENTS[tag]?.attrs ?? {})

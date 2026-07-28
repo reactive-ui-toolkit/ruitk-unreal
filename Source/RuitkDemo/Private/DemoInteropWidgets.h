@@ -3,14 +3,14 @@
 // The promise-completing interop widgets (audit Phase 4 — plans/archive/AUDIT_2026-07-14.md §3):
 //
 //   UDemoHostUserWidget  — G1, "ours INSIDE theirs": a hand-built UMG UserWidget whose widget
-//                          tree contains a URuiHostWidget pointing at a registered component.
+//                          tree contains a URuitkHostWidget pointing at a registered component.
 //                          Embedded in the gallery it demonstrates the full sandwich:
 //                          ReactiveUI → UMG → ReactiveUI.
 //   UDemoVmBoundWidget   — G3, reverse MVVM: a plain UMG widget that subscribes (FieldNotify)
-//                          to OUR URuiSignalViewModel and mirrors its Int field — their view,
+//                          to OUR URuitkSignalViewModel and mirrors its Int field — their view,
 //                          our value, no MVVM-plugin dependency.
 //   UDemoActivatableScreen / UDemoStackHostWidget — G2, the real CommonUI stack: a
-//                          UCommonActivatableWidgetStack that pushes/pops a URuiActivatableScreen
+//                          UCommonActivatableWidgetStack that pushes/pops a URuitkActivatableScreen
 //                          hosting the ActivationProbe component — REAL (de)activation, not the
 //                          toggle stand-in.
 
@@ -19,14 +19,14 @@
 #include "Blueprint/UserWidget.h"
 #include "CoreMinimal.h"
 #include "FieldNotificationId.h"
-#include "RuiActivatableScreen.h"
+#include "RuitkActivatableScreen.h"
 #include "DemoInteropWidgets.generated.h"
 
 class UButton;
 class UCommonActivatableWidgetStack;
 class UTextBlock;
 
-/** G1 — a UMG UserWidget hosting a ReactiveUI component through URuiHostWidget. */
+/** G1 — a UMG UserWidget hosting a ReactiveUI component through URuitkHostWidget. */
 UCLASS()
 class UDemoHostUserWidget : public UUserWidget
 {
@@ -36,7 +36,7 @@ protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 };
 
-/** G3 — a plain UMG widget bound (FieldNotify) to the shared URuiSignalViewModel. */
+/** G3 — a plain UMG widget bound (FieldNotify) to the shared URuitkSignalViewModel. */
 UCLASS()
 class UDemoVmBoundWidget : public UUserWidget
 {
@@ -57,9 +57,9 @@ private:
 	FDelegateHandle VmHandle;
 };
 
-/** G2 — a URuiActivatableScreen preconfigured to host the ActivationProbe component. */
+/** G2 — a URuitkActivatableScreen preconfigured to host the ActivationProbe component. */
 UCLASS()
-class UDemoActivatableScreen : public URuiActivatableScreen
+class UDemoActivatableScreen : public URuitkActivatableScreen
 {
 	GENERATED_BODY()
 

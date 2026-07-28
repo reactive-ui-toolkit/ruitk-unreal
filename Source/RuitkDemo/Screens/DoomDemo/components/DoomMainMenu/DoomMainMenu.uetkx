@@ -5,7 +5,7 @@ import "@Doom/DoomMaps.h"
 // `doom_main_menu.guitkx`): level select + difficulty select + start, all through the
 // passed-in callbacks. Selection renders as a Border wrapper tinted with the selected
 // color (v1 has no per-Button background styling).
-export FRuiNode DoomMainMenu(int32 Level = 1, int32 Diff = 1, FRuiCallback OnLevelChange = FRuiCallback(), FRuiCallback OnDifficultyChange = FRuiCallback(), FRuiCallback OnStart = FRuiCallback()) {
+export FRuitkNode DoomMainMenu(int32 Level = 1, int32 Diff = 1, FRuitkCallback OnLevelChange = FRuitkCallback(), FRuitkCallback OnDifficultyChange = FRuitkCallback(), FRuitkCallback OnStart = FRuitkCallback()) {
 	const FLinearColor Bg(0.06f, 0.05f, 0.05f, 1.0f);
 	const FLinearColor TitleClr(0.95f, 0.20f, 0.15f, 1.0f);
 	const FLinearColor SubtitleClr(0.85f, 0.70f, 0.40f, 1.0f);
@@ -43,7 +43,7 @@ export FRuiNode DoomMainMenu(int32 Level = 1, int32 Diff = 1, FRuiCallback OnLev
 						ColorAndOpacity={ LabelClr }
 						Slot.VAlign="center"
 						Slot.Padding="0,0,12,0" />
-					@for (int32 i = 1; i <= RuiDoom::LEVEL_COUNT; ++i) {
+					@for (int32 i = 1; i <= RuitkDoom::LEVEL_COUNT; ++i) {
 						return (
 							<Border
 								key={ FName(*FString::Printf(TEXT("lv%d"), i)) }
@@ -57,9 +57,9 @@ export FRuiNode DoomMainMenu(int32 Level = 1, int32 Diff = 1, FRuiCallback OnLev
 									BorderImage="WhiteBrush"
 									BorderBackgroundColor={ Level == i ? BtnSelected : BtnFace }
 								>
-									<Button OnClicked={ OnLevelChange.Execute(FRuiValue(i)) } ContentPadding="14,6">
+									<Button OnClicked={ OnLevelChange.Execute(FRuitkValue(i)) } ContentPadding="14,6">
 										<TextBlock
-											Text={ FText::FromString(RuiDoom::LevelName(i)) }
+											Text={ FText::FromString(RuitkDoom::LevelName(i)) }
 											Font.Size={ 13.0f }
 											ColorAndOpacity={ BtnText } />
 									</Button>
@@ -90,7 +90,7 @@ export FRuiNode DoomMainMenu(int32 Level = 1, int32 Diff = 1, FRuiCallback OnLev
 									BorderImage="WhiteBrush"
 									BorderBackgroundColor={ Diff == d ? BtnSelected : BtnFace }
 								>
-									<Button OnClicked={ OnDifficultyChange.Execute(FRuiValue(d)) } ContentPadding="14,6">
+									<Button OnClicked={ OnDifficultyChange.Execute(FRuitkValue(d)) } ContentPadding="14,6">
 										<TextBlock
 											Text={ FText::FromString(DiffLabels[d]) }
 											Font.Size={ 13.0f }

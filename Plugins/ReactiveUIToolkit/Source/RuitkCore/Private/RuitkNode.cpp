@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiNode.h"
-#include "RuiElementRegistry.h"
+#include "RuitkNode.h"
+#include "RuitkElementRegistry.h"
 
 // Per-file static category (the LogRuiCoreHooks pattern) — NEVER a second LogRuiCore: the
 // module cpp defines that one, and unity builds merge TUs (a duplicate static is C2011).
@@ -20,7 +20,7 @@ namespace
 	//    internal), so patched lookups read an EMPTY registry while the base one still holds
 	//    every registration — the gallery rendered null Fragments and asserted.
 	// 2. NEVER a plain namespace-scope INSTANCE either. Load-time registrations from OTHER TUs
-	//    in this module (RuiCoreElements.cpp's RUI.Suspense, RuiRouter.cpp) run during static
+	//    in this module (RuitkCoreElements.cpp's RUI.Suspense, RuitkRouter.cpp) run during static
 	//    init, and cross-TU dynamic-init order is undefined — an unconstructed TMap is an AV
 	//    at module load (caught by the battery the first time it was tried).
 	//
@@ -31,61 +31,61 @@ namespace
 	// on patch), so a patched RuitkCore keeps pointing at the ORIGINAL registries.
 	// Deliberately never freed: process-lifetime registries; destruction order at exit is not
 	// a problem we want back.
-	struct FRuiComponentRegistry
+	struct FRuitkComponentRegistry
 	{
 		// Fn pointer → registered FName. Pointers may be RE-REGISTERED after Live Coding
-		// relocates code (RUI_COMPONENT's static initializer runs again in the patched
+		// relocates code (RUITK_COMPONENT's static initializer runs again in the patched
 		// module); the NAME is the identity, so re-pointing is exactly the desired behavior.
 		TMap<void*, FName> PtrToId;
 		FCriticalSection Lock;
 	};
-	FRuiComponentRegistry* GComponentRegistry = nullptr;
-	FRuiComponentRegistry& ComponentRegistry()
+	FRuitkComponentRegistry* GComponentRegistry = nullptr;
+	FRuitkComponentRegistry& ComponentRegistry()
 	{
 		if (GComponentRegistry == nullptr)
 		{
-			GComponentRegistry = new FRuiComponentRegistry();
+			GComponentRegistry = new FRuitkComponentRegistry();
 		}
 		return *GComponentRegistry;
 	}
 
-	struct FRuiElementTypeRegistry
+	struct FRuitkElementTypeRegistry
 	{
 		TMap<FName, uint16> TagToId;
 		TArray<FName> IdToTag; // index = id - 1
 		FCriticalSection Lock;
 	};
-	FRuiElementTypeRegistry* GElementTypeRegistry = nullptr;
-	FRuiElementTypeRegistry& ElementTypeRegistry()
+	FRuitkElementTypeRegistry* GElementTypeRegistry = nullptr;
+	FRuitkElementTypeRegistry& ElementTypeRegistry()
 	{
 		if (GElementTypeRegistry == nullptr)
 		{
-			GElementTypeRegistry = new FRuiElementTypeRegistry();
+			GElementTypeRegistry = new FRuitkElementTypeRegistry();
 		}
 		return *GElementTypeRegistry;
 	}
 
-	struct FRuiNamedFactoryRegistry
+	struct FRuitkNamedFactoryRegistry
 	{
-		TMap<FName, TFunction<FRuiNode()>> Factories;
+		TMap<FName, TFunction<FRuitkNode()>> Factories;
 		FCriticalSection Lock;
 	};
-	FRuiNamedFactoryRegistry* GNamedFactoryRegistry = nullptr;
-	FRuiNamedFactoryRegistry& NamedFactoryRegistry()
+	FRuitkNamedFactoryRegistry* GNamedFactoryRegistry = nullptr;
+	FRuitkNamedFactoryRegistry& NamedFactoryRegistry()
 	{
 		if (GNamedFactoryRegistry == nullptr)
 		{
-			GNamedFactoryRegistry = new FRuiNamedFactoryRegistry();
+			GNamedFactoryRegistry = new FRuitkNamedFactoryRegistry();
 		}
 		return *GNamedFactoryRegistry;
 	}
 } // namespace
 
-namespace RUI
+namespace Ruitk
 {
 	FName RegisterComponentId(void* FnPtr, FName Id)
 	{
-		FRuiComponentRegistry& Reg = ComponentRegistry();
+		FRuitkComponentRegistry& Reg = ComponentRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		Reg.PtrToId.Add(FnPtr, Id);
 		return Id;
@@ -93,7 +93,7 @@ namespace RUI
 
 	FName FindComponentId(void* FnPtr)
 	{
-		FRuiComponentRegistry& Reg = ComponentRegistry();
+		FRuitkComponentRegistry& Reg = ComponentRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		if (const FName* Found = Reg.PtrToId.Find(FnPtr))
 		{
@@ -102,9 +102,9 @@ namespace RUI
 		return NAME_None;
 	}
 
-	bool RegisterNamedFactory(FName Name, TFunction<FRuiNode()> Factory)
+	bool RegisterNamedFactory(FName Name, TFunction<FRuitkNode()> Factory)
 	{
-		FRuiNamedFactoryRegistry& Reg = NamedFactoryRegistry();
+		FRuitkNamedFactoryRegistry& Reg = NamedFactoryRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		Reg.Factories.Add(Name, MoveTemp(Factory)); // replace-on-re-register (Live Coding/HMR)
 		return true;
@@ -112,7 +112,7 @@ namespace RUI
 
 	EResolveNamed ResolveNamed(FName NameOrFqn, FName& OutKey, TArray<FName>* OutCandidates)
 	{
-		FRuiNamedFactoryRegistry& Reg = NamedFactoryRegistry();
+		FRuitkNamedFactoryRegistry& Reg = NamedFactoryRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		// Exact key first — a fully-qualified id always addresses one registration.
 		if (Reg.Factories.Contains(NameOrFqn))
@@ -121,7 +121,7 @@ namespace RUI
 			return EResolveNamed::Hit;
 		}
 		// FILE_SCOPED_EXPORTS (FS-05): generated registrations key by the FILE-QUALIFIED name
-		// (`RuiUetkx_<path>::<Name>`), but the designer edges (URuiHostWidget.ComponentName,
+		// (`RuitkUetkx_<path>::<Name>`), but the designer edges (URuitkHostWidget.ComponentName,
 		// ActivatableScreen, MountNamed, the preview) speak SHORT names. A short name resolves
 		// when exactly ONE registration's `::<Short>` tail matches (case-sensitive on the tail —
 		// FName's own case-insensitivity already folded the lookup key); several matches are
@@ -134,7 +134,7 @@ namespace RUI
 		const FString Tail = TEXT("::") + Short;
 		FName Found = NAME_None;
 		int32 Matches = 0;
-		for (const TPair<FName, TFunction<FRuiNode()>>& Pair : Reg.Factories)
+		for (const TPair<FName, TFunction<FRuitkNode()>>& Pair : Reg.Factories)
 		{
 			if (Pair.Key.ToString().EndsWith(Tail, ESearchCase::IgnoreCase))
 			{
@@ -156,13 +156,13 @@ namespace RUI
 
 	void GetRegisteredFactoryNames(TArray<FName>& Out)
 	{
-		FRuiNamedFactoryRegistry& Reg = NamedFactoryRegistry();
+		FRuitkNamedFactoryRegistry& Reg = NamedFactoryRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		Reg.Factories.GenerateKeyArray(Out);
 		Out.Sort([](const FName& A, const FName& B) { return A.LexicalLess(B); });
 	}
 
-	FRuiNode Named(FName Name)
+	FRuitkNode Named(FName Name)
 	{
 		FName Key;
 		TArray<FName> Candidates;
@@ -189,17 +189,17 @@ namespace RUI
 					List += (List.IsEmpty() ? TEXT("") : TEXT(", ")) + C.ToString();
 				}
 				UE_LOG(LogRuiCoreRegistry, Error,
-					   TEXT("RUI::Named('%s') is AMBIGUOUS — several files export this name; use a qualified id: %s"),
+					   TEXT("Ruitk::Named('%s') is AMBIGUOUS — several files export this name; use a qualified id: %s"),
 					   *Name.ToString(), *List);
 			}
 			return Fragment({});
 		}
-		TFunction<FRuiNode()> Factory;
+		TFunction<FRuitkNode()> Factory;
 		if (Verdict == EResolveNamed::Hit)
 		{
-			FRuiNamedFactoryRegistry& Reg = NamedFactoryRegistry();
+			FRuitkNamedFactoryRegistry& Reg = NamedFactoryRegistry();
 			FScopeLock Guard(&Reg.Lock);
-			if (const TFunction<FRuiNode()>* Found = Reg.Factories.Find(Key))
+			if (const TFunction<FRuitkNode()>* Found = Reg.Factories.Find(Key))
 			{
 				Factory = *Found;
 			}
@@ -217,19 +217,19 @@ namespace RUI
 	{
 		// TB-21: the pointer + first-touch idiom, like every registry (note at the top) —
 		// patch-stable AND static-init-order-safe.
-		struct FRuiHmrRegistry
+		struct FRuitkHmrRegistry
 		{
 			TMap<FName, uint32> HookSignatures;
-			TMap<FName, FRuiComponentOverride> Overrides;
+			TMap<FName, FRuitkComponentOverride> Overrides;
 			uint32 NextGeneration = 1;
 			FCriticalSection Lock;
 		};
-		FRuiHmrRegistry* GHmrRegistryPtr = nullptr;
-		FRuiHmrRegistry& HmrRegistry()
+		FRuitkHmrRegistry* GHmrRegistryPtr = nullptr;
+		FRuitkHmrRegistry& HmrRegistry()
 		{
 			if (GHmrRegistryPtr == nullptr)
 			{
-				GHmrRegistryPtr = new FRuiHmrRegistry();
+				GHmrRegistryPtr = new FRuitkHmrRegistry();
 			}
 			return *GHmrRegistryPtr;
 		}
@@ -237,7 +237,7 @@ namespace RUI
 
 	void RegisterHookSignature(FName ComponentId, uint32 Signature)
 	{
-		FRuiHmrRegistry& Reg = HmrRegistry();
+		FRuitkHmrRegistry& Reg = HmrRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		Reg.HookSignatures.Add(ComponentId, Signature);
 	}
@@ -269,7 +269,7 @@ namespace RUI
 
 	uint32 FindHookSignature(FName ComponentId)
 	{
-		FRuiHmrRegistry& Reg = HmrRegistry();
+		FRuitkHmrRegistry& Reg = HmrRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		if (const uint32* Found = Reg.HookSignatures.Find(ComponentId))
 		{
@@ -278,12 +278,12 @@ namespace RUI
 		return 0;
 	}
 
-	void SetComponentOverride(FName ComponentId, TSharedPtr<FRuiComponentInvoke> Invoke, bool bResetState,
+	void SetComponentOverride(FName ComponentId, TSharedPtr<FRuitkComponentInvoke> Invoke, bool bResetState,
 							  bool bMigrateState)
 	{
-		FRuiHmrRegistry& Reg = HmrRegistry();
+		FRuitkHmrRegistry& Reg = HmrRegistry();
 		FScopeLock Guard(&Reg.Lock);
-		FRuiComponentOverride& Entry = Reg.Overrides.FindOrAdd(ComponentId);
+		FRuitkComponentOverride& Entry = Reg.Overrides.FindOrAdd(ComponentId);
 		Entry.Invoke = MoveTemp(Invoke);
 		Entry.Generation = Reg.NextGeneration++;
 		Entry.bResetState = bResetState;
@@ -292,51 +292,51 @@ namespace RUI
 
 	void ClearComponentOverride(FName ComponentId)
 	{
-		FRuiHmrRegistry& Reg = HmrRegistry();
+		FRuitkHmrRegistry& Reg = HmrRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		Reg.Overrides.Remove(ComponentId);
 	}
 
-	FRuiComponentOverride FindComponentOverride(FName ComponentId)
+	FRuitkComponentOverride FindComponentOverride(FName ComponentId)
 	{
-		FRuiHmrRegistry& Reg = HmrRegistry();
+		FRuitkHmrRegistry& Reg = HmrRegistry();
 		FScopeLock Guard(&Reg.Lock);
-		if (const FRuiComponentOverride* Found = Reg.Overrides.Find(ComponentId))
+		if (const FRuitkComponentOverride* Found = Reg.Overrides.Find(ComponentId))
 		{
 			return *Found;
 		}
-		return FRuiComponentOverride();
+		return FRuitkComponentOverride();
 	}
 
-	FRuiElementTypeId InternElementType(FName Tag)
+	FRuitkElementTypeId InternElementType(FName Tag)
 	{
-		FRuiElementTypeRegistry& Reg = ElementTypeRegistry();
+		FRuitkElementTypeRegistry& Reg = ElementTypeRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		if (const uint16* Found = Reg.TagToId.Find(Tag))
 		{
-			return FRuiElementTypeId{*Found};
+			return FRuitkElementTypeId{*Found};
 		}
 		checkf(Reg.IdToTag.Num() < MAX_uint16 - 1, TEXT("element type registry overflow"));
 		Reg.IdToTag.Add(Tag);
 		const uint16 NewId = static_cast<uint16>(Reg.IdToTag.Num()); // ids start at 1; 0 = invalid
 		Reg.TagToId.Add(Tag, NewId);
-		return FRuiElementTypeId{NewId};
+		return FRuitkElementTypeId{NewId};
 	}
 
-	FRuiElementTypeId FindElementType(FName Tag)
+	FRuitkElementTypeId FindElementType(FName Tag)
 	{
-		FRuiElementTypeRegistry& Reg = ElementTypeRegistry();
+		FRuitkElementTypeRegistry& Reg = ElementTypeRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		if (const uint16* Found = Reg.TagToId.Find(Tag))
 		{
-			return FRuiElementTypeId{*Found};
+			return FRuitkElementTypeId{*Found};
 		}
-		return FRuiElementTypeId{};
+		return FRuitkElementTypeId{};
 	}
 
-	FName GetElementTypeName(FRuiElementTypeId Id)
+	FName GetElementTypeName(FRuitkElementTypeId Id)
 	{
-		FRuiElementTypeRegistry& Reg = ElementTypeRegistry();
+		FRuitkElementTypeRegistry& Reg = ElementTypeRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		if (Id.IsValid() && Id.Value <= Reg.IdToTag.Num())
 		{
@@ -347,51 +347,51 @@ namespace RUI
 
 	int32 NumElementTypes()
 	{
-		FRuiElementTypeRegistry& Reg = ElementTypeRegistry();
+		FRuitkElementTypeRegistry& Reg = ElementTypeRegistry();
 		FScopeLock Guard(&Reg.Lock);
 		return Reg.IdToTag.Num();
 	}
 
 	// ── structural factories ──────────────────────────────────────────────────────────
 
-	FRuiChildren MakeChildren(TArray<FRuiNode> InChildren)
+	FRuitkChildren MakeChildren(TArray<FRuitkNode> InChildren)
 	{
 		if (InChildren.IsEmpty())
 		{
 			return nullptr;
 		}
-		return MakeShared<const TArray<FRuiNode>>(MoveTemp(InChildren));
+		return MakeShared<const TArray<FRuitkNode>>(MoveTemp(InChildren));
 	}
 
-	FRuiNode Fragment(TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Fragment(TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Fragment;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Fragment;
 		Node.Children = MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
 
-	FRuiNode Portal(FRuiPortalHandle Target, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Portal(FRuitkPortalHandle Target, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Portal;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Portal;
 		Node.PortalTarget = MoveTemp(Target);
 		Node.Children = MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
 
-	FRuiNode ErrorBoundary(FRuiNode Fallback, TArray<FRuiNode> Children, FRuiKey ResetKey,
-						   TFunction<void(const FString&)> OnError, FRuiKey Key)
+	FRuitkNode ErrorBoundary(FRuitkNode Fallback, TArray<FRuitkNode> Children, FRuitkKey ResetKey,
+						   TFunction<void(const FString&)> OnError, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::ErrorBoundary;
-		Node.EbFallback = MakeShared<FRuiNode>(MoveTemp(Fallback));
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::ErrorBoundary;
+		Node.EbFallback = MakeShared<FRuitkNode>(MoveTemp(Fallback));
 		Node.EbOnError = MoveTemp(OnError);
 		Node.EbResetKey = ResetKey;
 		Node.Children = MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
-} // namespace RUI
+} // namespace Ruitk

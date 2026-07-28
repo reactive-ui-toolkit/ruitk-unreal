@@ -10,12 +10,12 @@
 #include "CoreMinimal.h"
 #include "FieldNotificationDelegate.h"
 #include "INotifyFieldValueChanged.h"
-#include "RuiMvvmViewModel.h" // URuiMvvmViewModel (P1 regression subclass)
+#include "RuitkMvvmViewModel.h" // URuitkMvvmViewModel (P1 regression subclass)
 #include "UObject/Object.h"
-#include "RuiTestViewModel.generated.h"
+#include "RuitkTestViewModel.generated.h"
 
 UCLASS()
-class URuiTestViewModel : public UObject, public INotifyFieldValueChanged
+class URuitkTestViewModel : public UObject, public INotifyFieldValueChanged
 {
 	GENERATED_BODY()
 
@@ -79,7 +79,7 @@ private:
 /** Concrete UUserWidget for the theirs-inside-ours test (UUserWidget itself is abstract). The typed
  *  properties are the targets the TD-021 prop-map bridge sets by reflection. */
 UCLASS()
-class URuiTestUserWidget : public UUserWidget
+class URuitkTestUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -100,10 +100,10 @@ public:
 	FString StringValue;
 };
 
-/** A URuiMvvmViewModel SUBCLASS — the intended MVVM extension point (add FieldNotify props). Used by
+/** A URuitkMvvmViewModel SUBCLASS — the intended MVVM extension point (add FieldNotify props). Used by
  *  the bughunt-P1 regression: registering it must be resolvable via FindGlobalViewModel's default class. */
 UCLASS()
-class URuiTestMvvmSubViewModel : public URuiMvvmViewModel
+class URuitkTestMvvmSubViewModel : public URuitkMvvmViewModel
 {
 	GENERATED_BODY()
 };

@@ -1,54 +1,54 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiActivatableScreen.h"
+#include "RuitkActivatableScreen.h"
 
 #include "CommonInputSubsystem.h"
 #include "CommonInputTypeEnum.h"
 #include "Engine/LocalPlayer.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiActivatable, Log, All);
 
 namespace
 {
-	ERuiInputMethod MapInputType(ECommonInputType InType)
+	ERuitkInputMethod MapInputType(ECommonInputType InType)
 	{
 		switch (InType)
 		{
 		case ECommonInputType::Gamepad:
-			return ERuiInputMethod::Gamepad;
+			return ERuitkInputMethod::Gamepad;
 		case ECommonInputType::Touch:
-			return ERuiInputMethod::Touch;
+			return ERuitkInputMethod::Touch;
 		default:
-			return ERuiInputMethod::MouseAndKeyboard;
+			return ERuitkInputMethod::MouseAndKeyboard;
 		}
 	}
 } // namespace
 
-URuiActivatableScreen::URuiActivatableScreen(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+URuitkActivatableScreen::URuitkActivatableScreen(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// TD-029: the screen must be focusable so CommonUI's SetFocus on GetDesiredFocusTarget()
 	// (which returns THIS widget when the tree designated a target) actually lands here —
 	// NativeOnFocusReceived then forwards to the designated Slate widget.
 	SetIsFocusable(true);
-	FocusRegistry = MakeShared<FRuiFocusTargetRegistry>();
+	FocusRegistry = MakeShared<FRuitkFocusTargetRegistry>();
 }
 
-FRuiNode URuiActivatableScreen::BuildTree() const
+FRuitkNode URuitkActivatableScreen::BuildTree() const
 {
-	TArray<FRuiNode> Children;
+	TArray<FRuitkNode> Children;
 	FName Resolved;
 	TArray<FName> Candidates;
 	if (!ComponentName.IsNone())
 	{
-		switch (RUI::ResolveNamed(ComponentName, Resolved, &Candidates))
+		switch (Ruitk::ResolveNamed(ComponentName, Resolved, &Candidates))
 		{
-		case RUI::EResolveNamed::Hit:
-			Children.Add(RUI::Named(Resolved));
+		case Ruitk::EResolveNamed::Hit:
+			Children.Add(Ruitk::Named(Resolved));
 			break;
-		case RUI::EResolveNamed::Ambiguous:
+		case Ruitk::EResolveNamed::Ambiguous:
 		{
 			// FILE_SCOPED_EXPORTS (FS-05): never a silent first-wins — name the qualified ids.
 			FString List;
@@ -65,11 +65,11 @@ FRuiNode URuiActivatableScreen::BuildTree() const
 		}
 	}
 	// Activation state outside, focus registry inside — components read both from context.
-	return RUI::CommonUI::ActivationProvider(State,
-											 {RUI::CommonUI::FocusTargetProvider(FocusRegistry, MoveTemp(Children))});
+	return Ruitk::CommonUI::ActivationProvider(State,
+											 {Ruitk::CommonUI::FocusTargetProvider(FocusRegistry, MoveTemp(Children))});
 }
 
-TSharedRef<SWidget> URuiActivatableScreen::RebuildWidget()
+TSharedRef<SWidget> URuitkActivatableScreen::RebuildWidget()
 {
 	if (IsDesignTime())
 	{
@@ -78,12 +78,12 @@ TSharedRef<SWidget> URuiActivatableScreen::RebuildWidget()
 								FText::FromName(ComponentName.IsNone() ? FName(TEXT("<unset>")) : ComponentName)));
 	}
 	RefreshInputMethod();
-	Root = FRuiRoot::Create(BuildTree());
+	Root = FRuitkRoot::Create(BuildTree());
 	Root->FlushSync();
 	return Root->GetWidget();
 }
 
-void URuiActivatableScreen::NativeOnActivated()
+void URuitkActivatableScreen::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 	State.bActive = true;
@@ -91,14 +91,14 @@ void URuiActivatableScreen::NativeOnActivated()
 	Rerender();
 }
 
-void URuiActivatableScreen::NativeOnDeactivated()
+void URuitkActivatableScreen::NativeOnDeactivated()
 {
 	Super::NativeOnDeactivated();
 	State.bActive = false;
 	Rerender();
 }
 
-void URuiActivatableScreen::Rerender()
+void URuitkActivatableScreen::Rerender()
 {
 	if (Root.IsValid())
 	{
@@ -107,7 +107,7 @@ void URuiActivatableScreen::Rerender()
 	}
 }
 
-void URuiActivatableScreen::RefreshInputMethod()
+void URuitkActivatableScreen::RefreshInputMethod()
 {
 	// Best-effort: read the current input device when a local player is present (a live game); in a
 	// player-less context (automation) the state simply stays mouse-and-keyboard.
@@ -124,14 +124,14 @@ void URuiActivatableScreen::RefreshInputMethod()
 			{
 				UnbindInputMethod();
 				InputMethodHandle = Input->OnInputMethodChangedNative.AddUObject(
-					this, &URuiActivatableScreen::HandleInputMethodChanged);
+					this, &URuitkActivatableScreen::HandleInputMethodChanged);
 				BoundInputSubsystem = Input;
 			}
 		}
 	}
 }
 
-void URuiActivatableScreen::UnbindInputMethod()
+void URuitkActivatableScreen::UnbindInputMethod()
 {
 	if (InputMethodHandle.IsValid())
 	{
@@ -144,19 +144,19 @@ void URuiActivatableScreen::UnbindInputMethod()
 	BoundInputSubsystem.Reset();
 }
 
-UWidget* URuiActivatableScreen::NativeGetDesiredFocusTarget() const
+UWidget* URuitkActivatableScreen::NativeGetDesiredFocusTarget() const
 {
 	// TD-029: with a tree-designated target, hand CommonUI this widget — the focus it sets is
 	// forwarded by NativeOnFocusReceived below. Without one, defer to the base class (a BP
 	// override of GetDesiredFocusTarget still wins there).
 	if (HasDesiredFocusTarget())
 	{
-		return const_cast<URuiActivatableScreen*>(this);
+		return const_cast<URuitkActivatableScreen*>(this);
 	}
 	return Super::NativeGetDesiredFocusTarget();
 }
 
-FReply URuiActivatableScreen::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+FReply URuitkActivatableScreen::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
 	if (HasDesiredFocusTarget())
 	{
@@ -168,9 +168,9 @@ FReply URuiActivatableScreen::NativeOnFocusReceived(const FGeometry& InGeometry,
 	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
 
-void URuiActivatableScreen::HandleInputMethodChanged(ECommonInputType NewInputType)
+void URuitkActivatableScreen::HandleInputMethodChanged(ECommonInputType NewInputType)
 {
-	const ERuiInputMethod Mapped = MapInputType(NewInputType);
+	const ERuitkInputMethod Mapped = MapInputType(NewInputType);
 	if (Mapped != State.InputMethod)
 	{
 		State.InputMethod = Mapped;
@@ -178,7 +178,7 @@ void URuiActivatableScreen::HandleInputMethodChanged(ECommonInputType NewInputTy
 	}
 }
 
-void URuiActivatableScreen::ReleaseSlateResources(bool bReleaseChildren)
+void URuitkActivatableScreen::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
 	UnbindInputMethod(); // remove from the subsystem we actually bound to (CMU-1), not the current player's
@@ -190,7 +190,7 @@ void URuiActivatableScreen::ReleaseSlateResources(bool bReleaseChildren)
 }
 
 #if WITH_EDITOR
-const FText URuiActivatableScreen::GetPaletteCategory()
+const FText URuitkActivatableScreen::GetPaletteCategory()
 {
 	return NSLOCTEXT("ReactiveUI", "PaletteCategory", "ReactiveUI");
 }

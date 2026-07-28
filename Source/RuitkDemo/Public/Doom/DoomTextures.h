@@ -20,7 +20,7 @@
 #include "CoreMinimal.h"
 #include "Engine/Texture2D.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// ───── Constants ─────
 	constexpr int32 TEX_W = 64;
@@ -123,4 +123,4 @@ namespace RuiDoom
 		 *  rocket, plasma, bfg, muzzle-flash overlay. */
 		static UTexture2D* Weapon(int32 Index);
 	};
-} // namespace RuiDoom
+} // namespace RuitkDoom

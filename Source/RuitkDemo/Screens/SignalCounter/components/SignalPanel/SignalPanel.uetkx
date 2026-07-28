@@ -1,8 +1,8 @@
-import "@RuiDemoSupport.h"
+import "@RuitkDemoSupport.h"
 
-export FRuiNode SignalPanel() {
-	const int32 Count = RUI::UseSignalKey<int32>(Ctx, RuiDemo::GDemoCounterSignal, 0);
+export FRuitkNode SignalPanel() {
+	const int32 Count = Ruitk::UseSignalKey<int32>(Ctx, RuitkDemo::GDemoCounterSignal, 0);
 	return (
-		<TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />
+		<TextBlock Text={ Ruitk::Fmt(TEXT("Count: {}"), Count) } />
 	);
 }

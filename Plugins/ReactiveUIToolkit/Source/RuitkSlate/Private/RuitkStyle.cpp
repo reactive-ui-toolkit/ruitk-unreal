@@ -1,36 +1,36 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiStyle.h"
+#include "RuitkStyle.h"
 
-#include "RuiElementAdapter.h"
-#include "RuiSlateLog.h"
-#include "RuiSlotValue.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkSlateLog.h"
+#include "RuitkSlotValue.h"
 
 namespace
 {
 	FCriticalSection GClassLock;
-	TMap<FName, FRuiStyleDict> GStyleClasses;
+	TMap<FName, FRuitkStyleDict> GStyleClasses;
 
 	// TD-002: theme registry + active theme (guarded by GClassLock alongside the classes).
-	TMap<FName, FRuiStyleDict> GThemes;
+	TMap<FName, FRuitkStyleDict> GThemes;
 	FName GActiveTheme = NAME_None;
 
 	/** A style value that references a theme token: a String starting with '$'. */
-	bool IsTokenRef(const FRuiValue& V)
+	bool IsTokenRef(const FRuitkValue& V)
 	{
-		return V.Kind == FRuiValue::EKind::String && V.StringValue.StartsWith(TEXT("$"));
+		return V.Kind == FRuitkValue::EKind::String && V.StringValue.StartsWith(TEXT("$"));
 	}
 
-	float AsFloat(const FRuiValue& V)
+	float AsFloat(const FRuitkValue& V)
 	{
 		// R11: route through the SLOT-1 hardened reader — the toolchain emits literal style
 		// values as Strings (`RenderOpacity="0.5"`), and the union-field read silently gave 0.
-		return RUI::Slate::SlotValue::AsFloat(V);
+		return Ruitk::Slate::SlotValue::AsFloat(V);
 	}
 
-	EVisibility VisibilityOf(const FRuiValue& V)
+	EVisibility VisibilityOf(const FRuitkValue& V)
 	{
-		const FName Name = V.Kind == FRuiValue::EKind::Name ? V.NameValue : FName(*V.StringValue);
+		const FName Name = V.Kind == FRuitkValue::EKind::Name ? V.NameValue : FName(*V.StringValue);
 		if (Name == FName(TEXT("collapsed")))
 		{
 			return EVisibility::Collapsed;
@@ -50,7 +50,7 @@ namespace
 		return EVisibility::Visible;
 	}
 
-	void ApplyRenderTransform(SWidget& W, const FRuiStyleDict* Dict)
+	void ApplyRenderTransform(SWidget& W, const FRuitkStyleDict* Dict)
 	{
 		// RenderTranslation/RenderScale/RenderTransformAngle compose into ONE transform;
 		// absent -> identity (the UMG UWidget setter names, D-33).
@@ -60,17 +60,17 @@ namespace
 		bool bAny = false;
 		if (Dict != nullptr)
 		{
-			if (const FRuiValue* T = Dict->Find(FName(TEXT("RenderTranslation"))))
+			if (const FRuitkValue* T = Dict->Find(FName(TEXT("RenderTranslation"))))
 			{
-				Translation = RUI::Slate::SlotValue::AsVector2(*T); // parses the `"x,y"` literal form (R11)
+				Translation = Ruitk::Slate::SlotValue::AsVector2(*T); // parses the `"x,y"` literal form (R11)
 				bAny = true;
 			}
-			if (const FRuiValue* S = Dict->Find(FName(TEXT("RenderScale"))))
+			if (const FRuitkValue* S = Dict->Find(FName(TEXT("RenderScale"))))
 			{
 				Scale = AsFloat(*S);
 				bAny = true;
 			}
-			if (const FRuiValue* A = Dict->Find(FName(TEXT("RenderTransformAngle"))))
+			if (const FRuitkValue* A = Dict->Find(FName(TEXT("RenderTransformAngle"))))
 			{
 				AngleDeg = AsFloat(*A);
 				bAny = true;
@@ -94,7 +94,7 @@ namespace
 	}
 
 	/** Apply one generic key (Value null = RESET to default). Returns false when unknown. */
-	bool ApplyGenericKey(SWidget& W, FName Key, const FRuiValue* Value)
+	bool ApplyGenericKey(SWidget& W, FName Key, const FRuitkValue* Value)
 	{
 		if (Key == FName(TEXT("RenderOpacity")))
 		{
@@ -108,12 +108,12 @@ namespace
 		}
 		if (Key == FName(TEXT("enabled")))
 		{
-			W.SetEnabled(Value == nullptr || RUI::Slate::SlotValue::AsBool(*Value, true));
+			W.SetEnabled(Value == nullptr || Ruitk::Slate::SlotValue::AsBool(*Value, true));
 			return true;
 		}
 		if (Key == FName(TEXT("RenderTransformPivot")))
 		{
-			W.SetRenderTransformPivot(Value != nullptr ? RUI::Slate::SlotValue::AsVector2(*Value)
+			W.SetRenderTransformPivot(Value != nullptr ? Ruitk::Slate::SlotValue::AsVector2(*Value)
 													   : FVector2D::ZeroVector);
 			return true;
 		}
@@ -123,8 +123,8 @@ namespace
 			// every element, never a wrapper widget — SWidget::SetToolTipText is the loyal
 			// setter. Reset = empty text (Slate shows no tooltip for empty).
 			const FText Text = Value == nullptr						   ? FText::GetEmpty()
-							   : Value->Kind == FRuiValue::EKind::Text ? Value->TextValue
-							   : Value->Kind == FRuiValue::EKind::Name ? FText::FromName(Value->NameValue)
+							   : Value->Kind == FRuitkValue::EKind::Text ? Value->TextValue
+							   : Value->Kind == FRuitkValue::EKind::Name ? FText::FromName(Value->NameValue)
 																	   : FText::FromString(Value->StringValue);
 			W.SetToolTipText(Text);
 			return true;
@@ -137,7 +137,7 @@ namespace
 			if (Value != nullptr)
 			{
 				const FName Name =
-					Value->Kind == FRuiValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
+					Value->Kind == FRuitkValue::EKind::Name ? Value->NameValue : FName(*Value->StringValue);
 				Clipping = Name == FName(TEXT("clipToBounds")) ? EWidgetClipping::ClipToBounds
 						   : Name == FName(TEXT("clipToBoundsWithoutIntersecting"))
 							   ? EWidgetClipping::ClipToBoundsWithoutIntersecting
@@ -164,15 +164,15 @@ namespace
 	}
 } // namespace
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	void RegisterStyleClass(FName ClassName, FRuiStyleDict Style)
+	void RegisterStyleClass(FName ClassName, FRuitkStyleDict Style)
 	{
 		FScopeLock Lock(&GClassLock);
 		GStyleClasses.Add(ClassName, MoveTemp(Style));
 	}
 
-	const FRuiStyleDict* FindStyleClass(FName ClassName)
+	const FRuitkStyleDict* FindStyleClass(FName ClassName)
 	{
 		FScopeLock Lock(&GClassLock);
 		return GStyleClasses.Find(ClassName);
@@ -180,19 +180,19 @@ namespace RUI::Slate
 
 	// TD-002 third layer: resolve `$token` references in `Out` against the active theme (lowest
 	// priority — the token supplies the VALUE a class/inline key referenced).
-	void ResolveThemeTokens(FRuiStyleDict& Out)
+	void ResolveThemeTokens(FRuitkStyleDict& Out)
 	{
 		FScopeLock Lock(&GClassLock);
 		if (GActiveTheme == NAME_None)
 		{
 			return;
 		}
-		const FRuiStyleDict* Theme = GThemes.Find(GActiveTheme);
+		const FRuitkStyleDict* Theme = GThemes.Find(GActiveTheme);
 		if (Theme == nullptr)
 		{
 			return;
 		}
-		for (TPair<FName, FRuiValue>& Pair : Out)
+		for (TPair<FName, FRuitkValue>& Pair : Out)
 		{
 			// Resolve a `$token` chain transitively — a token whose value is itself `$other` (bughunt
 			// STYLE-3, which previously left the second-hop `$other` string reaching the adapter). Bounded
@@ -202,7 +202,7 @@ namespace RUI::Slate
 			while (IsTokenRef(Pair.Value) && Hops++ < MaxHops)
 			{
 				const FName Token(*Pair.Value.StringValue.RightChop(1));
-				const FRuiValue* Resolved = Theme->Find(Token);
+				const FRuitkValue* Resolved = Theme->Find(Token);
 				if (Resolved == nullptr)
 				{
 					WarnUnknownKey(FName(*(TEXT("token:") + Token.ToString())));
@@ -218,14 +218,14 @@ namespace RUI::Slate
 	}
 
 	/** True iff a theme is active AND `Dict` holds at least one `$token` ref needing resolution. */
-	bool NeedsTokenResolution(const FRuiStyleDict& Dict)
+	bool NeedsTokenResolution(const FRuitkStyleDict& Dict)
 	{
 		FScopeLock Lock(&GClassLock);
 		if (GActiveTheme == NAME_None)
 		{
 			return false;
 		}
-		for (const TPair<FName, FRuiValue>& Pair : Dict)
+		for (const TPair<FName, FRuitkValue>& Pair : Dict)
 		{
 			if (IsTokenRef(Pair.Value))
 			{
@@ -235,8 +235,8 @@ namespace RUI::Slate
 		return false;
 	}
 
-	TSharedPtr<FRuiStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
-												  const TSharedPtr<FRuiStyleDict>& InlineStyle)
+	TSharedPtr<FRuitkStyleDict> BuildEffectiveStyle(const TArray<FName>& Classes,
+												  const TSharedPtr<FRuitkStyleDict>& InlineStyle)
 	{
 		if (Classes.IsEmpty())
 		{
@@ -247,18 +247,18 @@ namespace RUI::Slate
 			{
 				return InlineStyle;
 			}
-			TSharedPtr<FRuiStyleDict> Out = MakeShared<FRuiStyleDict>(*InlineStyle);
+			TSharedPtr<FRuitkStyleDict> Out = MakeShared<FRuitkStyleDict>(*InlineStyle);
 			ResolveThemeTokens(*Out);
-			return Out->IsEmpty() ? TSharedPtr<FRuiStyleDict>() : Out;
+			return Out->IsEmpty() ? TSharedPtr<FRuitkStyleDict>() : Out;
 		}
-		TSharedPtr<FRuiStyleDict> Out = MakeShared<FRuiStyleDict>();
+		TSharedPtr<FRuitkStyleDict> Out = MakeShared<FRuitkStyleDict>();
 		{
 			FScopeLock Lock(&GClassLock);
 			for (const FName& ClassName : Classes)
 			{
-				if (const FRuiStyleDict* ClassDict = GStyleClasses.Find(ClassName))
+				if (const FRuitkStyleDict* ClassDict = GStyleClasses.Find(ClassName))
 				{
-					for (const TPair<FName, FRuiValue>& Pair : *ClassDict)
+					for (const TPair<FName, FRuitkValue>& Pair : *ClassDict)
 					{
 						Out->Add(Pair.Key, Pair.Value);
 					}
@@ -271,26 +271,26 @@ namespace RUI::Slate
 		}
 		if (InlineStyle.IsValid())
 		{
-			for (const TPair<FName, FRuiValue>& Pair : *InlineStyle)
+			for (const TPair<FName, FRuitkValue>& Pair : *InlineStyle)
 			{
 				Out->Add(Pair.Key, Pair.Value); // inline wins
 			}
 		}
 		ResolveThemeTokens(*Out);
-		return Out->IsEmpty() ? TSharedPtr<FRuiStyleDict>() : Out;
+		return Out->IsEmpty() ? TSharedPtr<FRuitkStyleDict>() : Out;
 	}
 
-	void ApplyStyleDiff(SWidget& Widget, IRuiElementAdapter* Adapter, const FRuiStyleDict* Old,
-						const FRuiStyleDict* New)
+	void ApplyStyleDiff(SWidget& Widget, IRuitkElementAdapter* Adapter, const FRuitkStyleDict* Old,
+						const FRuitkStyleDict* New)
 	{
 		bool bTransformTouched = false;
 
 		// Pass 1: keys in New — apply when new or changed.
 		if (New != nullptr)
 		{
-			for (const TPair<FName, FRuiValue>& Pair : *New)
+			for (const TPair<FName, FRuitkValue>& Pair : *New)
 			{
-				const FRuiValue* OldValue = Old != nullptr ? Old->Find(Pair.Key) : nullptr;
+				const FRuitkValue* OldValue = Old != nullptr ? Old->Find(Pair.Key) : nullptr;
 				if (OldValue != nullptr && *OldValue == Pair.Value)
 				{
 					continue;
@@ -314,7 +314,7 @@ namespace RUI::Slate
 		// Pass 2: keys REMOVED (in Old, not in New) — reset to defaults (the family rule).
 		if (Old != nullptr)
 		{
-			for (const TPair<FName, FRuiValue>& Pair : *Old)
+			for (const TPair<FName, FRuitkValue>& Pair : *Old)
 			{
 				if (New != nullptr && New->Contains(Pair.Key))
 				{
@@ -341,14 +341,14 @@ namespace RUI::Slate
 
 	// ── TD-002: @theme tokens + @uss stylesheet loading ────────────────────────────────────
 
-	void RegisterTheme(FName ThemeName, FRuiStyleDict Tokens)
+	void RegisterTheme(FName ThemeName, FRuitkStyleDict Tokens)
 	{
 		// Store token keys BARE: a reference strips its leading `$` before lookup (ResolveThemeTokens),
 		// so a `$token:` declaration form must normalize to `token` or it can never resolve (bughunt
 		// STYLE-1). Both `accent:` and `$accent:` are accepted and stored as `accent`.
-		FRuiStyleDict Normalized;
+		FRuitkStyleDict Normalized;
 		Normalized.Reserve(Tokens.Num());
-		for (const TPair<FName, FRuiValue>& Token : Tokens)
+		for (const TPair<FName, FRuitkValue>& Token : Tokens)
 		{
 			const FString K = Token.Key.ToString();
 			Normalized.Add(K.StartsWith(TEXT("$")) ? FName(*K.RightChop(1)) : Token.Key, Token.Value);
@@ -369,47 +369,47 @@ namespace RUI::Slate
 		return GActiveTheme;
 	}
 
-	const FRuiValue* ResolveThemeToken(FName TokenName)
+	const FRuitkValue* ResolveThemeToken(FName TokenName)
 	{
 		FScopeLock Lock(&GClassLock);
 		if (GActiveTheme == NAME_None)
 		{
 			return nullptr;
 		}
-		const FRuiStyleDict* Theme = GThemes.Find(GActiveTheme);
+		const FRuitkStyleDict* Theme = GThemes.Find(GActiveTheme);
 		return Theme ? Theme->Find(TokenName) : nullptr;
 	}
 
-	FRuiValue ParseStyleValue(const FString& Literal)
+	FRuitkValue ParseStyleValue(const FString& Literal)
 	{
 		FString S = Literal;
 		S.TrimStartAndEndInline();
 		if (S.IsEmpty())
 		{
-			return FRuiValue();
+			return FRuitkValue();
 		}
 		// Token reference: keep as a '$'-prefixed String (resolved at effective-style build time).
 		if (S.StartsWith(TEXT("$")))
 		{
-			return FRuiValue(S);
+			return FRuitkValue(S);
 		}
 		// Hex color: #rrggbb or #rrggbbaa.
 		if (S.StartsWith(TEXT("#")))
 		{
-			return FRuiValue(FLinearColor(FColor::FromHex(S)));
+			return FRuitkValue(FLinearColor(FColor::FromHex(S)));
 		}
 		// Quoted string.
 		if (S.Len() >= 2 && S.StartsWith(TEXT("\"")) && S.EndsWith(TEXT("\"")))
 		{
-			return FRuiValue(S.Mid(1, S.Len() - 2));
+			return FRuitkValue(S.Mid(1, S.Len() - 2));
 		}
 		if (S == TEXT("true"))
 		{
-			return FRuiValue(true);
+			return FRuitkValue(true);
 		}
 		if (S == TEXT("false"))
 		{
-			return FRuiValue(false);
+			return FRuitkValue(false);
 		}
 		// Vector2: "x,y" (two numbers). Trim each component so `"x, y"` (a space after the comma) still
 		// parses as a Vector2 rather than falling through to a Name (bughunt STYLE-2).
@@ -422,7 +422,7 @@ namespace RUI::Slate
 				Parts[1].TrimStartAndEndInline();
 				if (Parts[0].IsNumeric() && Parts[1].IsNumeric())
 				{
-					return FRuiValue(FVector2D(FCString::Atod(*Parts[0]), FCString::Atod(*Parts[1])));
+					return FRuitkValue(FVector2D(FCString::Atod(*Parts[0]), FCString::Atod(*Parts[1])));
 				}
 			}
 		}
@@ -431,12 +431,12 @@ namespace RUI::Slate
 		{
 			if (S.Contains(TEXT(".")))
 			{
-				return FRuiValue(static_cast<double>(FCString::Atod(*S)));
+				return FRuitkValue(static_cast<double>(FCString::Atod(*S)));
 			}
-			return FRuiValue(static_cast<int64>(FCString::Atoi64(*S)));
+			return FRuitkValue(static_cast<int64>(FCString::Atoi64(*S)));
 		}
 		// Bare identifier -> Name (enum-ish values: visible, center, ...).
-		return FRuiValue(FName(*S));
+		return FRuitkValue(FName(*S));
 	}
 
 	/** Strip `/* ... *​/` and `//` comments, QUOTE-AWARE: a `//` or `/*` inside a `"..."` value is a
@@ -519,7 +519,7 @@ namespace RUI::Slate
 			Cursor = BraceClose + 1;
 
 			// Parse the body into a dict (comments already stripped globally above).
-			FRuiStyleDict Dict;
+			FRuitkStyleDict Dict;
 			TArray<FString> Decls;
 			Body.ParseIntoArray(Decls, TEXT(";"), true);
 			for (const FString& Decl : Decls)
@@ -556,4 +556,4 @@ namespace RUI::Slate
 		}
 		return Registered;
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

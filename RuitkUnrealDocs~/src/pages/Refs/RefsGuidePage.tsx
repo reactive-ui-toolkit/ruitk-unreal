@@ -2,14 +2,14 @@ import type { FC } from 'react'
 import { Alert, Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const REF = `export FRuiNode Stopwatch() {
+const REF = `export FRuitkNode Stopwatch() {
 	// A ref is a mutable box whose .current survives every render and never
 	// triggers one — perfect for a timer handle, a previous value, or a counter.
-	const TSharedRef<TRuiRef<int32>>& Renders = UseRef<int32>(0);
+	const TSharedRef<TRuitkRef<int32>>& Renders = UseRef<int32>(0);
 	Renders->Current += 1;
 
 	auto [Now, SetNow] = UseState<double>(0.0);
-	return <TextBlock Text={ RUI::Fmt(TEXT("render #{}"), Renders->Current) } />;
+	return <TextBlock Text={ Ruitk::Fmt(TEXT("render #{}"), Renders->Current) } />;
 }`
 
 export const RefsGuidePage: FC = () => (

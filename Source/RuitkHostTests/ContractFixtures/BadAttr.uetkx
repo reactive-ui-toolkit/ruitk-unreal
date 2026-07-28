@@ -1,4 +1,4 @@
-FRuiNode BadAttr() {
+FRuitkNode BadAttr() {
 	return (
 		<Button Bogus="x">hm</Button>
 	);

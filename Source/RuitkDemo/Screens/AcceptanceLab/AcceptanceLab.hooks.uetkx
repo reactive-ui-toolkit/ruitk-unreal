@@ -11,7 +11,7 @@
 //         The AcceptanceLab screen should RESET (MessageLog status `reset 1`); other screens
 //         untouched. Delete the line and save to restore.
 //
-// A user hook is a plain function taking FRuiContext& implicitly (the compiler auto-prefixes the
+// A user hook is a plain function taking FRuitkContext& implicitly (the compiler auto-prefixes the
 // built-in Use* calls) — the documented family divergence. It returns a TTuple the caller
 // destructures with a structured binding.
 

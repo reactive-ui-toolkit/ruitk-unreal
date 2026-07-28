@@ -1,11 +1,11 @@
-import "@RuiDemoSupport.h"
+import "@RuitkDemoSupport.h"
 import { DemoContextPanel } from "./components/DemoContextPanel/DemoContextPanel"
 import * as ContextDemoStyle from "./ContextDemo.style"
 
-export FRuiNode ContextDemo() {
+export FRuitkNode ContextDemo() {
 	auto [bPrimary, SetPrimary] = UseState<bool>(true);
 	const FLinearColor Theme = bPrimary ? ContextDemoStyle::CoolTheme : ContextDemoStyle::WarmTheme;
-	ProvideContext(RuiDemo::GDemoThemeCtx, Theme);
+	ProvideContext(RuitkDemo::GDemoThemeCtx, Theme);
 
 	return (
 		<Border

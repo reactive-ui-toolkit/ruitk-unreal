@@ -1,14 +1,14 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Hooks.Tween + ReactiveUI.Hooks.Sfx — the Phase-7 animation/media hooks over the
+// Ruitk.Hooks.Tween + Ruitk.Hooks.Sfx — the Phase-7 animation/media hooks over the
 // mock host's deterministic clock: prime-at-target (no mount animation), frame-chain
 // progression, retarget-from-current (no snap), settle-and-stop, UseAnimate's 0..1 driver,
 // and the UseSfx sink dispatch.
 
 #include "Misc/AutomationTest.h"
-#include "RuiCoreElements.h"
-#include "RuiMockHost.h"
-#include "RuiNode.h"
+#include "RuitkCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkNode.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
@@ -19,31 +19,31 @@ namespace TweenTest
 	static bool GAnimateIn = false;
 	static float GAnimateValue = -1.0f;
 
-	static FRuiNodeArray TweenComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray TweenComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		GLastValue = Ctx.UseTween(GTarget, /*DurationSec*/ 1.0f, ERuiEase::Linear);
-		return {RUI::TextBlock(FString::SanitizeFloat(GLastValue))};
+		GLastValue = Ctx.UseTween(GTarget, /*DurationSec*/ 1.0f, ERuitkEase::Linear);
+		return {Ruitk::TextBlock(FString::SanitizeFloat(GLastValue))};
 	}
-	RUI_COMPONENT(TweenComp)
+	RUITK_COMPONENT(TweenComp)
 
-	static FRuiNodeArray AnimateComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray AnimateComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		GAnimateValue = Ctx.UseAnimate(GAnimateIn, 1.0f, ERuiEase::Linear);
-		return {RUI::TextBlock(FString::SanitizeFloat(GAnimateValue))};
+		GAnimateValue = Ctx.UseAnimate(GAnimateIn, 1.0f, ERuitkEase::Linear);
+		return {Ruitk::TextBlock(FString::SanitizeFloat(GAnimateValue))};
 	}
-	RUI_COMPONENT(AnimateComp)
+	RUITK_COMPONENT(AnimateComp)
 } // namespace TweenTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiTweenTest, "ReactiveUI.Hooks.Tween",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkTweenTest, "Ruitk.Hooks.Tween",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiTweenTest::RunTest(const FString&)
+bool FRuitkTweenTest::RunTest(const FString&)
 {
 	using namespace TweenTest;
-	FRuiTestHarness H;
+	FRuitkTestHarness H;
 	H.Host.MockTimeSeconds = 100.0;
 
 	GTarget = 10.0f;
-	H.Mount(RUI::FC(&TweenComp));
+	H.Mount(Ruitk::FC(&TweenComp));
 	TestEqual(TEXT("primes AT target (no mount animation)"), GLastValue, 10.0f);
 	TestTrue(TEXT("settled: no frame chain armed"), !H.Host.HasQueuedFrames());
 
@@ -81,18 +81,18 @@ bool FRuiTweenTest::RunTest(const FString&)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiAnimateSfxTest, "ReactiveUI.Hooks.Sfx",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkAnimateSfxTest, "Ruitk.Hooks.Sfx",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiAnimateSfxTest::RunTest(const FString&)
+bool FRuitkAnimateSfxTest::RunTest(const FString&)
 {
 	using namespace TweenTest;
 
 	// UseAnimate: the 0..1 enter/exit driver
 	{
-		FRuiTestHarness H;
+		FRuitkTestHarness H;
 		H.Host.MockTimeSeconds = 10.0;
 		GAnimateIn = false;
-		H.Mount(RUI::FC(&AnimateComp));
+		H.Mount(Ruitk::FC(&AnimateComp));
 		TestEqual(TEXT("out state primes at 0"), GAnimateValue, 0.0f);
 
 		GAnimateIn = true;
@@ -113,33 +113,33 @@ bool FRuiAnimateSfxTest::RunTest(const FString&)
 		static int32 SinkCalls = 0;
 		static FName SinkBus;
 		SinkCalls = 0;
-		RUI::SetSfxSink(
-			[](FName Bus, const FRuiValue&)
+		Ruitk::SetSfxSink(
+			[](FName Bus, const FRuitkValue&)
 			{
 				++SinkCalls;
 				SinkBus = Bus;
 			});
 
-		FRuiTestHarness H;
-		static FRuiCallback GPlay;
+		FRuitkTestHarness H;
+		static FRuitkCallback GPlay;
 		struct FLocal
 		{
-			static FRuiNodeArray Comp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+			static FRuitkNodeArray Comp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 			{
 				GPlay = Ctx.UseSfx(FName(TEXT("ui.click")));
-				return {RUI::TextBlock(TEXT("sfx"))};
+				return {Ruitk::TextBlock(TEXT("sfx"))};
 			}
 		};
-		H.Mount(RUI::FC(&FLocal::Comp));
+		H.Mount(Ruitk::FC(&FLocal::Comp));
 		TestTrue(TEXT("callback minted"), GPlay.IsBound());
-		GPlay.Execute(FRuiValue(1));
+		GPlay.Execute(FRuitkValue(1));
 		TestEqual(TEXT("sink invoked"), SinkCalls, 1);
 		TestEqual(TEXT("bus carried"), SinkBus, FName(TEXT("ui.click")));
 
-		RUI::SetSfxSink(nullptr);
-		GPlay.Execute(FRuiValue(1)); // unset sink: quiet no-op
+		Ruitk::SetSfxSink(nullptr);
+		GPlay.Execute(FRuitkValue(1)); // unset sink: quiet no-op
 		TestEqual(TEXT("no sink, no crash"), SinkCalls, 1);
-		GPlay = FRuiCallback();
+		GPlay = FRuitkCallback();
 	}
 	return true;
 }

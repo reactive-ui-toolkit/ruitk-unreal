@@ -1,6 +1,6 @@
 import { CycleA } from "./CycleA"
 
-export FRuiNode CycleB(int32 Depth = 0) {
+export FRuitkNode CycleB(int32 Depth = 0) {
 	return (
 		<VerticalBox>
 			<TextBlock Text="B" />

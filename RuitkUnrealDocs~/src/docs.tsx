@@ -89,7 +89,7 @@ export const sections: DocSection[] = [
         path: '/',
         keywords: ['introduction', 'markup', 'unreal', 'slate', 'uetkx'],
         searchContent:
-          'reactive ui for unreal react-style ui library unreal engine 5.6 pure c++ no javascript vm no bridge layer uetkx authoring language function-style components hooks state effects UseState UseEffect fiber reconciler decides which slate widgets exist each frame diffs patches only what changed widget reflector ordinary swidgets umg commonui mvvm stay in place feeding data hosting output .uetkx markup jsx-like compiles to native c++ shipping builds hot-reloads live in pie save mid-play under a second state preserved beta roadmap component counter UseState int32 VerticalBox TextBlock Button OnClicked RUI::Fmt SetCount',
+          'reactive ui for unreal react-style ui library unreal engine 5.6 pure c++ no javascript vm no bridge layer uetkx authoring language function-style components hooks state effects UseState UseEffect fiber reconciler decides which slate widgets exist each frame diffs patches only what changed widget reflector ordinary swidgets umg commonui mvvm stay in place feeding data hosting output .uetkx markup jsx-like compiles to native c++ shipping builds hot-reloads live in pie save mid-play under a second state preserved beta roadmap component counter UseState int32 VerticalBox TextBlock Button OnClicked Ruitk::Fmt SetCount',
         element: () => <IntroductionPage />,
       },
     ],
@@ -103,9 +103,9 @@ export const sections: DocSection[] = [
         canonicalId: 'getting-started',
         title: 'Getting Started',
         path: '/getting-started',
-        keywords: ['install', 'setup', 'plugin', 'build.cs', 'mount', 'FRuiRoot', 'RUICompile'],
+        keywords: ['install', 'setup', 'plugin', 'build.cs', 'mount', 'FRuitkRoot', 'RuitkCompile'],
         searchContent:
-          'getting started install setup enable Reactive UI Toolkit plugin edit plugins Build.cs PublicDependencyModuleNames RuitkCore RuitkSlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock RUI::Fmt Button OnClicked SetCount mount FRuiRoot CreateInViewport RUI::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuiRoot.h compile RUICompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
+          'getting started install setup enable Reactive UI Toolkit plugin edit plugins Build.cs PublicDependencyModuleNames RuitkCore RuitkSlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock Ruitk::Fmt Button OnClicked SetCount mount FRuitkRoot CreateInViewport Ruitk::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuitkRoot.h compile RuitkCompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
         element: () => <GettingStartedPage />,
       },
     ],
@@ -121,7 +121,7 @@ export const sections: DocSection[] = [
         path: '/concepts',
         keywords: ['concepts', 'reconciler', 'components', 'hooks', 'values', 'utils', 'companion', 'cvars'],
         searchContent:
-          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuiNode Use-prefixed value export util function synchronous rendering keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuiHostConfig umg commonui mvvm rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI console variables cvars',
+          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuitkNode Use-prefixed value export util function synchronous rendering keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuitkHostConfig umg commonui mvvm rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI console variables cvars',
         element: () => <ConceptsPage />,
       },
       {
@@ -131,7 +131,7 @@ export const sections: DocSection[] = [
         path: '/guides/migration',
         keywords: ['migration', 'adoption', 'existing project', 'incremental', 'umg', 'convert'],
         searchContent:
-          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuiHostWidget ReactiveUI Host designer ComponentName registered component whole screens URuiActivatableScreen commonui stack AddWidgetInstance MountNamed URuiWorldSubsystem overlay inversion ReactiveUI owns tree RUI::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components RUI:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RUIMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
+          'migration adoption existing project incremental nobody rewrites shipping ui leaf islands panel URuitkHostWidget ReactiveUI Host designer ComponentName registered component whole screens URuitkActivatableScreen commonui stack AddWidgetInstance MountNamed URuitkWorldSubsystem overlay inversion ReactiveUI owns tree Ruitk::Umg::UserWidget legacy widgets UseField viewmodels feed data convert hand-written c++ components Ruitk:: builder calls to .uetkx markup mechanical same reconciler hooks gallery reference RuitkMigrateEsModules es modules codemod deprecation policy VERSIONING changelog',
         element: () => <MigrationPage />,
       },
       {
@@ -141,7 +141,7 @@ export const sections: DocSection[] = [
         path: '/uetkx/imports',
         keywords: ['import', 'export', 'module', 'strict', 'codemod', 'uetkx', 'privacy', 'root alias'],
         searchContent:
-          'uetkx imports exports static import export module strict resolution codemod RUIMigrateEsModules ~/ root alias specifier relative extensionless named export rename as namespace import star as default import export default export list privacy tree-shaken file-scoped same-name exports legal 2300 2301 2302 2303 2304 2305 2306 2307 2308 2309 2316 2317 2320 2321 2322 2323 2324 2325 2326 2327 duplicate export binding unknown specifier not exported not declared duplicate unused used not imported value cycle module boundary preamble wrapper deprecated uetkx.config.json root key',
+          'uetkx imports exports static import export module strict resolution codemod RuitkMigrateEsModules ~/ root alias specifier relative extensionless named export rename as namespace import star as default import export default export list privacy tree-shaken file-scoped same-name exports legal 2300 2301 2302 2303 2304 2305 2306 2307 2308 2309 2316 2317 2320 2321 2322 2323 2324 2325 2326 2327 duplicate export binding unknown specifier not exported not declared duplicate unused used not imported value cycle module boundary preamble wrapper deprecated uetkx.config.json root key',
         element: () => <ImportsPage />,
       },
       {
@@ -149,9 +149,9 @@ export const sections: DocSection[] = [
         canonicalId: 'uetkx-es-modules-migration',
         title: 'Migrating to ES modules',
         path: '/uetkx/migration-es-modules',
-        keywords: ['es modules', 'migration', 'codemod', 'wrapper', 'deprecated', '2320', 'RUIMigrateEsModules'],
+        keywords: ['es modules', 'migration', 'codemod', 'wrapper', 'deprecated', '2320', 'RuitkMigrateEsModules'],
         searchContent:
-          'es modules migration wrapper component hook module deprecated UETKX2320 2321 2322 2323 2324 2325 2326 2327 codemod RUIMigrateEsModules plain declarations signature classification FRuiNode Use prefix value export inference sugar util function export default export list rename import namespace import star as default import hoist module members import * as file rename private remount state reset deprecation timeline removal minor',
+          'es modules migration wrapper component hook module deprecated UETKX2320 2321 2322 2323 2324 2325 2326 2327 codemod RuitkMigrateEsModules plain declarations signature classification FRuitkNode Use prefix value export inference sugar util function export default export list rename import namespace import star as default import hoist module members import * as file rename private remount state reset deprecation timeline removal minor',
         element: () => <EsModulesMigrationPage />,
       },
       {
@@ -171,7 +171,7 @@ export const sections: DocSection[] = [
         path: '/guides/assets',
         keywords: ['assets', 'brush', 'texture', 'font', 'image', 'MakeAssetBrush'],
         searchContent:
-          'assets slate brushes fonts colors not raw paths FSlateBrush references UObject RUI::Umg::MakeAssetBrush ResourceObject ImageSize Tint UTexture2D material render target TObjectPtr soft reference asset manager Image Border Button background FSlateFontInfo Font keys FSlateColor FLinearColor ColorAndOpacity literal unreal names lifetime handled process-wide GC root FRuiAssetBrushRoot NumTrackedAssetBrushes no manual rooting',
+          'assets slate brushes fonts colors not raw paths FSlateBrush references UObject Ruitk::Umg::MakeAssetBrush ResourceObject ImageSize Tint UTexture2D material render target TObjectPtr soft reference asset manager Image Border Button background FSlateFontInfo Font keys FSlateColor FLinearColor ColorAndOpacity literal unreal names lifetime handled process-wide GC root FRuitkAssetBrushRoot NumTrackedAssetBrushes no manual rooting',
         element: () => <AssetsPage />,
       },
       {
@@ -181,7 +181,7 @@ export const sections: DocSection[] = [
         path: '/guides/localization',
         keywords: ['localization', 'loc', 'FText', 'NSLOCTEXT', 'culture', 'gather', 'translation'],
         searchContent:
-          'localization ftext gathering nsloctext uetkx string literals self-namespaced Uetkx file basename localization dashboard gather translate compile stock pipeline no custom gatherer *.inl FileNameFilters GatherTextFromSource file masks committed uetkx.inl demo target RuiDemo_Gather.ini manifest archive locres ReactiveUI.Loc.GatherManifest tripwire culture switching SetCurrentCulture text revision re-render mounted roots lazy ftext RUI::Fmt stable keys carry-over archive translation',
+          'localization ftext gathering nsloctext uetkx string literals self-namespaced Uetkx file basename localization dashboard gather translate compile stock pipeline no custom gatherer *.inl FileNameFilters GatherTextFromSource file masks committed uetkx.inl demo target RuitkDemo_Gather.ini manifest archive locres Ruitk.Loc.GatherManifest tripwire culture switching SetCurrentCulture text revision re-render mounted roots lazy ftext Ruitk::Fmt stable keys carry-over archive translation',
         element: () => <LocalizationPage />,
       },
       {
@@ -201,7 +201,7 @@ export const sections: DocSection[] = [
         path: '/styling',
         keywords: ['style', 'padding', 'slot', 'brush', 'color', 'FMargin', 'FLinearColor', 'FSlateColor'],
         searchContent:
-          'styling three layers cascade theme tokens classes inline style keys exact unreal names element attrs Padding ContentPadding BorderImage BorderBackgroundColor WidthOverride generic style keys RenderOpacity Visibility Enabled RenderTranslation RenderScale RenderTransformAngle RenderTransformPivot ColorAndOpacity Font.Size Justification AutoWrapText FillColorAndOpacity slot keys Slot.Padding Slot.HAlign Slot.VAlign Slot.Fill Slot.ZOrder fill left center right style classes RegisterStyleClass classes attribute merge left-to-right inline wins themes @theme $token LoadStylesheet SetActiveTheme uss stylesheet RUI::Style RUI::Slot fluent builders setter styling never rebuilds reset on removal FMargin FLinearColor FSlateColor',
+          'styling three layers cascade theme tokens classes inline style keys exact unreal names element attrs Padding ContentPadding BorderImage BorderBackgroundColor WidthOverride generic style keys RenderOpacity Visibility Enabled RenderTranslation RenderScale RenderTransformAngle RenderTransformPivot ColorAndOpacity Font.Size Justification AutoWrapText FillColorAndOpacity slot keys Slot.Padding Slot.HAlign Slot.VAlign Slot.Fill Slot.ZOrder fill left center right style classes RegisterStyleClass classes attribute merge left-to-right inline wins themes @theme $token LoadStylesheet SetActiveTheme uss stylesheet Ruitk::Style Ruitk::Slot fluent builders setter styling never rebuilds reset on removal FMargin FLinearColor FSlateColor',
         element: () => <StylingPage />,
       },
       {
@@ -211,7 +211,7 @@ export const sections: DocSection[] = [
         path: '/differences',
         keywords: ['react', 'differences', 'events', 'onclicked', 'slate', 'synchronous', 'naming'],
         searchContent:
-          'different from react mental model pure c++ compiled to slate no javascript vm no bridge no reflection retained slate widgets not virtual dom hooks pascalcase UseState events unreal delegate name OnClicked OnCheckStateChanged OnValueChanged never onclick onchange elements slate class minus S VerticalBox TextBlock Slider Rui mark custom widgets UseTransition synchronous structural error boundaries removed plain props do not reset style events refs draw reset deliberate semantic divergences react ref lifecycle subscribe-in-effect signals registry fname component identity',
+          'different from react mental model pure c++ compiled to slate no javascript vm no bridge no reflection retained slate widgets not virtual dom hooks pascalcase UseState events unreal delegate name OnClicked OnCheckStateChanged OnValueChanged never onclick onchange elements slate class minus S VerticalBox TextBlock Slider Ruitk mark custom widgets UseTransition synchronous structural error boundaries removed plain props do not reset style events refs draw reset deliberate semantic divergences react ref lifecycle subscribe-in-effect signals registry fname component identity',
         element: () => <DifferencesPage />,
       },
       {
@@ -221,7 +221,7 @@ export const sections: DocSection[] = [
         path: '/guides/events',
         keywords: ['events', 'input', 'OnClicked', 'OnTextChanged', 'OnCheckStateChanged', 'Value', 'delegate'],
         searchContent:
-          'events input handling On plus slate delegate name OnClicked OnCheckStateChanged OnTextChanged OnTextCommitted OnValueChanged no onclick no onchange event payload FRuiValue Value.TextValue Value.BoolValue Value.FloatValue bIsChecked Button EditableTextBox SearchBox CheckBox Slider SpinBox handler body c++ setter event props reset between renders disconnect stale delegate',
+          'events input handling On plus slate delegate name OnClicked OnCheckStateChanged OnTextChanged OnTextCommitted OnValueChanged no onclick no onchange event payload FRuitkValue Value.TextValue Value.BoolValue Value.FloatValue bIsChecked Button EditableTextBox SearchBox CheckBox Slider SpinBox handler body c++ setter event props reset between renders disconnect stale delegate',
         element: () => <EventsPage />,
       },
       {
@@ -259,9 +259,9 @@ export const sections: DocSection[] = [
         canonicalId: 'custom-rendering',
         title: 'Custom Rendering',
         path: '/guides/custom-rendering',
-        keywords: ['custom rendering', 'RuiCanvas', 'DrawFn', 'MakeDrawFn', 'RedrawKey', 'paint'],
+        keywords: ['custom rendering', 'RuitkCanvas', 'DrawFn', 'MakeDrawFn', 'RedrawKey', 'paint'],
         searchContent:
-          'custom rendering RuiCanvas slate paint surface draw function RUI::Slate::MakeDrawFn FGeometry FSlateWindowElementList int32 layer FRuiDrawFn UseMemo stable identity RUI::Deps repaint when draw fn identity changes DrawFn CanvasSize RedrawKey repaint on demand animation external data scatter plot MakeLines MakeBox custom brushes charts gauges gizmos declarative when to repaint slate drawing',
+          'custom rendering RuitkCanvas slate paint surface draw function Ruitk::Slate::MakeDrawFn FGeometry FSlateWindowElementList int32 layer FRuitkDrawFn UseMemo stable identity Ruitk::Deps repaint when draw fn identity changes DrawFn CanvasSize RedrawKey repaint on demand animation external data scatter plot MakeLines MakeBox custom brushes charts gauges gizmos declarative when to repaint slate drawing',
         element: () => <CustomRenderingPage />,
       },
     ],
@@ -275,9 +275,9 @@ export const sections: DocSection[] = [
         canonicalId: 'signals',
         title: 'Signals',
         path: '/tooling/signals',
-        keywords: ['signals', 'TRuiSignal', 'GetOrCreateSignal', 'UseSignalKey', 'shared state'],
+        keywords: ['signals', 'TRuitkSignal', 'GetOrCreateSignal', 'UseSignalKey', 'shared state'],
         searchContent:
-          'signals TRuiSignal reactive value store outside component tree single source of truth shared state many distant components subscribe re-render RUI::GetOrCreateSignal key initial one instance registered Set Update functional update freshest value RUI::UseSignalKey Ctx key default subscribe current value schedule re-render sibling panels lockstep app-wide state outlives component vs context subtree vs UseState own state',
+          'signals TRuitkSignal reactive value store outside component tree single source of truth shared state many distant components subscribe re-render Ruitk::GetOrCreateSignal key initial one instance registered Set Update functional update freshest value Ruitk::UseSignalKey Ctx key default subscribe current value schedule re-render sibling panels lockstep app-wide state outlives component vs context subtree vs UseState own state',
         element: () => <SignalsPage />,
       },
       {
@@ -287,7 +287,7 @@ export const sections: DocSection[] = [
         path: '/tooling/router',
         keywords: ['router', 'routes', 'route', 'outlet', 'navlink', 'navigation', 'UseNavigate'],
         searchContent:
-          'router in-memory react router RUI::Router InitialPath RUI::Routes best match ranked path FRuiRoute Path Element bIndex Children data not tags UseOutlet nested route RUI::Link bReplace active state UseIsActive hooks UseNavigate imperative UseLocation UsePathname UseParams dynamic segments UseSearchParams query UseMatch UseResolvedPath UseOutlet UseBlocker navigation guard unsaved changes game ui menus settings nested screens no url bar',
+          'router in-memory react router Ruitk::Router InitialPath Ruitk::Routes best match ranked path FRuitkRoute Path Element bIndex Children data not tags UseOutlet nested route Ruitk::Link bReplace active state UseIsActive hooks UseNavigate imperative UseLocation UsePathname UseParams dynamic segments UseSearchParams query UseMatch UseResolvedPath UseOutlet UseBlocker navigation guard unsaved changes game ui menus settings nested screens no url bar',
         element: () => <RouterPage />,
       },
       {
@@ -307,7 +307,7 @@ export const sections: DocSection[] = [
         path: '/tooling/suspense',
         keywords: ['suspense', 'fallback', 'loading', 'async', 'boundary'],
         searchContent:
-          'suspense RUI::Suspense IsReady fallback children structural primitive not a tag expression child fallback content not ready swap loading state async resource streamed asset deferred computation no throw-to-suspend c++ has no equivalent declarative boundary polyfill readiness driven explicitly poll driver self-re-arming frame request signal flips fallback to content deliberate divergence from react model not-ready state stress test poll-driver frame loop RUI::Suspense Fallback',
+          'suspense Ruitk::Suspense IsReady fallback children structural primitive not a tag expression child fallback content not ready swap loading state async resource streamed asset deferred computation no throw-to-suspend c++ has no equivalent declarative boundary polyfill readiness driven explicitly poll driver self-re-arming frame request signal flips fallback to content deliberate divergence from react model not-ready state stress test poll-driver frame loop Ruitk::Suspense Fallback',
         element: () => <SuspensePage />,
       },
       {
@@ -315,9 +315,9 @@ export const sections: DocSection[] = [
         canonicalId: 'portals',
         title: 'Portals',
         path: '/tooling/portals',
-        keywords: ['portal', 'modal', 'tooltip', 'overlay', 'out-of-tree', 'FRuiPortalHandle'],
+        keywords: ['portal', 'modal', 'tooltip', 'overlay', 'out-of-tree', 'FRuitkPortalHandle'],
         searchContent:
-          'portals RUI::Portal target children key render children under different widget escape parent clipping stacking modals tooltips overlays fiber belongs to rendering component state context effects unmount tears down out-of-tree content FRuiPortalHandle host handle Ref receives handle on attach cleared on detach react ref lifecycle slate host widget handles any panel context flows from render position not target position themed modal app-level overlay',
+          'portals Ruitk::Portal target children key render children under different widget escape parent clipping stacking modals tooltips overlays fiber belongs to rendering component state context effects unmount tears down out-of-tree content FRuitkPortalHandle host handle Ref receives handle on attach cleared on detach react ref lifecycle slate host widget handles any panel context flows from render position not target position themed modal app-level overlay',
         element: () => <PortalsPage />,
       },
     ],
@@ -333,7 +333,7 @@ export const sections: DocSection[] = [
         path: '/integration',
         keywords: ['integration', 'interop', 'epic', 'umg', 'commonui', 'mvvm', 'slate', 'pillars'],
         searchContent:
-          'integration overview four pillars layer decides which slate widgets exist each frame everything epic stays in place feeding data hosting output slate render target ordinary swidgets widget reflector umg door both directions URuiHostWidget RUI::Umg::UserWidget commonui owns menus input routing focus activatable stacks URuiActivatableScreen mvvm fieldnotify UseField they own values we own structure named-component registry ComponentName RUI_COMPONENT RegisterNamedFactory MountNamed designer dropdown incremental adoption leaf panel screen interop showcase demo InitialProps ViewModel UseDesiredFocus gamepad focus',
+          'integration overview four pillars layer decides which slate widgets exist each frame everything epic stays in place feeding data hosting output slate render target ordinary swidgets widget reflector umg door both directions URuitkHostWidget Ruitk::Umg::UserWidget commonui owns menus input routing focus activatable stacks URuitkActivatableScreen mvvm fieldnotify UseField they own values we own structure named-component registry ComponentName RUITK_COMPONENT RegisterNamedFactory MountNamed designer dropdown incremental adoption leaf panel screen interop showcase demo InitialProps ViewModel UseDesiredFocus gamepad focus',
         element: () => <InteropOverviewPage />,
       },
       {
@@ -341,9 +341,9 @@ export const sections: DocSection[] = [
         canonicalId: 'umg-guide',
         title: 'UMG (both directions)',
         path: '/integration/umg',
-        keywords: ['umg', 'URuiHostWidget', 'UserWidget', 'MountNamed', 'prop map', 'designer'],
+        keywords: ['umg', 'URuitkHostWidget', 'UserWidget', 'MountNamed', 'prop map', 'designer'],
         searchContent:
-          'umg interop door both directions our ui inside theirs URuiHostWidget designer-placeable ReactiveUI Host palette ComponentName registered component RebuildWidget mounts ReleaseSlateResources unmounts cleanups Remount design time placeholder never runs live code URuiWorldSubsystem MountNamed blueprint-callable viewport zorder teardown world death InitialProps ViewModel designer blueprint props channel UseHostProp UseHostProps UseHostViewModel SynchronizeProperties host props context their widgets inside ours RUI::Umg::UserWidget UUserWidget expression child owning world SObjectWidget gc-alive strong pointer deletion commit FRuiStyleDict WidgetProps reflection prop map UPROPERTYs diffing MakeAssetBrush textures materials signal UseField',
+          'umg interop door both directions our ui inside theirs URuitkHostWidget designer-placeable ReactiveUI Host palette ComponentName registered component RebuildWidget mounts ReleaseSlateResources unmounts cleanups Remount design time placeholder never runs live code URuitkWorldSubsystem MountNamed blueprint-callable viewport zorder teardown world death InitialProps ViewModel designer blueprint props channel UseHostProp UseHostProps UseHostViewModel SynchronizeProperties host props context their widgets inside ours Ruitk::Umg::UserWidget UUserWidget expression child owning world SObjectWidget gc-alive strong pointer deletion commit FRuitkStyleDict WidgetProps reflection prop map UPROPERTYs diffing MakeAssetBrush textures materials signal UseField',
         element: () => <UmgGuidePage />,
       },
       {
@@ -351,9 +351,9 @@ export const sections: DocSection[] = [
         canonicalId: 'commonui-guide',
         title: 'CommonUI',
         path: '/integration/commonui',
-        keywords: ['commonui', 'URuiActivatableScreen', 'activation', 'input method', 'gamepad', 'stack'],
+        keywords: ['commonui', 'URuitkActivatableScreen', 'activation', 'input method', 'gamepad', 'stack'],
         searchContent:
-          'commonui interop their stacks our screens menu stacks input routing back-handling console-cert never installs input preprocessor URuiActivatableScreen UCommonActivatableWidget push AddWidgetInstance UCommonActivatableWidgetContainerBase CreateWidget owning player ComponentName re-renders activation deactivation input method change FRuiActivationState UseIsActive UseInputMethod ERuiInputMethod MouseAndKeyboard Gamepad Touch glyph prompt swap ActivationProvider ProvideContext ActivationContext stand-in tests CommonUiDemo wrap common widgets UCommonButtonBase children activatables only through screen GetDesiredFocusTarget gamepad focus UseDesiredFocus UseFocus focus target designation focus restoration',
+          'commonui interop their stacks our screens menu stacks input routing back-handling console-cert never installs input preprocessor URuitkActivatableScreen UCommonActivatableWidget push AddWidgetInstance UCommonActivatableWidgetContainerBase CreateWidget owning player ComponentName re-renders activation deactivation input method change FRuitkActivationState UseIsActive UseInputMethod ERuitkInputMethod MouseAndKeyboard Gamepad Touch glyph prompt swap ActivationProvider ProvideContext ActivationContext stand-in tests CommonUiDemo wrap common widgets UCommonButtonBase children activatables only through screen GetDesiredFocusTarget gamepad focus UseDesiredFocus UseFocus focus target designation focus restoration',
         element: () => <CommonUiGuidePage />,
       },
       {
@@ -361,9 +361,9 @@ export const sections: DocSection[] = [
         canonicalId: 'mvvm-guide',
         title: 'MVVM / FieldNotify',
         path: '/integration/mvvm',
-        keywords: ['mvvm', 'fieldnotify', 'UseField', 'viewmodel', 'URuiSignalViewModel', 'global collection'],
+        keywords: ['mvvm', 'fieldnotify', 'UseField', 'viewmodel', 'URuitkSignalViewModel', 'global collection'],
         searchContent:
-          'mvvm interop fieldnotify engine-level FieldNotification module no ModelViewViewModel plugin dependency any INotifyFieldValueChanged data source epic mvvm viewmodels UMVVMViewModelBase stock widgets they own values we own structure UseField subscribe re-render broadcast unsubscribe unmount null stale default coalesce one re-render per frame delayed execution batching reverse direction our state their views URuiSignalViewModel plugin-free SetInt broadcasts on change skips equal URuiMvvmViewModel RegisterGlobalViewModel FindGlobalViewModel global viewmodel collection context name bind no view-side changes RuitkMVVMBridge UseMemo TStrongObjectPtr NewObject gc-rooted released unmount MvvmDemo',
+          'mvvm interop fieldnotify engine-level FieldNotification module no ModelViewViewModel plugin dependency any INotifyFieldValueChanged data source epic mvvm viewmodels UMVVMViewModelBase stock widgets they own values we own structure UseField subscribe re-render broadcast unsubscribe unmount null stale default coalesce one re-render per frame delayed execution batching reverse direction our state their views URuitkSignalViewModel plugin-free SetInt broadcasts on change skips equal URuitkMvvmViewModel RegisterGlobalViewModel FindGlobalViewModel global viewmodel collection context name bind no view-side changes RuitkMVVMBridge UseMemo TStrongObjectPtr NewObject gc-rooted released unmount MvvmDemo',
         element: () => <MvvmGuidePage />,
       },
     ],
@@ -389,7 +389,7 @@ export const sections: DocSection[] = [
         path: '/reference/components',
         keywords: ['components', 'host elements', 'tags', 'slate', 'catalog', 'widgets'],
         searchContent:
-          'components overview host elements intrinsic tags 1:1 slate widget tag is slate class minus S VerticalBox HorizontalBox Overlay WrapBox UniformGridPanel GridPanel UniformWrapPanel ScrollBox WidgetSwitcher Box Border ScaleBox SafeZone DPIScaler Spacer Separator TextBlock RichTextBlock Image ProgressBar Throbber Button CheckBox Slider SpinBox EditableTextBox MultiLineEditableTextBox SearchBox DragSource DropTarget Link RuiCanvas Rui mark Fragment Suspense function components pascalcase props style keys events exact unreal names prop-map generated per-widget reference',
+          'components overview host elements intrinsic tags 1:1 slate widget tag is slate class minus S VerticalBox HorizontalBox Overlay WrapBox UniformGridPanel GridPanel UniformWrapPanel ScrollBox WidgetSwitcher Box Border ScaleBox SafeZone DPIScaler Spacer Separator TextBlock RichTextBlock Image ProgressBar Throbber Button CheckBox Slider SpinBox EditableTextBox MultiLineEditableTextBox SearchBox DragSource DropTarget Link RuitkCanvas Ruitk mark Fragment Suspense function components pascalcase props style keys events exact unreal names prop-map generated per-widget reference',
         element: () => <ComponentsOverviewPage />,
       },
       {
@@ -397,9 +397,9 @@ export const sections: DocSection[] = [
         canonicalId: 'api-reference',
         title: 'API Reference',
         path: '/reference/api',
-        keywords: ['api', 'RUI', 'FRuiRoot', 'RUI::FC', 'factories', 'namespace'],
+        keywords: ['api', 'RUI', 'FRuitkRoot', 'Ruitk::FC', 'factories', 'namespace'],
         searchContent:
-          'api reference RUI namespace RUI::Slate RUI::Umg RUI::CommonUI hooks free functions FRuiRoot CreateInViewport mount viewport zorder TSharedPtr Reset unmount RUI::FC function component vnode props children key RUI::Fragment RUI::Suspense fallback RUI::Fmt text interpolation FText RUI::Deps dependency list UseMemo UseCallback UseEffect RUI::Slate::VerticalBox Button Border factories MakeDrawFn FRuiDrawFn RuiCanvas UseShortcut FRuiShortcut GetOrCreateSignal UseSignalKey ProvideContext UseContext RUI::Umg::UserWidget UseField FieldNotify RUI::CommonUI::ActivationContext UseIsActive',
+          'api reference RUI namespace Ruitk::Slate Ruitk::Umg Ruitk::CommonUI hooks free functions FRuitkRoot CreateInViewport mount viewport zorder TSharedPtr Reset unmount Ruitk::FC function component vnode props children key Ruitk::Fragment Ruitk::Suspense fallback Ruitk::Fmt text interpolation FText Ruitk::Deps dependency list UseMemo UseCallback UseEffect Ruitk::Slate::VerticalBox Button Border factories MakeDrawFn FRuitkDrawFn RuitkCanvas UseShortcut FRuitkShortcut GetOrCreateSignal UseSignalKey ProvideContext UseContext Ruitk::Umg::UserWidget UseField FieldNotify Ruitk::CommonUI::ActivationContext UseIsActive',
         element: () => <ApiReferencePage />,
       },
       {
@@ -429,7 +429,7 @@ export const sections: DocSection[] = [
         path: '/reference/debugging',
         keywords: ['debugging', 'generated code', 'diags.json', 'message log', 'cvars', 'breakpoints'],
         searchContent:
-          'debugging guide generated code committed uetkx.inl readable c++ RUI::FC RUI::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
+          'debugging guide generated code committed uetkx.inl readable c++ Ruitk::FC Ruitk::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
         element: () => <DebuggingPage />,
       },
     ],
@@ -500,7 +500,7 @@ export const sections: DocSection[] = [
         path: '/faq',
         keywords: ['faq', 'questions', 'help', 'production', 'versions', 'umg', 'mvvm'],
         searchContent:
-          'faq frequently asked questions what is reactiveui for unreal react-style ui library pure c++ fiber reconciler slate widgets .uetkx compiles committed c++ which unreal versions 5.6 plugin no external native dependency no external runtime production ready beta pre-1.0 docs release scripting vm no javascript engine bridge reflection-free existing umg widgets UUserWidget RUI::Umg::UserWidget MVVM view-models FieldNotify UseField CommonUI activatable event props OnClicked not onClick loyal to unreal hot reload live coding windows state preserved editor support vs code visual studio 2022 extensions offline',
+          'faq frequently asked questions what is reactiveui for unreal react-style ui library pure c++ fiber reconciler slate widgets .uetkx compiles committed c++ which unreal versions 5.6 plugin no external native dependency no external runtime production ready beta pre-1.0 docs release scripting vm no javascript engine bridge reflection-free existing umg widgets UUserWidget Ruitk::Umg::UserWidget MVVM view-models FieldNotify UseField CommonUI activatable event props OnClicked not onClick loyal to unreal hot reload live coding windows state preserved editor support vs code visual studio 2022 extensions offline',
         element: () => <FAQPage />,
       },
     ],
@@ -548,7 +548,7 @@ export const sections: DocSection[] = [
         path: '/roadmap',
         keywords: ['roadmap', 'status', 'phases', 'progress', 'release'],
         searchContent:
-          'roadmap living status plans/ROADMAP.md phases core reconciler hooks signals suspense slate host widgets style uetkx compiler build committed inl schema RUICompile formatter hot reload live coding ide extensions language server vs code vs2022 umg commonui mvvm interop UseField activatables production gaps virtualized lists focus animation portals drag and drop widget batch 2 localization gather culture switch demos gallery benchmarks docs site in progress release publishing owner gated ship gate fab marketplace done in progress planned',
+          'roadmap living status plans/ROADMAP.md phases core reconciler hooks signals suspense slate host widgets style uetkx compiler build committed inl schema RuitkCompile formatter hot reload live coding ide extensions language server vs code vs2022 umg commonui mvvm interop UseField activatables production gaps virtualized lists focus animation portals drag and drop widget batch 2 localization gather culture switch demos gallery benchmarks docs site in progress release publishing owner gated ship gate fab marketplace done in progress planned',
         element: () => <RoadmapPage />,
       },
     ],

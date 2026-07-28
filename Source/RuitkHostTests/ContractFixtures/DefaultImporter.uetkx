@@ -1,6 +1,6 @@
 import Home from "./DefaultExport"
 
-export FRuiNode DefaultImporter() {
+export FRuitkNode DefaultImporter() {
 	return (
 		<Border>
 			<Home />

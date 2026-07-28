@@ -3,14 +3,14 @@
 // TD-012 tail — SSegmentedControl wrapper. Segments are baked from Labels at construction (value =
 // index); SelectedIndex drives SetValue skip-when-equal; OnValueChanged forwards the picked index.
 
-#include "RuiSegmentedControl.h"
+#include "RuitkSegmentedControl.h"
 
-#include "RuiElementAdapter.h"
+#include "RuitkElementAdapter.h"
 #include "Widgets/Input/SSegmentedControl.h"
 
-void SRuiSegmentedControl::Construct(const FArguments& InArgs)
+void SRuitkSegmentedControl::Construct(const FArguments& InArgs)
 {
-	SAssignNew(Control, SSegmentedControl<int32>).OnValueChanged(this, &SRuiSegmentedControl::HandleValueChanged);
+	SAssignNew(Control, SSegmentedControl<int32>).OnValueChanged(this, &SRuitkSegmentedControl::HandleValueChanged);
 	for (int32 i = 0; i < InArgs._Labels.Num(); ++i)
 	{
 		Control->AddSlot(i, /*bRebuildChildren*/ false).Text(FText::FromString(InArgs._Labels[i]));
@@ -27,7 +27,7 @@ void SRuiSegmentedControl::Construct(const FArguments& InArgs)
 	ChildSlot[Control.ToSharedRef()];
 }
 
-void SRuiSegmentedControl::SetSelectedIndex(int32 Index)
+void SRuitkSegmentedControl::SetSelectedIndex(int32 Index)
 {
 	// Controlled skip-when-equal (D-16): the widget's own click lands on an equal value.
 	if (Control.IsValid() && Index >= 0 && Index < Control->NumSlots() && Control->GetValue() != Index)
@@ -36,21 +36,21 @@ void SRuiSegmentedControl::SetSelectedIndex(int32 Index)
 	}
 }
 
-int32 SRuiSegmentedControl::GetSelectedIndex() const
+int32 SRuitkSegmentedControl::GetSelectedIndex() const
 {
 	return Control.IsValid() ? Control->GetValue() : INDEX_NONE;
 }
 
-int32 SRuiSegmentedControl::NumSegments() const
+int32 SRuitkSegmentedControl::NumSegments() const
 {
 	return Control.IsValid() ? Control->NumSlots() : 0;
 }
 
-void SRuiSegmentedControl::HandleValueChanged(int32 Value)
+void SRuitkSegmentedControl::HandleValueChanged(int32 Value)
 {
 	if (OnSelectionChanged.IsBound())
 	{
-		OnSelectionChanged.Execute(FRuiValue(Value));
+		OnSelectionChanged.Execute(FRuitkValue(Value));
 	}
 }
 
@@ -58,34 +58,34 @@ void SRuiSegmentedControl::HandleValueChanged(int32 Value)
 // Adapter (Leaf; Labels construct-only)
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSegmentedControlAdapter final : public IRuiElementAdapter
+class FRuitkSegmentedControlAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool IsPoolable() const override { return false; }
 
 	// Segments bake from Labels at construction (no clear API) — a label-set change replaces the widget.
-	virtual uint64 GetReconstructMask() const override { return (1ull << FRuiSegmentedControlProps::Labels_Bit); }
+	virtual uint64 GetReconstructMask() const override { return (1ull << FRuitkSegmentedControlProps::Labels_Bit); }
 
-	virtual bool ConstructOnlyChanged(const FRuiPropsBase& Old, const FRuiPropsBase& New) const override
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const override
 	{
-		const FRuiSegmentedControlProps& O = static_cast<const FRuiSegmentedControlProps&>(Old);
-		const FRuiSegmentedControlProps& N = static_cast<const FRuiSegmentedControlProps&>(New);
+		const FRuitkSegmentedControlProps& O = static_cast<const FRuitkSegmentedControlProps&>(Old);
+		const FRuitkSegmentedControlProps& N = static_cast<const FRuitkSegmentedControlProps&>(New);
 		// Has-bit gated (SEP-REBUILD-1 class): removing Labels is not a construct-only change.
 		return N.HasLabels() && (!O.HasLabels() || !(O.Labels == N.Labels));
 	}
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiSegmentedControlProps& P = static_cast<const FRuiSegmentedControlProps&>(Props);
-		return SNew(SRuiSegmentedControl).Labels(P.Labels).InitialIndex(P.HasSelectedIndex() ? P.SelectedIndex : 0);
+		const FRuitkSegmentedControlProps& P = static_cast<const FRuitkSegmentedControlProps&>(Props);
+		return SNew(SRuitkSegmentedControl).Labels(P.Labels).InitialIndex(P.HasSelectedIndex() ? P.SelectedIndex : 0);
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiSegmentedControl& W = static_cast<SRuiSegmentedControl&>(Widget);
-		const FRuiSegmentedControlProps& N = static_cast<const FRuiSegmentedControlProps&>(New);
-		const FRuiSegmentedControlProps* O = static_cast<const FRuiSegmentedControlProps*>(Old);
+		SRuitkSegmentedControl& W = static_cast<SRuitkSegmentedControl&>(Widget);
+		const FRuitkSegmentedControlProps& N = static_cast<const FRuitkSegmentedControlProps&>(New);
+		const FRuitkSegmentedControlProps* O = static_cast<const FRuitkSegmentedControlProps*>(Old);
 		if (N.HasSelectedIndex() && (O == nullptr || !O->HasSelectedIndex() || !(N.SelectedIndex == O->SelectedIndex)))
 		{
 			W.SetSelectedIndex(N.SelectedIndex);
@@ -101,19 +101,19 @@ public:
 // Type, factory, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId SegmentedControlType()
+	FRuitkElementTypeId SegmentedControlType()
 	{
-		return RUI::InternElementType(FName(TEXT("SegmentedControl")));
+		return Ruitk::InternElementType(FName(TEXT("SegmentedControl")));
 	}
 
-	FRuiNode SegmentedControl(FRuiSegmentedControlProps Props, FRuiKey Key)
+	FRuitkNode SegmentedControl(FRuitkSegmentedControlProps Props, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = SegmentedControlType();
-		Node.Props = MakeShared<FRuiSegmentedControlProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkSegmentedControlProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
@@ -122,7 +122,7 @@ namespace RUI::Slate
 	{
 		void RegisterSegmentedControlAdapter()
 		{
-			RegisterAdapter(SegmentedControlType(), MakeUnique<FRuiSegmentedControlAdapter>());
+			RegisterAdapter(SegmentedControlType(), MakeUnique<FRuitkSegmentedControlAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

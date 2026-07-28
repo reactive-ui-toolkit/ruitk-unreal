@@ -23,10 +23,10 @@ The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactiv
 
 - **Slate is the render target** — output is ordinary `SWidget`s; Widget Reflector, styling,
   and the rest of the Slate toolchain see normal widgets.
-- **UMG both ways** — host our UI inside UserWidgets (`URuiHostWidget`), or use UMG widgets
-  inside our tree (`RUI::Umg`).
+- **UMG both ways** — host our UI inside UserWidgets (`URuitkHostWidget`), or use UMG widgets
+  inside our tree (`Ruitk::Umg`).
 - **CommonUI stays in charge** of menus, input routing, and gamepad focus — our screens push
-  onto existing activatable stacks (`URuiActivatableScreen`).
+  onto existing activatable stacks (`URuitkActivatableScreen`).
 - **MVVM viewmodels feed us data** — `UseField(VM, "Health")` re-renders on FieldNotify
   broadcasts.
 

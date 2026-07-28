@@ -1,15 +1,15 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiInput.h"
+#include "RuitkInput.h"
 
 #include "Framework/Application/IInputProcessor.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Input/Events.h"
-#include "RuiContext.h"
-#include "RuiHooksInternal.h"
-#include "RuiSlateHost.h"
+#include "RuitkContext.h"
+#include "RuitkHooksInternal.h"
+#include "RuitkSlateHost.h"
 
-bool RUI::Slate::FRuiShortcut::Matches(const FKeyEvent& Event) const
+bool Ruitk::Slate::FRuitkShortcut::Matches(const FKeyEvent& Event) const
 {
 	if (Event.GetKey() != Key)
 	{
@@ -20,7 +20,7 @@ bool RUI::Slate::FRuiShortcut::Matches(const FKeyEvent& Event) const
 		   M.IsCommandDown() == bCmd;
 }
 
-int32 RUI::Slate::FRuiShortcut::DepKey() const
+int32 Ruitk::Slate::FRuitkShortcut::DepKey() const
 {
 	const int32 Mods = (bCtrl ? 1 : 0) | (bShift ? 2 : 0) | (bAlt ? 4 : 0) | (bCmd ? 8 : 0);
 	return static_cast<int32>(HashCombine(GetTypeHash(Key), ::GetTypeHash(Mods)));
@@ -29,10 +29,10 @@ int32 RUI::Slate::FRuiShortcut::DepKey() const
 namespace
 {
 	/** Fires the box's CURRENT callback (latest closure) when the chord matches; consumes the key. */
-	class FRuiShortcutProcessor : public IInputProcessor
+	class FRuitkShortcutProcessor : public IInputProcessor
 	{
 	public:
-		FRuiShortcutProcessor(const RUI::Slate::FRuiShortcut& InChord, TSharedRef<TRuiRef<TFunction<void()>>> InBox)
+		FRuitkShortcutProcessor(const Ruitk::Slate::FRuitkShortcut& InChord, TSharedRef<TRuitkRef<TFunction<void()>>> InBox)
 			: Chord(InChord), Box(MoveTemp(InBox))
 		{
 		}
@@ -54,29 +54,29 @@ namespace
 			return false;
 		}
 
-		virtual const TCHAR* GetDebugName() const override { return TEXT("RuiShortcut"); }
+		virtual const TCHAR* GetDebugName() const override { return TEXT("RuitkShortcut"); }
 
 	private:
-		RUI::Slate::FRuiShortcut Chord;
-		TSharedRef<TRuiRef<TFunction<void()>>> Box;
+		Ruitk::Slate::FRuitkShortcut Chord;
+		TSharedRef<TRuitkRef<TFunction<void()>>> Box;
 	};
 } // namespace
 
-void RUI::Slate::UseShortcut(FRuiContext& Ctx, const FRuiShortcut& Chord, TFunction<void()> OnTrigger)
+void Ruitk::Slate::UseShortcut(FRuitkContext& Ctx, const FRuitkShortcut& Chord, TFunction<void()> OnTrigger)
 {
 	// A stable box holding the LATEST callback, refreshed each render — the pre-processor always
 	// fires the current closure, so the effect re-registers only when the CHORD itself changes.
-	TSharedRef<TRuiRef<TFunction<void()>>> Box = Ctx.UseRef<TFunction<void()>>(TFunction<void()>());
+	TSharedRef<TRuitkRef<TFunction<void()>>> Box = Ctx.UseRef<TFunction<void()>>(TFunction<void()>());
 	Box->Current = MoveTemp(OnTrigger);
 
 	Ctx.UseEffect(
-		[Chord, Box]() -> FRuiEffectCleanup
+		[Chord, Box]() -> FRuitkEffectCleanup
 		{
 			if (!FSlateApplication::IsInitialized())
 			{
-				return FRuiEffectCleanup();
+				return FRuitkEffectCleanup();
 			}
-			TSharedRef<FRuiShortcutProcessor> Proc = MakeShared<FRuiShortcutProcessor>(Chord, Box);
+			TSharedRef<FRuitkShortcutProcessor> Proc = MakeShared<FRuitkShortcutProcessor>(Chord, Box);
 			FSlateApplication::Get().RegisterInputPreProcessor(Proc);
 			return [Proc]()
 			{
@@ -86,7 +86,7 @@ void RUI::Slate::UseShortcut(FRuiContext& Ctx, const FRuiShortcut& Chord, TFunct
 				}
 			};
 		},
-		RUI::Deps(Chord.DepKey()));
+		Ruitk::Deps(Chord.DepKey()));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -96,9 +96,9 @@ void RUI::Slate::UseShortcut(FRuiContext& Ctx, const FRuiShortcut& Chord, TFunct
 namespace
 {
 	/** The SWidget behind a host handle (null-safe). */
-	TSharedPtr<SWidget> WidgetOf(const FRuiHostHandle& Handle)
+	TSharedPtr<SWidget> WidgetOf(const FRuitkHostHandle& Handle)
 	{
-		if (FRuiSlateNode* Node = FRuiSlateHost::Resolve(Handle))
+		if (FRuitkSlateNode* Node = FRuitkSlateHost::Resolve(Handle))
 		{
 			return Node->Widget;
 		}
@@ -106,7 +106,7 @@ namespace
 	}
 } // namespace
 
-void RUI::Slate::FocusWidget(const FRuiHostHandle& Handle)
+void Ruitk::Slate::FocusWidget(const FRuitkHostHandle& Handle)
 {
 	if (!FSlateApplication::IsInitialized())
 	{
@@ -118,7 +118,7 @@ void RUI::Slate::FocusWidget(const FRuiHostHandle& Handle)
 	}
 }
 
-void RUI::Slate::ClearFocus()
+void Ruitk::Slate::ClearFocus()
 {
 	if (FSlateApplication::IsInitialized())
 	{
@@ -126,14 +126,14 @@ void RUI::Slate::ClearFocus()
 	}
 }
 
-RUI::Slate::FRuiFocusHandle RUI::Slate::UseFocus(FRuiContext& Ctx)
+Ruitk::Slate::FRuitkFocusHandle Ruitk::Slate::UseFocus(FRuitkContext& Ctx)
 {
 	// A stable weak box the ref keeps in sync (attach -> widget, detach -> null); Focus/IsFocused
 	// read it. Ref/Focus/IsFocused capture the same box, so they stay valid for the component's life.
-	TSharedRef<TRuiRef<TWeakPtr<SWidget>>> Box = Ctx.UseRef<TWeakPtr<SWidget>>();
+	TSharedRef<TRuitkRef<TWeakPtr<SWidget>>> Box = Ctx.UseRef<TWeakPtr<SWidget>>();
 
-	FRuiFocusHandle Handle;
-	Handle.Ref = [Box](const FRuiHostHandle& H) { Box->Current = WidgetOf(H); };
+	FRuitkFocusHandle Handle;
+	Handle.Ref = [Box](const FRuitkHostHandle& H) { Box->Current = WidgetOf(H); };
 	Handle.Focus = [Box]()
 	{
 		if (!FSlateApplication::IsInitialized())

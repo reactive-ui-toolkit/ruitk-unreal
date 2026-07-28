@@ -7,7 +7,7 @@ const EMITTED = `// You write (HelloWorld.uetkx):
 
 // The compiler emits (HelloWorld.uetkx.inl) — a real, gatherable NSLOCTEXT,
 // self-namespaced per file so aggregated .inl files never collide:
-RUI::TextBlock(NSLOCTEXT("Uetkx.HelloWorld", "HelloWorld_0", "Hello, world!"), ...)`
+Ruitk::TextBlock(NSLOCTEXT("Uetkx.HelloWorld", "HelloWorld_0", "Hello, world!"), ...)`
 
 const GATHER = `; Config/Localization/MyGame_Gather.ini — the stock source-code gather step.
 ; THE ONE NON-DEFAULT LINE: *.inl — markup text lives in the committed
@@ -51,9 +51,9 @@ export const LocalizationPage: FC = () => (
     <CodeBlock code={RUN} language="bash" />
     <Typography variant="body1" paragraph>
       The demo project ships a complete working target —{' '}
-      <code>Config/Localization/RuiDemo_Gather.ini</code> with its gathered output under{' '}
-      <code>Content/Localization/RuiDemo/</code> — and the automation battery tripwires on it
-      (<code>ReactiveUI.Loc.GatherManifest</code>): if markup text ever stops gathering, a test
+      <code>Config/Localization/RuitkDemo_Gather.ini</code> with its gathered output under{' '}
+      <code>Content/Localization/RuitkDemo/</code> — and the automation battery tripwires on it
+      (<code>Ruitk.Loc.GatherManifest</code>): if markup text ever stops gathering, a test
       goes red.
     </Typography>
 
@@ -62,7 +62,7 @@ export const LocalizationPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       <code>FText</code> is lazy, so an <code>NSLOCTEXT</code> literal or an{' '}
-      <code>RUI::Fmt</code> result re-resolves on a culture switch by itself. On top of that, the
+      <code>Ruitk::Fmt</code> result re-resolves on a culture switch by itself. On top of that, the
       plugin subscribes to the engine&apos;s text-revision event and <strong>re-renders every
       mounted root once per culture change</strong> — so even values a component baked during
       render (an <code>FString</code> conversion, a culture-dependent branch) heal immediately.

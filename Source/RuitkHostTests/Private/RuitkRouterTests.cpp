@@ -1,72 +1,72 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Router.Match — the pure matching/parsing primitives (patterns, params, splats,
-// search, resolve). ReactiveUI.Router.Spine — the navigation flow end to end: <Router> history,
+// Ruitk.Router.Match — the pure matching/parsing primitives (patterns, params, splats,
+// search, resolve). Ruitk.Router.Spine — the navigation flow end to end: <Router> history,
 // <Routes> matching + nested outlets, UseParams/UseSearchParams, back stack, and UseBlocker.
 
 #include "Misc/AutomationTest.h"
-#include "RuiCoreElements.h"
-#include "RuiMockHost.h"
-#include "RuiNode.h"
-#include "RuiRouter.h"
+#include "RuitkCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkNode.h"
+#include "RuitkRouter.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_ROUTER_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_ROUTER_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
-// ── ReactiveUI.Router.Match ────────────────────────────────────────────────────────────────
+// ── Ruitk.Router.Match ────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiRouterMatchTest, "ReactiveUI.Router.Match", RUI_ROUTER_FLAGS)
-bool FRuiRouterMatchTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkRouterMatchTest, "Ruitk.Router.Match", RUITK_ROUTER_FLAGS)
+bool FRuitkRouterMatchTest::RunTest(const FString&)
 {
 	// static + params + splats
 	{
-		FRuiPathMatch M = RUI::MatchPath(TEXT("/users/:id"), TEXT("/users/42"));
+		FRuitkPathMatch M = Ruitk::MatchPath(TEXT("/users/:id"), TEXT("/users/42"));
 		TestTrue(TEXT("param route matches"), M.bMatched);
 		TestEqual(TEXT("param captured"), M.Params.FindRef(TEXT("id")), FString(TEXT("42")));
 	}
-	TestFalse(TEXT("leaf pattern rejects leftover path"), RUI::MatchPath(TEXT("/users"), TEXT("/users/42")).bMatched);
+	TestFalse(TEXT("leaf pattern rejects leftover path"), Ruitk::MatchPath(TEXT("/users"), TEXT("/users/42")).bMatched);
 	TestTrue(TEXT("prefix (layout) accepts leftover"),
-			 RUI::MatchPath(TEXT("/users"), TEXT("/users/42"), false).bMatched);
+			 Ruitk::MatchPath(TEXT("/users"), TEXT("/users/42"), false).bMatched);
 	{
-		FRuiPathMatch M = RUI::MatchPath(TEXT("/files/*"), TEXT("/files/a/b/c"));
+		FRuitkPathMatch M = Ruitk::MatchPath(TEXT("/files/*"), TEXT("/files/a/b/c"));
 		TestTrue(TEXT("splat matches"), M.bMatched);
 		TestEqual(TEXT("splat captured"), M.Params.FindRef(TEXT("*")), FString(TEXT("a/b/c")));
 	}
-	TestTrue(TEXT("root matches root"), RUI::MatchPath(TEXT("/"), TEXT("/")).bMatched);
-	TestFalse(TEXT("literal mismatch"), RUI::MatchPath(TEXT("/a"), TEXT("/b")).bMatched);
+	TestTrue(TEXT("root matches root"), Ruitk::MatchPath(TEXT("/"), TEXT("/")).bMatched);
+	TestFalse(TEXT("literal mismatch"), Ruitk::MatchPath(TEXT("/a"), TEXT("/b")).bMatched);
 
 	// parse / build search
 	{
-		const TMap<FString, FString> P = RUI::ParseSearch(TEXT("?q=hi&page=2"));
+		const TMap<FString, FString> P = Ruitk::ParseSearch(TEXT("?q=hi&page=2"));
 		TestEqual(TEXT("search q"), P.FindRef(TEXT("q")), FString(TEXT("hi")));
 		TestEqual(TEXT("search page"), P.FindRef(TEXT("page")), FString(TEXT("2")));
 		TMap<FString, FString> Build;
 		Build.Add(TEXT("b"), TEXT("2"));
 		Build.Add(TEXT("a"), TEXT("1"));
-		TestEqual(TEXT("build search is key-sorted"), RUI::BuildSearch(Build), FString(TEXT("?a=1&b=2")));
+		TestEqual(TEXT("build search is key-sorted"), Ruitk::BuildSearch(Build), FString(TEXT("?a=1&b=2")));
 	}
 
 	// parse location
 	{
-		const FRuiLocation L = RUI::ParseLocation(TEXT("/shop/items?sort=price#top"));
+		const FRuitkLocation L = Ruitk::ParseLocation(TEXT("/shop/items?sort=price#top"));
 		TestEqual(TEXT("pathname"), L.Pathname, FString(TEXT("/shop/items")));
 		TestEqual(TEXT("search"), L.Search, FString(TEXT("?sort=price")));
 		TestEqual(TEXT("hash"), L.Hash, FString(TEXT("#top")));
 	}
 
 	// resolve
-	TestEqual(TEXT("absolute resolve"), RUI::ResolvePath(TEXT("/a/b"), TEXT("/x/y")), FString(TEXT("/a/b")));
+	TestEqual(TEXT("absolute resolve"), Ruitk::ResolvePath(TEXT("/a/b"), TEXT("/x/y")), FString(TEXT("/a/b")));
 	// React-Router treats the current pathname as a directory context: a bare relative segment
 	// appends, and `..` climbs.
-	TestEqual(TEXT("relative resolve appends"), RUI::ResolvePath(TEXT("edit"), TEXT("/users/42")),
+	TestEqual(TEXT("relative resolve appends"), Ruitk::ResolvePath(TEXT("edit"), TEXT("/users/42")),
 			  FString(TEXT("/users/42/edit")));
-	TestEqual(TEXT("dot-dot resolve climbs"), RUI::ResolvePath(TEXT("../list"), TEXT("/users/42")),
+	TestEqual(TEXT("dot-dot resolve climbs"), Ruitk::ResolvePath(TEXT("../list"), TEXT("/users/42")),
 			  FString(TEXT("/users/list")));
 	return true;
 }
 
-// ── ReactiveUI.Router.Spine ────────────────────────────────────────────────────────────────
+// ── Ruitk.Router.Spine ────────────────────────────────────────────────────────────────
 
 namespace RouterTest
 {
@@ -78,21 +78,21 @@ namespace RouterTest
 	static bool GBlock = false;
 	static int32 GBlockedCount = 0;
 
-	static FRuiNodeArray UserScreen(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray UserScreen(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		const TMap<FString, FString>& Params = UseParams(Ctx);
-		return {RUI::TextBlock(TEXT("USER:") + Params.FindRef(TEXT("id")))};
+		return {Ruitk::TextBlock(TEXT("USER:") + Params.FindRef(TEXT("id")))};
 	}
-	RUI_COMPONENT(UserScreen)
+	RUITK_COMPONENT(UserScreen)
 
-	static FRuiNodeArray DashLayout(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray DashLayout(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::TextBlock(TEXT("LAYOUT")), UseOutlet(Ctx)};
+		return {Ruitk::TextBlock(TEXT("LAYOUT")), UseOutlet(Ctx)};
 	}
-	RUI_COMPONENT(DashLayout)
+	RUITK_COMPONENT(DashLayout)
 
 	// Captures navigation surfaces + registers a blocker; renders the declarative Routes.
-	static FRuiNodeArray Shell(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray Shell(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		GNavigate = UseNavigate(Ctx);
 		TTuple<bool, TFunction<void()>> Back = UseBackStack(Ctx);
@@ -103,25 +103,25 @@ namespace RouterTest
 		GSetSearch = SP.Value;
 		UseBlocker(Ctx, GBlock, [](const FString&) { ++GBlockedCount; });
 
-		TArray<RUI::FRuiRoute> RouteList;
-		RouteList.Add({TEXT("/home"), RUI::TextBlock(TEXT("HOME"))});
-		RouteList.Add({TEXT("/users/:id"), RUI::FC(&UserScreen)});
-		RUI::FRuiRoute Dash;
+		TArray<Ruitk::FRuitkRoute> RouteList;
+		RouteList.Add({TEXT("/home"), Ruitk::TextBlock(TEXT("HOME"))});
+		RouteList.Add({TEXT("/users/:id"), Ruitk::FC(&UserScreen)});
+		Ruitk::FRuitkRoute Dash;
 		Dash.Path = TEXT("/dash");
-		Dash.Element = RUI::FC(&DashLayout);
-		Dash.Children.Add({FString(), RUI::TextBlock(TEXT("DASH-INDEX")), /*bIndex*/ true, {}});
-		Dash.Children.Add({TEXT("settings"), RUI::TextBlock(TEXT("DASH-SETTINGS"))});
+		Dash.Element = Ruitk::FC(&DashLayout);
+		Dash.Children.Add({FString(), Ruitk::TextBlock(TEXT("DASH-INDEX")), /*bIndex*/ true, {}});
+		Dash.Children.Add({TEXT("settings"), Ruitk::TextBlock(TEXT("DASH-SETTINGS"))});
 		RouteList.Add(Dash);
 
-		return {RUI::Routes(MoveTemp(RouteList))};
+		return {Ruitk::Routes(MoveTemp(RouteList))};
 	}
-	RUI_COMPONENT(Shell)
+	RUITK_COMPONENT(Shell)
 
-	static FRuiNodeArray App(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray App(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::Router({RUI::FC(&Shell)}, TEXT("/home"))};
+		return {Ruitk::Router({Ruitk::FC(&Shell)}, TEXT("/home"))};
 	}
-	RUI_COMPONENT(App)
+	RUITK_COMPONENT(App)
 
 	static void CollectText(FMockNode* Node, TArray<FString>& Out)
 	{
@@ -140,14 +140,14 @@ namespace RouterTest
 	}
 } // namespace RouterTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiRouterSpineTest, "ReactiveUI.Router.Spine", RUI_ROUTER_FLAGS)
-bool FRuiRouterSpineTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkRouterSpineTest, "Ruitk.Router.Spine", RUITK_ROUTER_FLAGS)
+bool FRuitkRouterSpineTest::RunTest(const FString&)
 {
 	using namespace RouterTest;
 	GBlock = false;
 	GBlockedCount = 0;
 
-	FRuiTestHarness H;
+	FRuitkTestHarness H;
 	auto Texts = [&H]()
 	{
 		TArray<FString> Out;
@@ -160,7 +160,7 @@ bool FRuiRouterSpineTest::RunTest(const FString&)
 		H.Reconciler->FlushSync();
 	};
 
-	H.Mount(RUI::FC(&App));
+	H.Mount(Ruitk::FC(&App));
 
 	TestTrue(TEXT("initial route /home"), Texts().Contains(FString(TEXT("HOME"))));
 
@@ -218,7 +218,7 @@ bool FRuiRouterSpineTest::RunTest(const FString&)
 	return true;
 }
 
-// ── ReactiveUI.Router.Hooks — the previously-untested hook set (audit §13) ─────────────────
+// ── Ruitk.Router.Hooks — the previously-untested hook set (audit §13) ─────────────────
 // UseInRouterContext, UseLocation, UsePathname, UseSearch, UseNavigationType, UseMatch,
 // UseIsActive, UseResolvedPath, UseHref, UseGo, and the Link component.
 
@@ -231,7 +231,7 @@ namespace RouterHooksTest
 	static TFunction<void(const FString&, bool)> GNavigate;
 	static TFunction<void(int32)> GGo;
 
-	static FRuiNodeArray Probe(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray Probe(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		GInRouter = UseInRouterContext(Ctx);
 		GLocPath = UseLocation(Ctx).Pathname;
@@ -243,44 +243,44 @@ namespace RouterHooksTest
 		GActiveExact = UseIsActive(Ctx, TEXT("/users"), /*bEnd*/ true);
 		GResolved = UseResolvedPath(Ctx, TEXT("edit"));
 		GHref = UseHref(Ctx, TEXT("../7"));
-		return {RUI::Link(TEXT("/home"), {RUI::TextBlock(TEXT("LINK-CHILD"))})};
+		return {Ruitk::Link(TEXT("/home"), {Ruitk::TextBlock(TEXT("LINK-CHILD"))})};
 	}
-	RUI_COMPONENT(Probe)
+	RUITK_COMPONENT(Probe)
 
-	static FRuiNodeArray Shell(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray Shell(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		GNavigate = UseNavigate(Ctx);
 		GGo = UseGo(Ctx);
-		TArray<RUI::FRuiRoute> RouteList;
-		RouteList.Add({TEXT("/home"), RUI::TextBlock(TEXT("HOOKS-HOME"))});
-		RouteList.Add({TEXT("/users/:id"), RUI::FC(&Probe)});
-		return {RUI::Routes(MoveTemp(RouteList))};
+		TArray<Ruitk::FRuitkRoute> RouteList;
+		RouteList.Add({TEXT("/home"), Ruitk::TextBlock(TEXT("HOOKS-HOME"))});
+		RouteList.Add({TEXT("/users/:id"), Ruitk::FC(&Probe)});
+		return {Ruitk::Routes(MoveTemp(RouteList))};
 	}
-	RUI_COMPONENT(Shell)
+	RUITK_COMPONENT(Shell)
 
-	static FRuiNodeArray App(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray App(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		return {RUI::Router({RUI::FC(&Shell)}, TEXT("/users/42?tab=stats"))};
+		return {Ruitk::Router({Ruitk::FC(&Shell)}, TEXT("/users/42?tab=stats"))};
 	}
-	RUI_COMPONENT(App)
+	RUITK_COMPONENT(App)
 
 	// A router-less probe: UseInRouterContext must say false outside any <Router>.
 	static bool GOutsideInRouter = true;
-	static FRuiNodeArray Outside(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray Outside(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		GOutsideInRouter = UseInRouterContext(Ctx);
-		return {RUI::TextBlock(TEXT("OUTSIDE"))};
+		return {Ruitk::TextBlock(TEXT("OUTSIDE"))};
 	}
-	RUI_COMPONENT(Outside)
+	RUITK_COMPONENT(Outside)
 } // namespace RouterHooksTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiRouterHooksTest, "ReactiveUI.Router.Hooks", RUI_ROUTER_FLAGS)
-bool FRuiRouterHooksTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkRouterHooksTest, "Ruitk.Router.Hooks", RUITK_ROUTER_FLAGS)
+bool FRuitkRouterHooksTest::RunTest(const FString&)
 {
 	using namespace RouterHooksTest;
 
-	FRuiTestHarness H;
-	H.Mount(RUI::FC(&App));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&App));
 
 	auto Texts = [&H]()
 	{
@@ -321,8 +321,8 @@ bool FRuiRouterHooksTest::RunTest(const FString&)
 
 	// Outside any router: UseInRouterContext reports false.
 	{
-		FRuiTestHarness H2;
-		H2.Mount(RUI::FC(&Outside));
+		FRuitkTestHarness H2;
+		H2.Mount(Ruitk::FC(&Outside));
 		TestFalse(TEXT("UseInRouterContext false outside a Router"), GOutsideInRouter);
 	}
 	return true;

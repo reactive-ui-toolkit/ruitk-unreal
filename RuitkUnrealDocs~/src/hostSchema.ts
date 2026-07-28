@@ -25,5 +25,5 @@ export const EVENT_PAYLOADS: Record<string, string> = __EVENT_PAYLOADS__
 /** The Phase-2 core set — rendered as "Common" in the sidebar; everything else is "Uncommon". */
 export const CORE_TAGS = new Set([
   'TextBlock', 'Button', 'Border', 'Box', 'VerticalBox', 'HorizontalBox', 'Overlay', 'Image',
-  'ScrollBox', 'Spacer', 'EditableTextBox', 'CheckBox', 'Slider', 'ProgressBar', 'RuiCanvas',
+  'ScrollBox', 'Spacer', 'EditableTextBox', 'CheckBox', 'Slider', 'ProgressBar', 'RuitkCanvas',
 ])

@@ -33,10 +33,10 @@ by definition a bug in the change).
 - Formatter goldens: `uetkx-formatter-cases.json` — pins the formatter byte-identical on both
   sides; invariants: verbatim-on-parse-error, idempotent, `fellBack` distinguishable.
 - Full-file fixtures + goldens (Phase 3+): fixtures under
-  `Source/RuiHostTests/ContractFixtures/` (EXCLUDED from the RUICompile sweep and UBT);
-  goldens dumped by `-run=RUIContractDump`; `--check` is the CI drift mode; the TS side replays
+  `Source/RuitkHostTests/ContractFixtures/` (EXCLUDED from the RuitkCompile sweep and UBT);
+  goldens dumped by `-run=RuitkContractDump`; `--check` is the CI drift mode; the TS side replays
   every golden.
-- Both sides run in CI: the C++ side via `ReactiveUI.Contract`, the TS side via
+- Both sides run in CI: the C++ side via `Ruitk.Contract`, the TS side via
   `node --test` in lsp-server.
 
 ## The `.pending` protocol (known divergences)

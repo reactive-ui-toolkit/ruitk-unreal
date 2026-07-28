@@ -4,7 +4,7 @@
 
 #include <limits>
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	namespace Raycast
 	{
@@ -254,4 +254,4 @@ namespace RuiDoom
 			return false;
 		}
 	} // namespace Raycast
-} // namespace RuiDoom
+} // namespace RuitkDoom

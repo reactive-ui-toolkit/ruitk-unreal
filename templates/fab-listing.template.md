@@ -17,8 +17,8 @@ markup hot-reloads mid-PIE in under a second during development and compiles to 
 shipping.
 
 - Native Slate output — Widget Reflector, styling, and accessibility see ordinary widgets
-- UMG both ways: host inside UserWidgets (`URuiHostWidget`), embed UMG widgets (`RUI::Umg`)
-- CommonUI-native screens (`URuiActivatableScreen`) — your input routing stays untouched
+- UMG both ways: host inside UserWidgets (`URuitkHostWidget`), embed UMG widgets (`Ruitk::Umg`)
+- CommonUI-native screens (`URuitkActivatableScreen`) — your input routing stays untouched
 - MVVM/FieldNotify viewmodels feed components via `UseField`
 - __WIDGET_COUNT__ wrapped widgets + a virtualized list; localization-ready (`NSLOCTEXT` gather)
 - VS Code + VS2022 extensions: completion, diagnostics, formatting for `.uetkx`

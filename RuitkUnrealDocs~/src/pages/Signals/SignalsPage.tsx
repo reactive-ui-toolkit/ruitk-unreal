@@ -4,15 +4,15 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
 const CREATE = `// A signal is a keyed, process-wide reactive value that lives OUTSIDE the tree.
 // GetOrCreateSignal returns the same instance for a given key everywhere.
-TSharedRef<TRuiSignal<int32>> Signal = RUI::GetOrCreateSignal<int32>(GDemoCounterSignal, 0);
+TSharedRef<TRuitkSignal<int32>> Signal = Ruitk::GetOrCreateSignal<int32>(GDemoCounterSignal, 0);
 
 <Button OnClicked={ Signal->Update([](const int32& V) { return V + 1; }) }>Increment</Button>
 <Button OnClicked={ Signal->Set(0) }>Reset</Button>`
 
 const READ = `// Any component reads a signal by key and re-renders when it changes.
-export FRuiNode CounterLabel() {
-	const int32 Count = RUI::UseSignalKey<int32>(Ctx, GDemoCounterSignal, 0);
-	return <TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />;
+export FRuitkNode CounterLabel() {
+	const int32 Count = Ruitk::UseSignalKey<int32>(Ctx, GDemoCounterSignal, 0);
+	return <TextBlock Text={ Ruitk::Fmt(TEXT("Count: {}"), Count) } />;
 }`
 
 export const SignalsPage: FC = () => (
@@ -23,7 +23,7 @@ export const SignalsPage: FC = () => (
     <Typography variant="body1" paragraph>
       A <strong>signal</strong> is a lightweight reactive value store that lives outside the
       component tree — the single source of truth for state many, possibly distant, components share.{' '}
-      <code>TRuiSignal&lt;T&gt;</code> holds the value; components subscribe and re-render when it
+      <code>TRuitkSignal&lt;T&gt;</code> holds the value; components subscribe and re-render when it
       changes, without prop-drilling or lifting state.
     </Typography>
 
@@ -31,7 +31,7 @@ export const SignalsPage: FC = () => (
       Creating &amp; writing
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>RUI::GetOrCreateSignal&lt;T&gt;(Key, Initial)</code> returns the one signal registered
+      <code>Ruitk::GetOrCreateSignal&lt;T&gt;(Key, Initial)</code> returns the one signal registered
       under a key, creating it on first use. Write with <code>Set(value)</code> or{' '}
       <code>Update(fn)</code> for a functional update against the freshest value.
     </Typography>

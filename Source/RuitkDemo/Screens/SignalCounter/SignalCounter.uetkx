@@ -1,8 +1,8 @@
-import "@RuiDemoSupport.h"
+import "@RuitkDemoSupport.h"
 import { SignalPanel } from "./components/SignalPanel/SignalPanel"
 
-export FRuiNode SignalCounter() {
-	TSharedRef<TRuiSignal<int32>> Signal = RUI::GetOrCreateSignal<int32>(RuiDemo::GDemoCounterSignal, 0);
+export FRuitkNode SignalCounter() {
+	TSharedRef<TRuitkSignal<int32>> Signal = Ruitk::GetOrCreateSignal<int32>(RuitkDemo::GDemoCounterSignal, 0);
 	return (
 		<Border
 			Padding="12"

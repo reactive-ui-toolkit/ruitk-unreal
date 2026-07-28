@@ -2,7 +2,7 @@
 //
 // TD-006 — the in-editor `.uetkx` READ-ONLY preview. FUetkxPreview is the headless-testable core: it
 // scans a `.uetkx` source for its component name and mounts the COMPILED component by name (the one
-// RUICompile/HMR registered) as a live ReactiveUI root — collecting parse diagnostics for display.
+// RuitkCompile/HMR registered) as a live ReactiveUI root — collecting parse diagnostics for display.
 // The editor tab (SUetkxPreviewPanel) is a thin Slate shell: pick a file, see it render. It reflects
 // the LAST COMPILED state; a save recompiles it (HMR v2 D-HMR-8, the interpreter is deleted).
 
@@ -11,7 +11,7 @@
 #include "CoreMinimal.h"
 #include "Widgets/SWidget.h"
 
-class FRuiRoot;
+class FRuitkRoot;
 
 class RUITKEDITOR_API FUetkxPreview : public TSharedFromThis<FUetkxPreview>
 {
@@ -43,7 +43,7 @@ public:
 	const FString& GetComponentName() const { return ComponentName; }
 
 private:
-	TSharedPtr<FRuiRoot> Root;
+	TSharedPtr<FRuitkRoot> Root;
 	TArray<FString> Messages;
 	FString ComponentName;
 	bool bMounted = false;

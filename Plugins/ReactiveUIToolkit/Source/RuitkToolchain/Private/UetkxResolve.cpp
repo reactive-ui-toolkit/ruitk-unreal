@@ -81,7 +81,7 @@ namespace
 
 	/** Scan a verbatim C++ region for bare `Use<Upper>(` calls (user hooks) and leftmost `Ident::`
 	 *  scope quals (module references), respecting comments/strings and member/scope prefixes — the
-	 *  PrefixHookCalls classification (so hand-header namespaces like `RuiDemo::X` are found here as
+	 *  PrefixHookCalls classification (so hand-header namespaces like `RuitkDemo::X` are found here as
 	 *  Module refs but filtered out later when no file exports the name). BaseAt = the region's
 	 *  absolute offset in the original source; when it is UNKNOWN pass `bExactBase = false` and a
 	 *  fallback position — every ref then lands at BaseAt itself (the hook validator's fallback

@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// The mock host: IRuiHostConfig over plain test nodes — what makes the ENTIRE reconciler
+// The mock host: IRuitkHostConfig over plain test nodes — what makes the ENTIRE reconciler
 // testable headlessly (the react-test-renderer seam, D-11). Also the test harness and the
 // test elements the ported core suites render.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiHostConfig.h"
-#include "RuiElementRegistry.h"
-#include "RuiReconciler.h"
-#include "RuiCoreElements.h"
+#include "RuitkHostConfig.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkReconciler.h"
+#include "RuitkCoreElements.h"
 
 /** A mock host node: enough structure to assert identity, order, props, and lifecycle. */
 struct FMockNode
@@ -18,7 +18,7 @@ struct FMockNode
 	FName Tag;
 	/** Raw view of the latest committed props — the fiber owns them (kept alive while
 	 *  committed); updated on every CommitUpdate. Test-read only. */
-	const FRuiPropsBase* Props = nullptr;
+	const FRuitkPropsBase* Props = nullptr;
 	TArray<TSharedPtr<FMockNode>> Children;
 	FMockNode* Parent = nullptr;
 	int32 UpdateCount = 0;
@@ -28,39 +28,39 @@ struct FMockNode
 
 	FString TextOf() const
 	{
-		const FRuiTextBlockProps* T = PropsAs<FRuiTextBlockProps>();
+		const FRuitkTextBlockProps* T = PropsAs<FRuitkTextBlockProps>();
 		return T ? T->Text.ToString() : FString();
 	}
 };
 
-class FRuiMockHost final : public IRuiHostConfig
+class FRuitkMockHost final : public IRuitkHostConfig
 {
 public:
 	TSharedRef<FMockNode> Root = MakeShared<FMockNode>();
 	int32 CreatedCount = 0;
 	int32 ReleasedCount = 0;
-	FRuiSafeArea SafeArea{1, 2, 3, 4};
+	FRuitkSafeArea SafeArea{1, 2, 3, 4};
 
-	static FMockNode* Cast(const FRuiHostHandle& H) { return static_cast<FMockNode*>(H.Get()); }
+	static FMockNode* Cast(const FRuitkHostHandle& H) { return static_cast<FMockNode*>(H.Get()); }
 
-	virtual FRuiHostHandle CreateInstance(FRuiElementTypeId Type, const FRuiPropsBase& Props) override
+	virtual FRuitkHostHandle CreateInstance(FRuitkElementTypeId Type, const FRuitkPropsBase& Props) override
 	{
 		TSharedRef<FMockNode> Node = MakeShared<FMockNode>();
-		Node->Tag = RUI::GetElementTypeName(Type);
+		Node->Tag = Ruitk::GetElementTypeName(Type);
 		Node->Props = &Props;
 		++CreatedCount;
 		return Node;
 	}
 
-	virtual void CommitUpdate(const FRuiHostHandle& Node, FRuiElementTypeId, const FRuiPropsBase*,
-							  const FRuiPropsBase& NewProps) override
+	virtual void CommitUpdate(const FRuitkHostHandle& Node, FRuitkElementTypeId, const FRuitkPropsBase*,
+							  const FRuitkPropsBase& NewProps) override
 	{
 		FMockNode* N = Cast(Node);
 		N->Props = &NewProps;
 		++N->UpdateCount;
 	}
 
-	virtual void ReleaseInstance(const FRuiHostHandle& Node, FRuiElementTypeId, const TSharedPtr<const FRuiPropsBase>&,
+	virtual void ReleaseInstance(const FRuitkHostHandle& Node, FRuitkElementTypeId, const TSharedPtr<const FRuitkPropsBase>&,
 								 bool) override
 	{
 		FMockNode* N = Cast(Node);
@@ -72,7 +72,7 @@ public:
 		}
 	}
 
-	virtual void InsertChild(const FRuiHostHandle& Parent, const FRuiHostHandle& Child, int32 Index) override
+	virtual void InsertChild(const FRuitkHostHandle& Parent, const FRuitkHostHandle& Child, int32 Index) override
 	{
 		FMockNode* P = Parent.IsValid() ? Cast(Parent) : &Root.Get();
 		TSharedPtr<FMockNode> C = StaticCastSharedPtr<FMockNode>(Child);
@@ -91,18 +91,18 @@ public:
 		}
 	}
 
-	virtual void RemoveChild(const FRuiHostHandle& Parent, const FRuiHostHandle& Child) override
+	virtual void RemoveChild(const FRuitkHostHandle& Parent, const FRuitkHostHandle& Child) override
 	{
 		FMockNode* P = Parent.IsValid() ? Cast(Parent) : &Root.Get();
 		RemoveFrom(P, Cast(Child));
 	}
 
-	virtual void ReorderChildren(const FRuiHostHandle& Parent, const TArray<FRuiHostHandle>& Ordered) override
+	virtual void ReorderChildren(const FRuitkHostHandle& Parent, const TArray<FRuitkHostHandle>& Ordered) override
 	{
 		FMockNode* P = Parent.IsValid() ? Cast(Parent) : &Root.Get();
 		TArray<TSharedPtr<FMockNode>> NewOrder;
 		NewOrder.Reserve(Ordered.Num());
-		for (const FRuiHostHandle& H : Ordered)
+		for (const FRuitkHostHandle& H : Ordered)
 		{
 			FMockNode* Want = Cast(H);
 			for (const TSharedPtr<FMockNode>& Existing : P->Children)
@@ -125,7 +125,7 @@ public:
 		P->Children = MoveTemp(NewOrder);
 	}
 
-	virtual FRuiElementTypeId GetTextElementType() const override { return RUI::TextBlockElementType(); }
+	virtual FRuitkElementTypeId GetTextElementType() const override { return Ruitk::TextBlockElementType(); }
 
 	virtual void RequestFrame(TFunction<void()> Callback) override { FrameQueue.Add(MoveTemp(Callback)); }
 
@@ -195,30 +195,30 @@ private:
 // Test elements ("Box": a generic container/leaf with a label + value + event)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct FTestBoxProps final : public FRuiPropsBase
+struct FTestBoxProps final : public FRuitkPropsBase
 {
-	RUI_PROP(FString, Label, 0)
-	RUI_PROP(int32, Value, 1)
-	RUI_PROP_EVENT(OnPing, 2)
-	RUI_PROPS_BODY(FTestBoxProps, RUI_EQ(Label) RUI_EQ(Value))
+	RUITK_PROP(FString, Label, 0)
+	RUITK_PROP(int32, Value, 1)
+	RUITK_PROP_EVENT(OnPing, 2)
+	RUITK_PROPS_BODY(FTestBoxProps, RUITK_EQ(Label) RUITK_EQ(Value))
 };
 
-namespace RuiTest
+namespace RuitkTest
 {
-	inline FRuiElementTypeId BoxType()
+	inline FRuitkElementTypeId BoxType()
 	{
-		static FRuiElementTypeId Id = RUI::InternElementType(FName(TEXT("Box")));
+		static FRuitkElementTypeId Id = Ruitk::InternElementType(FName(TEXT("Box")));
 		return Id;
 	}
 
-	inline FRuiNode Box(FTestBoxProps InProps = FTestBoxProps(), TArray<FRuiNode> Children = {},
-						FRuiKey Key = FRuiKey())
+	inline FRuitkNode Box(FTestBoxProps InProps = FTestBoxProps(), TArray<FRuitkNode> Children = {},
+						FRuitkKey Key = FRuitkKey())
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = BoxType();
 		Node.Props = MakeShared<FTestBoxProps>(MoveTemp(InProps));
-		Node.Children = RUI::MakeChildren(MoveTemp(Children));
+		Node.Children = Ruitk::MakeChildren(MoveTemp(Children));
 		Node.Key = Key;
 		return Node;
 	}
@@ -230,17 +230,17 @@ namespace RuiTest
 		P.SetValue(Value);
 		return P;
 	}
-} // namespace RuiTest
+} // namespace RuitkTest
 
 /** Everything a core test needs: host + reconciler + pump + tree access. */
-struct FRuiTestHarness
+struct FRuitkTestHarness
 {
-	FRuiMockHost Host;
-	TUniquePtr<FRuiReconciler> Reconciler;
+	FRuitkMockHost Host;
+	TUniquePtr<FRuitkReconciler> Reconciler;
 
-	FRuiTestHarness() { Reconciler = MakeUnique<FRuiReconciler>(Host, Host.Root); }
+	FRuitkTestHarness() { Reconciler = MakeUnique<FRuitkReconciler>(Host, Host.Root); }
 
-	~FRuiTestHarness()
+	~FRuitkTestHarness()
 	{
 		if (Reconciler.IsValid())
 		{
@@ -248,7 +248,7 @@ struct FRuiTestHarness
 		}
 	}
 
-	void Mount(FRuiNode Node) { Reconciler->Render(MoveTemp(Node)); }
+	void Mount(FRuitkNode Node) { Reconciler->Render(MoveTemp(Node)); }
 	void Pump(int32 Frames = 2) { Host.Pump(Frames); }
 
 	FMockNode* RootNode() { return &Host.Root.Get(); }

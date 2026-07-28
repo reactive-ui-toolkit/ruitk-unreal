@@ -17,21 +17,21 @@ referenced from plans/PRs.
 ---
 
 ## TD-001 — Router subsystem (17 family router hooks)
-- **Where:** would live in `RuitkCore` (+ suites `ReactiveUI.Router.*`)
+- **Where:** would live in `RuitkCore` (+ suites `Ruitk.Router.*`)
 - **What/why deferred:** OUT of the v1 ship gate by decision (MASTER_PLAN D-27 note + gate OUT
   list) — scope valve; the family's `router_match`/`router_spine` suites port when it lands.
 - **Production-grade resolution:** full port of the family router (+17 hooks), both suites, docs
   page, gate entry in a v1.x plan.
-- **Status:** RESOLVED 2026-07-12 — ported engine-blind into RuitkCore (`RuiRouter.h/.cpp`),
+- **Status:** RESOLVED 2026-07-12 — ported engine-blind into RuitkCore (`RuitkRouter.h/.cpp`),
   a React-Router-shaped in-memory router. **Matching engine:** `MatchPath` (literal / `:param` /
   `*` splat, leaf-vs-prefix), `ParseLocation`, `ParseSearch`/`BuildSearch`, `ResolvePath`
-  (absolute / append-relative / `..`). **Components:** `RUI::Router` (in-memory history w/ back +
-  forward stacks + a blocker registry), `RUI::Routes` (specificity-ranked nested matching →
-  outlet-wrapped element chain), `RUI::Link`, and Outlet nesting via a per-route context.
+  (absolute / append-relative / `..`). **Components:** `Ruitk::Router` (in-memory history w/ back +
+  forward stacks + a blocker registry), `Ruitk::Routes` (specificity-ranked nested matching →
+  outlet-wrapped element chain), `Ruitk::Link`, and Outlet nesting via a per-route context.
   **The 17 hooks:** UseInRouterContext, UseLocation, UsePathname, UseSearch, UseNavigationType,
   UseNavigate, UseGo, UseBackStack, UseParams, UseSearchParams, UseMatch, UseIsActive,
   UseResolvedPath, UseHref, UseOutlet, UseRoutes, UseBlocker. Both family suites ported:
-  `ReactiveUI.Router.Match` (the pure primitives) and `ReactiveUI.Router.Spine` (end-to-end:
+  `Ruitk.Router.Match` (the pure primitives) and `Ruitk.Router.Spine` (end-to-end:
   history, nested layout+index outlets, params, search-param read/write, back-stack, blocker
   interception). Full suite 67/67. Docs page + a demo screen remain as docs-sync follow-ons.
 
@@ -40,7 +40,7 @@ referenced from plans/PRs.
 - **What/why deferred:** v1 ships inline `style` dicts + `classes` (D-13); the stylesheet layer
   is family parity work with real design surface.
 - **Production-grade resolution:** family-compatible stylesheet layer; the diagnostic retires.
-- **Status:** RESOLVED (runtime + loader) 2026-07-12 — the THIRD layer landed in `RuiStyle.h/.cpp`
+- **Status:** RESOLVED (runtime + loader) 2026-07-12 — the THIRD layer landed in `RuitkStyle.h/.cpp`
   on top of the v1 class registry. **@theme tokens:** `RegisterTheme(name, tokens)` +
   `SetActiveTheme`/`GetActiveTheme` + `ResolveThemeToken`; a style value that is a `$name` String
   is a token reference, resolved against the active theme when `BuildEffectiveStyle` runs — so the
@@ -49,7 +49,7 @@ referenced from plans/PRs.
   `.uss`-style text (`@theme <name> { token: value; }` + `.<class> { key: value; }`, `/* */` and
   `//` comments) and registers themes + classes; `ParseStyleValue` is the value grammar
   (`#rrggbb[aa]` color, int/float, true/false, `$token`, "quoted", `x,y` vector2, bare Name) and
-  is reusable by the future markup lowering. Test `ReactiveUI.Style.Stylesheet`: the value grammar,
+  is reusable by the future markup lowering. Test `Ruitk.Style.Stylesheet`: the value grammar,
   a loaded theme+class, token resolution to a real applied RenderOpacity, the theme on/off states,
   and the inline-wins cascade. Full suite 68/68. **REMAINING:** wiring the `.uetkx` compiler's
   preamble `@uss`/`@theme` directives to emit `LoadStylesheet`/`RegisterTheme` calls (the grammar
@@ -65,7 +65,7 @@ referenced from plans/PRs.
 - **Status:** RESOLVED 2026-07-12. Shipped as the React-community `<Presence>` boundary
   (framer-motion's AnimatePresence shape) — a pure userland composition over the existing hooks,
   NOT reconciler surgery, so core risk stayed low and the design is portable to the Unity/Godot
-  siblings as-is. `RUI::Presence(Children, MaxExitSeconds=2)` keeps a removed keyed child mounted
+  siblings as-is. `Ruitk::Presence(Children, MaxExitSeconds=2)` keeps a removed keyed child mounted
   ("exiting") instead of deleting it, and `UsePresence(Ctx) -> {bPresent, NotifyDone}` (context)
   flips `bPresent=false` into the kept child; the child animates via its existing
   `UseAnimate(bPresent)` and calls `NotifyDone()` when settled, which performs the real unmount.
@@ -73,7 +73,7 @@ referenced from plans/PRs.
   never notifies; re-entry (the key reappearing mid-exit) cancels the exit with the SAME fiber, so
   tween state continues from the current value. State preservation falls out for free: because the
   boundary keeps rendering the same keyed child, the reconciler keeps the same fiber.
-  Files: `RuiPresence.h/.cpp` (RuitkCore). Test `ReactiveUI.Core.Presence`: deferred deletion,
+  Files: `RuitkPresence.h/.cpp` (RuitkCore). Test `Ruitk.Core.Presence`: deferred deletion,
   NotifyDone-driven unmount, timeout fence, re-entry cancel. **Reconciler hardening (same commit):**
   `ScheduleUpdateOnFiber` now marks the alternate twins too (React's `markUpdateLaneFromFiberToRoot`
   parity) — a latent bug where an async `setState` (frame/timer callback) on a component reached
@@ -87,22 +87,22 @@ referenced from plans/PRs.
 - **Production-grade resolution:** typed DnD props over Slate's drag-drop ops + shortcut
   registration hook, with demos.
 - **Status:** RESOLVED 2026-07-12 — both halves shipped.
-  - **Keyboard shortcut:** `RUI::Slate::UseShortcut(Ctx, FRuiShortcut{Key,Ctrl/Shift/Alt/Cmd},
+  - **Keyboard shortcut:** `Ruitk::Slate::UseShortcut(Ctx, FRuitkShortcut{Key,Ctrl/Shift/Alt/Cmd},
     OnTrigger)` registers a Slate input pre-processor for the component's lifetime (UseEffect keyed
     on the chord; a stable ref box fires the LATEST callback; unregistered on unmount).
-    `FRuiShortcut::Matches` exact-matches key+modifiers. Test `ReactiveUI.Slate.Shortcut`: matcher
+    `FRuitkShortcut::Matches` exact-matches key+modifiers. Test `Ruitk.Slate.Shortcut`: matcher
     truth table + end-to-end mount → ProcessKeyDownEvent(Ctrl+S) fires once → non-match no-op →
     unmount stops firing.
-  - **Drag-and-drop:** typed DnD over Slate's `FDragDropOperation` (`RuiDragDrop.h/.cpp`). Slate DnD
+  - **Drag-and-drop:** typed DnD over Slate's `FDragDropOperation` (`RuitkDragDrop.h/.cpp`). Slate DnD
     is an event-OVERRIDE surface (not props/delegates), so the API is a pair of wrapper ELEMENTS:
-    `RUI::Slate::DragSource` (carries an `FRuiValue` Payload + `DragType` tag; begins the op on a
+    `Ruitk::Slate::DragSource` (carries an `FRuitkValue` Payload + `DragType` tag; begins the op on a
     left-drag; `OnDragStart`/`OnDragEnd` events) and `DropTarget` (`AcceptTypes` filter — empty =
     accept any; `OnDrop` fires with the payload; `OnDragEnter`/`OnDragLeave` fire with the hovering
-    payload + toggle an `IsOver` hover flag). `FRuiDragDropOp : FDragDropOperation` rides the payload
-    across the drag and fires `OnEnded(bHandled)` exactly once. C++-FIRST (the drop closure + FRuiValue
+    payload + toggle an `IsOver` hover flag). `FRuitkDragDropOp : FDragDropOperation` rides the payload
+    across the drag and fires `OnEnded(bHandled)` exactly once. C++-FIRST (the drop closure + FRuitkValue
     payload + array accept-list aren't cleanly markup-expressible — no `.uetkx` tag, like ListView).
     The widgets + op are exported so the suite drives a synthetic drop (a hand-built `FDragDropEvent`
-    over the op) headless. Test `ReactiveUI.Slate.DragDrop`: op payload/type + fire-once OnEnded;
+    over the op) headless. Test `Ruitk.Slate.DragDrop`: op payload/type + fire-once OnEnded;
     accept/reject by type (handled vs unhandled reply); empty-accept-any; enter/leave hover toggle;
     drag-source OnDragDetected begins the op + fires OnDragStart.
 
@@ -123,11 +123,11 @@ referenced from plans/PRs.
 - **Status:** RESOLVED 2026-07-12 — the read-only live preview shipped. `FUetkxPreview`
   (`RuitkEditor/UetkxPreview.h/.cpp`) is the headless-testable core: scan (`FUetkxFileScan::Scan`)
   → pick a component (first or by name) → build the dev-loop interpreter def (`FUetkxInterpDef::Build`)
-  → mount it as a live `FRuiRoot`, collecting parse diagnostics + interpreter fallback notes. Always
+  → mount it as a live `FRuitkRoot`, collecting parse diagnostics + interpreter fallback notes. Always
   returns a preview — on failure a placeholder widget + messages, never a crash. `SUetkxPreviewPanel`
   is the Slate shell (path box + Load, a live preview area, a scrolling message list); the editor
   module registers it as a **nomad tab** (`ReactiveUIPreview`) with a Tools-menu entry (guarded to the
-  Slate-app path, so commandlets skip it). Test `ReactiveUI.Editor.Preview`: a valid component mounts a
+  Slate-app path, so commandlets skip it). Test `Ruitk.Editor.Preview`: a valid component mounts a
   real widget, named-component selection (+ missing-name message), no-component and unterminated-parse
   sources yield a placeholder + surfaced diagnostics. The interactive tab UX is owner-verified in the
   editor; the mount/diagnostic pipeline is automated. (An editing tab remains the someday-step.)
@@ -159,7 +159,7 @@ referenced from plans/PRs.
 - **Status:** OPEN — mechanism shipped leg 1; sibling adoption PRs pending (Godot leg 2, Unity leg 3)
 
 ## TD-010 — Reorder strategy: minimal-move (spike-decided) + slot-prop updates reinsert
-- **Where:** `RuitkSlate/Private/RuiCoreAdapters.cpp` (box panels + overlay)
+- **Where:** `RuitkSlate/Private/RuitkCoreAdapters.cpp` (box panels + overlay)
 - **What/why deferred:** the Phase 2 step 1 spike (Bench.SlateReorder, rows in
   BENCH_BASELINES.md) decided **minimal-move**: 1-moved-child costs 3µs vs 60µs for a full
   rebuild (20×); only the pathological full reverse favors rebuild (1.5×). Two accepted
@@ -175,14 +175,14 @@ referenced from plans/PRs.
   adapter now mutates the LIVE FSlot in place: `const_cast<TBox::FSlot&>(GetSlotAt(i))` +
   `ConfigureSlotLive` (SetFillHeight/Width, SetAutoHeight/Width, SetPadding, SetHorizontal/
   VerticalAlignment; absent keys reset to the slot defaults), then `Invalidate(Layout)` — no more
-  detach/reinsert on hot slot-prop animation. Test `ReactiveUI.Slate.SlotInPlace` proves the SAME
+  detach/reinsert on hot slot-prop animation. Test `Ruitk.Slate.SlotInPlace` proves the SAME
   FSlot object survives the update (address unchanged) while its padding retargets 10→20→reset.
   (b) SOverlay index-reorder rebuild + the hybrid "rebuild when moves > N/2" switch remain the
   documented-accepted design — both are gated on a profiling workload that has not surfaced; the
   minimal-move box-panel strategy (spike-decided) is unchanged.
 
 ## TD-011 — Construct-only prop changes don't replace widgets yet
-- **Where:** `FRuiSlateHost::CommitUpdate` (warns via the adapter reconstruct mask)
+- **Where:** `FRuitkSlateHost::CommitUpdate` (warns via the adapter reconstruct mask)
 - **What/why deferred:** none of the M7 pattern widgets has a construct-only prop, so the
   replacement path (rebuild widget + swap into the parent slot + rebind events + re-parent
   children) has nothing to test against. The mask is part of the adapter contract NOW
@@ -191,13 +191,13 @@ referenced from plans/PRs.
   reconstruct-mask prop, with a pointer-identity-change test proving the swap. (The header-sweep
   audit removed the last v1 mask user: SScrollBox Orientation turned out runtime-settable — as of
   the audit NO shipped widget uses the mask; it remains contract-only.)
-- **Status:** RESOLVED 2026-07-12 — `FRuiSlateHost::ReplaceWidget` rebuilds the widget (REUSING the
+- **Status:** RESOLVED 2026-07-12 — `FRuitkSlateHost::ReplaceWidget` rebuilds the widget (REUSING the
   event proxy — bind-once-swap-inner), re-parents its children WITH their slot props (new
-  `FRuiSlateNode::ChildNodes` bookkeeping maintained by Insert/Remove/Reorder), swaps it into the
+  `FRuitkSlateNode::ChildNodes` bookkeeping maintained by Insert/Remove/Reorder), swaps it into the
   parent slot at the same index, and re-applies props/style. Trigger is now PRECISE:
-  `IRuiElementAdapter::ConstructOnlyChanged(Old,New)` gates the coarse mask (a mask bit set on both
+  `IRuitkElementAdapter::ConstructOnlyChanged(Old,New)` gates the coarse mask (a mask bit set on both
   sides with an unchanged value no longer forces a rebuild). `CommitUpdate` calls it and returns.
-  Test: `ReactiveUI.Slate.Replace` drives the host with a construct-only `Flavor` adapter and
+  Test: `Ruitk.Slate.Replace` drives the host with a construct-only `Flavor` adapter and
   asserts pointer-swap + child identity/order preserved + proxy reused on a Flavor change, and
   NO replacement on a runtime-only change. battery 56/56 (Slate/Widgets/Update reorder paths green
   — bookkeeping non-regressive).
@@ -220,47 +220,47 @@ referenced from plans/PRs.
   (14 widgets, WIDGET_INVENTORY.md "Shipped Phase 7"): WidgetSwitcher, ScaleBox, Throbber,
   WrapBox, MultiLineEditableTextBox, SearchBox, SafeZone, DPIScaler, Separator, SpinBox,
   UniformWrapPanel, RichTextBlock, GridPanel, UniformGridPanel — each wired through EVERY
-  touchpoint (typed props + factory in RuiSlateElements.h, adapter in the new
-  RuiWidgetAdaptersB2.cpp, codegen host tag in UetkxCodegen.cpp HostTags, interp builder in
+  touchpoint (typed props + factory in RuitkSlateElements.h, adapter in the new
+  RuitkWidgetAdaptersB2.cpp, codegen host tag in UetkxCodegen.cpp HostTags, interp builder in
   UetkxInterpElements.cpp, regenerated LSP schema, and a per-widget contract test
-  `ReactiveUI.Widgets.Batch2{,b,c}`). Separator is the first shipped widget to exercise the
+  `Ruitk.Widgets.Batch2{,b,c}`). Separator is the first shipped widget to exercise the
   TD-011 reconstruct mask (Orientation/Thickness construct-only → widget replacement; the test
   proves a color-only change reuses the widget while a thickness change replaces it). Grid
   panels place children by `slot.column`/`slot.row`. Schema grew 15 → 29 host tags. Full suite
   64/64. Schema later held at 29 (ListView/TileView are C++-first render-prop APIs, not markup
   tags — see TD-022). Full suite 71/71.
-  - **ExpandableArea (two-named-slot special): DONE 2026-07-12.** `RUI::Slate::ExpandableArea`
-    (`RuiExpandableArea.h/.cpp`, exported `SRuiExpandableArea`) — the family's FIRST two-named-slot
+  - **ExpandableArea (two-named-slot special): DONE 2026-07-12.** `Ruitk::Slate::ExpandableArea`
+    (`RuitkExpandableArea.h/.cpp`, exported `SRuitkExpandableArea`) — the family's FIRST two-named-slot
     widget. Children carry `slot.role = "header" | "body"`; the wrapper builds SExpandableArea once
     around two persistent SBox holders (its HeaderContent/BodyContent are construct-time named slots
     with no runtime setters) and the MultiSlot adapter reparents role-tagged children into them
     (role-less → body). Expansion is CONTROLLED: `bIsExpanded` applied skip-when-equal against the
     live state (D-16); `OnExpansionChanged` forwards the user toggle. Test
-    `ReactiveUI.Widgets.ExpandableArea` (adapter-driven, like the slot suite): role routing
+    `Ruitk.Widgets.ExpandableArea` (adapter-driven, like the slot suite): role routing
     (header/body/default), controlled collapse+re-expand, and body-holder clear on remove.
-  - **SegmentedControl (tab bar): DONE 2026-07-12.** `RUI::Slate::SegmentedControl`
-    (`RuiSegmentedControl.h/.cpp`, exported `SRuiSegmentedControl`) wraps `SSegmentedControl<int32>`:
+  - **SegmentedControl (tab bar): DONE 2026-07-12.** `Ruitk::Slate::SegmentedControl`
+    (`RuitkSegmentedControl.h/.cpp`, exported `SRuitkSegmentedControl`) wraps `SSegmentedControl<int32>`:
     one text segment per `Labels` entry (value = index). `Labels` are construct-only (SSegmentedControl
     has no clear-children API — a label-set change trips the reconstruct mask and replaces the widget);
     `SelectedIndex` is CONTROLLED runtime (SetValue skip-when-equal, D-16); `OnSelectionChanged` fires
-    the picked index. Test `ReactiveUI.Widgets.SegmentedControl` (adapter-driven): segment count from
+    the picked index. Test `Ruitk.Widgets.SegmentedControl` (adapter-driven): segment count from
     labels, controlled selection move, the Labels reconstruct-mask gate (same → no rebuild, changed →
     rebuild), and a relabelled widget's new segment count.
   - **Interaction harness + NumericEntryBox + ComboBox + SuggestionTextBox: DONE 2026-07-12.** Built
-    a reusable headless **Slate interaction harness** (`Source/RuiHostTests/Private/RuiSlateTestHarness.h`:
+    a reusable headless **Slate interaction harness** (`Source/RuitkHostTests/Private/RuitkSlateTestHarness.h`:
     `FindDescendantByType`/`FindInAllWindowsByType` RTTI-off widget-tree walk, `FTestWindow` live
     window + prepass, menu/window diagnostics) — the thing that was actually missing to verify the
     "interactive-only" widgets. On it:
-    - **NumericEntryBox** (`RuiNumericEntryBox.h/.cpp`) — controlled numeric field over
+    - **NumericEntryBox** (`RuitkNumericEntryBox.h/.cpp`) — controlled numeric field over
       `SNumericEntryBox<float>` (no value setter → the controlled value lives in a member its Value
       attribute reads; skip-when-equal D-16). Test READS THE VALUE BACK from the inner `SEditableText`
       (a real display round-trip): 42.5 shown, re-render 7 → 7 shown.
-    - **ComboBox** (`RuiComboBox.h/.cpp`) — dropdown over `SComboBox<TSharedPtr<FRuiValue>>` reusing
-      the ListView render-prop for BOTH the selected display and the generated rows (each an FRuiRoot
+    - **ComboBox** (`RuitkComboBox.h/.cpp`) — dropdown over `SComboBox<TSharedPtr<FRuitkValue>>` reusing
+      the ListView render-prop for BOTH the selected display and the generated rows (each an FRuitkRoot
       sub-root). Controlled `SelectedIndex`; `OnSelectionChanged` fires only on a user pick. Test drives
       the REAL menu — opens it, ticks the pushed `SComboListType` with geometry, asserts all 3 option-row
       sub-roots generate — plus selected-display read-back + controlled move.
-    - **SuggestionTextBox** (`RuiSuggestionTextBox.h/.cpp`) — autocomplete over `SSuggestionTextBox`;
+    - **SuggestionTextBox** (`RuitkSuggestionTextBox.h/.cpp`) — autocomplete over `SSuggestionTextBox`;
       `OnShowingSuggestions` delegates to a case-insensitive substring filter over `Suggestions` (the
       real behaviour behind the dropdown). Test verifies the filter (substring, case-insensitive, empty
       → none) + controlled text round-trip through the live widget.
@@ -272,24 +272,24 @@ referenced from plans/PRs.
     them now would mean weak tests, against the quality bar.
 
 ## TD-013 — Typed authoring API for style dicts + slot.* props
-- **Where:** `RuitkSlate` (would live next to RuiStyle.h)
-- **What/why deferred:** style/slot STORAGE is `TMap<FName, FRuiValue>` by design (markup,
+- **Where:** `RuitkSlate` (would live next to RuitkStyle.h)
+- **What/why deferred:** style/slot STORAGE is `TMap<FName, FRuitkValue>` by design (markup,
   classes merging, and the LSP speak open key sets) — but the C++ AUTHORING surface should be
   compile-time-safe too (owner: "everything strongly typed"). Markup users get compile-time
   key validation from the `.uetkx` compiler/LSP schema in Phase 3; C++ users currently write
   raw FName keys (typos = one-time runtime warning).
 - **Production-grade resolution:** fluent typed builders producing the dicts —
-  `RUI::Style().Opacity(0.5f).Color(...).FontSize(16)` and
-  `RUI::Slot().Padding(8).HAlign(EH::Center).Fill(1.f)` — one method per registered key,
+  `Ruitk::Style().Opacity(0.5f).Color(...).FontSize(16)` and
+  `Ruitk::Slot().Padding(8).HAlign(EH::Center).Fill(1.f)` — one method per registered key,
   generated from the same schema the markup compiler validates against (single source).
-- **Status:** RESOLVED 2026-07-12 — `RUI::Style()` (`FRuiStyleBuilder`) + `RUI::Slot()`
-  (`FRuiSlotBuilder`) in RuiStyle.h: one fluent method per registered v1 style key (RenderOpacity,
+- **Status:** RESOLVED 2026-07-12 — `Ruitk::Style()` (`FRuitkStyleBuilder`) + `Ruitk::Slot()`
+  (`FRuitkSlotBuilder`) in RuitkStyle.h: one fluent method per registered v1 style key (RenderOpacity,
   Visibility, Enabled, RenderTranslation/Scale/TransformAngle/TransformPivot, ColorAndOpacity,
   FontSize, Justification, AutoWrapText, FillColorAndOpacity) and per slot key (Padding(FMargin|
   float), HAlign(EHorizontalAlignment), VAlign(EVerticalAlignment), Fill) — each emitting the SAME
-  FName key + FRuiValue kind the .uetkx markup does (single vocabulary), with a `Set(Key,Value)`
-  forward-compat escape hatch. Implicitly convertible to `TSharedPtr<FRuiStyleDict>` for `Props.Style`
-  / `Props.SlotProps`; header-only (no runtime cost beyond the map). Test `ReactiveUI.Style.Builder`
+  FName key + FRuitkValue kind the .uetkx markup does (single vocabulary), with a `Set(Key,Value)`
+  forward-compat escape hatch. Implicitly convertible to `TSharedPtr<FRuitkStyleDict>` for `Props.Style`
+  / `Props.SlotProps`; header-only (no runtime cost beyond the map). Test `Ruitk.Style.Builder`
   applies a built style dict to a widget (RenderOpacity/Enabled + reset-on-removal) and a built slot
   dict through the box adapter (padding + HAlign), and pins the stored value kinds. NOTE: enum-safe
   authoring; the "codegen from schema" single-source is deferred — the key set is small, fixed for
@@ -301,7 +301,7 @@ referenced from plans/PRs.
   the Content Browser does not browse — they are deliberately not imported assets (the
   committed-generated-code design, D-19). v1 ships the real file actions instead:
   `FUetkxFileActions::CreateComponentFile` (New Component template, compiler-validated by
-  `ReactiveUI.Uetkx.Schema`) and `OpenExternal` (OS default editor; wired to MessageLog
+  `Ruitk.Uetkx.Schema`) and `OpenExternal` (OS default editor; wired to MessageLog
   links in Phase 4). Browser visibility would need a `UAssetDefinition` + thin proxy-asset
   design (import a pointer-asset per source file) — a real design decision, not glue.
 - **Production-grade resolution:** decide post-v1 whether proxy assets earn their keep
@@ -333,7 +333,7 @@ referenced from plans/PRs.
   whose code is exactly `children`) now SPLICES the component's forwarded children via
   `Ch.Append(children)` at both child-list emit sites (EmitChildren + directive-body EmitBody), so a
   component can wrap arbitrary children (the reason gallery cards were inlined per-screen). Pinned by
-  the `ChildrenForward` contract golden AND proven end-to-end by `ReactiveUI.Uetkx.Children`
+  the `ChildrenForward` contract golden AND proven end-to-end by `Ruitk.Uetkx.Children`
   (ChildParent wraps two rows in ChildHost → HOST-HEADER + FORWARDED-A/B + HOST-FOOTER all render).
   Gaps (1) and (4a) RESOLVED 2026-07-16 (WIDGET_COMPLETION_PLAN wave G, 0.9.0): (1) EARLY
   RETURNS — `CollectMarkupReturns` gathers every markup `return ( ... )` (paren/bracket depth
@@ -341,19 +341,19 @@ referenced from plans/PRs.
   the body VERBATIM (Unity's SpliceSetupCodeMarkup model) lowering each span to
   `return { <element> };` in place; the FINAL return must be top-level (new UETKX3007). Single-
   return bodies take the legacy path — all prior goldens byte-stable. (4a) SHORT-CIRCUIT —
-  `cond && <X/>` / `cond || <X/>` desugar to ternaries with an empty-fragment `FRuiNode()` arm
+  `cond && <X/>` / `cond || <X/>` desugar to ternaries with an empty-fragment `FRuitkNode()` arm
   (the Unity Phase-1.5 port); **UETKX3002 retired**. Pinned by MultiReturn/ShortCircuit/
   NestedFinalReturn contract goldens + 4 fileScan corpus cases (both impls) + the compiled
-  `GrammarProof/MultiReturnProof.uetkx` mounted by `ReactiveUI.Uetkx.WaveG`. **Cross-repo
+  `GrammarProof/MultiReturnProof.uetkx` mounted by `Ruitk.Uetkx.WaveG`. **Cross-repo
   outbound (grammar-contract):** the new fileScan corpus cases + refreshed family-core hash need
   the mirrored PR against the Godot repo and a flag to the Unity repo — track until both merge.
   REMAINING: (3) `classes={expr}` string-form conditional classes, (4b) spread attrs — kept
   omitted per D-W1 (Unity-aligned; UETKX3003 stays).
 
-## TD-016 — Event payload surface is the single magic `Value` (FRuiValue)
+## TD-016 — Event payload surface is the single magic `Value` (FRuitkValue)
 - **Where:** `RuitkToolchain` codegen (event attr lowering)
 - **What/why deferred:** every event handler expression compiles into
-  `FRuiCallback::Create([=](const FRuiValue& Value) { expr; })` — text/bool/float payloads
+  `FRuitkCallback::Create([=](const FRuitkValue& Value) { expr; })` — text/bool/float payloads
   arrive as `Value.TextValue` / `Value.BoolValue` / etc. (see SimpleTextField/StyledPanels).
   Typed per-event payloads (the analyzer knowing OnTextChanged carries text) is LSP/schema
   work, not codegen work.
@@ -373,7 +373,7 @@ referenced from plans/PRs.
 - **What/why deferred:** the family grammar also has `hook Name(params) { ... }` and
   `module Name { ... }` declarations (D-03's declaration inventory); the Phase-3 plan listed
   their codegen shapes. v1 ships `component` only: in UE a custom hook is ALREADY a plain
-  C++ free function taking `FRuiContext&` (no sugar needed for capability — see the demo
+  C++ free function taking `FRuitkContext&` (no sugar needed for capability — see the demo
   support-header pattern), and modules are C++ namespaces. The decls add family-parity
   authoring sugar, not capability.
 - **Production-grade resolution:** port `_parse_hook_at`/module member loops from guitkx.gd
@@ -395,22 +395,22 @@ referenced from plans/PRs.
 ## TD-019 — Hook-state VALUE migration across the compiled→interp swap
 - **Where:** `RuitkCore` hook cells + `RuitkInterp` hook execution
 - **What/why deferred:** compiled components hold TYPED hook cells
-  (`TRuiStateCell<int32>`); the interpreter's cells are `FRuiValue`-typed. The first
+  (`TRuitkStateCell<int32>`); the interpreter's cells are `FRuitkValue`-typed. The first
   hot-swap of a compiled component therefore RESETS its state (reported honestly as
   "first interp swap (representation)"); interp→interp saves preserve. The family does not
   have this seam (GDScript is engine-interpreted end to end).
-- **Production-grade resolution:** `IRuiHookCell::ExportRuiValue(FRuiValue&)` (specialized
-  via `if constexpr (std::is_constructible_v<FRuiValue, T>)`) + an interp-aware UseState
-  path that migrates an exporting cell's value into the fresh FRuiValue cell when the hook
+- **Production-grade resolution:** `IRuitkHookCell::ExportRuiValue(FRuitkValue&)` (specialized
+  via `if constexpr (std::is_constructible_v<FRuitkValue, T>)`) + an interp-aware UseState
+  path that migrates an exporting cell's value into the fresh FRuitkValue cell when the hook
   signature matches. Numeric/string/bool/text state would then survive the FIRST save too.
-- **Status:** RESOLVED 2026-07-12 — `IRuiHookCell::ExportRuiValue(FRuiValue&)` (default false;
-  `TRuiStateCell<T>` overrides via `if constexpr (std::is_constructible_v<FRuiValue, const T&>)`);
-  `SetComponentOverride` + `FRuiComponentOverride` gain `bMigrateState`; the reconciler snapshots
-  exportable cells into `FRuiComponentState::MigratedState` (by hook slot) before the reset and
-  `UseState<FRuiValue>` re-seeds from it; `RuiHmr` sets `bMigrate` on the same-shape first swap and
+- **Status:** RESOLVED 2026-07-12 — `IRuitkHookCell::ExportRuiValue(FRuitkValue&)` (default false;
+  `TRuitkStateCell<T>` overrides via `if constexpr (std::is_constructible_v<FRuitkValue, const T&>)`);
+  `SetComponentOverride` + `FRuitkComponentOverride` gain `bMigrateState`; the reconciler snapshots
+  exportable cells into `FRuitkComponentState::MigratedState` (by hook slot) before the reset and
+  `UseState<FRuitkValue>` re-seeds from it; `RuitkHmr` sets `bMigrate` on the same-shape first swap and
   no longer counts it a reset (note reads `state migrated`). Numeric/string/bool/text state now
   survives the first compiled→interp save; only container/opaque slots or a shape change reset.
-  Test: `ReactiveUI.Hmr` "numeric state SURVIVED the first swap (TD-019)" (compiled counter → 5,
+  Test: `Ruitk.Hmr` "numeric state SURVIVED the first swap (TD-019)" (compiled counter → 5,
   first interp swap, still 5). battery green.
 
 ## TD-020 — Embedded-C++ intelligence (clangd proxy over a virtual document)
@@ -476,57 +476,57 @@ referenced from plans/PRs.
 
 ## TD-021 — CommonUI activatables + MVVM-plugin glue + UMG prop-map bridge
 - **Where:** `RuitkCommonUI`, `RuitkMVVMBridge`, `RuitkUMG`
-- **What/why deferred:** Phase 6 shipped the interop CORE (URuiHostWidget, URuiWorldSubsystem
-  teardown contract, RUI::Umg::UserWidget embedding, UseField over the engine FieldNotification
+- **What/why deferred:** Phase 6 shipped the interop CORE (URuitkHostWidget, URuitkWorldSubsystem
+  teardown contract, Ruitk::Umg::UserWidget embedding, UseField over the engine FieldNotification
   module — deliberately MVVM-plugin-independent). Three plugin-coupled layers remain:
-  (1) CommonUI — URuiActivatableScreen/UseActivation/UseInputMethod need the CommonUI plugin
+  (1) CommonUI — URuitkActivatableScreen/UseActivation/UseInputMethod need the CommonUI plugin
   enabled (not in the demo project yet) + the D-27 optional-plugin gating decision exercised;
-  (2) ModelViewViewModel plugin glue — URuiSignalViewModel reverse bridge + global-collection
+  (2) ModelViewViewModel plugin glue — URuitkSignalViewModel reverse bridge + global-collection
   registration (UseField already serves UMVVMViewModelBase since it implements
   INotifyFieldValueChanged); (3) per-class UMG prop maps + delegate trampolines so hosted
-  UUserWidgets receive Rui props declaratively (today the embedding seam is class+world).
-  Input policy: Rui events consume via Slate FReply::Handled inside SRui widgets; unhandled
+  UUserWidgets receive Ruitk props declaratively (today the embedding seam is class+world).
+  Input policy: Ruitk events consume via Slate FReply::Handled inside SRuitk widgets; unhandled
   input falls through to CommonUI's action router untouched — the docs note rides Phase 8.
 - **Production-grade resolution:** enable CommonUI/MVVM in the demo project, implement each
-  layer with its suite (ReactiveUI.CommonUI, the reverse-bridge test), per-class prop maps
+  layer with its suite (Ruitk.CommonUI, the reverse-bridge test), per-class prop maps
   generated from UHT reflection.
 - **Status:** PARTIAL — the MVVM **reverse bridge** shipped 2026-07-12 (the one layer with no
-  external-plugin dependency): `URuiSignalViewModel` (RuitkUMG) is a FieldNotify UObject —
+  external-plugin dependency): `URuitkSignalViewModel` (RuitkUMG) is a FieldNotify UObject —
   INotifyFieldValueChanged implemented directly over the engine FieldNotification module, NO
   ModelViewViewModel-plugin dependency — with a generic bindable field set (Int/Float/Bool/Text).
-  Rui writes it via typed setters or `Set(FRuiValue)` (routes by kind, skip-when-equal, broadcasts
-  on change); a UMG widget (or a UseField consumer) bound to it updates when Rui state moves — the
+  Ruitk writes it via typed setters or `Set(FRuitkValue)` (routes by kind, skip-when-equal, broadcasts
+  on change); a UMG widget (or a UseField consumer) bound to it updates when Ruitk state moves — the
   "ours feeding theirs" direction, complementing the shipped UseField "theirs feeding ours". Test
-  `ReactiveUI.Mvvm.ReverseBridge`: broadcast-on-change + equal-set skip + FRuiValue routing + a
-  full round-trip (Rui writes VM → VM broadcasts → a UseField consumer re-renders). Full suite
+  `Ruitk.Mvvm.ReverseBridge`: broadcast-on-change + equal-set skip + FRuitkValue routing + a
+  full round-trip (Ruitk writes VM → VM broadcasts → a UseField consumer re-renders). Full suite
   68/68.
 - **Status:** RESOLVED 2026-07-12 — all three plugin-coupled layers shipped after enabling CommonUI
   + ModelViewViewModel (optional plugin refs in `ReactiveUIToolkit.uplugin` per D-27; build deps; both on in
   the demo host `.uproject`; enablement verified non-destabilizing — full suite stayed 75/75, then
   79/79 with the new suites).
-  - **CommonUI activatables: DONE.** `RuiActivation.h/.cpp` is the Rui-side seam — a plain context
-    (`FRuiActivationState{bActive, InputMethod}`) an `ActivationProvider` publishes and the tree reads
+  - **CommonUI activatables: DONE.** `RuitkActivation.h/.cpp` is the Ruitk-side seam — a plain context
+    (`FRuitkActivationState{bActive, InputMethod}`) an `ActivationProvider` publishes and the tree reads
     via `UseActivation`/`UseIsActive`/`UseInputMethod` (no UObject dependency → unit-testable headless).
-    `URuiActivatableScreen` (`RuiActivatableScreen.h/.cpp`) is the UObject: a `UCommonActivatableWidget`
+    `URuitkActivatableScreen` (`RuitkActivatableScreen.h/.cpp`) is the UObject: a `UCommonActivatableWidget`
     that hosts a named component wrapped in ActivationProvider and re-renders on activation
     (`NativeOnActivated/Deactivated`) + input-method change (best-effort `UCommonInputSubsystem` read,
-    guarded for player-less contexts). Tests: `ReactiveUI.CommonUI.Activation` (headless context
-    re-render) + `ReactiveUI.CommonUI.Screen` (a standalone game instance → `CreateWidget` → real
+    guarded for player-less contexts). Tests: `Ruitk.CommonUI.Activation` (headless context
+    re-render) + `Ruitk.CommonUI.Screen` (a standalone game instance → `CreateWidget` → real
     `ActivateWidget/DeactivateWidget` re-renders the hosted tree ACTIVE↔INACTIVE).
-  - **MVVM global-collection registration: DONE.** `URuiMvvmViewModel` (`RuiMvvmViewModel.h/.cpp`,
-    RuitkMVVMBridge) is the MVVM-plugin sibling of `URuiSignalViewModel` — a `UMVVMViewModelBase`
-    (Int/Float/Bool/Text FieldNotify props, `UE_MVVM_SET_PROPERTY_VALUE` skip+broadcast, `Set(FRuiValue)`
-    routing) so it can be REGISTERED in the MVVM global viewmodel collection. `RUI::Mvvm::RegisterGlobalViewModel`
+  - **MVVM global-collection registration: DONE.** `URuitkMvvmViewModel` (`RuitkMvvmViewModel.h/.cpp`,
+    RuitkMVVMBridge) is the MVVM-plugin sibling of `URuitkSignalViewModel` — a `UMVVMViewModelBase`
+    (Int/Float/Bool/Text FieldNotify props, `UE_MVVM_SET_PROPERTY_VALUE` skip+broadcast, `Set(FRuitkValue)`
+    routing) so it can be REGISTERED in the MVVM global viewmodel collection. `Ruitk::Mvvm::RegisterGlobalViewModel`
     / `FindGlobalViewModel` add/resolve by context name via `UMVVMGameSubsystem→GetViewModelCollection`.
-    Test `ReactiveUI.Mvvm.GlobalCollection`: register → resolve-back-same-instance, unknown → null, Set
+    Test `Ruitk.Mvvm.GlobalCollection`: register → resolve-back-same-instance, unknown → null, Set
     routing + fire-once broadcast + equal-set skip.
-  - **Per-class UMG prop maps: DONE.** `RUI::Umg::ApplyPropMap(UUserWidget*, FRuiStyleDict)` sets a
+  - **Per-class UMG prop maps: DONE.** `Ruitk::Umg::ApplyPropMap(UUserWidget*, FRuitkStyleDict)` sets a
     hosted widget's UPROPERTYs by reflection (int/int64/float/double/bool/string/text/name, type-matched
-    to the FRuiValue kind; unknown/mismatch skipped; `SynchronizeProperties` once the widget is
+    to the FRuitkValue kind; unknown/mismatch skipped; `SynchronizeProperties` once the widget is
     constructed). The `UserWidget` element carries a `WidgetProps` map applied at construction and
     re-applied on diff (recovering the hosted widget via `SObjectWidget::GetWidgetObject`). Test
-    `ReactiveUI.Umg.PropMap`: direct reflection application (5 typed props + string→FText coercion +
-    unknown-skipped) and the end-to-end mounted element. **Note:** delegate TRAMPOLINES (binding Rui
+    `Ruitk.Umg.PropMap`: direct reflection application (5 typed props + string→FText coercion +
+    unknown-skipped) and the end-to-end mounted element. **Note:** delegate TRAMPOLINES (binding Ruitk
     callbacks to a hosted widget's dynamic multicast delegates) remain a follow-on — they need
     per-signature UFUNCTION generation, a genuinely separate codegen effort.
 
@@ -545,25 +545,25 @@ referenced from plans/PRs.
   brushes first (unblocks real-game UIs), then SListView (the family item_list/tree port
   completes the ledger), then focus.
 - **Status:** RESOLVED 2026-07-12 — all 3 sub-surfaces delivered:
-  - **Asset brushes (D-17): DONE.** `RUI::Umg::MakeAssetBrush(UObject*, size, tint, drawAs)`
+  - **Asset brushes (D-17): DONE.** `Ruitk::Umg::MakeAssetBrush(UObject*, size, tint, drawAs)`
     (RuitkUMG) builds an FSlateBrush and registers it with a process-wide FGCObject
-    (`FRuiAssetBrushRoot`) that keeps every live brush's resource object referenced against GC;
-    dead brushes are compacted. `FRuiImageProps::Brush` + `FRuiBorderProps::BorderImageBrush`
+    (`FRuitkAssetBrushRoot`) that keeps every live brush's resource object referenced against GC;
+    dead brushes are compacted. `FRuitkImageProps::Brush` + `FRuitkBorderProps::BorderImageBrush`
     (TSharedPtr<FSlateBrush>, identity-compared) carry it; the Image/Border adapters apply it
-    (asset brush wins over an FCoreStyle name). Test `ReactiveUI.Umg.AssetBrush` proves the
+    (asset brush wins over an FCoreStyle name). Test `Ruitk.Umg.AssetBrush` proves the
     texture survives a full GC while the brush is live and the root compacts on release.
-  - **Focus extensions: DONE.** `RUI::Slate::UseFocus(Ctx) -> {Ref, Focus(), IsFocused()}`
+  - **Focus extensions: DONE.** `Ruitk::Slate::UseFocus(Ctx) -> {Ref, Focus(), IsFocused()}`
     (a UseRef weak-widget box the ref lifecycle syncs) + imperative `FocusWidget(handle)` /
-    `ClearFocus()`. Test `ReactiveUI.Slate.Focus` drives the full round-trip through a real
+    `ClearFocus()`. Test `Ruitk.Slate.Focus` drives the full round-trip through a real
     SWindow.
   - **Item-model views (SListView/STileView): DONE 2026-07-12.** The virtualized item-model
-    adapter — the one genuinely large sub-surface — ships as `RUI::Slate::ListView` /
-    `TileView` (`RuiListView.h/.cpp`, exported `SRuiListView`). Each generated/recycled row is
-    an `SRuiListRow : STableRow<TSharedPtr<FRuiValue>>` that OWNS a per-row detached `FRuiRoot`
+    adapter — the one genuinely large sub-surface — ships as `Ruitk::Slate::ListView` /
+    `TileView` (`RuitkListView.h/.cpp`, exported `SRuitkListView`). Each generated/recycled row is
+    an `SRuitkListRow : STableRow<TSharedPtr<FRuitkValue>>` that OWNS a per-row detached `FRuitkRoot`
     sub-root rendering `RenderItem(item, index)` — an independent little reconciler per row over
     SListView's native generate/recycle lifecycle. The declarative shape is a **render prop**:
     a stable `Items` array (identity-keyed for row reuse, SListView's native contract) + a
-    `TSharedPtr<FRuiItemRenderer>` closure (`MakeItemRenderer`, identity-compared like
+    `TSharedPtr<FRuitkItemRenderer>` closure (`MakeItemRenderer`, identity-compared like
     `MakeDrawFn`). **Reactive path:** re-handing a fresh `RenderItem` closure re-runs it against
     every LIVE row's sub-root in place (no widget churn — the SListView row is reused, only its
     content re-reconciles); a changed item set regenerates only the affected rows. Selection
@@ -572,12 +572,12 @@ referenced from plans/PRs.
     mask). **C++-FIRST by design** (the render closure is not markup-expressible, like
     `MakeDrawFn`/`MakeAssetBrush` — so NO `.uetkx` tag / schema entry; markup uses the
     non-virtualized `<VerticalBox>{Items.map(...)}` form). Rows generate only under an arranged
-    geometry, so `SRuiListView::ForceGenerateRows(size)` drives deterministic headless generation
-    (ticks the inner list measure→generate). Test `ReactiveUI.Widgets.ListView` proves generation
+    geometry, so `SRuitkListView::ForceGenerateRows(size)` drives deterministic headless generation
+    (ticks the inner list measure→generate). Test `Ruitk.Widgets.ListView` proves generation
     (3 items → 3 sub-roots, renderer once per row), the reactive rebuild (renderer swap re-runs
     each row, zero churn), teardown (rows unmount with the root), selection-index forwarding, and
     TileView generation. **Note:** STreeView is NOT included — it needs a hierarchical item model
-    (per-item child accessor) that the flat `FRuiValue` item type does not carry; that is a
+    (per-item child accessor) that the flat `FRuitkValue` item type does not carry; that is a
     separate data-shape design (tracked, not blocking — the flat ListView/TileView complete the
     §4 virtualized-list parity target).
 
@@ -599,7 +599,7 @@ referenced from plans/PRs.
   fwd-decls + module bodies in DECL; impls + default-free wrapper defs + registrations in BODY);
   `BuildAggregators` includes every `.inl` twice (decl phase for all, then body). Cross-file
   COMPONENT cycles now COMPILE — **UETKX2107 retired**; a `CycleProof/CycleA.uetkx`↔`CycleB.uetkx`
-  fixture compiles + renders (`ReactiveUI.Uetkx.Cycle`). `#line <n> "<project-rel .uetkx>"` directives
+  fixture compiles + renders (`Ruitk.Uetkx.Cycle`). `#line <n> "<project-rel .uetkx>"` directives
   wrap every top-level verbatim region (`WithLine`/`BuildLineStarts`/`LineOf`); M7.1 spike verdict
   recorded in the plan — **interactive breakpoint bind CONFIRMED by owner in VS2022 (2026-07-11)**:
   a breakpoint on `SimpleCounter.uetkx` line 4 bound + hit on the `.uetkx` source (not the `.inl`).
@@ -642,7 +642,7 @@ referenced from plans/PRs.
 - **Status:** RESOLVED 2026-07-11 (uetkx-imports) — (a) **UETKX2306**: `CompileAllRoots` builds the
   value-import graph (hook/module import edges only; component edges exempt now that the two-phase
   pass fwd-declares wrappers) from fresh preamble scans and DFS-detects a cycle, printing the chain
-  (module↔module test-pinned in `ReactiveUI.Uetkx.Driver`). (b) **Source-truth order**:
+  (module↔module test-pinned in `Ruitk.Uetkx.Driver`). (b) **Source-truth order**:
   `BuildAggregators` orders by RESOLVED preamble import edges (Kahn topo, alpha ties, cycle
   remainder), sidecars demoted to cache — `ReadSidecarOrdering` deleted. (c) **Single-sweep
   fixpoint**: `RunPass`/`ByPath`/`OldExport`+`bExportsMoved` — pass 1 compiles stale files; if any
@@ -654,13 +654,13 @@ referenced from plans/PRs.
 > components keep the short name (2106 ledger guarantees uniqueness)" — is SUPERSEDED. Exports
 > are now file-scoped exactly like privates (owner decision, TB-20): every decl emits inside its
 > file's flat namespace, EVERY component's runtime identity is the FQN, the 2106 ledger is
-> retired, and short names resolve by suffix at the designer edges (`RUI::ResolveNamed`).
+> retired, and short names resolve by suffix at the designer edges (`Ruitk::ResolveNamed`).
 > See plans/archive/FILE_SCOPED_EXPORTS_PLAN.md.
 
 ## TD-026 — Accepted v1 divergences: interp global-name scoping + private-FName last-swap-wins
-- **Where:** `RuiNode.cpp` (process-global name/factory registries), `RuiHmr.cpp`, `UetkxInterpComponent.cpp`
+- **Where:** `RuitkNode.cpp` (process-global name/factory registries), `RuitkHmr.cpp`, `UetkxInterpComponent.cpp`
 - **What/why deferred:** privacy (A5e) is a COMPILE-TIME scoping (per-file detail namespace +
-  tree-shaken named factory). The RUNTIME registries (`RUI::Named`/`RegisterNamedFactory`,
+  tree-shaken named factory). The RUNTIME registries (`Ruitk::Named`/`RegisterNamedFactory`,
   `RegisterComponentId`) are process-global and name-keyed: the interpreter resolves a name it never
   imported, and two files' private same-name decls collide last-swap-wins in the HMR registry. These
   are accepted v1 divergences (compile-time scoping only) — the compiler still fences cross-file
@@ -669,16 +669,16 @@ referenced from plans/PRs.
   registry) so private names never alias across files at runtime.
 - **Status:** **RESOLVED** (ES-modules M3, CodegenVersion 3). The interpreter half died with HMR v2
   (interp deleted, TD-027). The registry half: a PRIVATE component's `RegisterComponentId` key is now
-  the FILE-QUALIFIED emitted name `RuiPriv_<Basename>::<Name>` (built from `PrivNamespaceFor` — one
+  the FILE-QUALIFIED emitted name `RuitkPriv_<Basename>::<Name>` (built from `PrivNamespaceFor` — one
   source of truth), so two files' private same-named components hold distinct registry + HMR-map
   identities; exported components keep the short name (2106 ledger guarantees uniqueness). Pinned by
   `ContractFixtures/PrivPairA/B.uetkx` goldens + the TD-026 block in `ReactiveUIUetkxCodegenTest.cpp`.
-  G-01 documented semantic: renaming a file renames `RuiPriv_<Basename>` ⇒ private members remount
+  G-01 documented semantic: renaming a file renames `RuitkPriv_<Basename>` ⇒ private members remount
   (state reset) on the next sweep. The preview's misleading "not compiled yet" hint for private
   components was fixed in the same window (`UetkxPreview.cpp` — "private — add `export` to preview").
 
 ## TD-027 — HMR v2: Live-Coding-driven whole-project HMR + `ReactiveUetkx` menu/window
-- **Where:** `RuitkInterp` (the interpreter executor), `RuiHmr.*`, `UetkxWatcher.cpp`,
+- **Where:** `RuitkInterp` (the interpreter executor), `RuitkHmr.*`, `UetkxWatcher.cpp`,
   `RuitkEditor` (new menu/window/commands/settings). Full design: `plans/archive/HMR_V2_PLAN.md`.
 - **What/why deferred:** the shipped HMR makes a single-file INTERPRETER the default path — it can't
   resolve imports or run user hooks/effects, so a component using an imported hook (e.g. the
@@ -700,7 +700,7 @@ referenced from plans/PRs.
   compiled component), `fa819dc` (`ReactiveUetkx` menu + `SReactiveUetkxHmrPanel` window), `95db6ac`
   (commands + settings + in-window rebinding), `b02390f` (repeat-key bughunt). Build OK; drift 23/0/0;
   suite 99/99; gates green. Two deliberate naming deviations recorded in `plans/archive/HMR_V2_PLAN.md`'s
-  status banner (controller is `FUetkxHmrController` not `FRuiHmr`; shortcut chords live only in the
+  status banner (controller is `FUetkxHmrController` not `FRuitkHmr`; shortcut chords live only in the
   input binding manager, not the settings object). The live Live-Coding loop is owner-verified
   in-editor (no headless test can drive Live Coding).
 
@@ -747,8 +747,8 @@ referenced from plans/PRs.
   the tracked avenue if cross-platform live HMR is ever prioritized; the whole-library cross-platform
   build/run is unaffected.
 
-## TD-028 — `URuiHostWidget` has no props/viewmodel channel (audit N1)
-- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkUMG/Public/RuiHostWidget.h`
+## TD-028 — `URuitkHostWidget` has no props/viewmodel channel (audit N1)
+- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkUMG/Public/RuitkHostWidget.h`
 - **What/why deferred:** the ours-in-theirs UMG door hosts by `ComponentName` only — no
   `SynchronizeProperties` override, no Blueprint-passed initial props, no VM handoff (research
   D_interop b2 promised "BP can pass initial props and a VM"). Shipped minimal in Phase 6;
@@ -761,31 +761,31 @@ referenced from plans/PRs.
   component; VM flows to `UseField`.
 - **Status:** ✅ RESOLVED 2026-07-15 (`feat/v1-gate-closeout`) — `InitialProps`
   (TMap<FName,FString>) + `ViewModel` (TScriptInterface<INotifyFieldValueChanged>) UPROPERTYs on
-  `URuiHostWidget`, published into the tree via the new `RuiHostProps` context seam (same
+  `URuitkHostWidget`, published into the tree via the new `RuitkHostProps` context seam (same
   provider-node pattern as the CommonUI activation seam); components read with
-  `RUI::Umg::UseHostProp/UseHostProps/UseHostViewModel` (the VM feeds `UseField` directly).
+  `Ruitk::Umg::UseHostProp/UseHostProps/UseHostViewModel` (the VM feeds `UseField` directly).
   `SynchronizeProperties` re-publishes live (Update + FlushSync — no remount, hook state
-  preserved); design time stays placeholder-only. Test `ReactiveUI.Umg.HostProps` (props + VM
+  preserved); design time stays placeholder-only. Test `Ruitk.Umg.HostProps` (props + VM
   reach the component; live re-publish; quiet defaults). Docs: UMG guide "Passing props & a
   viewmodel from the Designer".
 
-## TD-029 — `URuiActivatableScreen` lacks `GetDesiredFocusTarget()` (audit N2)
-- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkCommonUI/Public/RuiActivatableScreen.h`
+## TD-029 — `URuitkActivatableScreen` lacks `GetDesiredFocusTarget()` (audit N2)
+- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkCommonUI/Public/RuitkActivatableScreen.h`
 - **What/why deferred:** CommonUI restores gamepad focus via the activatable's
   `GetDesiredFocusTarget()`; our screen doesn't override it, so focus doesn't land on a designated
   widget on activation (research D_interop c2's `autofocus`). Surfaced by the 2026-07-14 audit
-  (§11-N2). Workaround today: `RUI::Slate::UseFocus` + an activation effect (documented in the
+  (§11-N2). Workaround today: `Ruitk::Slate::UseFocus` + an activation effect (documented in the
   CommonUI guide).
 - **Production-grade resolution:** a focus-target designation the hosted tree can set (e.g. a
-  reserved prop or a `RUI::CommonUI::` focus-target registration hook) that the screen's
+  reserved prop or a `Ruitk::CommonUI::` focus-target registration hook) that the screen's
   `GetDesiredFocusTarget()` returns; gamepad-focus test on activation.
-- **Status:** ✅ RESOLVED 2026-07-15 (`feat/v1-gate-closeout`) — `RUI::CommonUI::UseDesiredFocus`
-  (pair with `RUI::Slate::UseFocus`) designates from inside the tree via the new
-  `FRuiFocusTargetRegistry` context (screen-owned, provided by `FocusTargetProvider`; latest
+- **Status:** ✅ RESOLVED 2026-07-15 (`feat/v1-gate-closeout`) — `Ruitk::CommonUI::UseDesiredFocus`
+  (pair with `Ruitk::Slate::UseFocus`) designates from inside the tree via the new
+  `FRuitkFocusTargetRegistry` context (screen-owned, provided by `FocusTargetProvider`; latest
   designation per commit wins, cleared on unmount). CommonUI's contract wants a UWidget while our
   tree is pure Slate, so `NativeGetDesiredFocusTarget()` returns the (now focusable) screen
   itself and `NativeOnFocusReceived` forwards the arriving focus to the designated widget; no
-  designation → base behavior (a BP override still wins). Test `ReactiveUI.CommonUI.DesiredFocus`
+  designation → base behavior (a BP override still wins). Test `Ruitk.CommonUI.DesiredFocus`
   (mechanism headless + screen end-to-end + clear-on-teardown). Docs: CommonUI guide "Gamepad
   focus — UseDesiredFocus". The real-gamepad PIE pass stays on the owner verification list
   (`plans/REMAINING.md` §3).
@@ -838,7 +838,7 @@ referenced from plans/PRs.
   `UETKX0114` (error, both scanners, corpus-pinned) rejects the shape with a pointer here; the
   supported spelling is extracting a child component.
 - **Production-grade resolution:** family RFC (the TD-031 lane): markup expressions as VALUES —
-  grammar acceptance, codegen lowering to an `FRuiNode` local (the runtime type already exists
+  grammar acceptance, codegen lowering to an `FRuitkNode` local (the runtime type already exists
   and `{ X }` children already splice it), formatter layout for markup in initializer position,
   LSP/corpus in all three legs. No runtime work — this is purely a front-end feature.
 - **Status:** **CLOSED (2026-07-17)** — shipped by the markup-everywhere campaign
@@ -924,7 +924,7 @@ referenced from plans/PRs.
   CONDITIONAL guard (top-level or nested)" (guitkx.gd `_split_return`, ~L2395) but a null
   return can never be the CHOSEN render return, so a null-ONLY component ERRORS there.
   **Unreal** now allows BOTH (React semantics: a component may always render nothing). The
-  cases were therefore placed in the PER-LEG corpus tier (their `export FRuiNode` heads are
+  cases were therefore placed in the PER-LEG corpus tier (their `export FRuitkNode` heads are
   per-leg grammar anyway) so the byte-identical familyCore hash is untouched — the 2026-07-25
   drift was resolved by the tier move, not a re-pin. Also open: Unity's `return null` →
   `continue;` INSIDE `@for` directive bodies — our directive bodies are real C++ loops

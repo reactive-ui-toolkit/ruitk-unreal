@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.CommonUI.Activation — TD-021: the activation-context mechanism (headless): a component
+// Ruitk.CommonUI.Activation — TD-021: the activation-context mechanism (headless): a component
 // reads UseIsActive and re-renders when ActivationProvider publishes a new state.
-// ReactiveUI.CommonUI.Screen — the URuiActivatableScreen UObject end-to-end in a standalone game
-// instance: activate -> the hosted Rui tree shows ACTIVE; deactivate -> INACTIVE (real CommonUI
+// Ruitk.CommonUI.Screen — the URuitkActivatableScreen UObject end-to-end in a standalone game
+// instance: activate -> the hosted Ruitk tree shows ACTIVE; deactivate -> INACTIVE (real CommonUI
 // activation driving a real ReactiveUI re-render).
 
 #include "Misc/AutomationTest.h"
@@ -13,13 +13,13 @@
 #include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
-#include "RuiActivatableScreen.h"
-#include "RuiActivation.h"
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
-#include "RuiSlateTestHarness.h"
+#include "RuitkActivatableScreen.h"
+#include "RuitkActivation.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateTestHarness.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -27,53 +27,53 @@
 namespace CommonUITest
 {
 	// A probe component that renders its activation state as text — the observable for both suites.
-	static FRuiNodeArray ActiveProbe(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray ActiveProbe(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const bool bActive = RUI::CommonUI::UseIsActive(Ctx);
-		return {RUI::TextBlock(bActive ? FString(TEXT("ACTIVE")) : FString(TEXT("INACTIVE")))};
+		const bool bActive = Ruitk::CommonUI::UseIsActive(Ctx);
+		return {Ruitk::TextBlock(bActive ? FString(TEXT("ACTIVE")) : FString(TEXT("INACTIVE")))};
 	}
-	RUI_COMPONENT(ActiveProbe)
+	RUITK_COMPONENT(ActiveProbe)
 
 	static FString ProbeText(const TSharedRef<SWidget>& Root)
 	{
-		SWidget* Text = RuiTest::FindDescendantByType(Root.Get(), FName(TEXT("STextBlock")));
+		SWidget* Text = RuitkTest::FindDescendantByType(Root.Get(), FName(TEXT("STextBlock")));
 		return Text != nullptr ? static_cast<STextBlock*>(Text)->GetText().ToString() : FString();
 	}
 
 	// Renders the current input method as text — the observable for the B12 device-switch regression.
-	static FRuiNodeArray InputProbe(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray InputProbe(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const ERuiInputMethod M = RUI::CommonUI::UseInputMethod(Ctx);
-		const TCHAR* S = M == ERuiInputMethod::Gamepad ? TEXT("GAMEPAD")
-						 : M == ERuiInputMethod::Touch ? TEXT("TOUCH")
+		const ERuitkInputMethod M = Ruitk::CommonUI::UseInputMethod(Ctx);
+		const TCHAR* S = M == ERuitkInputMethod::Gamepad ? TEXT("GAMEPAD")
+						 : M == ERuitkInputMethod::Touch ? TEXT("TOUCH")
 													   : TEXT("MK");
-		return {RUI::TextBlock(FString(S))};
+		return {Ruitk::TextBlock(FString(S))};
 	}
-	RUI_COMPONENT(InputProbe)
+	RUITK_COMPONENT(InputProbe)
 } // namespace CommonUITest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCommonUIActivationTest, "ReactiveUI.CommonUI.Activation",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCommonUIActivationTest, "Ruitk.CommonUI.Activation",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiCommonUIActivationTest::RunTest(const FString&)
+bool FRuitkCommonUIActivationTest::RunTest(const FString&)
 {
-	using namespace RUI::CommonUI;
+	using namespace Ruitk::CommonUI;
 	using namespace CommonUITest;
 
 	// Inactive by default.
-	FRuiActivationState Inactive;
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(ActivationProvider(Inactive, {RUI::FC(&ActiveProbe)}));
+	FRuitkActivationState Inactive;
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(ActivationProvider(Inactive, {Ruitk::FC(&ActiveProbe)}));
 	Root->FlushSync();
 	TestEqual(TEXT("inactive state renders INACTIVE"), ProbeText(Root->GetWidget()), FString(TEXT("INACTIVE")));
 
 	// Publish active -> the consuming component re-renders through the context.
-	FRuiActivationState Active;
+	FRuitkActivationState Active;
 	Active.bActive = true;
-	Root->Update(ActivationProvider(Active, {RUI::FC(&ActiveProbe)}));
+	Root->Update(ActivationProvider(Active, {Ruitk::FC(&ActiveProbe)}));
 	Root->FlushSync();
 	TestEqual(TEXT("active state re-renders to ACTIVE"), ProbeText(Root->GetWidget()), FString(TEXT("ACTIVE")));
 
 	// Back to inactive.
-	Root->Update(ActivationProvider(Inactive, {RUI::FC(&ActiveProbe)}));
+	Root->Update(ActivationProvider(Inactive, {Ruitk::FC(&ActiveProbe)}));
 	Root->FlushSync();
 	TestEqual(TEXT("re-renders back to INACTIVE"), ProbeText(Root->GetWidget()), FString(TEXT("INACTIVE")));
 
@@ -81,14 +81,14 @@ bool FRuiCommonUIActivationTest::RunTest(const FString&)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCommonUIScreenTest, "ReactiveUI.CommonUI.Screen",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCommonUIScreenTest, "Ruitk.CommonUI.Screen",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiCommonUIScreenTest::RunTest(const FString&)
+bool FRuitkCommonUIScreenTest::RunTest(const FString&)
 {
 	using namespace CommonUITest;
 
 	// Name-mount the probe so the screen can host it.
-	RUI::RegisterNamedFactory(FName(TEXT("RuiActiveProbe")), []() { return RUI::FC(&ActiveProbe); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkActiveProbe")), []() { return Ruitk::FC(&ActiveProbe); });
 
 	if (GEngine == nullptr)
 	{
@@ -101,10 +101,10 @@ bool FRuiCommonUIScreenTest::RunTest(const FString&)
 	GameInstance->AddToRoot();
 	GameInstance->InitializeStandalone();
 
-	URuiActivatableScreen* Screen = CreateWidget<URuiActivatableScreen>(GameInstance);
+	URuitkActivatableScreen* Screen = CreateWidget<URuitkActivatableScreen>(GameInstance);
 	if (TestNotNull(TEXT("activatable screen created"), Screen))
 	{
-		Screen->ComponentName = FName(TEXT("RuiActiveProbe"));
+		Screen->ComponentName = FName(TEXT("RuitkActiveProbe"));
 		TSharedRef<SWidget> Widget = Screen->TakeWidget();
 
 		TestFalse(TEXT("starts inactive"), Screen->IsScreenActive());
@@ -125,12 +125,12 @@ bool FRuiCommonUIScreenTest::RunTest(const FString&)
 }
 
 // ── B12 (bughunt): a live input-method switch re-renders the screen's UseInputMethod consumers ────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCommonUIInputMethodTest, "ReactiveUI.CommonUI.InputMethod",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCommonUIInputMethodTest, "Ruitk.CommonUI.InputMethod",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiCommonUIInputMethodTest::RunTest(const FString&)
+bool FRuitkCommonUIInputMethodTest::RunTest(const FString&)
 {
 	using namespace CommonUITest;
-	RUI::RegisterNamedFactory(FName(TEXT("RuiInputProbe")), []() { return RUI::FC(&InputProbe); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkInputProbe")), []() { return Ruitk::FC(&InputProbe); });
 	if (GEngine == nullptr)
 	{
 		return true;
@@ -139,10 +139,10 @@ bool FRuiCommonUIInputMethodTest::RunTest(const FString&)
 	GameInstance->AddToRoot();
 	GameInstance->InitializeStandalone();
 
-	URuiActivatableScreen* Screen = CreateWidget<URuiActivatableScreen>(GameInstance);
+	URuitkActivatableScreen* Screen = CreateWidget<URuitkActivatableScreen>(GameInstance);
 	if (TestNotNull(TEXT("screen created"), Screen))
 	{
-		Screen->ComponentName = FName(TEXT("RuiInputProbe"));
+		Screen->ComponentName = FName(TEXT("RuitkInputProbe"));
 		TSharedRef<SWidget> Widget = Screen->TakeWidget();
 		Screen->ActivateWidget(); // subscribes to the input-method-changed delegate
 		TestEqual(TEXT("B12: starts mouse-and-keyboard"), ProbeText(Widget), FString(TEXT("MK")));
@@ -171,28 +171,28 @@ namespace CommonUITest
 	static int32 GFocusInvocations = 0;
 
 	// Designates itself as the screen's desired focus target (the TD-029 tree-side hook).
-	static FRuiNodeArray FocusProbe(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray FocusProbe(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		RUI::CommonUI::UseDesiredFocus(Ctx, []() { ++GFocusInvocations; });
-		return {RUI::TextBlock(FString(TEXT("FOCUS-PROBE")))};
+		Ruitk::CommonUI::UseDesiredFocus(Ctx, []() { ++GFocusInvocations; });
+		return {Ruitk::TextBlock(FString(TEXT("FOCUS-PROBE")))};
 	}
-	RUI_COMPONENT(FocusProbe)
+	RUITK_COMPONENT(FocusProbe)
 } // namespace CommonUITest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiCommonUIDesiredFocusTest, "ReactiveUI.CommonUI.DesiredFocus",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCommonUIDesiredFocusTest, "Ruitk.CommonUI.DesiredFocus",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiCommonUIDesiredFocusTest::RunTest(const FString&)
+bool FRuitkCommonUIDesiredFocusTest::RunTest(const FString&)
 {
-	using namespace RUI::CommonUI;
+	using namespace Ruitk::CommonUI;
 	using namespace CommonUITest;
 	GFocusInvocations = 0;
 
 	// ── the mechanism, headless: provider + hook + clear-on-unmount ───────────────────────────
 	{
-		const TSharedPtr<FRuiFocusTargetRegistry> Registry = MakeShared<FRuiFocusTargetRegistry>();
+		const TSharedPtr<FRuitkFocusTargetRegistry> Registry = MakeShared<FRuitkFocusTargetRegistry>();
 		TestFalse(TEXT("registry starts without a target"), Registry->HasTarget());
 
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(FocusTargetProvider(Registry, {RUI::FC(&FocusProbe)}));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(FocusTargetProvider(Registry, {Ruitk::FC(&FocusProbe)}));
 		Root->FlushSync();
 		if (TestTrue(TEXT("UseDesiredFocus designated a target"), Registry->HasTarget()))
 		{
@@ -205,8 +205,8 @@ bool FRuiCommonUIDesiredFocusTest::RunTest(const FString&)
 	}
 
 	// ── the screen end-to-end: GetDesiredFocusTarget has somewhere to land ────────────────────
-	RUI::RegisterNamedFactory(FName(TEXT("RuiFocusProbe")), []() { return RUI::FC(&FocusProbe); });
-	RUI::RegisterNamedFactory(FName(TEXT("RuiActiveProbe")), []() { return RUI::FC(&ActiveProbe); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkFocusProbe")), []() { return Ruitk::FC(&FocusProbe); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkActiveProbe")), []() { return Ruitk::FC(&ActiveProbe); });
 	if (GEngine == nullptr)
 	{
 		AddInfo(TEXT("[commonui] no GEngine — UObject screen construction skipped."));
@@ -216,10 +216,10 @@ bool FRuiCommonUIDesiredFocusTest::RunTest(const FString&)
 	GameInstance->AddToRoot();
 	GameInstance->InitializeStandalone();
 
-	URuiActivatableScreen* Screen = CreateWidget<URuiActivatableScreen>(GameInstance);
+	URuitkActivatableScreen* Screen = CreateWidget<URuitkActivatableScreen>(GameInstance);
 	if (TestNotNull(TEXT("screen created"), Screen))
 	{
-		Screen->ComponentName = FName(TEXT("RuiFocusProbe"));
+		Screen->ComponentName = FName(TEXT("RuitkFocusProbe"));
 		TSharedRef<SWidget> Widget = Screen->TakeWidget();
 		TestTrue(TEXT("hosted tree designated the screen's focus target"), Screen->HasDesiredFocusTarget());
 		TestTrue(TEXT("GetDesiredFocusTarget returns the screen (the focus-forwarding landing pad)"),
@@ -230,10 +230,10 @@ bool FRuiCommonUIDesiredFocusTest::RunTest(const FString&)
 	}
 
 	// A screen whose component designates nothing keeps the base behavior (no target).
-	URuiActivatableScreen* Plain = CreateWidget<URuiActivatableScreen>(GameInstance);
+	URuitkActivatableScreen* Plain = CreateWidget<URuitkActivatableScreen>(GameInstance);
 	if (TestNotNull(TEXT("plain screen created"), Plain))
 	{
-		Plain->ComponentName = FName(TEXT("RuiActiveProbe"));
+		Plain->ComponentName = FName(TEXT("RuitkActiveProbe"));
 		TSharedRef<SWidget> Widget = Plain->TakeWidget();
 		TestFalse(TEXT("no designation without UseDesiredFocus"), Plain->HasDesiredFocusTarget());
 		TestTrue(TEXT("GetDesiredFocusTarget stays the base default (null)"),

@@ -1,17 +1,17 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiCultureSync.h"
+#include "RuitkCultureSync.h"
 
 #include "HAL/PlatformTLS.h"
 #include "Internationalization/TextLocalizationManager.h"
-#include "RuiReconciler.h"
+#include "RuitkReconciler.h"
 
 namespace
 {
 	FDelegateHandle GCultureSyncHandle;
 } // namespace
 
-namespace RUI
+namespace Ruitk
 {
 	void RefreshAllRootsForCultureChange()
 	{
@@ -20,7 +20,7 @@ namespace RUI
 			// The engine broadcasts on the game thread; anything else would race the fiber tree.
 			return;
 		}
-		FRuiReconciler::ForEachLive([](FRuiReconciler& Reconciler) { Reconciler.HmrRefreshAll(); });
+		FRuitkReconciler::ForEachLive([](FRuitkReconciler& Reconciler) { Reconciler.HmrRefreshAll(); });
 	}
 
 	void RegisterCultureSync()
@@ -41,4 +41,4 @@ namespace RUI
 			GCultureSyncHandle.Reset();
 		}
 	}
-} // namespace RUI
+} // namespace Ruitk

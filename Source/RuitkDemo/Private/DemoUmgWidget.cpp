@@ -16,6 +16,6 @@ TSharedRef<SWidget> UDemoUmgWidget::RebuildWidget()
 		.ColorAndOpacity(FLinearColor(
 			0.15f, 0.35f, 0.55f,
 			1.0f))[SNew(STextBlock)
-					   .Text(NSLOCTEXT("RuiDemo", "UmgInner",
+					   .Text(NSLOCTEXT("RuitkDemo", "UmgInner",
 									   "▲ This is a real UMG UserWidget, hosted inside the ReactiveUI tree"))];
 }

@@ -26,7 +26,7 @@ FString FUetkxFileActions::CreateComponentFile(const FString& Dir, const FString
 	}
 	// ES-modules (M7): the scaffold uses the NEW plain-declaration grammar (G-03) — exported so
 	// the preview/named-factory seam works out of the box.
-	const FString Template = FString::Printf(TEXT("export FRuiNode %s() {\n"
+	const FString Template = FString::Printf(TEXT("export FRuitkNode %s() {\n"
 												  "\treturn (\n"
 												  "\t\t<VerticalBox>\n"
 												  "\t\t\t<TextBlock Text=\"%s\" />\n"

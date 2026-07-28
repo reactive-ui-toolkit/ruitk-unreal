@@ -35,7 +35,7 @@ export const EventsPage: FC = () => (
       The event payload
     </Typography>
     <Typography variant="body1" paragraph>
-      Inside a handler body, <code>Value</code> is the event payload — an <code>FRuiValue</code>{' '}
+      Inside a handler body, <code>Value</code> is the event payload — an <code>FRuitkValue</code>{' '}
       whose typed field carries what the delegate passed. A text change exposes{' '}
       <code>Value.TextValue</code> (an <code>FText</code>), a checkbox toggle{' '}
       <code>Value.BoolValue</code>, a slider change <code>Value.FloatValue</code>;{' '}

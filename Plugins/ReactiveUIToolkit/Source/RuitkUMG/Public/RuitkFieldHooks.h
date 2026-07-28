@@ -14,18 +14,18 @@
 #include "UObject/StrProperty.h" // 5.7 forward-declares FStrProperty through UnrealType.h (TB-30)
 #include "UObject/TextProperty.h"
 #include "UObject/UnrealType.h"
-#include "RuiContext.h"
+#include "RuitkContext.h"
 #include "UObject/Package.h"
 #include "UObject/StrongObjectPtr.h"
 #include "UObject/UnrealType.h"
 #include "UObject/WeakInterfacePtr.h"
 
-namespace RUI::Umg
+namespace Ruitk::Umg
 {
 	namespace Private
 	{
 		/** Subscribe once (slot-stable) + re-render on broadcast. Returns whether live. */
-		RUITKUMG_API bool UseFieldSubscription(FRuiContext& Ctx, UObject* ViewModel, FName FieldName);
+		RUITKUMG_API bool UseFieldSubscription(FRuitkContext& Ctx, UObject* ViewModel, FName FieldName);
 
 		/** Read a reflected property value; false when unreadable/type-mismatched. */
 		template <typename T> bool ReadProperty(UObject* Object, FName PropertyName, T& Out)
@@ -94,9 +94,9 @@ namespace RUI::Umg
 	 * across renders), re-renders the component when the VM broadcasts the field, unbinds on
 	 * cleanup/unmount. A null/collected VM returns Default (stale-VM policy: quiet).
 	 *
-	 *   const int32 Score = RUI::Umg::UseField<int32>(Ctx, MyVm, "Score", 0);
+	 *   const int32 Score = Ruitk::Umg::UseField<int32>(Ctx, MyVm, "Score", 0);
 	 */
-	template <typename T> T UseField(FRuiContext& Ctx, UObject* ViewModel, FName FieldName, T Default = T())
+	template <typename T> T UseField(FRuitkContext& Ctx, UObject* ViewModel, FName FieldName, T Default = T())
 	{
 		Private::UseFieldSubscription(Ctx, ViewModel, FieldName);
 		T Value = Default;
@@ -110,16 +110,16 @@ namespace RUI::Umg
 	 * component unmounts. The hand-rolled `UseMemo` + `TStrongObjectPtr` pattern, packaged.
 	 * Template call — pass Ctx explicitly (like UseField):
 	 *
-	 *   URuiSignalViewModel* Vm = RUI::Umg::UseOwnedViewModel<URuiSignalViewModel>(Ctx);
-	 *   const int32 N = RUI::Umg::UseField<int32>(Ctx, Vm, "Int", 0);
+	 *   URuitkSignalViewModel* Vm = Ruitk::Umg::UseOwnedViewModel<URuitkSignalViewModel>(Ctx);
+	 *   const int32 N = Ruitk::Umg::UseField<int32>(Ctx, Vm, "Int", 0);
 	 */
-	template <typename T> T* UseOwnedViewModel(FRuiContext& Ctx)
+	template <typename T> T* UseOwnedViewModel(FRuitkContext& Ctx)
 	{
-		const TSharedRef<TRuiRef<TStrongObjectPtr<T>>>& Box = Ctx.UseRef<TStrongObjectPtr<T>>();
+		const TSharedRef<TRuitkRef<TStrongObjectPtr<T>>>& Box = Ctx.UseRef<TStrongObjectPtr<T>>();
 		if (!Box->Current.IsValid())
 		{
 			Box->Current = TStrongObjectPtr<T>(NewObject<T>(GetTransientPackage()));
 		}
 		return Box->Current.Get();
 	}
-} // namespace RUI::Umg
+} // namespace Ruitk::Umg

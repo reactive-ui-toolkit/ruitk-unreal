@@ -17,10 +17,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiTypes.h"
-#include "RuiNode.h"
+#include "RuitkTypes.h"
+#include "RuitkNode.h"
 
-class FRuiContext;
+class FRuitkContext;
 
 /**
  * What UsePresence() returns, and the value a <Presence> boundary provides to each child:
@@ -30,19 +30,19 @@ class FRuiContext;
  * Outside any <Presence> the default is { true, unbound } — a plain component is always present
  * and NotifyDone is a quiet no-op, so UsePresence is always safe to call.
  */
-struct RUITKCORE_API FRuiPresenceState
+struct RUITKCORE_API FRuitkPresenceState
 {
 	bool bPresent = true;
-	FRuiCallback NotifyDone;
+	FRuitkCallback NotifyDone;
 
-	bool operator==(const FRuiPresenceState& Other) const
+	bool operator==(const FRuitkPresenceState& Other) const
 	{
 		return bPresent == Other.bPresent && NotifyDone == Other.NotifyDone;
 	}
-	bool operator!=(const FRuiPresenceState& Other) const { return !(*this == Other); }
+	bool operator!=(const FRuitkPresenceState& Other) const { return !(*this == Other); }
 };
 
-namespace RUI
+namespace Ruitk
 {
 	/**
 	 * Keep exiting keyed children mounted until they animate out. Children MUST be keyed (a
@@ -50,9 +50,9 @@ namespace RUI
 	 * falls back to its positional index with a dev warning. `MaxExitSeconds` force-unmounts a
 	 * child that never calls NotifyDone — a missing NotifyDone costs an animation, not a leak.
 	 */
-	RUITKCORE_API FRuiNode Presence(TArray<FRuiNode> Children, float MaxExitSeconds = 2.0f,
-										 FRuiKey Key = FRuiKey());
-} // namespace RUI
+	RUITKCORE_API FRuitkNode Presence(TArray<FRuitkNode> Children, float MaxExitSeconds = 2.0f,
+										 FRuitkKey Key = FRuitkKey());
+} // namespace Ruitk
 
 /** Read the nearest <Presence> boundary's signal for THIS child. Safe anywhere (see default). */
-RUITKCORE_API FRuiPresenceState UsePresence(FRuiContext& Ctx);
+RUITKCORE_API FRuitkPresenceState UsePresence(FRuitkContext& Ctx);

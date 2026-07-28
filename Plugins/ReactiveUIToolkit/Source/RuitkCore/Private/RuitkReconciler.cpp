@@ -5,40 +5,40 @@
 // divergences: (1) SUBTREE-SKIP bailout consumes bSubtreeHasUpdates (React
 // bailoutOnAlreadyFinishedWork — the WIP adopts the CURRENT child chain wholesale, exactly
 // React's no-clone fast path); (2) no raw-string child normalization (C++ arrays are
-// homogeneous — RUI::TextBlock is explicit; the family's flatten becomes a no-op); (3) refs
+// homogeneous — Ruitk::TextBlock is explicit; the family's flatten becomes a no-op); (3) refs
 // follow the React lifecycle (attach on placement, detach on deletion — D-08.4), not
 // call-every-commit; (4) minimal-move reordering is HOST-side (the Phase 2 spike decides
 // the Slate strategy) — the core marks structural frames and calls ReorderChildren, same
 // contract as the family's enforce-order.
 
-#include "RuiReconciler.h"
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
+#include "RuitkReconciler.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuiReconciler, Log, All);
 
-const TArray<FRuiNode> FRuiReconciler::EmptyChildren;
+const TArray<FRuitkNode> FRuitkReconciler::EmptyChildren;
 
 namespace
 {
-	TArray<FRuiReconciler*>& LiveReconcilers()
+	TArray<FRuitkReconciler*>& LiveReconcilers()
 	{
-		static TArray<FRuiReconciler*> Instances;
+		static TArray<FRuitkReconciler*> Instances;
 		return Instances;
 	}
 } // namespace
 
-FRuiReconciler::FRuiReconciler(IRuiHostConfig& InHost, FRuiHostHandle InRootContainer)
+FRuitkReconciler::FRuitkReconciler(IRuitkHostConfig& InHost, FRuitkHostHandle InRootContainer)
 	: Host(InHost), RootContainer(MoveTemp(InRootContainer))
 {
-	FRuiFiber* Root = Slab.Acquire();
-	Root->Tag = ERuiFiberTag::Root;
+	FRuitkFiber* Root = Slab.Acquire();
+	Root->Tag = ERuitkFiberTag::Root;
 	Root->Node = RootContainer;
 	RootCurrent = Root;
 	LiveReconcilers().Add(this);
 }
 
-FRuiReconciler::~FRuiReconciler()
+FRuitkReconciler::~FRuitkReconciler()
 {
 	LiveReconcilers().Remove(this);
 	if (RootCurrent != nullptr)
@@ -47,11 +47,11 @@ FRuiReconciler::~FRuiReconciler()
 	}
 }
 
-void FRuiReconciler::ForEachLive(TFunctionRef<void(FRuiReconciler&)> Fn)
+void FRuitkReconciler::ForEachLive(TFunctionRef<void(FRuitkReconciler&)> Fn)
 {
 	// snapshot: Fn may mount/unmount (HMR refresh triggers renders)
-	TArray<FRuiReconciler*> Snapshot = LiveReconcilers();
-	for (FRuiReconciler* Reconciler : Snapshot)
+	TArray<FRuitkReconciler*> Snapshot = LiveReconcilers();
+	for (FRuitkReconciler* Reconciler : Snapshot)
 	{
 		if (LiveReconcilers().Contains(Reconciler))
 		{
@@ -64,7 +64,7 @@ void FRuiReconciler::ForEachLive(TFunctionRef<void(FRuiReconciler&)> Fn)
 // Scheduling
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::Render(FRuiNode RootNode)
+void FRuitkReconciler::Render(FRuitkNode RootNode)
 {
 	checkf(IsInGameThread(), TEXT("ReactiveUI: Render must run on the game thread (D-15)"));
 	if (RootCurrent == nullptr)
@@ -110,17 +110,17 @@ void FRuiReconciler::Render(FRuiNode RootNode)
 	CommitRoot();
 }
 
-void FRuiReconciler::ScheduleUpdateOnFiber(FRuiFiber* Fiber)
+void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
 {
 	checkf(
 		IsInGameThread(),
 		TEXT(
-			"ReactiveUI: state updates must run on the game thread (D-15; use RUI::PostToGameThread from async code)"));
+			"ReactiveUI: state updates must run on the game thread (D-15; use Ruitk::PostToGameThread from async code)"));
 	if (RootCurrent == nullptr)
 	{
 		return; // torn down — ignore late setState/effect callbacks [audit]
 	}
-	FRuiFiber* Target = Fiber ? Fiber : RootCurrent;
+	FRuitkFiber* Target = Fiber ? Fiber : RootCurrent;
 	// Mark the target AND its alternate twin, and set the subtree flag on every ancestor AND
 	// its twin (React's markUpdateLaneFromFiberToRoot parity). A shared state's Fiber may point
 	// at whichever buffer last rendered THIS component — but a bailed-out ancestor is reached
@@ -133,7 +133,7 @@ void FRuiReconciler::ScheduleUpdateOnFiber(FRuiFiber* Fiber)
 	{
 		Target->Alternate->bHasPendingUpdate = true;
 	}
-	for (FRuiFiber* P = Target->Parent; P != nullptr; P = P->Parent)
+	for (FRuitkFiber* P = Target->Parent; P != nullptr; P = P->Parent)
 	{
 		P->bSubtreeHasUpdates = true;
 		if (P->Alternate != nullptr)
@@ -153,12 +153,12 @@ void FRuiReconciler::ScheduleUpdateOnFiber(FRuiFiber* Fiber)
 	EnsureTick();
 }
 
-void FRuiReconciler::RequestUpdate()
+void FRuitkReconciler::RequestUpdate()
 {
 	ScheduleUpdateOnFiber(RootCurrent);
 }
 
-void FRuiReconciler::EnsureTick()
+void FRuitkReconciler::EnsureTick()
 {
 	if (bTickPending)
 	{
@@ -171,19 +171,19 @@ void FRuiReconciler::EnsureTick()
 	// drops queued frames on destruction; the Slate host unregisters its OnPreTick.
 }
 
-void FRuiReconciler::FlushSync()
+void FRuitkReconciler::FlushSync()
 {
 	if (bTickPending || bWorkActive)
 	{
 		bTickPending = false;
-		const bool bWasSlicing = FRuiConfig::IsTimeSlicing();
+		const bool bWasSlicing = FRuitkConfig::IsTimeSlicing();
 		// Run one full unsliced pass now (tests/HMR/mount surfaces).
 		Tick();
 		(void)bWasSlicing;
 	}
 }
 
-void FRuiReconciler::HmrRefreshAll()
+void FRuitkReconciler::HmrRefreshAll()
 {
 	if (!RootCurrent)
 	{
@@ -192,7 +192,7 @@ void FRuiReconciler::HmrRefreshAll()
 	// Every function fiber goes dirty — a definition may have been swapped under any
 	// ComponentId, and props-equality bailouts would otherwise keep serving stale output.
 	// ScheduleUpdateOnFiber also maintains the ancestor subtree flags + coalesced tick.
-	FRuiFiber* Fiber = RootCurrent;
+	FRuitkFiber* Fiber = RootCurrent;
 	while (Fiber)
 	{
 		if (Fiber->State.IsValid())
@@ -212,7 +212,7 @@ void FRuiReconciler::HmrRefreshAll()
 	}
 }
 
-void FRuiReconciler::Tick()
+void FRuitkReconciler::Tick()
 {
 	bTickPending = false;
 	if (!RootVNode.IsSet() || RootCurrent == nullptr)
@@ -245,8 +245,8 @@ void FRuiReconciler::Tick()
 	}
 
 	const double Start = FPlatformTime::Seconds();
-	const bool bSliced = FRuiConfig::IsTimeSlicing();
-	const double BudgetSec = FRuiConfig::FrameBudgetMs() / 1000.0;
+	const bool bSliced = FRuitkConfig::IsTimeSlicing();
+	const double BudgetSec = FRuitkConfig::FrameBudgetMs() / 1000.0;
 	while (NextUnit != nullptr)
 	{
 		NextUnit = PerformUnit(NextUnit);
@@ -281,7 +281,7 @@ void FRuiReconciler::Tick()
 // Render phase
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::BeginRender()
+void FRuitkReconciler::BeginRender()
 {
 	// Reclaim an abandoned pass first (restart / aborted mount): its fresh WIP fibers would
 	// otherwise leak in the slab, and shared component states could keep pointing at them.
@@ -303,45 +303,45 @@ void FRuiReconciler::BeginRender()
 	}
 
 	// Reuse the root's ping-pong buddy (double buffering) instead of allocating. [perf #1]
-	FRuiFiber* Wip = RootCurrent->Alternate;
+	FRuitkFiber* Wip = RootCurrent->Alternate;
 	if (Wip == nullptr)
 	{
 		Wip = Slab.Acquire();
 		RootCurrent->Alternate = Wip;
 	}
 	Wip->Alternate = RootCurrent;
-	Wip->Tag = ERuiFiberTag::Root;
+	Wip->Tag = ERuitkFiberTag::Root;
 	Wip->Node = RootContainer;
 	Wip->Child = nullptr;
 	Wip->Sibling = nullptr;
 	Wip->Parent = nullptr;
-	Wip->EffectTag = RuiEffect_None;
+	Wip->EffectTag = RuitkEffect_None;
 	Wip->NextEffect = nullptr;
 	Wip->bHasDeletions = false;
-	Wip->InputChildren = MakeShared<const TArray<FRuiNode>>(TArray<FRuiNode>{RootVNode.GetValue()});
+	Wip->InputChildren = MakeShared<const TArray<FRuitkNode>>(TArray<FRuitkNode>{RootVNode.GetValue()});
 	Wip->bHasPendingUpdate = RootCurrent->bHasPendingUpdate;
 	Wip->bSubtreeHasUpdates = RootCurrent->bSubtreeHasUpdates;
 	WipRoot = Wip;
 	NextUnit = Wip;
 }
 
-FRuiFiber* FRuiReconciler::PerformUnit(FRuiFiber* Fiber)
+FRuitkFiber* FRuitkReconciler::PerformUnit(FRuitkFiber* Fiber)
 {
 	// begin-work (inlined)
-	FRuiFiber* Next = nullptr;
+	FRuitkFiber* Next = nullptr;
 	switch (Fiber->Tag)
 	{
-	case ERuiFiberTag::Function:
+	case ERuitkFiberTag::Function:
 		Next = BeginFunction(Fiber);
 		break;
-	case ERuiFiberTag::ErrorBoundary:
+	case ERuitkFiberTag::ErrorBoundary:
 		Next = BeginErrorBoundary(Fiber);
 		break;
 	default:
 	{
 		// ROOT / HOST / FRAGMENT / PORTAL: reconcile declared children.
 		// Leaf fast-path: nothing declared now AND nothing before -> skip entirely. [perf]
-		FRuiFiber* Alt = Fiber->Alternate;
+		FRuitkFiber* Alt = Fiber->Alternate;
 		const bool bNoDeclared = !Fiber->InputChildren.IsValid() || Fiber->InputChildren->IsEmpty();
 		if (bNoDeclared && (Alt == nullptr || Alt->Child == nullptr))
 		{
@@ -368,7 +368,7 @@ FRuiFiber* FRuiReconciler::PerformUnit(FRuiFiber* Fiber)
 	}
 
 	// no child -> complete this fiber, then sibling / climb.
-	FRuiFiber* F = Fiber;
+	FRuitkFiber* F = Fiber;
 	while (F != nullptr)
 	{
 		CompleteWork(F);
@@ -381,17 +381,17 @@ FRuiFiber* FRuiReconciler::PerformUnit(FRuiFiber* Fiber)
 	return nullptr;
 }
 
-FRuiFiber* FRuiReconciler::BeginFunction(FRuiFiber* Fiber)
+FRuitkFiber* FRuitkReconciler::BeginFunction(FRuitkFiber* Fiber)
 {
 	if (Fiber->State.IsValid())
 	{
 		Fiber->State->Fiber = Fiber; // re-point the shared state at the live fiber
 	}
-	FRuiFiber* Alt = Fiber->Alternate;
+	FRuitkFiber* Alt = Fiber->Alternate;
 
 	const bool bPropsEqual = PropsEqual(Fiber);
 	const bool bContextOk = !Fiber->bReadsContext || !HasContextChanged(Fiber);
-	const bool bChildrenSame = ChildrenSame(Alt ? Alt->InputChildren : FRuiChildren(), Fiber->InputChildren);
+	const bool bChildrenSame = ChildrenSame(Alt ? Alt->InputChildren : FRuitkChildren(), Fiber->InputChildren);
 	const bool bCanBail = !Fiber->bHasPendingUpdate && bContextOk && bPropsEqual && bChildrenSame;
 
 	// ── SUBTREE-SKIP (D-08.1, React bailoutOnAlreadyFinishedWork) ──────────────────────
@@ -405,7 +405,7 @@ FRuiFiber* FRuiReconciler::BeginFunction(FRuiFiber* Fiber)
 		return nullptr;
 	}
 
-	FRuiChildren OutChildren;
+	FRuitkChildren OutChildren;
 	if (bCanBail && Fiber->State.IsValid())
 	{
 		OutChildren = Fiber->State->LastOutput; // SAME shared list — grandchildren can bail
@@ -414,7 +414,7 @@ FRuiFiber* FRuiReconciler::BeginFunction(FRuiFiber* Fiber)
 	{
 		Fiber->bHasPendingUpdate = false;
 		RenderComponent(Fiber);
-		OutChildren = Fiber->State.IsValid() ? Fiber->State->LastOutput : FRuiChildren();
+		OutChildren = Fiber->State.IsValid() ? Fiber->State->LastOutput : FRuitkChildren();
 	}
 	Fiber->bSubtreeHasUpdates = false;
 	Fiber->Props = Fiber->PendingProps;
@@ -426,16 +426,16 @@ FRuiFiber* FRuiReconciler::BeginFunction(FRuiFiber* Fiber)
 	return Fiber->Child;
 }
 
-void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
+void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 {
-	TSharedPtr<FRuiComponentState>& State = Fiber->State;
+	TSharedPtr<FRuitkComponentState>& State = Fiber->State;
 	check(State.IsValid());
 
 	// HMR: a live definition override for this ComponentId replaces the compiled Invoke; a
 	// new generation with bResetState runs the deliberate hook-shape reset ONCE per state.
-	TSharedPtr<FRuiComponentInvoke> InvokeOverride;
+	TSharedPtr<FRuitkComponentInvoke> InvokeOverride;
 	{
-		RUI::FRuiComponentOverride Override = RUI::FindComponentOverride(Fiber->ComponentId);
+		Ruitk::FRuitkComponentOverride Override = Ruitk::FindComponentOverride(Fiber->ComponentId);
 		if (Override.Invoke.IsValid())
 		{
 			InvokeOverride = Override.Invoke;
@@ -454,13 +454,13 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 						State->MigratedState.Reset();
 						for (int32 h = 0; h < State->Hooks.Num(); ++h)
 						{
-							if (!State->Hooks[h].IsValid() || State->Hooks[h]->GetKind() != ERuiHookKind::State)
+							if (!State->Hooks[h].IsValid() || State->Hooks[h]->GetKind() != ERuitkHookKind::State)
 							{
 								continue;
 							}
-							FRuiValue Exported;
+							FRuitkValue Exported;
 							State->MigratedState.Add(State->Hooks[h]->ExportRuiValue(Exported) ? MoveTemp(Exported)
-																							   : FRuiValue());
+																							   : FRuitkValue());
 						}
 					}
 					State->HmrResetHooks(); // reset (family rule); MigratedState survives for re-seed
@@ -470,7 +470,7 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 		}
 	}
 
-	auto RunOnce = [&]() -> FRuiNodeArray
+	auto RunOnce = [&]() -> FRuitkNodeArray
 	{
 		// _begin
 		State->HookIndex = 0;
@@ -478,40 +478,40 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 		State->LayoutIndex = 0;
 		State->ContextDeps.Reset();
 		State->bIsRendering = true;
-		if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
+		if (FRuitkConfig::IsHookValidationEnabled() || Ruitk::IsHmrHookTracking())
 		{
 			State->HookLog.Reset();
 		}
-		if (RUI::IsHmrHookTracking() && RUI::HmrGeneration() != State->HmrGenerationStamp)
+		if (Ruitk::IsHmrHookTracking() && Ruitk::HmrGeneration() != State->HmrGenerationStamp)
 		{
 			// TB-17 — first render after a Live Coding patch: the code that DERIVES cached
 			// values may have changed, so memo-family caches invalidate (their factories
 			// re-run this render); user state (State/Ref/Reducer) stays untouched. "Preserve
 			// state, recompute derivations" — the TB-15 lesson at the hook level.
-			for (const TUniquePtr<IRuiHookCell>& Cell : State->Hooks)
+			for (const TUniquePtr<IRuitkHookCell>& Cell : State->Hooks)
 			{
 				Cell->HmrInvalidateDerived();
 			}
 		}
-		RUI::SetRendering(true);
+		Ruitk::SetRendering(true);
 
-		FRuiContext Ctx(State.ToSharedRef(), *Fiber, *this, Host);
-		const FRuiComponentInvoke& InvokeFn = InvokeOverride.IsValid() ? *InvokeOverride : *Fiber->Invoke;
-		FRuiNodeArray Result = InvokeFn(Ctx, Fiber->PendingProps.Get(),
+		FRuitkContext Ctx(State.ToSharedRef(), *Fiber, *this, Host);
+		const FRuitkComponentInvoke& InvokeFn = InvokeOverride.IsValid() ? *InvokeOverride : *Fiber->Invoke;
+		FRuitkNodeArray Result = InvokeFn(Ctx, Fiber->PendingProps.Get(),
 										Fiber->InputChildren.IsValid() ? *Fiber->InputChildren : EmptyChildren);
 
 		// _end
-		RUI::SetRendering(false);
+		Ruitk::SetRendering(false);
 		State->bIsRendering = false;
-		if (FRuiConfig::IsHookValidationEnabled() || RUI::IsHmrHookTracking())
+		if (FRuitkConfig::IsHookValidationEnabled() || Ruitk::IsHmrHookTracking())
 		{
-			const uint32 Gen = RUI::HmrGeneration();
+			const uint32 Gen = Ruitk::HmrGeneration();
 			if (!State->bHookOrderPrimed)
 			{
 				State->HookSignatures = State->HookLog;
 				State->bHookOrderPrimed = true;
 			}
-			else if (RUI::IsHmrHookTracking() && State->HmrShapeSnapshot.Num() > 0 &&
+			else if (Ruitk::IsHmrHookTracking() && State->HmrShapeSnapshot.Num() > 0 &&
 					 State->HmrShapeSnapshot != State->HookLog && Gen != State->HmrGenerationStamp)
 			{
 				// TB-13 — the family rule: state is preserved on a STABLE hook shape and RESET
@@ -522,15 +522,15 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 				const FString Msg = FString::Printf(
 					TEXT("[ReactiveUI][HMR] %s: hook shape changed by the edit (%d -> %d hooks) — state reset"),
 					*Fiber->ComponentId.ToString(), State->HmrShapeSnapshot.Num(), State->HookLog.Num());
-				FRuiDiagnostics::Emit(Msg);
+				FRuitkDiagnostics::Emit(Msg);
 				UE_LOG(LogRuiReconciler, Display, TEXT("%s"), *Msg);
 				State->HmrResetHooks();		  // also un-primes — the re-render primes the NEW shape
 				ScheduleUpdateOnFiber(Fiber); // re-render reads clean defaults
 			}
-			else if (FRuiConfig::IsHookValidationEnabled())
+			else if (FRuitkConfig::IsHookValidationEnabled())
 			{
-				const TArray<ERuiHookKind>& Prev = State->HookSignatures;
-				const TArray<ERuiHookKind>& Now = State->HookLog;
+				const TArray<ERuitkHookKind>& Prev = State->HookSignatures;
+				const TArray<ERuitkHookKind>& Now = State->HookLog;
 				const int32 N = FMath::Min(Prev.Num(), Now.Num());
 				for (int32 i = 0; i < N; ++i)
 				{
@@ -539,8 +539,8 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 						const FString Msg = FString::Printf(
 							TEXT("[Hooks][order] %s: hook #%d changed '%s' -> '%s' across renders — hooks must run in "
 								 "the same order every render."),
-							*Fiber->ComponentId.ToString(), i, RuiHookKindName(Prev[i]), RuiHookKindName(Now[i]));
-						FRuiDiagnostics::Emit(Msg);
+							*Fiber->ComponentId.ToString(), i, RuitkHookKindName(Prev[i]), RuitkHookKindName(Now[i]));
+						FRuitkDiagnostics::Emit(Msg);
 						UE_LOG(LogRuiReconciler, Error, TEXT("%s"), *Msg);
 						break;
 					}
@@ -550,12 +550,12 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 					const FString Msg = FString::Printf(TEXT("[Hooks][order] %s: hook count changed %d -> %d across "
 															 "renders — a hook is being called conditionally."),
 														*Fiber->ComponentId.ToString(), Prev.Num(), Now.Num());
-					FRuiDiagnostics::Emit(Msg);
+					FRuitkDiagnostics::Emit(Msg);
 					UE_LOG(LogRuiReconciler, Error, TEXT("%s"), *Msg);
 				}
 			}
 			State->HmrGenerationStamp = Gen;
-			if (RUI::IsHmrHookTracking())
+			if (Ruitk::IsHmrHookTracking())
 			{
 				State->HmrShapeSnapshot = State->HookLog; // the NEXT render compares against THIS one
 			}
@@ -563,33 +563,33 @@ void FRuiReconciler::RenderComponent(FRuiFiber* Fiber)
 		return Result;
 	};
 
-	FRuiNodeArray Result = RunOnce();
-	if (FRuiConfig::IsStrictModeEnabled())
+	FRuitkNodeArray Result = RunOnce();
+	if (FRuitkConfig::IsStrictModeEnabled())
 	{
 		Result = RunOnce(); // double-invoke, first result discarded (impure-render flusher)
 	}
 	State->MigratedState.Reset(); // TD-019: one-shot — consumed by this render's UseState calls
 
 	// Cooperative error latch (D-10): a failed render unwinds to the nearest boundary.
-	if (TOptional<FString> Failure = RUI::ConsumeRenderFailure())
+	if (TOptional<FString> Failure = Ruitk::ConsumeRenderFailure())
 	{
 		HandleRenderFailure(Fiber, Failure.GetValue());
 		Result.Reset();
 	}
 
-	FRuiDiagnostics::OnRender();
-	State->LastOutput = RUI::MakeChildren(MoveTemp(Result)); // shared ONCE; bailouts reuse it
+	FRuitkDiagnostics::OnRender();
+	State->LastOutput = Ruitk::MakeChildren(MoveTemp(Result)); // shared ONCE; bailouts reuse it
 	if (!State->Effects.IsEmpty())
 	{
-		Fiber->EffectTag |= RuiEffect_Passive;
+		Fiber->EffectTag |= RuitkEffect_Passive;
 	}
 	if (!State->LayoutEffects.IsEmpty())
 	{
-		Fiber->EffectTag |= RuiEffect_Layout;
+		Fiber->EffectTag |= RuitkEffect_Layout;
 	}
 }
 
-FRuiFiber* FRuiReconciler::BeginErrorBoundary(FRuiFiber* Fiber)
+FRuitkFiber* FRuitkReconciler::BeginErrorBoundary(FRuitkFiber* Fiber)
 {
 	// A mount-pass failure recorded its activation by key-path (the WIP fiber that carried
 	// it was abandoned with that pass) — re-adopt it before deciding what to render.
@@ -601,19 +601,19 @@ FRuiFiber* FRuiReconciler::BeginErrorBoundary(FRuiFiber* Fiber)
 	// clears. The latch (HandleRenderFailure) is what activates it without exceptions.
 	// A missing alternate is a MOUNT, not a reset — there is nothing to clear, and a
 	// just-adopted mount-pass activation must survive.
-	FRuiFiber* Alt = Fiber->Alternate;
+	FRuitkFiber* Alt = Fiber->Alternate;
 	const bool bResetRequested = (Alt != nullptr) && !(Alt->EbResetKey == Fiber->EbResetKey);
 	if (bResetRequested)
 	{
 		Fiber->bEbActive = false;
 		Fiber->EbLastError.Empty();
 	}
-	FRuiChildren Children;
+	FRuitkChildren Children;
 	if (Fiber->bEbActive && !bResetRequested)
 	{
 		if (Fiber->EbFallback.IsValid())
 		{
-			Children = MakeShared<const TArray<FRuiNode>>(TArray<FRuiNode>{*Fiber->EbFallback});
+			Children = MakeShared<const TArray<FRuitkNode>>(TArray<FRuitkNode>{*Fiber->EbFallback});
 		}
 	}
 	else
@@ -627,14 +627,14 @@ FRuiFiber* FRuiReconciler::BeginErrorBoundary(FRuiFiber* Fiber)
 	return Fiber->Child;
 }
 
-void FRuiReconciler::HandleRenderFailure(FRuiFiber* FailedFiber, const FString& Reason)
+void FRuitkReconciler::HandleRenderFailure(FRuitkFiber* FailedFiber, const FString& Reason)
 {
 	// Find the nearest boundary above the failed component (WIP chain — pre-commit, safe).
 	// An ALREADY-ACTIVE boundary can't capture again this pass (its fallback is what just
 	// failed) — skip upward, or the failure loops forever (React's captured-boundary rule).
-	for (FRuiFiber* F = FailedFiber; F != nullptr; F = F->Parent)
+	for (FRuitkFiber* F = FailedFiber; F != nullptr; F = F->Parent)
 	{
-		if (F->Tag == ERuiFiberTag::ErrorBoundary && !F->bEbActive)
+		if (F->Tag == ERuitkFiberTag::ErrorBoundary && !F->bEbActive)
 		{
 			F->bEbActive = true;
 			F->EbLastError = Reason;
@@ -653,7 +653,7 @@ void FRuiReconciler::HandleRenderFailure(FRuiFiber* FailedFiber, const FString& 
 				// bounded by the restart guard.
 				FPendingEbActivation& Pending = PendingEbActivations.AddDefaulted_GetRef();
 				Pending.Reason = Reason;
-				for (const FRuiFiber* P = F; P != nullptr && P->Tag != ERuiFiberTag::Root; P = P->Parent)
+				for (const FRuitkFiber* P = F; P != nullptr && P->Tag != ERuitkFiberTag::Root; P = P->Parent)
 				{
 					Pending.Path.Add(FiberKey(P));
 				}
@@ -672,10 +672,10 @@ void FRuiReconciler::HandleRenderFailure(FRuiFiber* FailedFiber, const FString& 
 	UE_LOG(LogRuiReconciler, Error, TEXT("[ReactiveUI] render failed with no error boundary above: %s"), *Reason);
 }
 
-void FRuiReconciler::AdoptPendingEbActivation(FRuiFiber* BoundaryFiber)
+void FRuitkReconciler::AdoptPendingEbActivation(FRuitkFiber* BoundaryFiber)
 {
-	TArray<FRuiKey> Path;
-	for (const FRuiFiber* P = BoundaryFiber; P != nullptr && P->Tag != ERuiFiberTag::Root; P = P->Parent)
+	TArray<FRuitkKey> Path;
+	for (const FRuitkFiber* P = BoundaryFiber; P != nullptr && P->Tag != ERuitkFiberTag::Root; P = P->Parent)
 	{
 		Path.Add(FiberKey(P));
 	}
@@ -691,7 +691,7 @@ void FRuiReconciler::AdoptPendingEbActivation(FRuiFiber* BoundaryFiber)
 	}
 }
 
-void FRuiReconciler::PushProvidedContext(FRuiFiber* Fiber)
+void FRuitkReconciler::PushProvidedContext(FRuitkFiber* Fiber)
 {
 	if (!Fiber->ProvidedContext.IsValid() || Fiber->ProvidedContext->IsEmpty())
 	{
@@ -699,18 +699,18 @@ void FRuiReconciler::PushProvidedContext(FRuiFiber* Fiber)
 	}
 	for (const TPair<const void*, TSharedPtr<void>>& Pair : *Fiber->ProvidedContext)
 	{
-		static_cast<IRuiProvidedValue*>(Pair.Value.Get())->PushOnRenderStack();
+		static_cast<IRuitkProvidedValue*>(Pair.Value.Get())->PushOnRenderStack();
 	}
 	ProviderStack.Push(Fiber);
 }
 
-void FRuiReconciler::PopProvidedContext(FRuiFiber* Fiber)
+void FRuitkReconciler::PopProvidedContext(FRuitkFiber* Fiber)
 {
 	if (!ProviderStack.IsEmpty() && ProviderStack.Last() == Fiber)
 	{
 		for (const TPair<const void*, TSharedPtr<void>>& Pair : *Fiber->ProvidedContext)
 		{
-			static_cast<IRuiProvidedValue*>(Pair.Value.Get())->PopFromRenderStack();
+			static_cast<IRuitkProvidedValue*>(Pair.Value.Get())->PopFromRenderStack();
 		}
 		ProviderStack.Pop(EAllowShrinking::No);
 	}
@@ -720,11 +720,11 @@ void FRuiReconciler::PopProvidedContext(FRuiFiber* Fiber)
 // Child reconciliation
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* OldFiber, const FRuiNode& VNode,
+FRuitkFiber* FRuitkReconciler::ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber, const FRuitkNode& VNode,
 										  int32 Index)
 {
 	const bool bReuse = (OldFiber != nullptr) && OldFiber->Matches(VNode);
-	FRuiFiber* Fiber;
+	FRuitkFiber* Fiber;
 	if (bReuse)
 	{
 		Fiber = OldFiber->Alternate;
@@ -750,14 +750,14 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 	Fiber->Child = nullptr;
 	Fiber->Sibling = nullptr;
 	Fiber->Index = Index;
-	Fiber->EffectTag = RuiEffect_None;
+	Fiber->EffectTag = RuitkEffect_None;
 	Fiber->NextEffect = nullptr;
 	Fiber->bHasDeletions = false;
 	Fiber->Key = VNode.Key;
 	Fiber->PendingProps = VNode.Props;
 	Fiber->InputChildren = VNode.Children;
-	Fiber->Tag = FRuiFiber::TagForNode(VNode);
-	if (VNode.Kind == ERuiNodeKind::Host)
+	Fiber->Tag = FRuitkFiber::TagForNode(VNode);
+	if (VNode.Kind == ERuitkNodeKind::Host)
 	{
 		Fiber->ElementType = VNode.ElementType;
 		Fiber->ComponentId = NAME_None;
@@ -766,12 +766,12 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 	}
 	else
 	{
-		Fiber->ElementType = FRuiElementTypeId();
-		Fiber->ComponentId = (VNode.Kind == ERuiNodeKind::Function) ? VNode.ComponentId : NAME_None;
-		Fiber->Invoke = (VNode.Kind == ERuiNodeKind::Function) ? VNode.Invoke : nullptr;
-		Fiber->PortalTarget = (VNode.Kind == ERuiNodeKind::Portal) ? VNode.PortalTarget : nullptr;
+		Fiber->ElementType = FRuitkElementTypeId();
+		Fiber->ComponentId = (VNode.Kind == ERuitkNodeKind::Function) ? VNode.ComponentId : NAME_None;
+		Fiber->Invoke = (VNode.Kind == ERuitkNodeKind::Function) ? VNode.Invoke : nullptr;
+		Fiber->PortalTarget = (VNode.Kind == ERuitkNodeKind::Portal) ? VNode.PortalTarget : nullptr;
 	}
-	if (VNode.Kind == ERuiNodeKind::ErrorBoundary)
+	if (VNode.Kind == ERuitkNodeKind::ErrorBoundary)
 	{
 		Fiber->EbFallback = VNode.EbFallback;
 		Fiber->EbOnError = VNode.EbOnError;
@@ -795,7 +795,7 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 			TSharedRef<TMap<const void*, TSharedPtr<void>>> Dup = MakeShared<TMap<const void*, TSharedPtr<void>>>();
 			for (const TPair<const void*, TSharedPtr<void>>& Pair : *OldFiber->ProvidedContext)
 			{
-				Dup->Add(Pair.Key, static_cast<IRuiProvidedValue*>(Pair.Value.Get())->Duplicate());
+				Dup->Add(Pair.Key, static_cast<IRuitkProvidedValue*>(Pair.Value.Get())->Duplicate());
 			}
 			Fiber->ProvidedContext = Dup;
 		}
@@ -803,7 +803,7 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 		{
 			Fiber->ProvidedContext.Reset();
 		}
-		if (Fiber->Tag == ERuiFiberTag::ErrorBoundary)
+		if (Fiber->Tag == ERuitkFiberTag::ErrorBoundary)
 		{
 			Fiber->bEbActive = OldFiber->bEbActive;
 			Fiber->EbLastError = OldFiber->EbLastError;
@@ -821,14 +821,14 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 		Fiber->bEbActive = false;
 	}
 
-	if (Fiber->Tag == ERuiFiberTag::Function && !Fiber->State.IsValid())
+	if (Fiber->Tag == ERuitkFiberTag::Function && !Fiber->State.IsValid())
 	{
-		TSharedRef<FRuiComponentState> NewState = MakeShared<FRuiComponentState>();
+		TSharedRef<FRuitkComponentState> NewState = MakeShared<FRuitkComponentState>();
 		NewState->Fiber = Fiber;
-		TWeakPtr<FRuiComponentState> Weak = NewState;
+		TWeakPtr<FRuitkComponentState> Weak = NewState;
 		NewState->OnStateUpdated = [this, Weak]()
 		{
-			TSharedPtr<FRuiComponentState> S = Weak.Pin();
+			TSharedPtr<FRuitkComponentState> S = Weak.Pin();
 			if (S.IsValid())
 			{
 				ScheduleUpdateOnFiber(S->Fiber);
@@ -839,10 +839,10 @@ FRuiFiber* FRuiReconciler::ReconcileFiber(FRuiFiber* ParentFiber, FRuiFiber* Old
 	return Fiber;
 }
 
-bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFirstFiber,
-									   const FRuiChildren& ChildVNodes)
+bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirstFiber,
+									   const FRuitkChildren& ChildVNodes)
 {
-	const TArray<FRuiNode>& VNodes = NormalizedChildren(ChildVNodes);
+	const TArray<FRuitkNode>& VNodes = NormalizedChildren(ChildVNodes);
 
 	// FAST-LIST PATH (+ GO-09 reuse_by_slot; see TryFastLeafList).
 	const bool bReuseBySlot = ParentFiber->PendingProps.IsValid() && ParentFiber->PendingProps->bReuseBySlot;
@@ -855,27 +855,27 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 	ParentFiber->Child = nullptr;
 	if (VNodes.IsEmpty())
 	{
-		FRuiFiber* Oc = OldFirstFiber;
+		FRuitkFiber* Oc = OldFirstFiber;
 		while (Oc != nullptr)
 		{
-			FRuiFiber* Nxt = Oc->Sibling;
+			FRuitkFiber* Nxt = Oc->Sibling;
 			DeleteFiber(ParentFiber, Oc);
 			Oc = Nxt;
 		}
 		return false;
 	}
 
-	FRuiFiber* Prev = nullptr;
+	FRuitkFiber* Prev = nullptr;
 	bool bStructural = false;
 	if (AnyKeyed(VNodes))
 	{
 		// FAST PATH: positionally-stable keyed list — no key map. [perf P2]
 		if (KeysStable(OldFirstFiber, VNodes))
 		{
-			FRuiFiber* Ocs = OldFirstFiber;
+			FRuitkFiber* Ocs = OldFirstFiber;
 			for (int32 i = 0; i < VNodes.Num(); ++i)
 			{
-				FRuiFiber* Cf = ReconcileFiber(ParentFiber, Ocs, VNodes[i], i);
+				FRuitkFiber* Cf = ReconcileFiber(ParentFiber, Ocs, VNodes[i], i);
 				if (Prev == nullptr)
 				{
 					ParentFiber->Child = Cf;
@@ -890,11 +890,11 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 			return false; // stable -> no structural change -> no reorder
 		}
 		// Full keyed mark-and-sweep with the persistent key map (GO-08). Unkeyed children
-		// get NAMESPACED positional keys (FRuiKey int with a reserved marker cannot collide
+		// get NAMESPACED positional keys (FRuitkKey int with a reserved marker cannot collide
 		// with user keys because user int keys and positional keys live in the same space —
 		// so positional sentinels use FName "\x01idx%d"-style names, family [audit M1]).
 		KeyMap.Reset();
-		FRuiFiber* Ock = OldFirstFiber;
+		FRuitkFiber* Ock = OldFirstFiber;
 		while (Ock != nullptr)
 		{
 			KeyMap.Add(FiberKey(Ock), Ock);
@@ -903,8 +903,8 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 		}
 		for (int32 i = 0; i < VNodes.Num(); ++i)
 		{
-			const FRuiNode& Vn = VNodes[i];
-			FRuiFiber* OldMatch = KeyMap.FindRef(VNodeKey(Vn, i));
+			const FRuitkNode& Vn = VNodes[i];
+			FRuitkFiber* OldMatch = KeyMap.FindRef(VNodeKey(Vn, i));
 			if (OldMatch != nullptr && (OldMatch->bMatchedPass || !OldMatch->Matches(Vn)))
 			{
 				OldMatch = nullptr;
@@ -921,7 +921,7 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 			{
 				bStructural = true; // new placement
 			}
-			FRuiFiber* Cf = ReconcileFiber(ParentFiber, OldMatch, Vn, i);
+			FRuitkFiber* Cf = ReconcileFiber(ParentFiber, OldMatch, Vn, i);
 			if (Prev == nullptr)
 			{
 				ParentFiber->Child = Cf;
@@ -932,10 +932,10 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 			}
 			Prev = Cf;
 		}
-		FRuiFiber* Ocd = OldFirstFiber;
+		FRuitkFiber* Ocd = OldFirstFiber;
 		while (Ocd != nullptr)
 		{
-			FRuiFiber* Nxtd = Ocd->Sibling;
+			FRuitkFiber* Nxtd = Ocd->Sibling;
 			if (!Ocd->bMatchedPass)
 			{
 				DeleteFiber(ParentFiber, Ocd);
@@ -947,15 +947,15 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 	else
 	{
 		// index (positional) path
-		FRuiFiber* Oci = OldFirstFiber;
+		FRuitkFiber* Oci = OldFirstFiber;
 		for (int32 i = 0; i < VNodes.Num(); ++i)
 		{
-			FRuiFiber* OldMatch = Oci;
+			FRuitkFiber* OldMatch = Oci;
 			if (OldMatch == nullptr || !OldMatch->Matches(VNodes[i]))
 			{
 				bStructural = true;
 			}
-			FRuiFiber* Cf = ReconcileFiber(ParentFiber, OldMatch, VNodes[i], i);
+			FRuitkFiber* Cf = ReconcileFiber(ParentFiber, OldMatch, VNodes[i], i);
 			if (Prev == nullptr)
 			{
 				ParentFiber->Child = Cf;
@@ -972,7 +972,7 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 		}
 		while (Oci != nullptr)
 		{
-			FRuiFiber* Nxti = Oci->Sibling;
+			FRuitkFiber* Nxti = Oci->Sibling;
 			DeleteFiber(ParentFiber, Oci);
 			Oci = Nxti;
 		}
@@ -985,20 +985,20 @@ bool FRuiReconciler::ReconcileChildren(FRuiFiber* ParentFiber, FRuiFiber* OldFir
 	return false;
 }
 
-bool FRuiReconciler::TryFastLeafList(FRuiFiber* ParentFiber, FRuiFiber* OldFirstFiber, const TArray<FRuiNode>& VNodes,
+bool FRuitkReconciler::TryFastLeafList(FRuitkFiber* ParentFiber, FRuitkFiber* OldFirstFiber, const TArray<FRuitkNode>& VNodes,
 									 bool bIgnoreKeys)
 {
 	const int32 N = VNodes.Num();
 	// 1. Eligibility scan (read-only).
-	FRuiFiber* Oc = OldFirstFiber;
+	FRuitkFiber* Oc = OldFirstFiber;
 	for (int32 i = 0; i < N; ++i)
 	{
 		if (Oc == nullptr)
 		{
 			return false;
 		}
-		const FRuiNode& Vn = VNodes[i];
-		if (Vn.Kind != ERuiNodeKind::Host || Oc->Tag != ERuiFiberTag::Host || !(Oc->ElementType == Vn.ElementType) ||
+		const FRuitkNode& Vn = VNodes[i];
+		if (Vn.Kind != ERuitkNodeKind::Host || Oc->Tag != ERuitkFiberTag::Host || !(Oc->ElementType == Vn.ElementType) ||
 			(!bIgnoreKeys && !(Oc->Key == Vn.Key)))
 		{
 			return false;
@@ -1018,22 +1018,22 @@ bool FRuiReconciler::TryFastLeafList(FRuiFiber* ParentFiber, FRuiFiber* OldFirst
 	Oc = OldFirstFiber;
 	for (int32 i = 0; i < N; ++i)
 	{
-		const FRuiNode& Vn = VNodes[i];
+		const FRuitkNode& Vn = VNodes[i];
 		if (bIgnoreKeys)
 		{
 			Oc->Key = Vn.Key; // adopt the new key so the slot stays fast next frame
 		}
 		Oc->Parent = ParentFiber;
 		Oc->Index = i;
-		Oc->EffectTag = RuiEffect_None;
+		Oc->EffectTag = RuitkEffect_None;
 		Oc->NextEffect = nullptr;
 		Oc->InputChildren = Vn.Children;
-		const TSharedPtr<const FRuiPropsBase>& Np = Vn.Props;
+		const TSharedPtr<const FRuitkPropsBase>& Np = Vn.Props;
 		Oc->PendingProps = Np;
 		const bool bChanged = (Np != Oc->Props) && !(Np.IsValid() && Oc->Props.IsValid() && Np->Equals(*Oc->Props));
 		if (bChanged)
 		{
-			Oc->EffectTag = RuiEffect_Update;
+			Oc->EffectTag = RuitkEffect_Update;
 			AppendEffect(Oc);
 		}
 		Oc = Oc->Sibling;
@@ -1041,16 +1041,16 @@ bool FRuiReconciler::TryFastLeafList(FRuiFiber* ParentFiber, FRuiFiber* OldFirst
 	return true;
 }
 
-bool FRuiReconciler::KeysStable(FRuiFiber* OldFirstFiber, const TArray<FRuiNode>& VNodes) const
+bool FRuitkReconciler::KeysStable(FRuitkFiber* OldFirstFiber, const TArray<FRuitkNode>& VNodes) const
 {
-	FRuiFiber* Oc = OldFirstFiber;
+	FRuitkFiber* Oc = OldFirstFiber;
 	for (int32 i = 0; i < VNodes.Num(); ++i)
 	{
 		if (Oc == nullptr)
 		{
 			return false;
 		}
-		const FRuiNode& Vn = VNodes[i];
+		const FRuitkNode& Vn = VNodes[i];
 		if (Oc->Key.IsSet() || Vn.Key.IsSet())
 		{
 			if (!(Oc->Key == Vn.Key))
@@ -1071,17 +1071,17 @@ bool FRuiReconciler::KeysStable(FRuiFiber* OldFirstFiber, const TArray<FRuiNode>
 	return Oc == nullptr; // exactly the same length
 }
 
-void FRuiReconciler::DeleteFiber(FRuiFiber* ParentFiber, FRuiFiber* OldFiber)
+void FRuitkReconciler::DeleteFiber(FRuitkFiber* ParentFiber, FRuitkFiber* OldFiber)
 {
-	OldFiber->EffectTag |= RuiEffect_Deletion;
+	OldFiber->EffectTag |= RuitkEffect_Deletion;
 	ParentFiber->bHasDeletions = true;
 	Deletions.Add(OldFiber);
 	MarkReorder(ParentFiber);
 }
 
-void FRuiReconciler::MarkReorder(FRuiFiber* ParentFiber)
+void FRuitkReconciler::MarkReorder(FRuitkFiber* ParentFiber)
 {
-	for (FRuiFiber* F = ParentFiber; F != nullptr; F = F->Parent)
+	for (FRuitkFiber* F = ParentFiber; F != nullptr; F = F->Parent)
 	{
 		if (F->IsPortal() || F->Node.IsValid())
 		{
@@ -1091,13 +1091,13 @@ void FRuiReconciler::MarkReorder(FRuiFiber* ParentFiber)
 	}
 }
 
-bool FRuiReconciler::HasContextChanged(const FRuiFiber* Fiber) const
+bool FRuitkReconciler::HasContextChanged(const FRuitkFiber* Fiber) const
 {
 	if (!Fiber->State.IsValid())
 	{
 		return false;
 	}
-	for (const FRuiComponentState::FContextDep& Dep : Fiber->State->ContextDeps)
+	for (const FRuitkComponentState::FContextDep& Dep : Fiber->State->ContextDeps)
 	{
 		// Resolve against the COMMITTED tree via the alternate chain (Godot semantics).
 		if (Dep.HasChanged && Dep.HasChanged(Fiber->Alternate ? Fiber->Alternate : Fiber))
@@ -1108,7 +1108,7 @@ bool FRuiReconciler::HasContextChanged(const FRuiFiber* Fiber) const
 	return false;
 }
 
-void FRuiReconciler::AppendEffect(FRuiFiber* Fiber)
+void FRuitkReconciler::AppendEffect(FRuitkFiber* Fiber)
 {
 	Fiber->NextEffect = nullptr;
 	if (FirstEffect == nullptr)
@@ -1126,34 +1126,34 @@ void FRuiReconciler::AppendEffect(FRuiFiber* Fiber)
 // Complete phase
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::CompleteWork(FRuiFiber* Fiber)
+void FRuitkReconciler::CompleteWork(FRuitkFiber* Fiber)
 {
 	switch (Fiber->Tag)
 	{
-	case ERuiFiberTag::Host:
+	case ERuitkFiberTag::Host:
 		if (!Fiber->Node.IsValid())
 		{
 			check(Fiber->PendingProps.IsValid());
 			Fiber->Node = Host.CreateInstance(Fiber->ElementType, *Fiber->PendingProps);
 			Fiber->Props = Fiber->PendingProps;
-			Fiber->EffectTag |= RuiEffect_Placement;
+			Fiber->EffectTag |= RuitkEffect_Placement;
 		}
 		else if (!PropsEqual(Fiber))
 		{
-			Fiber->EffectTag |= RuiEffect_Update;
+			Fiber->EffectTag |= RuitkEffect_Update;
 		}
 		break;
-	case ERuiFiberTag::Portal:
+	case ERuitkFiberTag::Portal:
 		if (Fiber->Alternate != nullptr && Fiber->Alternate->PortalTarget != Fiber->PortalTarget)
 		{
-			Fiber->EffectTag |= RuiEffect_PortalRetarget;
+			Fiber->EffectTag |= RuitkEffect_PortalRetarget;
 			ReorderSet.Add(Fiber); // re-assert order at the new target [audit M6]
 		}
 		break;
 	default:
 		break;
 	}
-	if (Fiber->EffectTag != RuiEffect_None)
+	if (Fiber->EffectTag != RuitkEffect_None)
 	{
 		AppendEffect(Fiber);
 	}
@@ -1164,51 +1164,51 @@ void FRuiReconciler::CompleteWork(FRuiFiber* Fiber)
 // Commit phase
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::CommitRoot()
+void FRuitkReconciler::CommitRoot()
 {
 	bIsCommitting = true;
-	FRuiDiagnostics::OnCommit();
+	FRuitkDiagnostics::OnCommit();
 	Host.OnBeforeCommit(); // focus capture fence (host mutations start here)
 
-	for (FRuiFiber* D : Deletions)
+	for (FRuitkFiber* D : Deletions)
 	{
 		CommitDeletion(D);
 	}
 	Deletions.Reset();
 
-	FRuiFiber* F = FirstEffect;
+	FRuitkFiber* F = FirstEffect;
 	while (F != nullptr)
 	{
 		const uint8 Tag = F->EffectTag;
-		if (Tag & RuiEffect_Placement)
+		if (Tag & RuitkEffect_Placement)
 		{
 			CommitPlacement(F);
 		}
-		if (Tag & RuiEffect_Update)
+		if (Tag & RuitkEffect_Update)
 		{
 			CommitUpdate(F);
 		}
-		if (Tag & RuiEffect_PortalRetarget)
+		if (Tag & RuitkEffect_PortalRetarget)
 		{
 			CommitPortalRetarget(F);
 		}
-		if (Tag & RuiEffect_Layout)
+		if (Tag & RuitkEffect_Layout)
 		{
 			CommitLayoutEffects(F);
 		}
-		if (Tag & RuiEffect_Passive)
+		if (Tag & RuitkEffect_Passive)
 		{
 			PendingPassive.Add(F);
 		}
-		FRuiFiber* Nxt = F->NextEffect;
-		F->EffectTag = RuiEffect_None;
+		FRuitkFiber* Nxt = F->NextEffect;
+		F->EffectTag = RuitkEffect_None;
 		F->NextEffect = nullptr;
 		F = Nxt;
 	}
 	FirstEffect = nullptr;
 	LastEffect = nullptr;
 
-	for (FRuiFiber* Hp : ReorderSet)
+	for (FRuitkFiber* Hp : ReorderSet)
 	{
 		EnforceChildOrder(Hp);
 	}
@@ -1224,24 +1224,24 @@ void FRuiReconciler::CommitRoot()
 
 	if (!DeferredUpdates.IsEmpty())
 	{
-		TArray<FRuiFiber*> Deferred = MoveTemp(DeferredUpdates);
+		TArray<FRuitkFiber*> Deferred = MoveTemp(DeferredUpdates);
 		DeferredUpdates.Reset();
-		for (FRuiFiber* Target : Deferred)
+		for (FRuitkFiber* Target : Deferred)
 		{
 			ScheduleUpdateOnFiber(Target);
 		}
 	}
 }
 
-void FRuiReconciler::CommitPlacement(FRuiFiber* Fiber)
+void FRuitkReconciler::CommitPlacement(FRuitkFiber* Fiber)
 {
 	if (!Fiber->Node.IsValid())
 	{
 		return;
 	}
 	bool bViaPortal = false;
-	FRuiPortalHandle Portal;
-	FRuiHostHandle ParentNode = HostParentNode(Fiber, bViaPortal, Portal);
+	FRuitkPortalHandle Portal;
+	FRuitkHostHandle ParentNode = HostParentNode(Fiber, bViaPortal, Portal);
 	// APPEND (index -1) + let the structural-frame reorder assert exact order — the family
 	// model (add_child then enforce order). Fiber->Index is the index among sibling VNODES,
 	// NOT the flattened host index (fragments/components collapse), so it must not be used
@@ -1259,10 +1259,10 @@ void FRuiReconciler::CommitPlacement(FRuiFiber* Fiber)
 	{
 		Fiber->PendingProps->Ref(Fiber->Node);
 	}
-	FRuiDiagnostics::OnPlacement();
+	FRuitkDiagnostics::OnPlacement();
 }
 
-void FRuiReconciler::CommitUpdate(FRuiFiber* Fiber)
+void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
 {
 	if (!Fiber->Node.IsValid() || !Fiber->PendingProps.IsValid())
 	{
@@ -1270,12 +1270,12 @@ void FRuiReconciler::CommitUpdate(FRuiFiber* Fiber)
 	}
 	Host.CommitUpdate(Fiber->Node, Fiber->ElementType, Fiber->Props.Get(), *Fiber->PendingProps);
 	Fiber->Props = Fiber->PendingProps;
-	FRuiDiagnostics::OnUpdate();
+	FRuitkDiagnostics::OnUpdate();
 }
 
-void FRuiReconciler::CommitDeletion(FRuiFiber* Fiber)
+void FRuitkReconciler::CommitDeletion(FRuitkFiber* Fiber)
 {
-	FRuiDiagnostics::OnDeletion();
+	FRuitkDiagnostics::OnDeletion();
 	NullRefsRecursive(Fiber);
 	RunCleanupsRecursive(Fiber);
 	DetachPortalChildren(Fiber); // portal content lives under targets, not this subtree
@@ -1283,28 +1283,28 @@ void FRuiReconciler::CommitDeletion(FRuiFiber* Fiber)
 	ReleaseFiberTree(Fiber);
 }
 
-void FRuiReconciler::NullRefsRecursive(FRuiFiber* Fiber)
+void FRuitkReconciler::NullRefsRecursive(FRuitkFiber* Fiber)
 {
 	// React detach: refs cleared on unmount so callback refs never dangle. [audit C2]
 	if (Fiber->Props.IsValid() && Fiber->Props->Ref)
 	{
-		Fiber->Props->Ref(FRuiHostHandle());
+		Fiber->Props->Ref(FRuitkHostHandle());
 	}
-	for (FRuiFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
 	{
 		NullRefsRecursive(C);
 	}
 }
 
-void FRuiReconciler::CommitPortalRetarget(FRuiFiber* Fiber)
+void FRuitkReconciler::CommitPortalRetarget(FRuitkFiber* Fiber)
 {
 	if (!Fiber->PortalTarget.IsValid())
 	{
 		return;
 	}
-	TArray<FRuiHostHandle> Ordered;
+	TArray<FRuitkHostHandle> Ordered;
 	CollectHostChildren(Fiber, Ordered);
-	for (const FRuiHostHandle& Child : Ordered)
+	for (const FRuitkHostHandle& Child : Ordered)
 	{
 		// Old target detach happens host-side inside InsertPortalChild's re-parent; the
 		// portal is in the reorder set (see CompleteWork) so exact order is asserted after.
@@ -1312,57 +1312,57 @@ void FRuiReconciler::CommitPortalRetarget(FRuiFiber* Fiber)
 	}
 }
 
-void FRuiReconciler::CommitLayoutEffects(FRuiFiber* Fiber)
+void FRuitkReconciler::CommitLayoutEffects(FRuitkFiber* Fiber)
 {
 	if (!Fiber->State.IsValid())
 	{
 		return;
 	}
-	for (FRuiEffect& E : Fiber->State->LayoutEffects)
+	for (FRuitkEffect& E : Fiber->State->LayoutEffects)
 	{
-		if (!E.bEverRan || RUI::DepsChanged(E.LastDeps, E.Deps))
+		if (!E.bEverRan || Ruitk::DepsChanged(E.LastDeps, E.Deps))
 		{
 			if (E.Cleanup)
 			{
 				E.Cleanup();
 				E.Cleanup = nullptr;
 			}
-			E.Cleanup = E.Factory ? E.Factory() : FRuiEffectCleanup();
+			E.Cleanup = E.Factory ? E.Factory() : FRuitkEffectCleanup();
 			E.LastDeps = E.Deps;
 			E.bEverRan = true;
 		}
 	}
 }
 
-void FRuiReconciler::FlushPassive()
+void FRuitkReconciler::FlushPassive()
 {
 	// Two passes across all collected fibers: every cleanup first, then every setup.
-	for (FRuiFiber* Fiber : PendingPassive)
+	for (FRuitkFiber* Fiber : PendingPassive)
 	{
 		if (!Fiber->State.IsValid())
 		{
 			continue;
 		}
-		for (FRuiEffect& E : Fiber->State->Effects)
+		for (FRuitkEffect& E : Fiber->State->Effects)
 		{
-			if ((!E.bEverRan || RUI::DepsChanged(E.LastDeps, E.Deps)) && E.Cleanup)
+			if ((!E.bEverRan || Ruitk::DepsChanged(E.LastDeps, E.Deps)) && E.Cleanup)
 			{
 				E.Cleanup();
 				E.Cleanup = nullptr;
 			}
 		}
 	}
-	for (FRuiFiber* Fiber : PendingPassive)
+	for (FRuitkFiber* Fiber : PendingPassive)
 	{
 		if (!Fiber->State.IsValid())
 		{
 			continue;
 		}
-		for (FRuiEffect& E : Fiber->State->Effects)
+		for (FRuitkEffect& E : Fiber->State->Effects)
 		{
-			if (!E.bEverRan || RUI::DepsChanged(E.LastDeps, E.Deps))
+			if (!E.bEverRan || Ruitk::DepsChanged(E.LastDeps, E.Deps))
 			{
-				E.Cleanup = E.Factory ? E.Factory() : FRuiEffectCleanup();
+				E.Cleanup = E.Factory ? E.Factory() : FRuitkEffectCleanup();
 				E.LastDeps = E.Deps;
 				E.bEverRan = true;
 			}
@@ -1371,15 +1371,15 @@ void FRuiReconciler::FlushPassive()
 	PendingPassive.Reset();
 }
 
-void FRuiReconciler::RunCleanups(FRuiFiber* Fiber)
+void FRuitkReconciler::RunCleanups(FRuitkFiber* Fiber)
 {
 	if (!Fiber->State.IsValid())
 	{
 		return;
 	}
-	for (TArray<FRuiEffect>* Arr : {&Fiber->State->Effects, &Fiber->State->LayoutEffects})
+	for (TArray<FRuitkEffect>* Arr : {&Fiber->State->Effects, &Fiber->State->LayoutEffects})
 	{
-		for (FRuiEffect& E : *Arr)
+		for (FRuitkEffect& E : *Arr)
 		{
 			if (E.Cleanup)
 			{
@@ -1390,17 +1390,17 @@ void FRuiReconciler::RunCleanups(FRuiFiber* Fiber)
 	}
 }
 
-void FRuiReconciler::RunCleanupsRecursive(FRuiFiber* Fiber)
+void FRuitkReconciler::RunCleanupsRecursive(FRuitkFiber* Fiber)
 {
 	RunCleanups(Fiber);
-	for (FRuiFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
 	{
 		RunCleanupsRecursive(C);
 	}
 	DisposeFiberState(Fiber);
 }
 
-void FRuiReconciler::DisposeFiberState(FRuiFiber* Fiber)
+void FRuitkReconciler::DisposeFiberState(FRuitkFiber* Fiber)
 {
 	if (Fiber->State.IsValid())
 	{
@@ -1409,9 +1409,9 @@ void FRuiReconciler::DisposeFiberState(FRuiFiber* Fiber)
 	}
 }
 
-void FRuiReconciler::EnforceChildOrder(FRuiFiber* ParentFiber)
+void FRuitkReconciler::EnforceChildOrder(FRuitkFiber* ParentFiber)
 {
-	FRuiHostHandle PNode;
+	FRuitkHostHandle PNode;
 	bool bPortal = false;
 	if (ParentFiber->IsPortal())
 	{
@@ -1426,17 +1426,17 @@ void FRuiReconciler::EnforceChildOrder(FRuiFiber* ParentFiber)
 	{
 		return;
 	}
-	TArray<FRuiHostHandle> Ordered;
+	TArray<FRuitkHostHandle> Ordered;
 	CollectHostChildren(ParentFiber, Ordered);
 	(void)bPortal;
 	Host.ReorderChildren(PNode, Ordered);
 }
 
-void FRuiReconciler::CollectHostChildren(FRuiFiber* Fiber, TArray<FRuiHostHandle>& Out) const
+void FRuitkReconciler::CollectHostChildren(FRuitkFiber* Fiber, TArray<FRuitkHostHandle>& Out) const
 {
-	for (FRuiFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
 	{
-		if (C->Tag == ERuiFiberTag::Portal)
+		if (C->Tag == ERuitkFiberTag::Portal)
 		{
 			continue; // portal children live under the portal target, not here
 		}
@@ -1451,7 +1451,7 @@ void FRuiReconciler::CollectHostChildren(FRuiFiber* Fiber, TArray<FRuiHostHandle
 	}
 }
 
-void FRuiReconciler::DetachPortalChildren(FRuiFiber* Fiber)
+void FRuitkReconciler::DetachPortalChildren(FRuitkFiber* Fiber)
 {
 	if (Fiber->IsPortal() && Fiber->PortalTarget.IsValid())
 	{
@@ -1461,20 +1461,20 @@ void FRuiReconciler::DetachPortalChildren(FRuiFiber* Fiber)
 		// RemovePortalChild seam exists for exactly this (audit 2026-07-14: first Portal test
 		// caught the miss). CollectHostChildren skips nested portal children; the recursion
 		// below detaches those against their own targets.
-		TArray<FRuiHostHandle> PortalKids;
+		TArray<FRuitkHostHandle> PortalKids;
 		CollectHostChildren(Fiber, PortalKids);
-		for (const FRuiHostHandle& Kid : PortalKids)
+		for (const FRuitkHostHandle& Kid : PortalKids)
 		{
 			Host.RemovePortalChild(Fiber->PortalTarget, Kid);
 		}
 	}
-	for (FRuiFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
 	{
 		DetachPortalChildren(C);
 	}
 }
 
-void FRuiReconciler::ReleaseHostNodes(FRuiFiber* Fiber)
+void FRuitkReconciler::ReleaseHostNodes(FRuitkFiber* Fiber)
 {
 	if (Fiber->Node.IsValid() && !Fiber->IsRoot())
 	{
@@ -1482,16 +1482,16 @@ void FRuiReconciler::ReleaseHostNodes(FRuiFiber* Fiber)
 		Host.ReleaseInstance(Fiber->Node, Fiber->ElementType, Fiber->Props, bChildless);
 		return; // the host released/pooled the whole subtree root; children released with it
 	}
-	for (FRuiFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = Fiber->Child; C != nullptr; C = C->Sibling)
 	{
 		ReleaseHostNodes(C);
 	}
 }
 
-FRuiHostHandle FRuiReconciler::HostParentNode(FRuiFiber* Fiber, bool& bOutViaPortal, FRuiPortalHandle& OutPortal) const
+FRuitkHostHandle FRuitkReconciler::HostParentNode(FRuitkFiber* Fiber, bool& bOutViaPortal, FRuitkPortalHandle& OutPortal) const
 {
 	bOutViaPortal = false;
-	for (FRuiFiber* P = Fiber->Parent; P != nullptr; P = P->Parent)
+	for (FRuitkFiber* P = Fiber->Parent; P != nullptr; P = P->Parent)
 	{
 		if (P->IsPortal() && P->PortalTarget.IsValid())
 		{
@@ -1508,42 +1508,42 @@ FRuiHostHandle FRuiReconciler::HostParentNode(FRuiFiber* Fiber, bool& bOutViaPor
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// Context plumbing (untyped halves — typed halves live in FRuiContext templates)
+// Context plumbing (untyped halves — typed halves live in FRuitkContext templates)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::NotifyEffectKinds(FRuiFiber& Fiber, bool bHasPassive, bool bHasLayout)
+void FRuitkReconciler::NotifyEffectKinds(FRuitkFiber& Fiber, bool bHasPassive, bool bHasLayout)
 {
 	if (bHasPassive)
 	{
-		Fiber.EffectTag |= RuiEffect_Passive;
+		Fiber.EffectTag |= RuitkEffect_Passive;
 	}
 	if (bHasLayout)
 	{
-		Fiber.EffectTag |= RuiEffect_Layout;
+		Fiber.EffectTag |= RuitkEffect_Layout;
 	}
 }
 
-const IRuiProvidedValue* FRuiReconciler::ResolveProvidedOnCommitted(const FRuiFiber* From, const void* Key)
+const IRuitkProvidedValue* FRuitkReconciler::ResolveProvidedOnCommitted(const FRuitkFiber* From, const void* Key)
 {
-	for (const FRuiFiber* F = From; F != nullptr; F = F->Parent)
+	for (const FRuitkFiber* F = From; F != nullptr; F = F->Parent)
 	{
 		if (F->ProvidedContext.IsValid())
 		{
 			if (const TSharedPtr<void>* Found = F->ProvidedContext->Find(Key))
 			{
-				return static_cast<const IRuiProvidedValue*>(Found->Get());
+				return static_cast<const IRuitkProvidedValue*>(Found->Get());
 			}
 		}
 	}
 	return nullptr;
 }
 
-void FRuiReconciler::OnProvidedValueChanged(FRuiFiber& ProviderFiber, const void* Key)
+void FRuitkReconciler::OnProvidedValueChanged(FRuitkFiber& ProviderFiber, const void* Key)
 {
 	// Eager propagation over the COMMITTED subtree (Godot _propagate_context_change): mark
 	// consumers of Key dirty so they re-render through bailouts; intermediate ancestors get
 	// the subtree flag; stop at shadowing providers.
-	FRuiFiber* Alt = ProviderFiber.Alternate;
+	FRuitkFiber* Alt = ProviderFiber.Alternate;
 	if (Alt == nullptr || Alt->Child == nullptr)
 	{
 		return;
@@ -1552,10 +1552,10 @@ void FRuiReconciler::OnProvidedValueChanged(FRuiFiber& ProviderFiber, const void
 	struct FWalker
 	{
 		const void* Key;
-		bool Walk(FRuiFiber* First)
+		bool Walk(FRuitkFiber* First)
 		{
 			bool bAny = false;
-			for (FRuiFiber* F = First; F != nullptr; F = F->Sibling)
+			for (FRuitkFiber* F = First; F != nullptr; F = F->Sibling)
 			{
 				if (F->ProvidedContext.IsValid() && F->ProvidedContext->Contains(Key))
 				{
@@ -1564,7 +1564,7 @@ void FRuiReconciler::OnProvidedValueChanged(FRuiFiber& ProviderFiber, const void
 				bool bSelfMarked = false;
 				if (F->bReadsContext && F->State.IsValid())
 				{
-					for (const FRuiComponentState::FContextDep& Dep : F->State->ContextDeps)
+					for (const FRuitkComponentState::FContextDep& Dep : F->State->ContextDeps)
 					{
 						if (Dep.Key == Key)
 						{
@@ -1598,9 +1598,9 @@ void FRuiReconciler::OnProvidedValueChanged(FRuiFiber& ProviderFiber, const void
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-bool FRuiReconciler::AnyKeyed(const TArray<FRuiNode>& VNodes)
+bool FRuitkReconciler::AnyKeyed(const TArray<FRuitkNode>& VNodes)
 {
-	for (const FRuiNode& Vn : VNodes)
+	for (const FRuitkNode& Vn : VNodes)
 	{
 		if (Vn.Key.IsSet())
 		{
@@ -1610,27 +1610,27 @@ bool FRuiReconciler::AnyKeyed(const TArray<FRuiNode>& VNodes)
 	return false;
 }
 
-FRuiKey FRuiReconciler::FiberKey(const FRuiFiber* F)
+FRuitkKey FRuitkReconciler::FiberKey(const FRuitkFiber* F)
 {
 	if (F->Key.IsSet())
 	{
 		return F->Key;
 	}
 	// Namespaced positional key: control-char-prefixed name — can never equal a user key
-	// (user FName keys can't contain \x01; user int keys are a different FRuiKey kind).
-	return FRuiKey(FName(*FString::Printf(TEXT("\x01idx%d"), F->Index)));
+	// (user FName keys can't contain \x01; user int keys are a different FRuitkKey kind).
+	return FRuitkKey(FName(*FString::Printf(TEXT("\x01idx%d"), F->Index)));
 }
 
-FRuiKey FRuiReconciler::VNodeKey(const FRuiNode& VNode, int32 Index)
+FRuitkKey FRuitkReconciler::VNodeKey(const FRuitkNode& VNode, int32 Index)
 {
 	if (VNode.Key.IsSet())
 	{
 		return VNode.Key;
 	}
-	return FRuiKey(FName(*FString::Printf(TEXT("\x01idx%d"), Index)));
+	return FRuitkKey(FName(*FString::Printf(TEXT("\x01idx%d"), Index)));
 }
 
-bool FRuiReconciler::ChildrenSame(const FRuiChildren& A, const FRuiChildren& B)
+bool FRuitkReconciler::ChildrenSame(const FRuitkChildren& A, const FRuitkChildren& B)
 {
 	// Pointer identity of shared child lists == the family's vnode-identity children check.
 	const bool bAEmpty = !A.IsValid() || A->IsEmpty();
@@ -1642,7 +1642,7 @@ bool FRuiReconciler::ChildrenSame(const FRuiChildren& A, const FRuiChildren& B)
 	return A == B;
 }
 
-bool FRuiReconciler::PropsEqual(const FRuiFiber* Fiber) const
+bool FRuitkReconciler::PropsEqual(const FRuitkFiber* Fiber) const
 {
 	if (!Fiber->Props.IsValid())
 	{
@@ -1663,10 +1663,10 @@ bool FRuiReconciler::PropsEqual(const FRuiFiber* Fiber) const
 	return Fiber->PendingProps->Equals(*Fiber->Props);
 }
 
-const TArray<FRuiNode>& FRuiReconciler::NormalizedChildren(const FRuiChildren& Children) const
+const TArray<FRuitkNode>& FRuitkReconciler::NormalizedChildren(const FRuitkChildren& Children) const
 {
 	// The family flattened nested arrays and auto-wrapped raw strings; C++ child lists are
-	// flat + homogeneous by construction (RUI::TextBlock is explicit), so this is a passthrough.
+	// flat + homogeneous by construction (Ruitk::TextBlock is explicit), so this is a passthrough.
 	return Children.IsValid() ? *Children : EmptyChildren;
 }
 
@@ -1674,20 +1674,20 @@ const TArray<FRuiNode>& FRuiReconciler::NormalizedChildren(const FRuiChildren& C
 // Teardown
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-void FRuiReconciler::ReleaseFiberTree(FRuiFiber* Fiber)
+void FRuitkReconciler::ReleaseFiberTree(FRuitkFiber* Fiber)
 {
 	if (Fiber == nullptr)
 	{
 		return;
 	}
-	FRuiFiber* C = Fiber->Child;
+	FRuitkFiber* C = Fiber->Child;
 	while (C != nullptr)
 	{
-		FRuiFiber* Nxt = C->Sibling;
+		FRuitkFiber* Nxt = C->Sibling;
 		ReleaseFiberTree(C);
 		C = Nxt;
 	}
-	FRuiFiber* Alt = Fiber->Alternate;
+	FRuitkFiber* Alt = Fiber->Alternate;
 	Slab.Release(Fiber); // ResetForReuse severs everything
 	if (Alt != nullptr)
 	{
@@ -1696,9 +1696,9 @@ void FRuiReconciler::ReleaseFiberTree(FRuiFiber* Fiber)
 	}
 }
 
-void FRuiReconciler::ReleaseAbandonedChildren(FRuiFiber* Parent)
+void FRuitkReconciler::ReleaseAbandonedChildren(FRuitkFiber* Parent)
 {
-	FRuiFiber* Child = Parent->Child;
+	FRuitkFiber* Child = Parent->Child;
 	Parent->Child = nullptr;
 	// COMMITTED-CHAIN adoption: this WIP fiber shares the committed twin's child chain
 	// (same objects, not copies) — via SUBTREE-SKIP (children still parented to the twin)
@@ -1708,7 +1708,7 @@ void FRuiReconciler::ReleaseAbandonedChildren(FRuiFiber* Parent)
 	// passes — it must never climb into a reclaimed WIP chain).
 	if (Child != nullptr && Parent->Alternate != nullptr && Parent->Alternate->Child == Child)
 	{
-		for (FRuiFiber* C = Child; C != nullptr; C = C->Sibling)
+		for (FRuitkFiber* C = Child; C != nullptr; C = C->Sibling)
 		{
 			if (C->Parent == Parent)
 			{
@@ -1719,7 +1719,7 @@ void FRuiReconciler::ReleaseAbandonedChildren(FRuiFiber* Parent)
 	}
 	while (Child != nullptr)
 	{
-		FRuiFiber* Next = Child->Sibling;
+		FRuitkFiber* Next = Child->Sibling;
 		if (Child->Parent != Parent)
 		{
 			break; // defense-in-depth: any other shared-chain flavor is not ours to free
@@ -1741,7 +1741,7 @@ void FRuiReconciler::ReleaseAbandonedChildren(FRuiFiber* Parent)
 	}
 }
 
-void FRuiReconciler::Unmount()
+void FRuitkReconciler::Unmount()
 {
 	if (RootCurrent == nullptr)
 	{
@@ -1753,7 +1753,7 @@ void FRuiReconciler::Unmount()
 		ReleaseAbandonedChildren(WipRoot); // an abandoned pass dies with the root
 	}
 	PendingEbActivations.Reset();
-	for (FRuiFiber* C = RootCurrent->Child; C != nullptr; C = C->Sibling)
+	for (FRuitkFiber* C = RootCurrent->Child; C != nullptr; C = C->Sibling)
 	{
 		NullRefsRecursive(C);
 		RunCleanupsRecursive(C);

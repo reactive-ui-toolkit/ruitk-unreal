@@ -5,79 +5,79 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiCoreElements.h"
-#include "RuiNode.h"
-#include "RuiSlateElements.h"
+#include "RuitkCoreElements.h"
+#include "RuitkNode.h"
+#include "RuitkSlateElements.h"
 
-namespace RuiDemo
+namespace RuitkDemo
 {
 	/** Section card: dark translucent backdrop + inner padding + a gap above (Slot.*). */
-	inline FRuiNode Padded(FRuiNode Inner, float Padding = 8.0f)
+	inline FRuitkNode Padded(FRuitkNode Inner, float Padding = 8.0f)
 	{
-		FRuiBorderProps P;
+		FRuitkBorderProps P;
 		P.SetPadding(FMargin(Padding + 4.0f));
 		P.SetBorderImage(FName(TEXT("WhiteBrush"))); // solid fill (the engine default brush is a thin frame)
 		P.SetBorderBackgroundColor(FLinearColor(0.02f, 0.02f, 0.03f, 0.85f));
-		FRuiNode Node = RUI::Slate::Border(MoveTemp(P), {MoveTemp(Inner)});
-		TSharedRef<FRuiBorderProps> Props =
-			MakeShared<FRuiBorderProps>(static_cast<const FRuiBorderProps&>(*Node.Props));
-		Props->SlotProps = MakeShared<FRuiStyleDict>();
-		Props->SlotProps->Add(FName(TEXT("Slot.Padding")), FRuiValue(TEXT("0,10,0,0")));
+		FRuitkNode Node = Ruitk::Slate::Border(MoveTemp(P), {MoveTemp(Inner)});
+		TSharedRef<FRuitkBorderProps> Props =
+			MakeShared<FRuitkBorderProps>(static_cast<const FRuitkBorderProps&>(*Node.Props));
+		Props->SlotProps = MakeShared<FRuitkStyleDict>();
+		Props->SlotProps->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,10,0,0")));
 		Node.Props = Props;
 		return Node;
 	}
 
 	/** Breathing room between rows inside a section. */
-	inline FRuiNode Gap(float Height = 6.0f)
+	inline FRuitkNode Gap(float Height = 6.0f)
 	{
-		FRuiSpacerProps P;
+		FRuitkSpacerProps P;
 		P.SetSize(FVector2D(1.0f, Height));
-		return RUI::Slate::Spacer(MoveTemp(P));
+		return Ruitk::Slate::Spacer(MoveTemp(P));
 	}
 
-	inline FRuiNode StyledText(const FString& S, float FontSize, FLinearColor Color = FLinearColor::White)
+	inline FRuitkNode StyledText(const FString& S, float FontSize, FLinearColor Color = FLinearColor::White)
 	{
-		FRuiNode Node = RUI::TextBlock(S);
-		TSharedRef<FRuiTextBlockProps> Props =
-			MakeShared<FRuiTextBlockProps>(static_cast<const FRuiTextBlockProps&>(*Node.Props));
-		Props->Style = MakeShared<FRuiStyleDict>();
-		Props->Style->Add(FName(TEXT("Font.Size")), FRuiValue(FontSize));
-		Props->Style->Add(FName(TEXT("ColorAndOpacity")), FRuiValue(Color));
+		FRuitkNode Node = Ruitk::TextBlock(S);
+		TSharedRef<FRuitkTextBlockProps> Props =
+			MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*Node.Props));
+		Props->Style = MakeShared<FRuitkStyleDict>();
+		Props->Style->Add(FName(TEXT("Font.Size")), FRuitkValue(FontSize));
+		Props->Style->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(Color));
 		Node.Props = Props;
 		return Node;
 	}
 
-	inline FRuiNode LabeledButton(const FString& Label, TFunction<void()> OnClick)
+	inline FRuitkNode LabeledButton(const FString& Label, TFunction<void()> OnClick)
 	{
-		FRuiButtonProps P;
-		P.SetOnClicked(FRuiCallback::Create(MoveTemp(OnClick)));
+		FRuitkButtonProps P;
+		P.SetOnClicked(FRuitkCallback::Create(MoveTemp(OnClick)));
 		P.SetContentPadding(FMargin(12.0f, 4.0f));
-		FRuiNode Node = RUI::Slate::Button(MoveTemp(P), {RUI::TextBlock(Label)});
-		TSharedRef<FRuiButtonProps> Props =
-			MakeShared<FRuiButtonProps>(static_cast<const FRuiButtonProps&>(*Node.Props));
-		Props->SlotProps = MakeShared<FRuiStyleDict>();
-		Props->SlotProps->Add(FName(TEXT("Slot.Padding")), FRuiValue(TEXT("0,0,6,0")));
+		FRuitkNode Node = Ruitk::Slate::Button(MoveTemp(P), {Ruitk::TextBlock(Label)});
+		TSharedRef<FRuitkButtonProps> Props =
+			MakeShared<FRuitkButtonProps>(static_cast<const FRuitkButtonProps&>(*Node.Props));
+		Props->SlotProps = MakeShared<FRuitkStyleDict>();
+		Props->SlotProps->Add(FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,0,6,0")));
 		Node.Props = Props;
 		return Node;
 	}
 
 	/** Attach Slot.* props to any node (per-node copy; demo authoring sugar). */
-	inline FRuiNode WithSlot(FRuiNode Node, const FName Key, FRuiValue Value)
+	inline FRuitkNode WithSlot(FRuitkNode Node, const FName Key, FRuitkValue Value)
 	{
 		if (!Node.Props.IsValid())
 		{
-			// A props-less node (e.g. the empty Fragment RUI::Named returns on a miss) cannot
+			// A props-less node (e.g. the empty Fragment Ruitk::Named returns on a miss) cannot
 			// carry slot props — pass it through instead of asserting (TB-21: this assert was
 			// the visible face of a split registry; the node renders nothing either way).
 			return Node;
 		}
-		TSharedRef<FRuiPropsBase> Props = ConstCastSharedRef<FRuiPropsBase>(Node.Props.ToSharedRef());
+		TSharedRef<FRuitkPropsBase> Props = ConstCastSharedRef<FRuitkPropsBase>(Node.Props.ToSharedRef());
 		if (!Props->SlotProps.IsValid())
 		{
-			Props->SlotProps = MakeShared<FRuiStyleDict>();
+			Props->SlotProps = MakeShared<FRuitkStyleDict>();
 		}
 		Props->SlotProps->Add(Key, MoveTemp(Value));
 		return Node;
 	}
 
-} // namespace RuiDemo
+} // namespace RuitkDemo

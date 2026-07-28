@@ -6,7 +6,7 @@ import { Cool as Primary } from "./ValueExports"
 
 FLinearColor RowTint = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-export FRuiNode ShadowedNames(FLinearColor Tint) {
+export FRuitkNode ShadowedNames(FLinearColor Tint) {
 	auto Before = Primary;
 	FLinearColor Primary = Tint;
 	auto After = Primary;
@@ -18,7 +18,7 @@ export FRuiNode ShadowedNames(FLinearColor Tint) {
 	}
 	auto Outer = RowTint;
 	auto [Shade, SetShade] = UseState(Primary);
-	FRuiNode Chip = <Spacer />;
+	FRuitkNode Chip = <Spacer />;
 	auto AfterRange = Primary;
 	return (
 		<VerticalBox>

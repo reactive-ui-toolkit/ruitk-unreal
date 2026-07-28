@@ -567,10 +567,10 @@ function exportPrefix(exported: boolean, exportAt: number): string {
 
 function fmtComponent(decl: UetkxComponentDecl, state: FmtState): string {
   // Form-preserving (ES-modules G-10): legacy wrapper keeps its wrapper; new-form keeps the
-  // plain `FRuiNode Name(...)` head. Mirrors FmtComponent.
+  // plain `FRuitkNode Name(...)` head. Mirrors FmtComponent.
   let out = decl.legacySyntax
     ? `${exportPrefix(decl.exported, decl.exportAt)}component ${decl.name}${fmtParams(decl.params)} {\n`
-    : `${exportPrefix(decl.exported, decl.exportAt)}FRuiNode ${decl.name}${fmtNewParams(decl.params)} {\n`;
+    : `${exportPrefix(decl.exported, decl.exportAt)}FRuitkNode ${decl.name}${fmtNewParams(decl.params)} {\n`;
   const setup = reanchor(decl.setup, 1, state.o);
   if (setup) {
     if (hasLeadingBlank(decl.setup)) out += "\n";

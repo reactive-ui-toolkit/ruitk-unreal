@@ -1,4 +1,4 @@
-export FRuiNode ReturnNull(bool bHidden = false) {
+export FRuitkNode ReturnNull(bool bHidden = false) {
 	if (bHidden) {
 		return null;
 	}
@@ -8,6 +8,6 @@ export FRuiNode ReturnNull(bool bHidden = false) {
 	return ( <Spacer /> );
 }
 
-export FRuiNode ReturnNullOnly() {
+export FRuitkNode ReturnNullOnly() {
 	return null;
 }

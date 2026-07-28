@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
 #include "Modules/ModuleManager.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateLog.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateLog.h"
 
 DEFINE_LOG_CATEGORY(LogRuiSlate);
 
@@ -11,7 +11,7 @@ class FRuitkSlateModule : public IModuleInterface
 public:
 	virtual void StartupModule() override
 	{
-		RUI::Slate::RegisterBuiltinAdapters();
+		Ruitk::Slate::RegisterBuiltinAdapters();
 		UE_LOG(LogRuiSlate, Verbose, TEXT("RuitkSlate module started"));
 	}
 

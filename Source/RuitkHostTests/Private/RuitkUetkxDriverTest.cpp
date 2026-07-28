@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Driver — the compiler's FILE layer, end-to-end on real scratch files under
+// Ruitk.Uetkx.Driver — the compiler's FILE layer, end-to-end on real scratch files under
 // Saved/: compile writes .inl + sidecar (schema v3), a failed compile deletes the stale .inl
 // and its same-hash error sidecar suppresses re-compiles (the busy-loop guard), content changes
 // re-stale, sweeps count + settle (fingerprint), and aggregators regenerate deterministically.
@@ -10,16 +10,16 @@
 #include "Misc/AutomationTest.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
-#include "RuiNode.h"
+#include "RuitkNode.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "UetkxDriver.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxDriverTest, "ReactiveUI.Uetkx.Driver",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxDriverTest, "Ruitk.Uetkx.Driver",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxDriverTest::RunTest(const FString&)
+bool FRuitkUetkxDriverTest::RunTest(const FString&)
 {
 	IFileManager& FM = IFileManager::Get();
 	const FString Scratch = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("ReactiveUI"), TEXT("DriverTest"));
@@ -336,32 +336,32 @@ bool FRuiUetkxDriverTest::RunTest(const FString&)
 	// ── FILE_SCOPED_EXPORTS (FS-04): HMR identity is per-FILE for EVERY decl — signatures never
 	// alias across files ──────────────────────────────────────────────────────────────────────
 	{
-		// The emission keys two files' `Row`s as RuiUetkx::<File>::Row; the HMR maps key by that
+		// The emission keys two files' `Row`s as RuitkUetkx::<File>::Row; the HMR maps key by that
 		// FName, so editing one file's component can never flip the other's signature (pre-M3
 		// both keyed bare `Row` — last-swap-wins; TD-026 fixed privates, FS-04 covers exports).
-		const FName IdA(TEXT("RuiUetkx_HmrPairA::Row"));
-		const FName IdB(TEXT("RuiUetkx_HmrPairB::Row"));
-		RUI::RegisterHookSignature(IdA, 0x11111111u);
-		RUI::RegisterHookSignature(IdB, 0x22222222u);
-		RUI::RegisterHookSignature(IdA, 0x33333333u); // "edit" A's file — its signature moves
-		TestEqual(TEXT("A's private signature updated"), RUI::FindHookSignature(IdA), 0x33333333u);
-		TestEqual(TEXT("B's private signature untouched"), RUI::FindHookSignature(IdB), 0x22222222u);
+		const FName IdA(TEXT("RuitkUetkx_HmrPairA::Row"));
+		const FName IdB(TEXT("RuitkUetkx_HmrPairB::Row"));
+		Ruitk::RegisterHookSignature(IdA, 0x11111111u);
+		Ruitk::RegisterHookSignature(IdB, 0x22222222u);
+		Ruitk::RegisterHookSignature(IdA, 0x33333333u); // "edit" A's file — its signature moves
+		TestEqual(TEXT("A's private signature updated"), Ruitk::FindHookSignature(IdA), 0x33333333u);
+		TestEqual(TEXT("B's private signature untouched"), Ruitk::FindHookSignature(IdB), 0x22222222u);
 	}
 
 	// ── G-01 (uniform under FS-04): renaming a file renames its namespace — EVERYTHING remounts ──
 	{
-		const FString PairSrc = TEXT("FRuiNode Row() {\n\treturn ( <Spacer /> );\n}\n")
-			TEXT("export FRuiNode RENAMED() {\n\treturn ( <VerticalBox> <Row /> </VerticalBox> );\n}\n");
+		const FString PairSrc = TEXT("FRuitkNode Row() {\n\treturn ( <Spacer /> );\n}\n")
+			TEXT("export FRuitkNode RENAMED() {\n\treturn ( <VerticalBox> <Row /> </VerticalBox> );\n}\n");
 		const FUetkxCompileOutput AsA =
 			FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("RENAMED"), TEXT("RenameA")), TEXT("RenameA"));
 		const FUetkxCompileOutput AsB =
 			FUetkxCodegen::CompileSource(PairSrc.Replace(TEXT("RENAMED"), TEXT("RenameB")), TEXT("RenameB"));
 		TestTrue(TEXT("rename gives the private a FRESH runtime id (remount semantic)"),
-				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuiUetkx_RenameA::Row")) &&
-					 AsB.Inl.Contains(TEXT("RuiUetkx_RenameB::Row")));
+				 AsA.bOk && AsB.bOk && AsA.Inl.Contains(TEXT("RuitkUetkx_RenameA::Row")) &&
+					 AsB.Inl.Contains(TEXT("RuitkUetkx_RenameB::Row")));
 		TestTrue(TEXT("rename ALSO refreshes the exported component's id (uniform G-01)"),
-				 AsA.Inl.Contains(TEXT("RuiUetkx_RenameA::RenameA")) &&
-					 AsB.Inl.Contains(TEXT("RuiUetkx_RenameB::RenameB")));
+				 AsA.Inl.Contains(TEXT("RuitkUetkx_RenameA::RenameA")) &&
+					 AsB.Inl.Contains(TEXT("RuitkUetkx_RenameB::RenameB")));
 	}
 
 	// ── FILE_SCOPED_EXPORTS headline (the campaign's red→green): TWO files exporting the SAME

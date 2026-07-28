@@ -20,15 +20,15 @@ export module Styles {
 }
 
 // AFTER (plain declarations — the signature IS the kind)
-export FRuiNode ScoreRow(FString Label = FString(TEXT("x")), int32 N = 0) { ... }
+export FRuitkNode ScoreRow(FString Label = FString(TEXT("x")), int32 N = 0) { ... }
 export TTuple<int32, TFunction<void()>> UseCountdown(int32 Start) { ... }
 export FLinearColor Accent = { 0.36f, 0.75f, 1.0f, 1.0f };`
 
-const RUN = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUIMigrateEsModules
-<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUICompile -check`
+const RUN = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkMigrateEsModules
+<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkCompile -check`
 
 const TABLE: Array<[string, string]> = [
-  ['component Name(P: T = D) { … }', 'FRuiNode Name(T P = D) { … } — params flip to C++ order; param-less gains ()'],
+  ['component Name(P: T = D) { … }', 'FRuitkNode Name(T P = D) { … } — params flip to C++ order; param-less gains ()'],
   ['hook UseX(raw) -> R { … }', 'R UseX(raw) { … } — the return type leads; no -> ⇒ void (explicit)'],
   ['module M { inline const T N = i; }', 'T N = i; hoisted to top level (brace-init normalizes to = { … })'],
   ['module member functions', 'top-level util functions'],
@@ -37,7 +37,7 @@ const TABLE: Array<[string, string]> = [
 
 const DIAG_FIXES: Array<[string, string]> = [
   ['UETKX2320', 'wrapper syntax is deprecated — run the codemod (or rewrite the one declaration by hand)'],
-  ['UETKX2321', 'a Use-prefixed function returns FRuiNode — rename it (components are PascalCase, not Use*)'],
+  ['UETKX2321', 'a Use-prefixed function returns FRuitkNode — rename it (components are PascalCase, not Use*)'],
   ['UETKX2322', 'type inference needs the initializer to name its type: write `T(...)` / `T{...}`, or declare the type'],
   ['UETKX2323', 'an export list / export default names something this file does not declare — fix the name'],
   ['UETKX2324', 'a name is exported twice (inline + list, or two lists) — drop one'],

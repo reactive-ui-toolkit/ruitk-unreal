@@ -1,48 +1,48 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-028 — the host-props context mechanism (see RuiHostProps.h). Mirrors the CommonUI
+// TD-028 — the host-props context mechanism (see RuitkHostProps.h). Mirrors the CommonUI
 // activation seam: a provider component publishes the state; equality gates re-provision.
 
-#include "RuiHostProps.h"
+#include "RuitkHostProps.h"
 
-#include "RuiContext.h"
+#include "RuitkContext.h"
 
-TRuiContext<FRuiHostPropsState>& RUI::Umg::HostPropsContext()
+TRuitkContext<FRuitkHostPropsState>& Ruitk::Umg::HostPropsContext()
 {
-	static TRuiContext<FRuiHostPropsState> Ctx(FRuiHostPropsState{}, FName(TEXT("RuiHostProps")));
+	static TRuitkContext<FRuitkHostPropsState> Ctx(FRuitkHostPropsState{}, FName(TEXT("RuitkHostProps")));
 	return Ctx;
 }
 
 namespace
 {
-	struct FRuiHostPropsProviderProps final : public FRuiPropsBase
+	struct FRuitkHostPropsProviderProps final : public FRuitkPropsBase
 	{
-		FRuiHostPropsState State;
+		FRuitkHostPropsState State;
 
-		virtual bool Equals(const FRuiPropsBase& Other) const override
+		virtual bool Equals(const FRuitkPropsBase& Other) const override
 		{
-			const FRuiHostPropsProviderProps& O = static_cast<const FRuiHostPropsProviderProps&>(Other);
+			const FRuitkHostPropsProviderProps& O = static_cast<const FRuitkHostPropsProviderProps&>(Other);
 			return BaseFieldsEqual(Other) && State == O.State;
 		}
 	};
 
-	FRuiNodeArray HostPropsProviderComp(FRuiContext& Ctx, const FRuiHostPropsProviderProps& Props,
-										const TArray<FRuiNode>& Children)
+	FRuitkNodeArray HostPropsProviderComp(FRuitkContext& Ctx, const FRuitkHostPropsProviderProps& Props,
+										const TArray<FRuitkNode>& Children)
 	{
-		Ctx.ProvideContext(RUI::Umg::HostPropsContext(), Props.State);
-		return FRuiNodeArray(Children);
+		Ctx.ProvideContext(Ruitk::Umg::HostPropsContext(), Props.State);
+		return FRuitkNodeArray(Children);
 	}
-	RUI_COMPONENT(HostPropsProviderComp)
+	RUITK_COMPONENT(HostPropsProviderComp)
 } // namespace
 
-FRuiHostPropsState RUI::Umg::UseHostProps(FRuiContext& Ctx)
+FRuitkHostPropsState Ruitk::Umg::UseHostProps(FRuitkContext& Ctx)
 {
 	return Ctx.UseContext(HostPropsContext());
 }
 
-FString RUI::Umg::UseHostProp(FRuiContext& Ctx, FName Name, FString Default)
+FString Ruitk::Umg::UseHostProp(FRuitkContext& Ctx, FName Name, FString Default)
 {
-	const FRuiHostPropsState State = UseHostProps(Ctx);
+	const FRuitkHostPropsState State = UseHostProps(Ctx);
 	if (const FString* Found = State.Props.Find(Name))
 	{
 		return *Found;
@@ -50,14 +50,14 @@ FString RUI::Umg::UseHostProp(FRuiContext& Ctx, FName Name, FString Default)
 	return Default;
 }
 
-UObject* RUI::Umg::UseHostViewModel(FRuiContext& Ctx)
+UObject* Ruitk::Umg::UseHostViewModel(FRuitkContext& Ctx)
 {
 	return UseHostProps(Ctx).ViewModel.Get();
 }
 
-FRuiNode RUI::Umg::HostPropsProvider(FRuiHostPropsState State, TArray<FRuiNode> Children, FRuiKey Key)
+FRuitkNode Ruitk::Umg::HostPropsProvider(FRuitkHostPropsState State, TArray<FRuitkNode> Children, FRuitkKey Key)
 {
-	FRuiHostPropsProviderProps Props;
+	FRuitkHostPropsProviderProps Props;
 	Props.State = MoveTemp(State);
-	return RUI::FC(&HostPropsProviderComp, MoveTemp(Props), MoveTemp(Children), Key);
+	return Ruitk::FC(&HostPropsProviderComp, MoveTemp(Props), MoveTemp(Children), Key);
 }

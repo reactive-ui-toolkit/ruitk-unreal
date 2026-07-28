@@ -8,24 +8,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiTypes.h"
+#include "RuitkTypes.h"
 
-class FRuiComponentState;
+class FRuitkComponentState;
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Dependencies (§5 decision, replacing the family's per-language equality quirks):
 // VALUE equality for value kinds, IDENTITY for shared refs. Godot deep-compares deps
-// ([G-09]); React identity-compares each. C++ deps are built explicitly via RUI::Deps(...),
+// ([G-09]); React identity-compares each. C++ deps are built explicitly via Ruitk::Deps(...),
 // so the kind split is visible at the call site instead of implicit in the language.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-struct FRuiDep
+struct FRuitkDep
 {
 	bool bIdentity = false;
 	const void* Ptr = nullptr; // identity kind
-	FRuiValue Value;		   // value kind
+	FRuitkValue Value;		   // value kind
 
-	bool operator==(const FRuiDep& Other) const
+	bool operator==(const FRuitkDep& Other) const
 	{
 		if (bIdentity != Other.bIdentity)
 		{
@@ -37,9 +37,9 @@ struct FRuiDep
 
 /** TOptional-wrapped: unset = "no deps" = run every commit (family: deps == null).
  *  An EMPTY set array = mount-only (family: []). */
-using FRuiDeps = TOptional<TArray<FRuiDep>>;
+using FRuitkDeps = TOptional<TArray<FRuitkDep>>;
 
-namespace RUI
+namespace Ruitk
 {
 	namespace Private
 	{
@@ -55,13 +55,13 @@ namespace RUI
 
 		/** Single template + if-constexpr dispatch: overload sets recursing into each other
 		 *  trip C++ two-phase lookup (an overload can't see ones declared after it). */
-		template <typename... TArgs> void AddDep(TArray<FRuiDep>& Out, const TArgs&... Args)
+		template <typename... TArgs> void AddDep(TArray<FRuitkDep>& Out, const TArgs&... Args)
 		{
 			(
 				[&Out](const auto& Head)
 				{
 					using THead = std::decay_t<decltype(Head)>;
-					FRuiDep D;
+					FRuitkDep D;
 					if constexpr (TIsSharedPtrLike<THead>::value)
 					{
 						D.bIdentity = true;
@@ -71,7 +71,7 @@ namespace RUI
 					{
 						// String literals are VALUES, not identities (address compare would be
 						// a per-TU footgun).
-						D.Value = FRuiValue(Head);
+						D.Value = FRuitkValue(Head);
 					}
 					else if constexpr (std::is_pointer_v<THead>)
 					{
@@ -80,7 +80,7 @@ namespace RUI
 					}
 					else
 					{
-						D.Value = FRuiValue(Head); // value kinds via FRuiValue's constructors
+						D.Value = FRuitkValue(Head); // value kinds via FRuitkValue's constructors
 					}
 					Out.Add(D);
 				}(Args),
@@ -88,24 +88,24 @@ namespace RUI
 		}
 	} // namespace Private
 
-	/** Build a deps array: RUI::Deps(Count, Name, SomeSharedPtr). Empty call = mount-only. */
-	template <typename... TArgs> FRuiDeps Deps(const TArgs&... Args)
+	/** Build a deps array: Ruitk::Deps(Count, Name, SomeSharedPtr). Empty call = mount-only. */
+	template <typename... TArgs> FRuitkDeps Deps(const TArgs&... Args)
 	{
-		TArray<FRuiDep> Out;
+		TArray<FRuitkDep> Out;
 		Out.Reserve(sizeof...(Args));
 		Private::AddDep(Out, Args...);
-		return FRuiDeps(MoveTemp(Out));
+		return FRuitkDeps(MoveTemp(Out));
 	}
 
 	/** No-deps sentinel: the effect runs every commit (family deps == null). */
-	inline FRuiDeps EveryCommit()
+	inline FRuitkDeps EveryCommit()
 	{
-		return FRuiDeps();
+		return FRuitkDeps();
 	}
 
 	/** Shallow deps comparison (family _deps_changed): unset on either side => changed. */
-	RUITKCORE_API bool DepsChanged(const FRuiDeps& Prev, const FRuiDeps& Next);
-} // namespace RUI
+	RUITKCORE_API bool DepsChanged(const FRuitkDeps& Prev, const FRuitkDeps& Next);
+} // namespace Ruitk
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Hook cells
@@ -114,7 +114,7 @@ namespace RUI
 /** Hook kinds — doubles as the hook-order validation signature alphabet (hooks.gd _record).
  *  Effect/LayoutEffect don't consume state slots (own cursors) but ARE order-relevant, so
  *  they log too. */
-enum class ERuiHookKind : uint8
+enum class ERuitkHookKind : uint8
 {
 	State,
 	Reducer,
@@ -133,7 +133,7 @@ enum class ERuiHookKind : uint8
 	LayoutEffect,
 };
 
-RUITKCORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
+RUITKCORE_API const TCHAR* RuitkHookKindName(ERuitkHookKind Kind);
 
 /** Type-erased hook slot. Destructors double as teardown (a signal cell's dtor
  *  unsubscribes) — the C++ answer to _dispose_fiber_state's explicit unsub pass. */
@@ -145,14 +145,14 @@ RUITKCORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
 // Live Coding patches — unlike a static's address, which would differ per patch and falsely
 // reset on every stable-shape patch.
 #if defined(_MSC_VER)
-#define RUI_CELL_SIG __FUNCSIG__
+#define RUITK_CELL_SIG __FUNCSIG__
 #else
-#define RUI_CELL_SIG __PRETTY_FUNCTION__
+#define RUITK_CELL_SIG __PRETTY_FUNCTION__
 #endif
-#define RUI_HOOK_CELL_TYPE()                                                                                           \
+#define RUITK_HOOK_CELL_TYPE()                                                                                           \
 	static uint32 StaticTypeHash()                                                                                     \
 	{                                                                                                                  \
-		static const uint32 CellTypeHash = FCrc::StrCrc32(RUI_CELL_SIG);                                               \
+		static const uint32 CellTypeHash = FCrc::StrCrc32(RUITK_CELL_SIG);                                               \
 		return CellTypeHash;                                                                                           \
 	}                                                                                                                  \
 	virtual uint32 TypeHash() const override                                                                           \
@@ -160,11 +160,11 @@ RUITKCORE_API const TCHAR* RuiHookKindName(ERuiHookKind Kind);
 		return StaticTypeHash();                                                                                       \
 	}
 
-struct IRuiHookCell
+struct IRuitkHookCell
 {
-	virtual ~IRuiHookCell() = default;
-	virtual ERuiHookKind GetKind() const = 0;
-	/** TB-13: exact concrete-type identity (see RUI_HOOK_CELL_TYPE) — accessors verify it
+	virtual ~IRuitkHookCell() = default;
+	virtual ERuitkHookKind GetKind() const = 0;
+	/** TB-13: exact concrete-type identity (see RUITK_HOOK_CELL_TYPE) — accessors verify it
 	 *  BEFORE downcasting; a mismatch truncates the cell tail instead of corrupting memory. */
 	virtual uint32 TypeHash() const = 0;
 
@@ -175,27 +175,27 @@ struct IRuiHookCell
 	 *  patched factory re-runs); user STATE (State/Ref/Reducer) stays untouched. */
 	virtual void HmrInvalidateDerived() {}
 
-	/** Export this cell's value as an FRuiValue when the payload type round-trips through the
-	 *  variant (TD-019). Only STATE cells whose T is FRuiValue-constructible answer true; the
+	/** Export this cell's value as an FRuitkValue when the payload type round-trips through the
+	 *  variant (TD-019). Only STATE cells whose T is FRuitkValue-constructible answer true; the
 	 *  compiled→interp HMR swap uses this to MIGRATE typed state into the interpreter's
-	 *  FRuiValue cells instead of hard-resetting it. false = not migratable (re-init from Init). */
-	virtual bool ExportRuiValue(FRuiValue& Out) const { return false; }
+	 *  FRuitkValue cells instead of hard-resetting it. false = not migratable (re-init from Init). */
+	virtual bool ExportRuiValue(FRuitkValue& Out) const { return false; }
 };
 
-template <typename T> struct TRuiStateCell final : IRuiHookCell
+template <typename T> struct TRuitkStateCell final : IRuitkHookCell
 {
 	T Value;
-	explicit TRuiStateCell(T InValue) : Value(MoveTemp(InValue)) {}
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::State; }
-	RUI_HOOK_CELL_TYPE()
+	explicit TRuitkStateCell(T InValue) : Value(MoveTemp(InValue)) {}
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::State; }
+	RUITK_HOOK_CELL_TYPE()
 
-	virtual bool ExportRuiValue(FRuiValue& Out) const override
+	virtual bool ExportRuiValue(FRuitkValue& Out) const override
 	{
 		// Numeric / bool / string / text / vector2 / color state round-trips; container or
-		// opaque state (e.g. TArray<FString>) does not construct an FRuiValue → stays reset.
-		if constexpr (std::is_constructible_v<FRuiValue, const T&>)
+		// opaque state (e.g. TArray<FString>) does not construct an FRuitkValue → stays reset.
+		if constexpr (std::is_constructible_v<FRuitkValue, const T&>)
 		{
-			Out = FRuiValue(Value);
+			Out = FRuitkValue(Value);
 			return true;
 		}
 		else
@@ -205,80 +205,80 @@ template <typename T> struct TRuiStateCell final : IRuiHookCell
 	}
 };
 
-template <typename T, typename TAction> struct TRuiReducerCell final : IRuiHookCell
+template <typename T, typename TAction> struct TRuitkReducerCell final : IRuitkHookCell
 {
 	T Value;
 	TFunction<T(const T&, const TAction&)> Reducer; // refreshed every render (family parity)
-	explicit TRuiReducerCell(T InValue) : Value(MoveTemp(InValue)) {}
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Reducer; }
-	RUI_HOOK_CELL_TYPE()
+	explicit TRuitkReducerCell(T InValue) : Value(MoveTemp(InValue)) {}
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Reducer; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
 /** UseRef box — stable across renders; mutating Current never re-renders. */
-template <typename T> struct TRuiRef
+template <typename T> struct TRuitkRef
 {
 	T Current{};
 };
 
-template <typename T> struct TRuiRefCell final : IRuiHookCell
+template <typename T> struct TRuitkRefCell final : IRuitkHookCell
 {
-	TSharedRef<TRuiRef<T>> Box;
-	explicit TRuiRefCell(T Initial) : Box(MakeShared<TRuiRef<T>>()) { Box->Current = MoveTemp(Initial); }
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Ref; }
-	RUI_HOOK_CELL_TYPE()
+	TSharedRef<TRuitkRef<T>> Box;
+	explicit TRuitkRefCell(T Initial) : Box(MakeShared<TRuitkRef<T>>()) { Box->Current = MoveTemp(Initial); }
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Ref; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
-template <typename T> struct TRuiMemoCell final : IRuiHookCell
+template <typename T> struct TRuitkMemoCell final : IRuitkHookCell
 {
 	T Value;
-	FRuiDeps LastDeps;
+	FRuitkDeps LastDeps;
 	virtual void HmrInvalidateDerived() override { LastDeps.Reset(); } // TB-17: patched factory re-runs
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Memo; }
-	RUI_HOOK_CELL_TYPE()
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Memo; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
-template <typename T> struct TRuiDeferredCell final : IRuiHookCell
+template <typename T> struct TRuitkDeferredCell final : IRuitkHookCell
 {
 	T Value{};
 	T Target{};
-	FRuiDeps Deps;
+	FRuitkDeps Deps;
 	virtual void HmrInvalidateDerived() override { Deps.Reset(); } // TB-17
 	bool bPending = false;
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Deferred; }
-	RUI_HOOK_CELL_TYPE()
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Deferred; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
-struct FRuiTransitionCell final : IRuiHookCell
+struct FRuitkTransitionCell final : IRuitkHookCell
 {
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Transition; }
-	RUI_HOOK_CELL_TYPE()
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Transition; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
 /** Stable-callback cell: the WRAPPER's identity never changes; the inner body is refreshed
  *  every render (useStableCallback/Func/Action). */
-struct FRuiStableCell final : IRuiHookCell
+struct FRuitkStableCell final : IRuitkHookCell
 {
-	TSharedRef<TFunction<void(const FRuiValue&)>> Inner = MakeShared<TFunction<void(const FRuiValue&)>>();
-	FRuiCallback Wrapper; // minted once, reads Inner
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Stable; }
-	RUI_HOOK_CELL_TYPE()
+	TSharedRef<TFunction<void(const FRuitkValue&)>> Inner = MakeShared<TFunction<void(const FRuitkValue&)>>();
+	FRuitkCallback Wrapper; // minted once, reads Inner
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Stable; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
 /** Order-validation-only cell (UseSafeArea / UseSfx record their slot). */
-struct FRuiMarkerCell final : IRuiHookCell
+struct FRuitkMarkerCell final : IRuitkHookCell
 {
-	ERuiHookKind Kind;
+	ERuitkHookKind Kind;
 	bool bWarned = false; // warn-once for not-yet-wired stubs
-	explicit FRuiMarkerCell(ERuiHookKind InKind) : Kind(InKind) {}
-	virtual ERuiHookKind GetKind() const override { return Kind; }
-	RUI_HOOK_CELL_TYPE()
+	explicit FRuitkMarkerCell(ERuitkHookKind InKind) : Kind(InKind) {}
+	virtual ERuitkHookKind GetKind() const override { return Kind; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Animation hooks (UseTween/UseAnimate/UseTweenValue)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-enum class ERuiEase : uint8
+enum class ERuitkEase : uint8
 {
 	Linear,
 	In,	   // cubic
@@ -286,37 +286,37 @@ enum class ERuiEase : uint8
 	InOut, // cubic
 };
 
-/** The tween slot: retarget-from-current, host-clock driven (see FRuiContext::TweenSlot). */
-template <typename T> struct TRuiTweenCell final : IRuiHookCell
+/** The tween slot: retarget-from-current, host-clock driven (see FRuitkContext::TweenSlot). */
+template <typename T> struct TRuitkTweenCell final : IRuitkHookCell
 {
-	ERuiHookKind Kind;
+	ERuitkHookKind Kind;
 	T From{};
 	T To{};
 	T Current{};
 	double StartTime = 0.0;
 	float Duration = 0.25f;
 	bool bActive = false;
-	explicit TRuiTweenCell(ERuiHookKind InKind) : Kind(InKind) {}
-	virtual ERuiHookKind GetKind() const override { return Kind; }
-	RUI_HOOK_CELL_TYPE()
+	explicit TRuitkTweenCell(ERuitkHookKind InKind) : Kind(InKind) {}
+	virtual ERuitkHookKind GetKind() const override { return Kind; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
-namespace RUI
+namespace Ruitk
 {
-	inline float ApplyEase(ERuiEase Ease, float T)
+	inline float ApplyEase(ERuitkEase Ease, float T)
 	{
 		switch (Ease)
 		{
-		case ERuiEase::Linear:
+		case ERuitkEase::Linear:
 			return T;
-		case ERuiEase::In:
+		case ERuitkEase::In:
 			return T * T * T;
-		case ERuiEase::Out:
+		case ERuitkEase::Out:
 		{
 			const float Inv = 1.0f - T;
 			return 1.0f - Inv * Inv * Inv;
 		}
-		case ERuiEase::InOut:
+		case ERuitkEase::InOut:
 			return T < 0.5f ? 4.0f * T * T * T : 1.0f - FMath::Pow(-2.0f * T + 2.0f, 3.0f) / 2.0f;
 		}
 		return T;
@@ -337,22 +337,22 @@ namespace RUI
 
 	/** The process-wide UseSfx sink: the game registers HOW a bus plays (world context,
 	 *  audio assets). Unset = quiet no-op. */
-	RUITKCORE_API void SetSfxSink(TFunction<void(FName Bus, const FRuiValue& Payload)> Sink);
-	RUITKCORE_API void DispatchSfx(FName Bus, const FRuiValue& Payload);
-} // namespace RUI
+	RUITKCORE_API void SetSfxSink(TFunction<void(FName Bus, const FRuitkValue& Payload)> Sink);
+	RUITKCORE_API void DispatchSfx(FName Bus, const FRuitkValue& Payload);
+} // namespace Ruitk
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Effects (recorded during render, run during commit — reconciler drives)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-using FRuiEffectCleanup = TFunction<void()>;
+using FRuitkEffectCleanup = TFunction<void()>;
 
-struct FRuiEffect
+struct FRuitkEffect
 {
-	TFunction<FRuiEffectCleanup()> Factory;
-	FRuiDeps Deps;	   // this render's deps
-	FRuiDeps LastDeps; // deps at last run (unset = never ran)
-	FRuiEffectCleanup Cleanup;
+	TFunction<FRuitkEffectCleanup()> Factory;
+	FRuitkDeps Deps;	   // this render's deps
+	FRuitkDeps LastDeps; // deps at last run (unset = never ran)
+	FRuitkEffectCleanup Cleanup;
 	bool bEverRan = false;
 };
 
@@ -364,20 +364,20 @@ struct FRuiEffect
  * The value+setter pair's setter half: a small copyable handle {weak state, slot}. Safe
  * after teardown (weak + slot-count guard — the family's [audit C3]); stable identity ==
  * the (state, slot) pair, so passing setters as props stays memo-friendly.
- * Implementation lives with FRuiComponentState (needs its definition).
+ * Implementation lives with FRuitkComponentState (needs its definition).
  */
-template <typename T> class TRuiSetter
+template <typename T> class TRuitkSetter
 {
 public:
-	TRuiSetter() = default;
-	TRuiSetter(TWeakPtr<FRuiComponentState> InState, int32 InSlot) : State(MoveTemp(InState)), Slot(InSlot) {}
+	TRuitkSetter() = default;
+	TRuitkSetter(TWeakPtr<FRuitkComponentState> InState, int32 InSlot) : State(MoveTemp(InState)), Slot(InSlot) {}
 
 	void operator()(T NewValue) const;					   // set value
 	void operator()(TFunction<T(const T&)> Updater) const; // functional update
 
-	bool operator==(const TRuiSetter& Other) const { return Slot == Other.Slot && State == Other.State; }
+	bool operator==(const TRuitkSetter& Other) const { return Slot == Other.Slot && State == Other.State; }
 
 private:
-	TWeakPtr<FRuiComponentState> State;
+	TWeakPtr<FRuitkComponentState> State;
 	int32 Slot = INDEX_NONE;
 };

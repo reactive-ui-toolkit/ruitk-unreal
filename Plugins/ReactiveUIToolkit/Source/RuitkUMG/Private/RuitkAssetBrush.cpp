@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiAssetBrush.h"
+#include "RuitkAssetBrush.h"
 
 #include "UObject/GCObject.h"
 
@@ -9,7 +9,7 @@ namespace
 	/** Process-wide GC root: references the resource object of every LIVE asset brush. Brushes
 	 *  are tracked weakly, so when the props that owned a brush release it the entry is compacted
 	 *  and its asset is free to collect again — no leak, no dangling paint. */
-	class FRuiAssetBrushRoot : public FGCObject
+	class FRuitkAssetBrushRoot : public FGCObject
 	{
 	public:
 		void Track(const TSharedRef<FSlateBrush>& Brush) { Brushes.Add(Brush); }
@@ -44,7 +44,7 @@ namespace
 			}
 		}
 
-		virtual FString GetReferencerName() const override { return TEXT("RUI::Umg::AssetBrushRoot"); }
+		virtual FString GetReferencerName() const override { return TEXT("Ruitk::Umg::AssetBrushRoot"); }
 
 	private:
 		void Compact()
@@ -55,14 +55,14 @@ namespace
 		TArray<TWeakPtr<FSlateBrush>> Brushes;
 	};
 
-	FRuiAssetBrushRoot& BrushRoot()
+	FRuitkAssetBrushRoot& BrushRoot()
 	{
-		static FRuiAssetBrushRoot Root;
+		static FRuitkAssetBrushRoot Root;
 		return Root;
 	}
 } // namespace
 
-TSharedPtr<FSlateBrush> RUI::Umg::MakeAssetBrush(UObject* ResourceObject, FVector2D ImageSize, FLinearColor Tint,
+TSharedPtr<FSlateBrush> Ruitk::Umg::MakeAssetBrush(UObject* ResourceObject, FVector2D ImageSize, FLinearColor Tint,
 												 ESlateBrushDrawType::Type DrawAs)
 {
 	TSharedRef<FSlateBrush> Brush = MakeShared<FSlateBrush>();
@@ -74,7 +74,7 @@ TSharedPtr<FSlateBrush> RUI::Umg::MakeAssetBrush(UObject* ResourceObject, FVecto
 	return Brush;
 }
 
-int32 RUI::Umg::NumTrackedAssetBrushes()
+int32 Ruitk::Umg::NumTrackedAssetBrushes()
 {
 	return BrushRoot().NumLive();
 }

@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-// Epic interop, UObject side (Phase 6): URuiHostWidget (a Rui tree INSIDE a UMG/Blueprint
-// hierarchy — "our UI inside theirs"), RUI::Umg::UserWidget (a UMG widget INSIDE a Rui tree —
-// "theirs inside ours"), URuiWorldSubsystem (per-world mount surface with the teardown
+// Epic interop, UObject side (Phase 6): URuitkHostWidget (a Ruitk tree INSIDE a UMG/Blueprint
+// hierarchy — "our UI inside theirs"), Ruitk::Umg::UserWidget (a UMG widget INSIDE a Ruitk tree —
+// "theirs inside ours"), URuitkWorldSubsystem (per-world mount surface with the teardown
 // contract: PIE end / level travel unmounts every root), and UseField over FieldNotify
 // ("their data feeding ours" — the engine FieldNotification module, plugin-independent).
 public class RuitkUMG : ModuleRules

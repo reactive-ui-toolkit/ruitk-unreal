@@ -5,12 +5,12 @@
 	"Description": "Reactive UI Toolkit for Unreal — demo host project (gallery, automation tests, per-engine example project source).",
 	"Modules": [
 		{
-			"Name": "RuiDemo",
+			"Name": "RuitkDemo",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "RuiHostTests",
+			"Name": "RuitkHostTests",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}

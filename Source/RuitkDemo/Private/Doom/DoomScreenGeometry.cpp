@@ -15,7 +15,7 @@
 
 #include "Engine/Texture2D.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// The original's private near-plane constant for tracer clipping.
 	static constexpr float TRACER_NEAR = 0.15f;
@@ -712,4 +712,4 @@ namespace RuiDoom
 			Pickup.Tint = FLinearColor(0.95f, 0.85f, 0.2f, P.PickupFlash * 0.35f);
 		}
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

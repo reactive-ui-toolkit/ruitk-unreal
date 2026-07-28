@@ -1,11 +1,11 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // The D-22(c)-(d) full-file contract harness: fixtures under
-// Source/RuiHostTests/ContractFixtures/ (EXCLUDED from the RUICompile sweep — FindAll skips
+// Source/RuitkHostTests/ContractFixtures/ (EXCLUDED from the RuitkCompile sweep — FindAll skips
 // ContractFixtures paths) compile through the real pipeline and byte-compare against
 // committed `.inl.expected` goldens; error fixtures pin their diagnostics via
-// `.diags.expected`. Regenerate with `-run=RUIContractDump`; gate with `--check` (CI) or the
-// ReactiveUI.Contract suite. Logic lives HERE so the commandlet and the suite cannot drift.
+// `.diags.expected`. Regenerate with `-run=RuitkContractDump`; gate with `--check` (CI) or the
+// Ruitk.Contract suite. Logic lives HERE so the commandlet and the suite cannot drift.
 
 #pragma once
 
@@ -24,7 +24,7 @@ struct RUITKTOOLCHAIN_API FUetkxContractResult
 class RUITKTOOLCHAIN_API FUetkxContract
 {
 public:
-	static FString DefaultFixtureDir(); // <Project>/Source/RuiHostTests/ContractFixtures
+	static FString DefaultFixtureDir(); // <Project>/Source/RuitkHostTests/ContractFixtures
 
 	/** Deterministic text form of a diagnostics list (one `CODE sev @off+len: message` line). */
 	static FString SerializeDiags(const struct FUetkxCompileOutput& Output);

@@ -1,26 +1,26 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiSignal.h"
+#include "RuitkSignal.h"
 
 namespace
 {
-	TMap<FName, TSharedPtr<FRuiSignalBase>>& SignalRegistry()
+	TMap<FName, TSharedPtr<FRuitkSignalBase>>& SignalRegistry()
 	{
-		static TMap<FName, TSharedPtr<FRuiSignalBase>> Registry;
+		static TMap<FName, TSharedPtr<FRuitkSignalBase>> Registry;
 		return Registry;
 	}
 } // namespace
 
-namespace RUI
+namespace Ruitk
 {
-	TSharedPtr<FRuiSignalBase>* FindOrAddSignalSlot(FName Key)
+	TSharedPtr<FRuitkSignalBase>* FindOrAddSignalSlot(FName Key)
 	{
 		return &SignalRegistry().FindOrAdd(Key);
 	}
 
-	TSharedPtr<FRuiSignalBase> TryGetSignal(FName Key)
+	TSharedPtr<FRuitkSignalBase> TryGetSignal(FName Key)
 	{
-		if (const TSharedPtr<FRuiSignalBase>* Found = SignalRegistry().Find(Key))
+		if (const TSharedPtr<FRuitkSignalBase>* Found = SignalRegistry().Find(Key))
 		{
 			return *Found;
 		}
@@ -36,4 +36,4 @@ namespace RUI
 	{
 		SignalRegistry().Empty();
 	}
-} // namespace RUI
+} // namespace Ruitk

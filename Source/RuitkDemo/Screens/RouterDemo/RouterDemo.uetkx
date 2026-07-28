@@ -2,12 +2,12 @@ import { RouterHome } from "./components/RouterHome/RouterHome"
 import { RouterUser } from "./components/RouterUser/RouterUser"
 
 // The docs' Router sample, live: a Router owns an in-memory history; Routes
-// renders the best match for the current location. Routes are data (FRuiRoute),
-// not tags — the Router mounts as an expression child (the RUI:: structural API).
-export FRuiNode RouterDemo() {
-	TArray<RUI::FRuiRoute> RouteList;
-	RouteList.Add(RUI::FRuiRoute{ TEXT("/"), RouterHome() });
-	RouteList.Add(RUI::FRuiRoute{ TEXT("/users/:id"), RouterUser() });
+// renders the best match for the current location. Routes are data (FRuitkRoute),
+// not tags — the Router mounts as an expression child (the Ruitk:: structural API).
+export FRuitkNode RouterDemo() {
+	TArray<Ruitk::FRuitkRoute> RouteList;
+	RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/"), RouterHome() });
+	RouteList.Add(Ruitk::FRuitkRoute{ TEXT("/users/:id"), RouterUser() });
 
 	return (
 		<Border
@@ -23,7 +23,7 @@ export FRuiNode RouterDemo() {
 					ColorAndOpacity={ FLinearColor(0.7f, 0.7f, 0.8f) }
 					Font.Size={ 11.0f } />
 				<Spacer Size={ FVector2D(1.0f, 8.0f) } />
-				{ RUI::Router({ RUI::Routes(MoveTemp(RouteList)) }, /*InitialPath*/ TEXT("/")) }
+				{ Ruitk::Router({ Ruitk::Routes(MoveTemp(RouteList)) }, /*InitialPath*/ TEXT("/")) }
 			</VerticalBox>
 		</Border>
 	);

@@ -11,19 +11,19 @@ import { DoomMinimap } from "./components/DoomMinimap/DoomMinimap"
 // order = child order: the eleven @for passes emit in painter's order, stable within a pass;
 // occlusion was already decided by the geometry builders. The 160-column framebuffer runs
 // at C::VIEWPORT_W × C::VIEWPORT_H with the HUD strip below, exactly like the siblings.
-export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnBackToMenu = FRuiCallback()) {
+export FRuitkNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuitkCallback OnBackToMenu = FRuitkCallback()) {
 	// Local level state so LEVEL COMPLETE → "Next level" can advance without the menu; the
 	// shell remounts this screen per START (keyed), so the prop seed is always fresh.
 	auto [ActiveLevel, SetActiveLevel] = UseState<int32>(Level);
 	auto [RestartVersion, SetRestartVersion] = UseState<int32>(0);
 
-	auto View = RuiDoom::UseDoomGame(ActiveLevel, Diff, RestartVersion);
-	const RuiDoom::FGameState* St = View.State;
-	const RuiDoom::FDoomFrameGeometry* G = View.Geometry;
+	auto View = RuitkDoom::UseDoomGame(ActiveLevel, Diff, RestartVersion);
+	const RuitkDoom::FGameState* St = View.State;
+	const RuitkDoom::FDoomFrameGeometry* G = View.Geometry;
 
-	const float ViewportW = static_cast<float>(RuiDoom::C::VIEWPORT_W);
-	const float ViewportH = static_cast<float>(RuiDoom::C::VIEWPORT_H);
-	const float HudH = static_cast<float>(RuiDoom::C::HUD_HEIGHT);
+	const float ViewportW = static_cast<float>(RuitkDoom::C::VIEWPORT_W);
+	const float ViewportH = static_cast<float>(RuitkDoom::C::VIEWPORT_H);
+	const float HudH = static_cast<float>(RuitkDoom::C::HUD_HEIGHT);
 
 	// ScaleToFit letterboxes the fixed-res game into WHATEVER the demo area gives us — the
 	// siblings' windows ARE 800×590, so scaled-to-fit is the same feel. VAlign=bottom pins
@@ -39,7 +39,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 						 over the HUD and the letterbox (the Godot port's clip_contents: true). -->
 						<Box WidthOverride={ ViewportW } HeightOverride={ ViewportH } Clipping="clipToBounds">
 							<Canvas>
-								@for (const RuiDoom::FDoomQuad& Q : G->Sky) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->Sky) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -49,7 +49,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->FloorBackstop) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->FloorBackstop) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -59,7 +59,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->CeilingBands) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->CeilingBands) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -69,7 +69,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->FloorBands) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->FloorBands) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -79,7 +79,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->FloorRims) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->FloorRims) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -89,7 +89,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->ExtraSegs) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->ExtraSegs) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -99,7 +99,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->RiserRims) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->RiserRims) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -109,7 +109,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->Walls) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->Walls) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -119,7 +119,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->Sprites) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->Sprites) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -129,7 +129,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->Tracers) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->Tracers) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -141,7 +141,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											Slot.Size={ Q.Size } />
 									);
 								}
-								@for (const RuiDoom::FDoomQuad& Q : G->Overlay) {
+								@for (const RuitkDoom::FDoomQuad& Q : G->Overlay) {
 									return (
 										<Image
 											key={ Q.Key }
@@ -162,7 +162,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 							return (
 								<Box Slot.HAlign="left" Slot.VAlign="top" Slot.Padding="8,8,0,0" key="fps">
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("FPS {}"), FMath::RoundToInt(View.Fps)) }
+										Text={ Ruitk::Fmt(TEXT("FPS {}"), FMath::RoundToInt(View.Fps)) }
 										Font.Size={ 16.0f }
 										ColorAndOpacity={ FLinearColor(1.0f, 0.95f, 0.4f, 1.0f) } />
 								</Box>
@@ -233,12 +233,12 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 											ColorAndOpacity={ FLinearColor(0.60f, 0.95f, 0.40f, 1.0f) }
 											Justification="center" />
 										<TextBlock
-											Text={ RUI::Fmt(TEXT("Kills {} / {}   ·   Score {}"), St->KillCount, St->KillTotal, St->Score) }
+											Text={ Ruitk::Fmt(TEXT("Kills {} / {}   ·   Score {}"), St->KillCount, St->KillTotal, St->Score) }
 											Justification="center"
 											ColorAndOpacity={ FLinearColor(0.85f, 0.85f, 0.70f, 1.0f) } />
 										<Spacer Size={ FVector2D(1.0f, 14.0f) } />
 										<HorizontalBox Slot.HAlign="center">
-											@if (ActiveLevel < RuiDoom::LEVEL_COUNT) {
+											@if (ActiveLevel < RuitkDoom::LEVEL_COUNT) {
 												return (
 													<Button
 														key="next"
@@ -270,7 +270,7 @@ export FRuiNode DoomGameScreen(int32 Level = 1, int32 Diff = 1, FRuiCallback OnB
 						Score={ St->Score }
 						KillCount={ St->KillCount }
 						KillTotal={ St->KillTotal }
-						MapName={ RuiDoom::LevelName(ActiveLevel) }
+						MapName={ RuitkDoom::LevelName(ActiveLevel) }
 						FaceState={ St->Player.FaceState } />
 				</VerticalBox>
 			</Box>

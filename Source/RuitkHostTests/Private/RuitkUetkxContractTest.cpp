@@ -1,9 +1,9 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Contract — the D-22 full-file harness: every ContractFixtures/*.uetkx compiles
+// Ruitk.Contract — the D-22 full-file harness: every ContractFixtures/*.uetkx compiles
 // through the real pipeline and must match its committed golden byte-for-byte (normalized
 // line endings). A codegen-shape change without regenerated goldens fails here AND in the
-// RUIContractDump -check CI lane. Also pins that the RUICompile sweep NEVER touches fixtures.
+// RuitkContractDump -check CI lane. Also pins that the RuitkCompile sweep NEVER touches fixtures.
 
 #include "Misc/AutomationTest.h"
 #include "Misc/Paths.h"
@@ -12,9 +12,9 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxContractTest, "ReactiveUI.Contract",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxContractTest, "Ruitk.Contract",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxContractTest::RunTest(const FString&)
+bool FRuitkUetkxContractTest::RunTest(const FString&)
 {
 	const FUetkxContractResult Result = FUetkxContract::Run(FUetkxContract::DefaultFixtureDir(), /*bWrite*/ false);
 	TestTrue(TEXT("harness has fixtures"), Result.Total >= 4);

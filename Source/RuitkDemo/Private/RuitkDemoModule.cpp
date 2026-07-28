@@ -2,4 +2,4 @@
 
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, RuiDemo, "RuiDemo");
+IMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, RuitkDemo, "RuitkDemo");

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Acceptance — the coherence gate: one suite that walks the WHOLE shipped chain
+// Ruitk.Acceptance — the coherence gate: one suite that walks the WHOLE shipped chain
 // end to end and fails loudly if any seam between subsystems drifts. Each numbered section
 // mirrors an item on plans/archive/OWNER_ACCEPTANCE_CHECKLIST.md — this suite is the headless half;
 // the checklist is the interactive half (PIE, HMR-in-editor, IDE extensions).
@@ -12,12 +12,12 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
-#include "RuiDemoScreens.h"
-#include "RuiNode.h"
-#include "RuiReconciler.h"
-#include "RuiRoot.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
+#include "RuitkDemoScreens.h"
+#include "RuitkNode.h"
+#include "RuitkReconciler.h"
+#include "RuitkRoot.h"
 #include "UetkxCodegen.h"
 #include "UetkxContract.h"
 #include "UetkxDriver.h"
@@ -48,18 +48,18 @@ namespace AcceptanceTest
 
 	// A stateful component standing in for a live HMR-refreshed root: its UseState count is heap-resident,
 	// so an HmrRefreshAll (what a Live Coding patch triggers) must re-render it WITHOUT resetting the count.
-	static TRuiSetter<int32> GRefreshCounterSetter;
-	static FRuiNodeArray RefreshCounter(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static TRuitkSetter<int32> GRefreshCounterSetter;
+	static FRuitkNodeArray RefreshCounter(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		auto [Count, SetCount] = Ctx.UseState<int32>(0);
 		GRefreshCounterSetter = SetCount;
-		return {RUI::TextBlock(FString::Printf(TEXT("count=%d"), Count))};
+		return {Ruitk::TextBlock(FString::Printf(TEXT("count=%d"), Count))};
 	}
 } // namespace AcceptanceTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiAcceptanceTest, "ReactiveUI.Acceptance",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkAcceptanceTest, "Ruitk.Acceptance",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiAcceptanceTest::RunTest(const FString&)
+bool FRuitkAcceptanceTest::RunTest(const FString&)
 {
 	// 1. The committed generated code matches its sources (the CI drift gate, content-based).
 	{
@@ -93,11 +93,11 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 
 	// 3. Every gallery screen self-registered and mounts through the named-factory seam.
 	{
-		for (const FName& Name : RuiDemo::GetCompiledScreenNames())
+		for (const FName& Name : RuitkDemo::GetCompiledScreenNames())
 		{
-			TestTrue(FString::Printf(TEXT("3. '%s' registered"), *Name.ToString()), RUI::HasNamedFactory(Name));
+			TestTrue(FString::Printf(TEXT("3. '%s' registered"), *Name.ToString()), Ruitk::HasNamedFactory(Name));
 		}
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("HelloWorld"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("HelloWorld"))));
 		Root->FlushSync();
 		TestTrue(TEXT("3. compiled screen renders"),
 				 AcceptanceTest::ContainsText(Root->GetWidget().Get(), TEXT("Hello, world!")));
@@ -122,12 +122,12 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 	// 5. The HMR v2 refresh seam re-renders every live root IN PLACE with state preserved (headless half
 	//    of the save→patch→screen chain). The interpreter is deleted (D-HMR-8): in the editor a Live
 	//    Coding patch swaps the compiled code and fires the patch-complete delegate, which drives exactly
-	//    this — FRuiReconciler::ForEachLive → HmrRefreshAll → FlushSync. Because hook cells are heap-
+	//    this — FRuitkReconciler::ForEachLive → HmrRefreshAll → FlushSync. Because hook cells are heap-
 	//    resident, a code patch cannot reset them; this asserts that invariant without the compiler.
 	{
-		RUI::RegisterNamedFactory(FName(TEXT("RefreshCounterAcc")),
-								  []() { return RUI::FC(&AcceptanceTest::RefreshCounter); });
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("RefreshCounterAcc"))));
+		Ruitk::RegisterNamedFactory(FName(TEXT("RefreshCounterAcc")),
+								  []() { return Ruitk::FC(&AcceptanceTest::RefreshCounter); });
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("RefreshCounterAcc"))));
 		Root->FlushSync();
 		TestTrue(TEXT("5. counter mounts at 0"),
 				 AcceptanceTest::ContainsText(Root->GetWidget().Get(), TEXT("count=0")));
@@ -138,8 +138,8 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 
 		// Simulate the Live Coding patch-complete refresh (no code actually changed here).
 		int32 RefreshedRoots = 0;
-		FRuiReconciler::ForEachLive(
-			[&RefreshedRoots](FRuiReconciler& Reconciler)
+		FRuitkReconciler::ForEachLive(
+			[&RefreshedRoots](FRuitkReconciler& Reconciler)
 			{
 				Reconciler.HmrRefreshAll();
 				Reconciler.FlushSync();
@@ -157,7 +157,7 @@ bool FRuiAcceptanceTest::RunTest(const FString&)
 		TestTrue(TEXT("6. schema exports"), Schema.Contains(TEXT("\"elements\"")) && Schema.Contains(TEXT("Button")));
 		// the SHIPPED copy in the LSP must not drift from the live export. `brushNames` is the
 		// ENVIRONMENT'S enumerated FCoreStyle set (R13) — the automation process registers a
-		// different style universe than the editor that ran RUIExportSchema, so that one field
+		// different style universe than the editor that ran RuitkExportSchema, so that one field
 		// is compared for PRESENCE, not content; everything static must match byte-for-byte.
 		FString Shipped;
 		if (FFileHelper::LoadFileToString(

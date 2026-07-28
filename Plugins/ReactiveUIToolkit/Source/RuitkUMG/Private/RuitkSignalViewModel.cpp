@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiSignalViewModel.h"
+#include "RuitkSignalViewModel.h"
 
-const ::UE::FieldNotification::FFieldId URuiSignalViewModel::FFieldNotificationClassDescriptor::Int(TEXT("Int"), 0);
-const ::UE::FieldNotification::FFieldId URuiSignalViewModel::FFieldNotificationClassDescriptor::Float(TEXT("Float"), 1);
-const ::UE::FieldNotification::FFieldId URuiSignalViewModel::FFieldNotificationClassDescriptor::Bool(TEXT("Bool"), 2);
-const ::UE::FieldNotification::FFieldId URuiSignalViewModel::FFieldNotificationClassDescriptor::Text(TEXT("Text"), 3);
+const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int(TEXT("Int"), 0);
+const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Float(TEXT("Float"), 1);
+const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Bool(TEXT("Bool"), 2);
+const ::UE::FieldNotification::FFieldId URuitkSignalViewModel::FFieldNotificationClassDescriptor::Text(TEXT("Text"), 3);
 
-void URuiSignalViewModel::FFieldNotificationClassDescriptor::ForEachField(
+void URuitkSignalViewModel::FFieldNotificationClassDescriptor::ForEachField(
 	const UClass*, TFunctionRef<bool(::UE::FieldNotification::FFieldId)> Callback) const
 {
 	if (Callback(Int) && Callback(Float) && Callback(Bool))
@@ -16,7 +16,7 @@ void URuiSignalViewModel::FFieldNotificationClassDescriptor::ForEachField(
 	}
 }
 
-void URuiSignalViewModel::SetInt(int32 InValue)
+void URuitkSignalViewModel::SetInt(int32 InValue)
 {
 	if (Int != InValue)
 	{
@@ -25,7 +25,7 @@ void URuiSignalViewModel::SetInt(int32 InValue)
 	}
 }
 
-void URuiSignalViewModel::SetFloat(float InValue)
+void URuitkSignalViewModel::SetFloat(float InValue)
 {
 	if (Float != InValue)
 	{
@@ -34,7 +34,7 @@ void URuiSignalViewModel::SetFloat(float InValue)
 	}
 }
 
-void URuiSignalViewModel::SetBool(bool InValue)
+void URuitkSignalViewModel::SetBool(bool InValue)
 {
 	if (Bool != InValue)
 	{
@@ -43,7 +43,7 @@ void URuiSignalViewModel::SetBool(bool InValue)
 	}
 }
 
-void URuiSignalViewModel::SetText(const FText& InValue)
+void URuitkSignalViewModel::SetText(const FText& InValue)
 {
 	if (!Text.EqualTo(InValue))
 	{
@@ -52,26 +52,26 @@ void URuiSignalViewModel::SetText(const FText& InValue)
 	}
 }
 
-void URuiSignalViewModel::Set(const FRuiValue& Value)
+void URuitkSignalViewModel::Set(const FRuitkValue& Value)
 {
 	switch (Value.Kind)
 	{
-	case FRuiValue::EKind::Bool:
+	case FRuitkValue::EKind::Bool:
 		SetBool(Value.BoolValue);
 		break;
-	case FRuiValue::EKind::Int:
+	case FRuitkValue::EKind::Int:
 		SetInt(static_cast<int32>(Value.IntValue));
 		break;
-	case FRuiValue::EKind::Float:
+	case FRuitkValue::EKind::Float:
 		SetFloat(static_cast<float>(Value.FloatValue));
 		break;
-	case FRuiValue::EKind::Text:
+	case FRuitkValue::EKind::Text:
 		SetText(Value.TextValue);
 		break;
-	case FRuiValue::EKind::String:
+	case FRuitkValue::EKind::String:
 		SetText(FText::FromString(Value.StringValue));
 		break;
-	case FRuiValue::EKind::Name:
+	case FRuitkValue::EKind::Name:
 		SetText(FText::FromName(Value.NameValue));
 		break;
 	default:
@@ -79,36 +79,36 @@ void URuiSignalViewModel::Set(const FRuiValue& Value)
 	}
 }
 
-FDelegateHandle URuiSignalViewModel::AddFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
+FDelegateHandle URuitkSignalViewModel::AddFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
 																  FFieldValueChangedDelegate InNewDelegate)
 {
 	return Delegates.Add(this, InFieldId, MoveTemp(InNewDelegate));
 }
 
-bool URuiSignalViewModel::RemoveFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
+bool URuitkSignalViewModel::RemoveFieldValueChangedDelegate(::UE::FieldNotification::FFieldId InFieldId,
 														  FDelegateHandle InHandle)
 {
 	return Delegates.RemoveFrom(this, InFieldId, InHandle).bRemoved;
 }
 
-int32 URuiSignalViewModel::RemoveAllFieldValueChangedDelegates(FDelegateUserObjectConst InUserObject)
+int32 URuitkSignalViewModel::RemoveAllFieldValueChangedDelegates(FDelegateUserObjectConst InUserObject)
 {
 	return Delegates.RemoveAll(this, InUserObject).RemoveCount;
 }
 
-int32 URuiSignalViewModel::RemoveAllFieldValueChangedDelegates(::UE::FieldNotification::FFieldId InFieldId,
+int32 URuitkSignalViewModel::RemoveAllFieldValueChangedDelegates(::UE::FieldNotification::FFieldId InFieldId,
 															   FDelegateUserObjectConst InUserObject)
 {
 	return Delegates.RemoveAll(this, InFieldId, InUserObject).RemoveCount;
 }
 
-const ::UE::FieldNotification::IClassDescriptor& URuiSignalViewModel::GetFieldNotificationDescriptor() const
+const ::UE::FieldNotification::IClassDescriptor& URuitkSignalViewModel::GetFieldNotificationDescriptor() const
 {
 	static FFieldNotificationClassDescriptor Descriptor;
 	return Descriptor;
 }
 
-void URuiSignalViewModel::BroadcastFieldValueChanged(::UE::FieldNotification::FFieldId InFieldId)
+void URuitkSignalViewModel::BroadcastFieldValueChanged(::UE::FieldNotification::FFieldId InFieldId)
 {
 	Delegates.Broadcast(this, InFieldId);
 }

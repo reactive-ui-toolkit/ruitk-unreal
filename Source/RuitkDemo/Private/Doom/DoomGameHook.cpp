@@ -8,10 +8,10 @@
 #include "Framework/Application/SlateApplication.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
-#include "RuiContext.h"
-#include "RuiDemoSupport.h"
+#include "RuitkContext.h"
+#include "RuitkDemoSupport.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	namespace
 	{
@@ -41,7 +41,7 @@ namespace RuiDoom
 
 		APlayerController* DemoPlayerController()
 		{
-			UWorld* World = RuiDemo::GetDemoWorld();
+			UWorld* World = RuitkDemo::GetDemoWorld();
 			return World != nullptr ? World->GetFirstPlayerController() : nullptr;
 		}
 
@@ -62,7 +62,7 @@ namespace RuiDoom
 			}
 			else
 			{
-				// The gallery's UI-friendly mode (matches ARuiDemoGameMode::BeginPlay).
+				// The gallery's UI-friendly mode (matches ARuitkDemoGameMode::BeginPlay).
 				PC->bShowMouseCursor = true;
 				FInputModeGameAndUI Mode;
 				Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -160,9 +160,9 @@ namespace RuiDoom
 		}
 	} // namespace
 
-	FDoomGameView UseDoomGame(FRuiContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion)
+	FDoomGameView UseDoomGame(FRuitkContext& Ctx, int32 Level, int32 Diff, int32 RestartVersion)
 	{
-		const TSharedRef<TRuiRef<TSharedPtr<FDoomSession>>>& Box = Ctx.UseRef<TSharedPtr<FDoomSession>>();
+		const TSharedRef<TRuitkRef<TSharedPtr<FDoomSession>>>& Box = Ctx.UseRef<TSharedPtr<FDoomSession>>();
 		auto [Version, SetVersion] = Ctx.UseState<int32>(0);
 
 		if (!Box->Current.IsValid())
@@ -187,9 +187,9 @@ namespace RuiDoom
 		// The loop: one FTSTicker for the component lifetime; per-frame sim + geometry + one
 		// coalesced re-render via the version bump (a functional update — no stale captures).
 		TWeakPtr<FDoomSession> WeakSession = Session;
-		TRuiSetter<int32> Bump = SetVersion;
+		TRuitkSetter<int32> Bump = SetVersion;
 		Ctx.UseEffect(
-			[WeakSession, Bump]() -> FRuiEffectCleanup
+			[WeakSession, Bump]() -> FRuitkEffectCleanup
 			{
 				TSharedPtr<FDoomSession> Pinned = WeakSession.Pin();
 				if (Pinned.IsValid())
@@ -226,7 +226,7 @@ namespace RuiDoom
 					}
 				};
 			},
-			RUI::Deps());
+			Ruitk::Deps());
 
 		FDoomGameView View;
 		View.State = &Session->State;
@@ -236,4 +236,4 @@ namespace RuiDoom
 		View.Fps = Session->FpsSmoothed;
 		return View;
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

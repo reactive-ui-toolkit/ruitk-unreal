@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // Port of the Godot sibling's tests/doom_game_test.gd (the 179-check Doom regression suite)
-// against the RuiDoom C++ port. Sections print via AddInfo so hangs name their culprit
+// against the RuitkDoom C++ port. Sections print via AddInfo so hangs name their culprit
 // (house rule). Check-for-check faithful — dt values, seeds, and expected numbers are copied
 // digit-for-digit — with these documented adaptations:
 //   - GDScript called game_logic.gd's INTERNAL functions directly (update_player, try_use,
@@ -24,8 +24,8 @@
 //   - NOT ported (4 checks): _test_integration_tick (2) and _test_menu_and_switch (2) mount
 //     the Godot reconciler + DoomInputState singleton + scene-tree physics_frame wiring —
 //     Godot-host plumbing with no pure-logic equivalent; the Unreal screen-mount lives with
-//     the ReactiveUI.Demos suite once the Doom screen wave lands. Replaced by 7 pure-logic
-//     level-exit / boss-gate checks (ReactiveUI.Doom.Exit) the GDScript suite covered only
+//     the Ruitk.Demos suite once the Doom screen wave lands. Replaced by 7 pure-logic
+//     level-exit / boss-gate checks (Ruitk.Doom.Exit) the GDScript suite covered only
 //     indirectly via any_boss_alive. Total here: 182 checks vs the GDScript 179.
 
 #include "Doom/DoomTypes.h" // FIRST — #undefs the engine's MAX_PITCH macro leak
@@ -48,9 +48,9 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
-using namespace RuiDoom;
+using namespace RuitkDoom;
 
 namespace DoomTestUtil
 {
@@ -103,8 +103,8 @@ namespace DoomTestUtil
 // _test_types (7 checks)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomTypesTest, "ReactiveUI.Doom.Types", RUI_TEST_FLAGS)
-bool FRuiDoomTypesTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomTypesTest, "Ruitk.Doom.Types", RUITK_TEST_FLAGS)
+bool FRuitkDoomTypesTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[types] 3x3 smoke map + sector conversion + state wiring"));
 	FMapDef Map;
@@ -133,8 +133,8 @@ bool FRuiDoomTypesTest::RunTest(const FString&)
 // _test_textures (11 checks)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomTexturesTest, "ReactiveUI.Doom.Textures", RUI_TEST_FLAGS)
-bool FRuiDoomTexturesTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomTexturesTest, "Ruitk.Doom.Textures", RUITK_TEST_FLAGS)
+bool FRuitkDoomTexturesTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[textures] EnsureBuilt + inventories"));
 	FDoomTextures::EnsureBuilt();
@@ -208,8 +208,8 @@ bool FRuiDoomTexturesTest::RunTest(const FString&)
 // _test_maps (48 checks)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomMapsTest, "ReactiveUI.Doom.Maps", RUI_TEST_FLAGS)
-bool FRuiDoomMapsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomMapsTest, "Ruitk.Doom.Maps", RUITK_TEST_FLAGS)
+bool FRuitkDoomMapsTest::RunTest(const FString&)
 {
 	const TCHAR* ExpectedNames[] = {
 		TEXT("E1M1: Hangar"),  TEXT("E1M2: Toxin Refinery"), TEXT("E1M3: Phobos Lab"),
@@ -267,8 +267,8 @@ bool FRuiDoomMapsTest::RunTest(const FString&)
 // _test_game_logic — RNG determinism + classification (9 checks)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomDeterminismTest, "ReactiveUI.Doom.Determinism", RUI_TEST_FLAGS)
-bool FRuiDoomDeterminismTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomDeterminismTest, "Ruitk.Doom.Determinism", RUITK_TEST_FLAGS)
+bool FRuitkDoomDeterminismTest::RunTest(const FString&)
 {
 	AddInfo(TEXT("[determinism] shared LCG"));
 	FGameState StA;
@@ -298,8 +298,8 @@ bool FRuiDoomDeterminismTest::RunTest(const FString&)
 // _test_screen_logic (12) = 50 checks
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomFrameTest, "ReactiveUI.Doom.Frame", RUI_TEST_FLAGS)
-bool FRuiDoomFrameTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomFrameTest, "Ruitk.Doom.Frame", RUITK_TEST_FLAGS)
+bool FRuitkDoomFrameTest::RunTest(const FString&)
 {
 	for (int32 Level = 1; Level <= LEVEL_COUNT; Level++)
 	{
@@ -446,8 +446,8 @@ bool FRuiDoomFrameTest::RunTest(const FString&)
 // zero-distance barrel explosion (54 damage at Normal) through the public DamageMobj().
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomMovementTest, "ReactiveUI.Doom.Movement", RUI_TEST_FLAGS)
-bool FRuiDoomMovementTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomMovementTest, "Ruitk.Doom.Movement", RUITK_TEST_FLAGS)
+bool FRuitkDoomMovementTest::RunTest(const FString&)
 {
 	using namespace DoomTestUtil;
 
@@ -565,8 +565,8 @@ bool FRuiDoomMovementTest::RunTest(const FString&)
 // Level 1 has a plain door at tile (24,37) and a locked DOOR_RED at (9,27).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomDoorsTest, "ReactiveUI.Doom.Doors", RUI_TEST_FLAGS)
-bool FRuiDoomDoorsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomDoorsTest, "Ruitk.Doom.Doors", RUITK_TEST_FLAGS)
+bool FRuitkDoomDoorsTest::RunTest(const FString&)
 {
 	using namespace DoomTestUtil;
 
@@ -629,8 +629,8 @@ bool FRuiDoomDoorsTest::RunTest(const FString&)
 // _test_combat — damage_mobj / splash / fire_weapon / monster wake (15 checks)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomCombatTest, "ReactiveUI.Doom.Combat", RUI_TEST_FLAGS)
-bool FRuiDoomCombatTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomCombatTest, "Ruitk.Doom.Combat", RUITK_TEST_FLAGS)
+bool FRuitkDoomCombatTest::RunTest(const FString&)
 {
 	using namespace DoomTestUtil;
 
@@ -733,8 +733,8 @@ bool FRuiDoomCombatTest::RunTest(const FString&)
 // (UpdateMobj -> UpdatePickup -> TryGivePickup).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomPickupsTest, "ReactiveUI.Doom.Pickups", RUI_TEST_FLAGS)
-bool FRuiDoomPickupsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomPickupsTest, "Ruitk.Doom.Pickups", RUITK_TEST_FLAGS)
+bool FRuitkDoomPickupsTest::RunTest(const FString&)
 {
 	using namespace DoomTestUtil;
 
@@ -788,8 +788,8 @@ bool FRuiDoomPickupsTest::RunTest(const FString&)
 // suite only touched via any_boss_alive.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDoomExitTest, "ReactiveUI.Doom.Exit", RUI_TEST_FLAGS)
-bool FRuiDoomExitTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDoomExitTest, "Ruitk.Doom.Exit", RUITK_TEST_FLAGS)
+bool FRuitkDoomExitTest::RunTest(const FString&)
 {
 	using namespace DoomTestUtil;
 	const FInputCmd Idle;

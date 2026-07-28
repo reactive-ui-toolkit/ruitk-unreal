@@ -3,26 +3,26 @@
 // TD-012 tail — SSuggestionTextBox wrapper. OnShowingSuggestions delegates to ComputeSuggestions
 // (case-insensitive substring match over the candidate list); Text is controlled (D-16 caret rule).
 
-#include "RuiSuggestionTextBox.h"
+#include "RuitkSuggestionTextBox.h"
 
-#include "RuiElementAdapter.h"
+#include "RuitkElementAdapter.h"
 #include "Widgets/Input/SSuggestionTextBox.h"
 
-void SRuiSuggestionTextBox::Construct(const FArguments& InArgs)
+void SRuitkSuggestionTextBox::Construct(const FArguments& InArgs)
 {
 	// clang-format off
 	ChildSlot
 	[
 		SAssignNew(Box, SSuggestionTextBox)
 		.HintText(InArgs._HintText)
-		.OnShowingSuggestions(this, &SRuiSuggestionTextBox::HandleShowingSuggestions)
-		.OnTextChanged(this, &SRuiSuggestionTextBox::HandleTextChanged)
-		.OnTextCommitted(this, &SRuiSuggestionTextBox::HandleTextCommitted)
+		.OnShowingSuggestions(this, &SRuitkSuggestionTextBox::HandleShowingSuggestions)
+		.OnTextChanged(this, &SRuitkSuggestionTextBox::HandleTextChanged)
+		.OnTextCommitted(this, &SRuitkSuggestionTextBox::HandleTextCommitted)
 	];
 	// clang-format on
 }
 
-void SRuiSuggestionTextBox::SetText(const FText& InText)
+void SRuitkSuggestionTextBox::SetText(const FText& InText)
 {
 	// D-16 caret rule: compare against the widget's LIVE text so typing survives the round-trip.
 	if (Box.IsValid() && !Box->GetText().EqualTo(InText))
@@ -31,12 +31,12 @@ void SRuiSuggestionTextBox::SetText(const FText& InText)
 	}
 }
 
-FText SRuiSuggestionTextBox::GetText() const
+FText SRuitkSuggestionTextBox::GetText() const
 {
 	return Box.IsValid() ? Box->GetText() : FText::GetEmpty();
 }
 
-TArray<FString> SRuiSuggestionTextBox::ComputeSuggestions(const FString& Input) const
+TArray<FString> SRuitkSuggestionTextBox::ComputeSuggestions(const FString& Input) const
 {
 	TArray<FString> Out;
 	if (Input.IsEmpty())
@@ -53,24 +53,24 @@ TArray<FString> SRuiSuggestionTextBox::ComputeSuggestions(const FString& Input) 
 	return Out;
 }
 
-void SRuiSuggestionTextBox::HandleShowingSuggestions(const FString& Input, TArray<FString>& OutSuggestions)
+void SRuitkSuggestionTextBox::HandleShowingSuggestions(const FString& Input, TArray<FString>& OutSuggestions)
 {
 	OutSuggestions = ComputeSuggestions(Input);
 }
 
-void SRuiSuggestionTextBox::HandleTextChanged(const FText& InText)
+void SRuitkSuggestionTextBox::HandleTextChanged(const FText& InText)
 {
 	if (OnTextChangedCb.IsBound())
 	{
-		OnTextChangedCb.Execute(FRuiValue(InText));
+		OnTextChangedCb.Execute(FRuitkValue(InText));
 	}
 }
 
-void SRuiSuggestionTextBox::HandleTextCommitted(const FText& InText, ETextCommit::Type)
+void SRuitkSuggestionTextBox::HandleTextCommitted(const FText& InText, ETextCommit::Type)
 {
 	if (OnTextCommittedCb.IsBound())
 	{
-		OnTextCommittedCb.Execute(FRuiValue(InText));
+		OnTextCommittedCb.Execute(FRuitkValue(InText));
 	}
 }
 
@@ -78,23 +78,23 @@ void SRuiSuggestionTextBox::HandleTextCommitted(const FText& InText, ETextCommit
 // Adapter (Leaf)
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-class FRuiSuggestionTextBoxAdapter final : public IRuiElementAdapter
+class FRuitkSuggestionTextBoxAdapter final : public IRuitkElementAdapter
 {
 public:
-	virtual ERuiChildKind GetChildKind() const override { return ERuiChildKind::Leaf; }
+	virtual ERuitkChildKind GetChildKind() const override { return ERuitkChildKind::Leaf; }
 	virtual bool IsPoolable() const override { return false; }
 
-	virtual TSharedRef<SWidget> CreateWidget(const FRuiPropsBase& Props, const TSharedPtr<FRuiEventProxy>&) override
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props, const TSharedPtr<FRuitkEventProxy>&) override
 	{
-		const FRuiSuggestionTextBoxProps& P = static_cast<const FRuiSuggestionTextBoxProps&>(Props);
-		return SNew(SRuiSuggestionTextBox).HintText(P.HasHintText() ? P.HintText : FText::GetEmpty());
+		const FRuitkSuggestionTextBoxProps& P = static_cast<const FRuitkSuggestionTextBoxProps&>(Props);
+		return SNew(SRuitkSuggestionTextBox).HintText(P.HasHintText() ? P.HintText : FText::GetEmpty());
 	}
 
-	virtual void ApplyDiff(SWidget& Widget, const FRuiPropsBase* Old, const FRuiPropsBase& New) override
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) override
 	{
-		SRuiSuggestionTextBox& W = static_cast<SRuiSuggestionTextBox&>(Widget);
-		const FRuiSuggestionTextBoxProps& N = static_cast<const FRuiSuggestionTextBoxProps&>(New);
-		const FRuiSuggestionTextBoxProps* O = static_cast<const FRuiSuggestionTextBoxProps*>(Old);
+		SRuitkSuggestionTextBox& W = static_cast<SRuitkSuggestionTextBox&>(Widget);
+		const FRuitkSuggestionTextBoxProps& N = static_cast<const FRuitkSuggestionTextBoxProps&>(New);
+		const FRuitkSuggestionTextBoxProps* O = static_cast<const FRuitkSuggestionTextBoxProps*>(Old);
 		if (N.HasSuggestions() && (O == nullptr || !O->HasSuggestions() || !(N.Suggestions == O->Suggestions)))
 		{
 			W.SetSuggestionsList(N.Suggestions);
@@ -118,19 +118,19 @@ public:
 // Type, factory, registration
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	FRuiElementTypeId SuggestionTextBoxType()
+	FRuitkElementTypeId SuggestionTextBoxType()
 	{
-		return RUI::InternElementType(FName(TEXT("SuggestionTextBox")));
+		return Ruitk::InternElementType(FName(TEXT("SuggestionTextBox")));
 	}
 
-	FRuiNode SuggestionTextBox(FRuiSuggestionTextBoxProps Props, FRuiKey Key)
+	FRuitkNode SuggestionTextBox(FRuitkSuggestionTextBoxProps Props, FRuitkKey Key)
 	{
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = SuggestionTextBoxType();
-		Node.Props = MakeShared<FRuiSuggestionTextBoxProps>(MoveTemp(Props));
+		Node.Props = MakeShared<FRuitkSuggestionTextBoxProps>(MoveTemp(Props));
 		Node.Key = Key;
 		return Node;
 	}
@@ -139,7 +139,7 @@ namespace RUI::Slate
 	{
 		void RegisterSuggestionTextBoxAdapter()
 		{
-			RegisterAdapter(SuggestionTextBoxType(), MakeUnique<FRuiSuggestionTextBoxAdapter>());
+			RegisterAdapter(SuggestionTextBoxType(), MakeUnique<FRuitkSuggestionTextBoxAdapter>());
 		}
 	} // namespace Detail
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

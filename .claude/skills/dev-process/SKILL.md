@@ -26,12 +26,12 @@ description: The house development methodology for ReactiveUI-Unreal — the res
 
 1. **Compiles**: `Development Editor` builds clean (and the packaged target when packaging is in
    scope). Commands in `CLAUDE.md` / the `test-run` skill.
-2. **Markup drift gate** (Phase 3+): `-run=RUICompile -check` exits 0.
-3. **Suites green**: the affected `ReactiveUI.*` filters headless (NullRHI).
-4. **Boot check — never optional**: `Automation RunTests ReactiveUI.Boot`. Unit suites do NOT run
+2. **Markup drift gate** (Phase 3+): `-run=RuitkCompile -check` exits 0.
+3. **Suites green**: the affected `Ruitk.*` filters headless (NullRHI).
+4. **Boot check — never optional**: `Automation RunTests Ruitk.Boot`. Unit suites do NOT run
    `StartupModule()`/Slate registration — the exact analogue of the Godot rule "suites don't run
    `_enter_tree`".
-5. **A demo renders** when the change touches anything user-visible (`ReactiveUI.Demos` headless;
+5. **A demo renders** when the change touches anything user-visible (`Ruitk.Demos` headless;
    owner playtest for what headless can't see — the phase's Verify says which).
 6. A change isn't done until the checks that would catch its regression exist (new test
    demonstrably red→green once).

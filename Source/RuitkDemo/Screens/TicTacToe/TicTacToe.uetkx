@@ -1,4 +1,4 @@
-export FRuiNode TicTacToe() {
+export FRuitkNode TicTacToe() {
 	auto EmptyGrid = []() {
 		TArray<FString> G;
 		G.SetNum(9);
@@ -82,7 +82,7 @@ export FRuiNode TicTacToe() {
 							@if (!Winner.IsEmpty()) {
 								return (
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("Player {} is the winner"), Winner) }
+										Text={ Ruitk::Fmt(TEXT("Player {} is the winner"), Winner) }
 										Font.Size={ 14.0f }
 										ColorAndOpacity={ FLinearColor(0.6f, 1.0f, 0.6f) } />
 								);
@@ -95,7 +95,7 @@ export FRuiNode TicTacToe() {
 								);
 							} @else {
 								return (
-									<TextBlock Text={ RUI::Fmt(TEXT("Player turn: {}   (moves left: {})"), Turn, MovesLeft) } />
+									<TextBlock Text={ Ruitk::Fmt(TEXT("Player turn: {}   (moves left: {})"), Turn, MovesLeft) } />
 								);
 							}
 							<Spacer Size={ FVector2D(1.0f, 6.0f) } />

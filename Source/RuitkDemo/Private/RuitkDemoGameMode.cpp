@@ -1,18 +1,18 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiDemoGameMode.h"
+#include "RuitkDemoGameMode.h"
 
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
-#include "RuiDemoScreens.h"
-#include "RuiDemoSupport.h"
-#include "RuiRoot.h"
+#include "RuitkDemoScreens.h"
+#include "RuitkDemoSupport.h"
+#include "RuitkRoot.h"
 
-void ARuiDemoGameMode::BeginPlay()
+void ARuitkDemoGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	RuiDemo::SetDemoWorld(GetWorld()); // the interop screens' UMG embeds read this, not GWorld
-	Root = FRuiRoot::CreateInViewport(RuiDemo::GalleryRoot(), /*ZOrder*/ 10);
+	RuitkDemo::SetDemoWorld(GetWorld()); // the interop screens' UMG embeds read this, not GWorld
+	Root = FRuitkRoot::CreateInViewport(RuitkDemo::GalleryRoot(), /*ZOrder*/ 10);
 
 	// UI-friendly input: keep the cursor visible and never lock it to the viewport (PIE's
 	// default game input mode captures the mouse on click — the Shift+F1 annoyance).
@@ -26,13 +26,13 @@ void ARuiDemoGameMode::BeginPlay()
 	}
 }
 
-void ARuiDemoGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void ARuitkDemoGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (Root.IsValid())
 	{
 		Root->Unmount(); // before the world dies: cleanups + widget detach (D-17 order)
 		Root.Reset();
 	}
-	RuiDemo::SetDemoWorld(nullptr);
+	RuitkDemo::SetDemoWorld(nullptr);
 	Super::EndPlay(EndPlayReason);
 }

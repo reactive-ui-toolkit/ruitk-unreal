@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Widgets.* — contract coverage for the batch-2 widgets: right Slate type
+// Ruitk.Widgets.* — contract coverage for the batch-2 widgets: right Slate type
 // mounted, prop rows applied (via engine getters where they exist), events through the
 // real bound delegates, and the two D-16 controlled-input rules (editable-text caret
 // skip-when-equal, self-notifying setter skips).
 
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateHost.h"
-#include "SRuiCanvas.h"
+#include "RuitkContext.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateHost.h"
+#include "SRuitkCanvas.h"
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Widgets/Input/SSlider.h"
@@ -25,13 +25,13 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_WIDGET_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_WIDGET_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 namespace WidgetTest
 {
 	static TFunction<void(int32)> IntSetter;
 	static TSharedPtr<FString> Events;
-	static FRuiHostHandle CapturedNode;
+	static FRuitkHostHandle CapturedNode;
 
 	static void Reset()
 	{
@@ -40,7 +40,7 @@ namespace WidgetTest
 		CapturedNode.Reset();
 	}
 
-	static TSharedPtr<SWidget> RootChild(FRuiRoot& Root, int32 Index = 0)
+	static TSharedPtr<SWidget> RootChild(FRuitkRoot& Root, int32 Index = 0)
 	{
 		FChildren* Children = Root.GetWidget()->GetRootPanel()->GetChildren();
 		return Children->Num() > Index ? TSharedPtr<SWidget>(Children->GetChildAt(Index)) : nullptr;
@@ -49,45 +49,45 @@ namespace WidgetTest
 
 // ── layout leaves + containers: Border(Box(Spacer/Image/ProgressBar)) ─────────────────────
 
-static FRuiNodeArray WidgetsLayoutComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsLayoutComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Pct, SetPct] = Ctx.UseState<int32>(25);
 	WidgetTest::IntSetter = SetPct;
 
-	FRuiBorderProps BorderProps;
+	FRuitkBorderProps BorderProps;
 	BorderProps.SetPadding(FMargin(8.0f));
 	BorderProps.SetBorderBackgroundColor(FLinearColor::Red);
 	BorderProps.SetHAlign(FName(TEXT("center")));
 
-	FRuiBoxProps BoxProps;
+	FRuitkBoxProps BoxProps;
 	BoxProps.SetWidthOverride(240.0f);
 	BoxProps.SetHeightOverride(120.0f);
 
-	FRuiSpacerProps SpacerProps;
+	FRuitkSpacerProps SpacerProps;
 	SpacerProps.SetSize(FVector2D(10.0f, 20.0f));
 
-	FRuiImageProps ImageProps;
+	FRuitkImageProps ImageProps;
 	ImageProps.SetColorAndOpacity(FLinearColor::Green);
 	ImageProps.SetDesiredSizeOverride(FVector2D(32.0f, 32.0f));
 
-	FRuiProgressBarProps BarProps;
+	FRuitkProgressBarProps BarProps;
 	BarProps.SetPercent(Pct / 100.0f);
 
-	return {RUI::Slate::Border(
+	return {Ruitk::Slate::Border(
 		MoveTemp(BorderProps),
-		{RUI::Slate::Box(
+		{Ruitk::Slate::Box(
 			MoveTemp(BoxProps),
-			{RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {RUI::Slate::Spacer(MoveTemp(SpacerProps)),
-															  RUI::Slate::Image(MoveTemp(ImageProps)),
-															  RUI::Slate::ProgressBar(MoveTemp(BarProps))})})})};
+			{Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::Slate::Spacer(MoveTemp(SpacerProps)),
+															  Ruitk::Slate::Image(MoveTemp(ImageProps)),
+															  Ruitk::Slate::ProgressBar(MoveTemp(BarProps))})})})};
 }
-RUI_COMPONENT(WidgetsLayoutComp)
+RUITK_COMPONENT(WidgetsLayoutComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsLayoutTest, "ReactiveUI.Widgets.Layout", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsLayoutTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsLayoutTest, "Ruitk.Widgets.Layout", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsLayoutTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsLayoutComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsLayoutComp));
 	TSharedPtr<SWidget> BorderW = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("border mounted"), BorderW.IsValid()))
 	{
@@ -124,29 +124,29 @@ bool FRuiWidgetsLayoutTest::RunTest(const FString&)
 
 // ── controlled editable text: the D-16 caret rule ─────────────────────────────────────────
 
-static FRuiNodeArray WidgetsEditComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsEditComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Gen, SetGen] = Ctx.UseState<int32>(0);
 	WidgetTest::IntSetter = SetGen;
 	TSharedPtr<FString> Log = WidgetTest::Events;
 
-	FRuiEditableTextBoxProps Props;
+	FRuitkEditableTextBoxProps Props;
 	Props.SetText(FText::FromString(Gen == 0 ? TEXT("alpha") : TEXT("beta")));
 	Props.SetHintText(FText::FromString(TEXT("type here")));
 	Props.SetOnTextChanged(
-		FRuiCallback::Create([Log](const FRuiValue& V) { *Log += TEXT("chg:") + V.TextValue.ToString() + TEXT(";"); }));
-	Props.SetOnTextCommitted(FRuiCallback::Create([Log](const FRuiValue& V)
+		FRuitkCallback::Create([Log](const FRuitkValue& V) { *Log += TEXT("chg:") + V.TextValue.ToString() + TEXT(";"); }));
+	Props.SetOnTextCommitted(FRuitkCallback::Create([Log](const FRuitkValue& V)
 												  { *Log += TEXT("commit:") + V.TextValue.ToString() + TEXT(";"); }));
-	Props.Ref = [](const FRuiHostHandle& H) { WidgetTest::CapturedNode = H; };
-	return {RUI::Slate::EditableTextBox(MoveTemp(Props))};
+	Props.Ref = [](const FRuitkHostHandle& H) { WidgetTest::CapturedNode = H; };
+	return {Ruitk::Slate::EditableTextBox(MoveTemp(Props))};
 }
-RUI_COMPONENT(WidgetsEditComp)
+RUITK_COMPONENT(WidgetsEditComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsEditableTest, "ReactiveUI.Widgets.EditableText", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsEditableTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsEditableTest, "Ruitk.Widgets.EditableText", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsEditableTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsEditComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsEditComp));
 	TSharedPtr<SWidget> W = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("editable mounted"), W.IsValid()))
 	{
@@ -169,49 +169,49 @@ bool FRuiWidgetsEditableTest::RunTest(const FString&)
 	TestEqual(TEXT("the equal-value re-render did NOT re-notify (caret rule)"), *WidgetTest::Events, FString());
 
 	AddInfo(TEXT("[events] the real bound delegates reach the swapped closures"));
-	FRuiSlateNode* Node = FRuiSlateHost::Resolve(WidgetTest::CapturedNode);
+	FRuitkSlateNode* Node = FRuitkSlateHost::Resolve(WidgetTest::CapturedNode);
 	if (!TestNotNull(TEXT("ref captured the slate node"), Node) ||
 		!TestTrue(TEXT("proxy exists"), Node->Proxy.IsValid()))
 	{
 		return false;
 	}
 	Node->Proxy->HandleText(FText::FromString(TEXT("x")),
-							static_cast<int32>(FRuiEditableTextBoxProps::OnTextChanged_Bit));
+							static_cast<int32>(FRuitkEditableTextBoxProps::OnTextChanged_Bit));
 	Node->Proxy->HandleTextCommit(FText::FromString(TEXT("y")), ETextCommit::OnEnter,
-								  static_cast<int32>(FRuiEditableTextBoxProps::OnTextCommitted_Bit));
+								  static_cast<int32>(FRuitkEditableTextBoxProps::OnTextCommitted_Bit));
 	TestEqual(TEXT("both handlers fired"), *WidgetTest::Events, FString(TEXT("chg:x;commit:y;")));
 	return true;
 }
 
 // ── checkbox + slider: self-notifying skips + events ──────────────────────────────────────
 
-static FRuiNodeArray WidgetsInputComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsInputComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [State, SetState] = Ctx.UseState<int32>(0);
 	WidgetTest::IntSetter = SetState;
 	TSharedPtr<FString> Log = WidgetTest::Events;
 
-	FRuiCheckBoxProps Check;
+	FRuitkCheckBoxProps Check;
 	Check.SetbIsChecked(State != 0);
 	Check.SetOnCheckStateChanged(
-		FRuiCallback::Create([Log](const FRuiValue& V) { *Log += V.BoolValue ? TEXT("on;") : TEXT("off;"); }));
+		FRuitkCallback::Create([Log](const FRuitkValue& V) { *Log += V.BoolValue ? TEXT("on;") : TEXT("off;"); }));
 
-	FRuiSliderProps Slide;
+	FRuitkSliderProps Slide;
 	Slide.SetValue(State != 0 ? 0.75f : 0.25f);
 	Slide.SetOnValueChanged(
-		FRuiCallback::Create([Log](const FRuiValue& V) { *Log += FString::Printf(TEXT("v%.2f;"), V.FloatValue); }));
+		FRuitkCallback::Create([Log](const FRuitkValue& V) { *Log += FString::Printf(TEXT("v%.2f;"), V.FloatValue); }));
 
-	return {RUI::Slate::VerticalBox(
-		FRuiVerticalBoxProps(),
-		{RUI::Slate::CheckBox(MoveTemp(Check), {RUI::TextBlock(TEXT("opt"))}), RUI::Slate::Slider(MoveTemp(Slide))})};
+	return {Ruitk::Slate::VerticalBox(
+		FRuitkVerticalBoxProps(),
+		{Ruitk::Slate::CheckBox(MoveTemp(Check), {Ruitk::TextBlock(TEXT("opt"))}), Ruitk::Slate::Slider(MoveTemp(Slide))})};
 }
-RUI_COMPONENT(WidgetsInputComp)
+RUITK_COMPONENT(WidgetsInputComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsInputTest, "ReactiveUI.Widgets.CheckSlider", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsInputTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsInputTest, "Ruitk.Widgets.CheckSlider", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsInputTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsInputComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsInputComp));
 	TSharedPtr<SWidget> Panel = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -234,40 +234,40 @@ bool FRuiWidgetsInputTest::RunTest(const FString&)
 
 // ── scrollbox + canvas ────────────────────────────────────────────────────────────────────
 
-static FRuiNodeArray WidgetsScrollCanvasComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsScrollCanvasComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	// Draw fn wrapped ONCE via UseMemo — identity survives re-renders (the D-12 rule).
-	const TSharedPtr<FRuiDrawFn>& Draw = Ctx.UseMemo<TSharedPtr<FRuiDrawFn>>(
+	const TSharedPtr<FRuitkDrawFn>& Draw = Ctx.UseMemo<TSharedPtr<FRuitkDrawFn>>(
 		[]()
 		{
-			return RUI::Slate::MakeDrawFn([](const FGeometry&, FSlateWindowElementList&, int32 LayerId) -> int32
+			return Ruitk::Slate::MakeDrawFn([](const FGeometry&, FSlateWindowElementList&, int32 LayerId) -> int32
 										  { return LayerId; });
 		},
-		RUI::Deps());
+		Ruitk::Deps());
 
-	FRuiCanvasProps CanvasProps;
+	FRuitkCanvasProps CanvasProps;
 	CanvasProps.SetDrawFn(Draw);
 	CanvasProps.SetCanvasSize(FVector2D(64.0f, 48.0f));
 
-	FRuiScrollBoxProps ScrollProps;
+	FRuitkScrollBoxProps ScrollProps;
 	ScrollProps.SetOrientation(FName(TEXT("vertical")));
 
-	TArray<FRuiNode> Items;
+	TArray<FRuitkNode> Items;
 	for (int32 i = 0; i < 5; ++i)
 	{
-		Items.Add(RUI::TextBlock(FString::Printf(TEXT("item %d"), i)));
+		Items.Add(Ruitk::TextBlock(FString::Printf(TEXT("item %d"), i)));
 	}
 	return {
-		RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {RUI::Slate::ScrollBox(MoveTemp(ScrollProps), MoveTemp(Items)),
-														 RUI::Slate::RuiCanvas(MoveTemp(CanvasProps))})};
+		Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::Slate::ScrollBox(MoveTemp(ScrollProps), MoveTemp(Items)),
+														 Ruitk::Slate::RuitkCanvas(MoveTemp(CanvasProps))})};
 }
-RUI_COMPONENT(WidgetsScrollCanvasComp)
+RUITK_COMPONENT(WidgetsScrollCanvasComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsScrollCanvasTest, "ReactiveUI.Widgets.ScrollCanvas", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsScrollCanvasTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsScrollCanvasTest, "Ruitk.Widgets.ScrollCanvas", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsScrollCanvasTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsScrollCanvasComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsScrollCanvasComp));
 	TSharedPtr<SWidget> Panel = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -276,7 +276,7 @@ bool FRuiWidgetsScrollCanvasTest::RunTest(const FString&)
 	TSharedRef<SWidget> Scroll = Panel->GetChildren()->GetChildAt(0);
 	TSharedRef<SWidget> Canvas = Panel->GetChildren()->GetChildAt(1);
 	TestEqual(TEXT("scrollbox type"), Scroll->GetType(), FName(TEXT("SScrollBox")));
-	TestEqual(TEXT("canvas type"), Canvas->GetType(), FName(TEXT("SRuiCanvas")));
+	TestEqual(TEXT("canvas type"), Canvas->GetType(), FName(TEXT("SRuitkCanvas")));
 
 	Canvas->SlatePrepass(1.0f);
 	TestTrue(TEXT("canvas desired size"), Canvas->GetDesiredSize() == FVector2D(64.0f, 48.0f));
@@ -285,43 +285,43 @@ bool FRuiWidgetsScrollCanvasTest::RunTest(const FString&)
 
 // ── batch 2 (Phase 7): WidgetSwitcher + ScaleBox + Throbber + WrapBox ──────────────────────
 
-static FRuiNodeArray WidgetsBatch2Comp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsBatch2Comp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Page, SetPage] = Ctx.UseState<int32>(0);
 	WidgetTest::IntSetter = SetPage;
 
-	FRuiWidgetSwitcherProps SwitcherProps;
+	FRuitkWidgetSwitcherProps SwitcherProps;
 	SwitcherProps.SetWidgetIndex(Page);
 
-	FRuiScaleBoxProps ScaleProps;
+	FRuitkScaleBoxProps ScaleProps;
 	ScaleProps.SetStretch(FName(TEXT("scaleToFit")));
 	ScaleProps.SetStretchDirection(FName(TEXT("downOnly")));
 
-	FRuiThrobberProps ThrobProps;
+	FRuitkThrobberProps ThrobProps;
 	ThrobProps.SetNumPieces(5);
 	ThrobProps.SetAnimate(FName(TEXT("verticalAndOpacity")));
 
-	FRuiWrapBoxProps WrapProps;
+	FRuitkWrapBoxProps WrapProps;
 	WrapProps.SetOrientation(FName(TEXT("horizontal")));
 	WrapProps.SetWrapSize(120.0f);
 
-	return {RUI::Slate::VerticalBox(
-		FRuiVerticalBoxProps(),
-		{RUI::Slate::WidgetSwitcher(
+	return {Ruitk::Slate::VerticalBox(
+		FRuitkVerticalBoxProps(),
+		{Ruitk::Slate::WidgetSwitcher(
 			 MoveTemp(SwitcherProps),
-			 {RUI::TextBlock(TEXT("page A")), RUI::TextBlock(TEXT("page B")), RUI::TextBlock(TEXT("page C"))}),
-		 RUI::Slate::ScaleBox(MoveTemp(ScaleProps), {RUI::TextBlock(TEXT("scaled"))}),
-		 RUI::Slate::Throbber(MoveTemp(ThrobProps)),
-		 RUI::Slate::WrapBox(MoveTemp(WrapProps),
-							 {RUI::TextBlock(TEXT("w0")), RUI::TextBlock(TEXT("w1")), RUI::TextBlock(TEXT("w2"))})})};
+			 {Ruitk::TextBlock(TEXT("page A")), Ruitk::TextBlock(TEXT("page B")), Ruitk::TextBlock(TEXT("page C"))}),
+		 Ruitk::Slate::ScaleBox(MoveTemp(ScaleProps), {Ruitk::TextBlock(TEXT("scaled"))}),
+		 Ruitk::Slate::Throbber(MoveTemp(ThrobProps)),
+		 Ruitk::Slate::WrapBox(MoveTemp(WrapProps),
+							 {Ruitk::TextBlock(TEXT("w0")), Ruitk::TextBlock(TEXT("w1")), Ruitk::TextBlock(TEXT("w2"))})})};
 }
-RUI_COMPONENT(WidgetsBatch2Comp)
+RUITK_COMPONENT(WidgetsBatch2Comp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsBatch2Test, "ReactiveUI.Widgets.Batch2", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsBatch2Test::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsBatch2Test, "Ruitk.Widgets.Batch2", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsBatch2Test::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsBatch2Comp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsBatch2Comp));
 	TSharedPtr<SWidget> Panel = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -357,43 +357,43 @@ bool FRuiWidgetsBatch2Test::RunTest(const FString&)
 
 // ── batch 2b: text inputs + safe containers + Separator (TD-011 reconstruct mask) ─────────
 
-static FRuiNodeArray WidgetsBatch2bComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsBatch2bComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	// state 0: thin/white · 1: thin/red (runtime color only) · 2: thick/red (construct change)
 	auto [Phase, SetPhase] = Ctx.UseState<int32>(0);
 	WidgetTest::IntSetter = SetPhase;
 
-	FRuiMultiLineEditableTextBoxProps MultiProps;
+	FRuitkMultiLineEditableTextBoxProps MultiProps;
 	MultiProps.SetText(FText::FromString(TEXT("line one")));
 	MultiProps.SetHintText(FText::FromString(TEXT("notes")));
 
-	FRuiSearchBoxProps SearchProps;
+	FRuitkSearchBoxProps SearchProps;
 	SearchProps.SetHintText(FText::FromString(TEXT("search")));
 
-	FRuiSafeZoneProps SafeProps;
+	FRuitkSafeZoneProps SafeProps;
 	SafeProps.SetbIsTitleSafe(true);
 
-	FRuiDPIScalerProps DpiProps;
+	FRuitkDPIScalerProps DpiProps;
 	DpiProps.SetDPIScale(1.5f);
 
-	FRuiSeparatorProps SepProps;
+	FRuitkSeparatorProps SepProps;
 	SepProps.SetThickness(Phase >= 2 ? 6.0f : 2.0f);
 	SepProps.SetColorAndOpacity(Phase >= 1 ? FLinearColor::Red : FLinearColor::White);
 
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(),
-									{RUI::Slate::MultiLineEditableTextBox(MoveTemp(MultiProps)),
-									 RUI::Slate::SearchBox(MoveTemp(SearchProps)),
-									 RUI::Slate::SafeZone(MoveTemp(SafeProps), {RUI::TextBlock(TEXT("safe"))}),
-									 RUI::Slate::DPIScaler(MoveTemp(DpiProps), {RUI::TextBlock(TEXT("scaled"))}),
-									 RUI::Slate::Separator(MoveTemp(SepProps))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
+									{Ruitk::Slate::MultiLineEditableTextBox(MoveTemp(MultiProps)),
+									 Ruitk::Slate::SearchBox(MoveTemp(SearchProps)),
+									 Ruitk::Slate::SafeZone(MoveTemp(SafeProps), {Ruitk::TextBlock(TEXT("safe"))}),
+									 Ruitk::Slate::DPIScaler(MoveTemp(DpiProps), {Ruitk::TextBlock(TEXT("scaled"))}),
+									 Ruitk::Slate::Separator(MoveTemp(SepProps))})};
 }
-RUI_COMPONENT(WidgetsBatch2bComp)
+RUITK_COMPONENT(WidgetsBatch2bComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsBatch2bTest, "ReactiveUI.Widgets.Batch2b", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsBatch2bTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsBatch2bTest, "Ruitk.Widgets.Batch2b", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsBatch2bTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsBatch2bComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsBatch2bComp));
 	TSharedPtr<SWidget> Panel = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -432,47 +432,47 @@ bool FRuiWidgetsBatch2bTest::RunTest(const FString&)
 
 // ── batch 2c: SpinBox + UniformWrapPanel + RichTextBlock + Grid/UniformGrid panels ─────────
 
-static FRuiNode CellBox(const TCHAR* Label, int32 Column, int32 Row)
+static FRuitkNode CellBox(const TCHAR* Label, int32 Column, int32 Row)
 {
-	FRuiBoxProps BoxProps;
-	TSharedRef<FRuiStyleDict> Slot = MakeShared<FRuiStyleDict>();
-	Slot->Add(FName(TEXT("slot.column")), FRuiValue(Column));
-	Slot->Add(FName(TEXT("slot.row")), FRuiValue(Row));
+	FRuitkBoxProps BoxProps;
+	TSharedRef<FRuitkStyleDict> Slot = MakeShared<FRuitkStyleDict>();
+	Slot->Add(FName(TEXT("slot.column")), FRuitkValue(Column));
+	Slot->Add(FName(TEXT("slot.row")), FRuitkValue(Row));
 	BoxProps.SlotProps = Slot;
-	return RUI::Slate::Box(MoveTemp(BoxProps), {RUI::TextBlock(Label)});
+	return Ruitk::Slate::Box(MoveTemp(BoxProps), {Ruitk::TextBlock(Label)});
 }
 
-static FRuiNodeArray WidgetsBatch2cComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray WidgetsBatch2cComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Val, SetVal] = Ctx.UseState<int32>(0);
 	WidgetTest::IntSetter = SetVal;
 
-	FRuiSpinBoxProps SpinProps;
+	FRuitkSpinBoxProps SpinProps;
 	SpinProps.SetValue(Val == 0 ? 0.25f : 0.75f);
 	SpinProps.SetMinValue(0.0f);
 	SpinProps.SetMaxValue(1.0f);
 
-	FRuiRichTextBlockProps RichProps;
+	FRuitkRichTextBlockProps RichProps;
 	RichProps.SetText(FText::FromString(TEXT("rich <b>text</>")));
 	RichProps.SetbAutoWrapText(true);
 
-	return {RUI::Slate::VerticalBox(
-		FRuiVerticalBoxProps(),
-		{RUI::Slate::SpinBox(MoveTemp(SpinProps)),
-		 RUI::Slate::UniformWrapPanel(FRuiUniformWrapPanelProps(),
-									  {RUI::TextBlock(TEXT("u0")), RUI::TextBlock(TEXT("u1"))}),
-		 RUI::Slate::RichTextBlock(MoveTemp(RichProps)),
-		 RUI::Slate::GridPanel(FRuiGridPanelProps(), {CellBox(TEXT("g00"), 0, 0), CellBox(TEXT("g11"), 1, 1)}),
-		 RUI::Slate::UniformGridPanel(FRuiUniformGridPanelProps(),
+	return {Ruitk::Slate::VerticalBox(
+		FRuitkVerticalBoxProps(),
+		{Ruitk::Slate::SpinBox(MoveTemp(SpinProps)),
+		 Ruitk::Slate::UniformWrapPanel(FRuitkUniformWrapPanelProps(),
+									  {Ruitk::TextBlock(TEXT("u0")), Ruitk::TextBlock(TEXT("u1"))}),
+		 Ruitk::Slate::RichTextBlock(MoveTemp(RichProps)),
+		 Ruitk::Slate::GridPanel(FRuitkGridPanelProps(), {CellBox(TEXT("g00"), 0, 0), CellBox(TEXT("g11"), 1, 1)}),
+		 Ruitk::Slate::UniformGridPanel(FRuitkUniformGridPanelProps(),
 									  {CellBox(TEXT("c00"), 0, 0), CellBox(TEXT("c01"), 0, 1)})})};
 }
-RUI_COMPONENT(WidgetsBatch2cComp)
+RUITK_COMPONENT(WidgetsBatch2cComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiWidgetsBatch2cTest, "ReactiveUI.Widgets.Batch2c", RUI_WIDGET_TEST_FLAGS)
-bool FRuiWidgetsBatch2cTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkWidgetsBatch2cTest, "Ruitk.Widgets.Batch2c", RUITK_WIDGET_TEST_FLAGS)
+bool FRuitkWidgetsBatch2cTest::RunTest(const FString&)
 {
 	WidgetTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&WidgetsBatch2cComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&WidgetsBatch2cComp));
 	TSharedPtr<SWidget> Panel = WidgetTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{

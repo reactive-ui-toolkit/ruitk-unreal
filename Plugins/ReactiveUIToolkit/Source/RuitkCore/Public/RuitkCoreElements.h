@@ -10,18 +10,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiContext.h"
+#include "RuitkNode.h"
+#include "RuitkContext.h"
 
 /** Text element props ("Text" tag; hosts map to STextBlock / mock text). */
-struct FRuiTextBlockProps final : public FRuiPropsBase
+struct FRuitkTextBlockProps final : public FRuitkPropsBase
 {
-	RUI_PROP(FText, Text, 0)
+	RUITK_PROP(FText, Text, 0)
 
 	// Hand-written (FText has no operator== — identity first, then display-string compare).
-	virtual bool Equals(const FRuiPropsBase& Other) const override
+	virtual bool Equals(const FRuitkPropsBase& Other) const override
 	{
-		const FRuiTextBlockProps* Typed = static_cast<const FRuiTextBlockProps*>(&Other);
+		const FRuitkTextBlockProps* Typed = static_cast<const FRuitkTextBlockProps*>(&Other);
 		if (!BaseFieldsEqual(Other))
 		{
 			return false;
@@ -30,17 +30,17 @@ struct FRuiTextBlockProps final : public FRuiPropsBase
 	}
 };
 
-namespace RUI
+namespace Ruitk
 {
 	/** The interned "Text" element id (stable across the process). */
-	RUITKCORE_API FRuiElementTypeId TextBlockElementType();
+	RUITKCORE_API FRuitkElementTypeId TextBlockElementType();
 
 	/** Text node factory (also what raw-string children auto-wrap into). */
-	RUITKCORE_API FRuiNode TextBlock(FText InText, FRuiKey Key = FRuiKey());
-	RUITKCORE_API FRuiNode TextBlock(const FString& InText, FRuiKey Key = FRuiKey());
+	RUITKCORE_API FRuitkNode TextBlock(FText InText, FRuitkKey Key = FRuitkKey());
+	RUITKCORE_API FRuitkNode TextBlock(const FString& InText, FRuitkKey Key = FRuitkKey());
 
 	// ─────────────────────────────────────────────────────────────────────────────────────
-	// Fmt — clean FText interpolation for .uetkx bindings. `RUI::Fmt(TEXT("Count: {}"), Count)`
+	// Fmt — clean FText interpolation for .uetkx bindings. `Ruitk::Fmt(TEXT("Count: {}"), Count)`
 	// fills each `{}` with the next argument (type-generic, ordered), so a binding reads as
 	//   Text={ Fmt(TEXT("Count: {}"), Count) }
 	// instead of the FText::FromString(FString::Printf(TEXT("Count: %d"), Count)) nesting — and
@@ -121,14 +121,14 @@ namespace RUI
 	}
 
 	/** Suspense props. */
-	struct FRuiSuspenseProps final : public FRuiPropsBase
+	struct FRuitkSuspenseProps final : public FRuitkPropsBase
 	{
 		/** Shown while not ready (empty node = render nothing). */
-		TSharedPtr<FRuiNode> Fallback;
+		TSharedPtr<FRuitkNode> Fallback;
 		/** Polled once immediately, then per frame until true. */
 		TFunction<bool()> IsReady;
 
-		virtual bool Equals(const FRuiPropsBase& Other) const override
+		virtual bool Equals(const FRuitkPropsBase& Other) const override
 		{
 			// Function fields are identity-less; Fallback is a node — Suspense re-renders
 			// when its parent does (never bails on props), which matches the family's
@@ -137,11 +137,11 @@ namespace RUI
 		}
 	};
 
-	/** The Suspense component function (registered; use via RUI::Suspense below). */
-	RUITKCORE_API FRuiNodeArray SuspenseComponent(FRuiContext& Ctx, const FRuiSuspenseProps& Props,
-													   const TArray<FRuiNode>& Children);
+	/** The Suspense component function (registered; use via Ruitk::Suspense below). */
+	RUITKCORE_API FRuitkNodeArray SuspenseComponent(FRuitkContext& Ctx, const FRuitkSuspenseProps& Props,
+													   const TArray<FRuitkNode>& Children);
 
 	/** Declarative boundary: fallback until IsReady() flips true, then the children. */
-	RUITKCORE_API FRuiNode Suspense(TFunction<bool()> IsReady, FRuiNode Fallback, TArray<FRuiNode> Children,
-										 FRuiKey Key = FRuiKey());
-} // namespace RUI
+	RUITKCORE_API FRuitkNode Suspense(TFunction<bool()> IsReady, FRuitkNode Fallback, TArray<FRuitkNode> Children,
+										 FRuitkKey Key = FRuitkKey());
+} // namespace Ruitk

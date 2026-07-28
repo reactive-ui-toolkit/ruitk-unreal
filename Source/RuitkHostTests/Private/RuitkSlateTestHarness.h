@@ -5,7 +5,7 @@
 // only reveal their behaviour through a live window, an arranged geometry, an inner sub-widget, or a
 // pushed menu. This header collects the small pieces that make those verifiable headless — all built
 // on the same primitives the Focus/Shortcut/ListView suites already use (a real SWindow + SlatePrepass,
-// geometry-driven Tick, FSlateApplication input). Test-only; lives in the RuiHostTests private tree.
+// geometry-driven Tick, FSlateApplication input). Test-only; lives in the RuitkHostTests private tree.
 
 #pragma once
 
@@ -15,7 +15,7 @@
 #include "Widgets/SWidget.h"
 #include "Widgets/SWindow.h"
 
-namespace RuiTest
+namespace RuitkTest
 {
 	/** Depth-first search for the first descendant (inclusive of Root) whose widget type name equals
 	 *  `TypeName` (SWidget::GetType()). RTTI is off in engine builds, so type identity — not
@@ -169,4 +169,4 @@ namespace RuiTest
 			Widget->Tick(Geometry, 0.0, 0.0f);
 		}
 	}
-} // namespace RuiTest
+} // namespace RuitkTest

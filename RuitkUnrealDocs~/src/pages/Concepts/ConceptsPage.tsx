@@ -40,7 +40,7 @@ export const ConceptsPage: FC = () => (
     <Typography variant="body1" paragraph>
       A <code>.uetkx</code> file <strong>is a module</strong>: a preamble of imports followed by
       plain typed declarations, and the signature alone decides the kind. A function returning{' '}
-      <code>FRuiNode</code> is a <strong>component</strong> (returns markup); a{' '}
+      <code>FRuitkNode</code> is a <strong>component</strong> (returns markup); a{' '}
       <code>Use</code>-prefixed function is a <strong>hook</strong> (reusable state and effects);
       a name followed by <code>=</code> is a <strong>value export</strong> (shared constants);
       anything else callable is a <strong>util function</strong>. Prefix with <code>export</code>{' '}
@@ -48,7 +48,7 @@ export const ConceptsPage: FC = () => (
       first-class <em>expression</em>: besides{' '}
       <code>return ( … )</code>, you can assign it to a local (
       <code>auto Card = (&lt;VerticalBox&gt;…&lt;/VerticalBox&gt;);</code> — an{' '}
-      <code>FRuiNode</code> value), pass it as an argument, or branch on it with{' '}
+      <code>FRuitkNode</code> value), pass it as an argument, or branch on it with{' '}
       <code>?:</code> / <code>&amp;&amp;</code>, then splice it anywhere with{' '}
       <code>{'{ Card }'}</code>. Companion files keep a component&apos;s logic beside it:
     </Typography>
@@ -79,7 +79,7 @@ export const ConceptsPage: FC = () => (
       Environment &amp; diagnostics
     </Typography>
     <Typography variant="body1" paragraph>
-      The core talks to the engine only through <code>IRuiHostConfig</code>, so the same runtime
+      The core talks to the engine only through <code>IRuitkHostConfig</code>, so the same runtime
       drives Slate today and the Epic-interop hosts (UMG, CommonUI, MVVM). Behavior is tuned at
       runtime with <code>rui.</code> console variables, and live reconciler counters (renders,
       commits, placements, updates, deletions) are on <code>stat ReactiveUI</code>:

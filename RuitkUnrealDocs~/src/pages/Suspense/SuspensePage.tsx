@@ -2,18 +2,18 @@ import type { FC } from 'react'
 import { Alert, Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const SUSPENSE = `// Suspense is a RUI:: call (a structural primitive, not a tag). You drive
+const SUSPENSE = `// Suspense is a Ruitk:: call (a structural primitive, not a tag). You drive
 // readiness explicitly — the IsReady callable decides fallback vs content.
-export FRuiNode LoadingScreen() {
+export FRuitkNode LoadingScreen() {
 	auto [bReady, SetReady] = UseState<bool>(false);
-	UseEffect([SetReady]() { StartStreaming([SetReady]() { SetReady(true); }); }, RUI::Deps());
+	UseEffect([SetReady]() { StartStreaming([SetReady]() { SetReady(true); }); }, Ruitk::Deps());
 	const bool bReadyNow = bReady;
 
 	return (
 		<VerticalBox>
-			{ RUI::Suspense([bReadyNow]() { return bReadyNow; },
-			                RUI::FC(&Spinner),
-			                { RUI::FC(&AsyncContent) }) }
+			{ Ruitk::Suspense([bReadyNow]() { return bReadyNow; },
+			                Ruitk::FC(&Spinner),
+			                { Ruitk::FC(&AsyncContent) }) }
 		</VerticalBox>
 	);
 }`
@@ -24,10 +24,10 @@ export const SuspensePage: FC = () => (
       Suspense
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>RUI::Suspense(IsReady, Fallback, Children)</code> shows a <strong>fallback</strong>{' '}
+      <code>Ruitk::Suspense(IsReady, Fallback, Children)</code> shows a <strong>fallback</strong>{' '}
       while its content isn&apos;t ready, then swaps to the real children once it is — the
       declarative way to handle a loading state for an async resource (a streamed asset, a
-      deferred computation). Like Portal and ErrorBoundary, it is a <code>RUI::</code> call used
+      deferred computation). Like Portal and ErrorBoundary, it is a <code>Ruitk::</code> call used
       inside a <code>{'{ expr }'}</code> child, not a markup tag.
     </Typography>
     <CodeBlock code={SUSPENSE} language="uetkx" />

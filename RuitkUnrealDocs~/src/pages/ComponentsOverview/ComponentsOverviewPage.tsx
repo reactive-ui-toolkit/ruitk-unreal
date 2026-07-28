@@ -46,9 +46,9 @@ const TAG_GROUPS: Group[] = [
     tags: ['MenuAnchor', 'NotificationList', 'BreadcrumbTrail'],
   },
   {
-    title: 'Custom (the Rui mark)',
-    note: 'Our own widgets carry the Rui prefix.',
-    tags: ['RuiCanvas'],
+    title: 'Custom (the Ruitk mark)',
+    note: 'Our own widgets carry the Ruitk prefix.',
+    tags: ['RuitkCanvas'],
   },
 ]
 
@@ -56,16 +56,16 @@ const CPP_ONLY: Array<[string, string]> = [
   ['ListView / TileView', 'virtualized item-model views — a render-prop API (see Beyond the tags below)'],
   [
     'TreeView',
-    'the hierarchical item-model view: Items + RenderItem + a GetChildren accessor (RUI::Slate::MakeChildAccessor), CONTROLLED expansion (ExpandedItems in, OnExpansionChanged out), optional header Columns (construct-only). C++-first like ListView.',
+    'the hierarchical item-model view: Items + RenderItem + a GetChildren accessor (Ruitk::Slate::MakeChildAccessor), CONTROLLED expansion (ExpandedItems in, OnExpansionChanged out), optional header Columns (construct-only). C++-first like ListView.',
   ],
   [
-    'RUI::Slate::PushNotification',
-    'the toast command — RUI::Slate::PushNotification(Handle, Text, Duration) fires a toast at a mounted <NotificationList> (capture its handle via Ref).',
+    'Ruitk::Slate::PushNotification',
+    'the toast command — Ruitk::Slate::PushNotification(Handle, Text, Duration) fires a toast at a mounted <NotificationList> (capture its handle via Ref).',
   ],
   ['ComboBox / SegmentedControl / NumericEntryBox / SuggestionTextBox / ExpandableArea', 'render-prop / multi-slot specials (ExpandableArea takes header + body roles)'],
   ['DragSource / DropTarget', 'typed drag-and-drop wrappers'],
-  ['RUI::Umg::UserWidget', 'host a UMG UUserWidget inside the tree'],
-  ['RUI::{Fragment, Portal, Suspense, ErrorBoundary, Presence, Router, Routes, Link}', 'structural primitives — RUI:: calls, not tags'],
+  ['Ruitk::Umg::UserWidget', 'host a UMG UUserWidget inside the tree'],
+  ['Ruitk::{Fragment, Portal, Suspense, ErrorBoundary, Presence, Router, Routes, Link}', 'structural primitives — Ruitk:: calls, not tags'],
 ]
 
 export const ComponentsOverviewPage: FC = () => (

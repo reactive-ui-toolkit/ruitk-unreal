@@ -3,7 +3,7 @@
 using UnrealBuildTool;
 
 // The engine-blind core: vnodes, fibers, reconciler, hooks, signals, context, and the
-// IRuiHostConfig seam. HARD CONSTRAINT (MASTER_PLAN D-27): no UObject, no CoreUObject, no
+// IRuitkHostConfig seam. HARD CONSTRAINT (MASTER_PLAN D-27): no UObject, no CoreUObject, no
 // Slate — the reconciler touches engines only through the host-config interface, which is
 // what lets the mock-host test suites run the whole core headlessly.
 public class RuitkCore : ModuleRules

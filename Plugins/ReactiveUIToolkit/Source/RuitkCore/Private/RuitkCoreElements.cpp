@@ -1,54 +1,54 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiCoreElements.h"
-#include "RuiElementRegistry.h"
+#include "RuitkCoreElements.h"
+#include "RuitkElementRegistry.h"
 
-namespace RUI
+namespace Ruitk
 {
-	FRuiElementTypeId TextBlockElementType()
+	FRuitkElementTypeId TextBlockElementType()
 	{
-		static FRuiElementTypeId Id = InternElementType(FName(TEXT("TextBlock")));
+		static FRuitkElementTypeId Id = InternElementType(FName(TEXT("TextBlock")));
 		return Id;
 	}
 
-	FRuiNode TextBlock(FText InText, FRuiKey Key)
+	FRuitkNode TextBlock(FText InText, FRuitkKey Key)
 	{
-		TSharedRef<FRuiTextBlockProps> Props = MakeShared<FRuiTextBlockProps>();
+		TSharedRef<FRuitkTextBlockProps> Props = MakeShared<FRuitkTextBlockProps>();
 		Props->SetText(MoveTemp(InText));
-		FRuiNode Node;
-		Node.Kind = ERuiNodeKind::Host;
+		FRuitkNode Node;
+		Node.Kind = ERuitkNodeKind::Host;
 		Node.ElementType = TextBlockElementType();
 		Node.Props = Props;
 		Node.Key = Key;
 		return Node;
 	}
 
-	FRuiNode TextBlock(const FString& InText, FRuiKey Key)
+	FRuitkNode TextBlock(const FString& InText, FRuitkKey Key)
 	{
 		return TextBlock(FText::FromString(InText), Key);
 	}
 
 	// ── Suspense (family polyfill: fallback until IsReady, poll-per-frame driver) ────────
 
-	FRuiNodeArray SuspenseComponent(FRuiContext& Ctx, const FRuiSuspenseProps& Props, const TArray<FRuiNode>& Children)
+	FRuitkNodeArray SuspenseComponent(FRuitkContext& Ctx, const FRuitkSuspenseProps& Props, const TArray<FRuitkNode>& Children)
 	{
 		auto [bReady, SetReady] = Ctx.UseState<bool>(false);
 
 		// One driver per readiness source: poll each frame via the host's RequestFrame
 		// until ready or torn down (the token dies with the cleanup).
 		TFunction<bool()> IsReady = Props.IsReady;
-		IRuiHostConfig* Host = &Ctx.GetHost();
+		IRuitkHostConfig* Host = &Ctx.GetHost();
 		Ctx.UseEffect(
-			[bReady = bReady, SetReady, IsReady, Host]() -> FRuiEffectCleanup
+			[bReady = bReady, SetReady, IsReady, Host]() -> FRuitkEffectCleanup
 			{
 				if (bReady || !IsReady)
 				{
-					return FRuiEffectCleanup();
+					return FRuitkEffectCleanup();
 				}
 				if (IsReady()) // already satisfied — become ready synchronously
 				{
 					SetReady(true);
-					return FRuiEffectCleanup();
+					return FRuitkEffectCleanup();
 				}
 				TSharedRef<bool> Cancelled = MakeShared<bool>(false);
 				// Self-re-arming per-frame poll.
@@ -67,30 +67,30 @@ namespace RUI
 					Host->RequestFrame(*Poll);
 				};
 				Host->RequestFrame(*Poll);
-				return FRuiEffectCleanup([Cancelled]() { *Cancelled = true; });
+				return FRuitkEffectCleanup([Cancelled]() { *Cancelled = true; });
 			},
-			RUI::Deps(bReady)); // re-arm when readiness flips (and tear down the stale driver)
+			Ruitk::Deps(bReady)); // re-arm when readiness flips (and tear down the stale driver)
 
 		if (bReady)
 		{
-			return FRuiNodeArray(Children);
+			return FRuitkNodeArray(Children);
 		}
 		if (Props.Fallback.IsValid())
 		{
-			return FRuiNodeArray{*Props.Fallback};
+			return FRuitkNodeArray{*Props.Fallback};
 		}
-		return FRuiNodeArray();
+		return FRuitkNodeArray();
 	}
 
-	FRuiNode Suspense(TFunction<bool()> IsReady, FRuiNode Fallback, TArray<FRuiNode> Children, FRuiKey Key)
+	FRuitkNode Suspense(TFunction<bool()> IsReady, FRuitkNode Fallback, TArray<FRuitkNode> Children, FRuitkKey Key)
 	{
-		FRuiSuspenseProps Props;
+		FRuitkSuspenseProps Props;
 		Props.IsReady = MoveTemp(IsReady);
-		Props.Fallback = MakeShared<FRuiNode>(MoveTemp(Fallback));
+		Props.Fallback = MakeShared<FRuitkNode>(MoveTemp(Fallback));
 		return FC(&SuspenseComponent, MoveTemp(Props), MoveTemp(Children), Key);
 	}
-} // namespace RUI
+} // namespace Ruitk
 
-// Direct registration (the RUI_COMPONENT macro can't token-paste a qualified name).
+// Direct registration (the RUITK_COMPONENT macro can't token-paste a qualified name).
 static const FName GRuiSuspenseComponentId =
-	RUI::RegisterComponentId((void*)&RUI::SuspenseComponent, FName(TEXT("RUI.Suspense")));
+	Ruitk::RegisterComponentId((void*)&Ruitk::SuspenseComponent, FName(TEXT("RUI.Suspense")));

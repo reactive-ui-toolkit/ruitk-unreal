@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.WaveG — grammar wave G end to end through the COMPILED pipeline
+// Ruitk.Uetkx.WaveG — grammar wave G end to end through the COMPILED pipeline
 // (MultiReturnProof.uetkx → committed .inl → MSVC → runtime mount): early component-level
 // returns (verbatim-emit + splice — C++'s own control flow branches) and short-circuit
 // markup (`cond && <X/>` / `cond || <X/>` desugared to ternaries; UETKX3002 retired).
 
 #include "Misc/AutomationTest.h"
-#include "RuiNode.h"
-#include "RuiRoot.h"
+#include "RuitkNode.h"
+#include "RuitkRoot.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -33,16 +33,16 @@ namespace WaveGTest
 	}
 } // namespace WaveGTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxWaveGTest, "ReactiveUI.Uetkx.WaveG",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxWaveGTest, "Ruitk.Uetkx.WaveG",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxWaveGTest::RunTest(const FString&)
+bool FRuitkUetkxWaveGTest::RunTest(const FString&)
 {
-	TestTrue(TEXT("MultiReturnProof registered"), RUI::HasNamedFactory(FName(TEXT("MultiReturnProof"))));
+	TestTrue(TEXT("MultiReturnProof registered"), Ruitk::HasNamedFactory(FName(TEXT("MultiReturnProof"))));
 
 	// Default Mode=0: the final return renders; `Mode > 10 && big-mode` is FALSE (renders
 	// nothing), `Mode > 10 || small-mode` is FALSE -> the || arm renders.
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("MultiReturnProof"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("MultiReturnProof"))));
 		Root->FlushSync();
 		SWidget& W = Root->GetWidget().Get();
 		TestTrue(TEXT("main branch renders"), WaveGTest::ContainsText(W, TEXT("main")));
@@ -53,7 +53,7 @@ bool FRuiUetkxWaveGTest::RunTest(const FString&)
 
 	// Mode=1: the FIRST early return wins — nothing from the main window mounts.
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("MultiReturnProofEarly"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("MultiReturnProofEarly"))));
 		Root->FlushSync();
 		SWidget& W = Root->GetWidget().Get();
 		TestTrue(TEXT("early return renders"), WaveGTest::ContainsText(W, TEXT("early-one")));
@@ -63,7 +63,7 @@ bool FRuiUetkxWaveGTest::RunTest(const FString&)
 
 	// Mode=20: main window with `&&` TRUE (big-mode renders) and `||` TRUE (arm suppressed).
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Named(FName(TEXT("MultiReturnProofBig"))));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Named(FName(TEXT("MultiReturnProofBig"))));
 		Root->FlushSync();
 		SWidget& W = Root->GetWidget().Get();
 		TestTrue(TEXT("&& arm renders when true"), WaveGTest::ContainsText(W, TEXT("big-mode")));

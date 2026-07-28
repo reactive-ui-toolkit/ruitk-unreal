@@ -2,7 +2,7 @@ import "@CoreMinimal.h"
 
 export FLinearColor Accent = { 0.2f, 0.2f, 0.9f, 1.0f };
 
-export FRuiNode Widget() {
+export FRuitkNode Widget() {
 	return (
 		<VerticalBox>
 			<Spacer />

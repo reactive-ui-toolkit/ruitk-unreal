@@ -16,11 +16,11 @@ the old dev-loop interpreter was deleted).
 import surface — `import { A, B as C } from "./x"` / `import * as X` / default imports /
 `~/root-alias`, extensionless, preamble-only — plus `export` on plain C++-typed declarations,
 deferred `export { a, b };` lists, and one `export default X;` per file. Declaration kind is read
-from the SIGNATURE alone: `FRuiNode Name(...)` = component, `Use`-prefixed = hook, `Name = ...` =
+from the SIGNATURE alone: `FRuitkNode Name(...)` = component, `Use`-prefixed = hook, `Name = ...` =
 value export, other callables = utils (non-exported = private, tree-shaken, file-qualified
 runtime identity). The legacy `component`/`hook`/`module` wrappers still parse for one minor
-(UETKX2320 warns); `-run=RUIMigrateEsModules` is the idempotent codemod that migrates a whole
-tree (`-run=RUIMigrateImports` remains for the older exports/imports step; `RUICompile -check`
+(UETKX2320 warns); `-run=RuitkMigrateEsModules` is the idempotent codemod that migrates a whole
+tree (`-run=RuitkMigrateImports` remains for the older exports/imports step; `RuitkCompile -check`
 enforces resolution).
 
 **The plans are the source of truth**: [plans/ROADMAP.md](plans/ROADMAP.md) (living status
@@ -68,16 +68,16 @@ Engine commands (require UE 5.6+ installed; paths per the `test-run` skill's env
 <Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (Phase 3+)
-<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RuitkCompile -check
 
 :: 2. Suites — headless; ALWAYS redirect output to a file; parse report\index.json, not the exit code
-<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -ExecCmds="Automation RunTests ReactiveUI; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -ExecCmds="Automation RunTests Ruitk; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
 ```
 
-Suite filters are prefix-matched: `ReactiveUI.Boot` (the boot check — unit suites do NOT run
+Suite filters are prefix-matched: `Ruitk.Boot` (the boot check — unit suites do NOT run
 `StartupModule`, so it is never optional), `.Core`, `.Update`, `.Style`, `.Widgets.*`, `.Demos`,
 `.Uetkx`, `.Contract`, `.Umg`, `.Mvvm`, `.CommonUI`, `.Loc` (plus `.Slate`, `.Router`, `.Hooks`,
-`.Bugfix*`, `.Acceptance`, `.Editor` — there is no `.Hmr` suite); `ReactiveUI.Bench` is NOT
+`.Bugfix*`, `.Acceptance`, `.Editor` — there is no `.Hmr` suite); `Ruitk.Bench` is NOT
 pass/fail (numbers go to `plans/BENCH_BASELINES.md` with machine/config context).
 
 Docs site: `cd "RuitkUnrealDocs~" && npm ci && npm run dev` (or `npm run build && npm run lint`).
@@ -85,7 +85,7 @@ Docs site: `cd "RuitkUnrealDocs~" && npm ci && npm run dev` (or `npm run build &
 ## Architecture (one paragraph + pointers)
 
 `RuitkCore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
-talks to engines only through `IRuiHostConfig`. `RuitkSlate` implements the host with
+talks to engines only through `IRuitkHostConfig`. `RuitkSlate` implements the host with
 per-widget adapters (typed props structs + set-bitmask, setter tables, reconstruct masks, event
 proxies). `RuitkUMG`/`RuitkCommonUI`/`RuitkMVVMBridge` are the Epic-interop
 modules. `RuitkInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) owns the
@@ -97,12 +97,12 @@ MASTER_PLAN §1; module table: D-27.
 
 ## Conventions (enforce; don't re-litigate)
 
-- **Naming:** `FRui*`/`SRui*`/`URui*`/`IRui*`/`TRui*`; factories in namespace `RUI::`
-  (`RUI::Slate::VerticalBox()`, `RUI::FC`, `RUI::Umg`). Markup extension `.uetkx`.
+- **Naming:** `FRuitk*`/`SRuitk*`/`URuitk*`/`IRuitk*`/`TRuitk*`; factories in namespace `Ruitk::`
+  (`Ruitk::Slate::VerticalBox()`, `Ruitk::FC`, `Ruitk::Umg`). Markup extension `.uetkx`.
 - **Element/prop/style/event naming is 1:1 loyal to Unreal (D-33, MASTER_PLAN):** tag = Slate
   class minus `S` (`VerticalBox`, `TextBlock`, `Slider`); props/style keys/events = the Unreal
   setter/property/delegate name (`WidthOverride`, `RenderOpacity`, `OnCheckStateChanged`); our
-  custom widgets carry the `Rui` mark (`RuiCanvas`). No shorthands, no React aliases.
+  custom widgets carry the `Ruitk` mark (`RuitkCanvas`). No shorthands, no React aliases.
 - **Copyright header (Fab requirement, CI-linted):** first line of every `.h/.cpp/.inl/.cs/.mjs`
   under `Source/`, `Plugins/`, `templates/`, `scripts/`, `ide-extensions/` (own code, not
   node_modules):
@@ -140,7 +140,7 @@ MASTER_PLAN §1; module table: D-27.
 
 | Name | Kind | Consumed by | Local mirror key (`publisher-secrets.json`) |
 |---|---|---|---|
-| `RUI_CI_ENGINE_ARMED` | repo variable | test.yml/publish.yml engine legs (gate) | — |
+| `RUITK_CI_ENGINE_ARMED` | repo variable | test.yml/publish.yml engine legs (gate) | — |
 | `EPIC_GHCR_PAT` | secret | engine-container pulls (Linux CI legs) | — |
 | `VSCE_PAT` | secret | publish.yml vscode leg (Phase 5+) | `vscePatToken` |
 | `OVSX_TOKEN` | secret | publish.yml vscode leg, Open VSX (Phase 5+) | `ovsxToken` |

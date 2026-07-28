@@ -21,7 +21,7 @@
 #include "CoreMinimal.h"
 #include "Doom/DoomTypes.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	namespace Raycast
 	{
@@ -87,4 +87,4 @@ namespace RuiDoom
 		RUITKDEMO_API bool CircleHitsSolidLine(const FMapData& Map, int32 SectorId, const FVector2D& Center,
 											 float Radius);
 	} // namespace Raycast
-} // namespace RuiDoom
+} // namespace RuitkDoom

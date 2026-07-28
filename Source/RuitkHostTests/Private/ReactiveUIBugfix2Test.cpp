@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Bugfix2.* — regression tests locking the fixes from the SECOND adversarial bug hunt
+// Ruitk.Bugfix2.* — regression tests locking the fixes from the SECOND adversarial bug hunt
 // (plans/archive/BUGHUNT_2026-07-12_round2.md). Each asserts the previously-uncovered case: the neutral
 // copyright banner (CG-1), a mis-cased host tag (CG-3), operator-in-default param splitting (SCAN-1),
 // a comment inside an import list (SCAN-2), a hook missing its body (SCAN-3), theme-token resolution
@@ -10,14 +10,14 @@
 #include "Misc/AutomationTest.h"
 #include "Misc/Paths.h"
 
-#include "RuiContext.h"
-#include "RuiCoreElements.h"
-#include "RuiNode.h"
-#include "RuiNumericEntryBox.h"
-#include "RuiRoot.h"
-#include "RuiRouter.h"
-#include "RuiStyle.h"
-#include "RuiTypes.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
+#include "RuitkNode.h"
+#include "RuitkNumericEntryBox.h"
+#include "RuitkRoot.h"
+#include "RuitkRouter.h"
+#include "RuitkStyle.h"
+#include "RuitkTypes.h"
 #include "UetkxCodegen.h"
 #include "UetkxFileScan.h"
 #include "UetkxResolve.h"
@@ -42,9 +42,9 @@ namespace Bugfix2Test
 } // namespace Bugfix2Test
 
 // ── CG-1: the D-32(a) context-aware generated-code banner (seller vs neutral) ───────────────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2CopyrightTest, "ReactiveUI.Bugfix2.CopyrightBanner",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2CopyrightTest, "Ruitk.Bugfix2.CopyrightBanner",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2CopyrightTest::RunTest(const FString&)
+bool FRuitkBugfix2CopyrightTest::RunTest(const FString&)
 {
 	const FString Src = TEXT("component Foo {\n\treturn (<TextBlock Text=\"hi\"/>);\n}\n");
 	const FUetkxCompileOutput Seller =
@@ -58,9 +58,9 @@ bool FRuiBugfix2CopyrightTest::RunTest(const FString&)
 }
 
 // ── CG-3: a mis-cased host tag is rejected, not silently mapped to uncompilable C++ ─────────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2TagCaseTest, "ReactiveUI.Bugfix2.TagCase",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2TagCaseTest, "Ruitk.Bugfix2.TagCase",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2TagCaseTest::RunTest(const FString&)
+bool FRuitkBugfix2TagCaseTest::RunTest(const FString&)
 {
 	using namespace Bugfix2Test;
 	// Canonical casing still compiles.
@@ -76,9 +76,9 @@ bool FRuiBugfix2TagCaseTest::RunTest(const FString&)
 }
 
 // ── SCAN-1: a `<<`/comparison operator in a param DEFAULT must not merge later params ───────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2ParamOpTest, "ReactiveUI.Bugfix2.ParamOperator",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2ParamOpTest, "Ruitk.Bugfix2.ParamOperator",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2ParamOpTest::RunTest(const FString&)
+bool FRuitkBugfix2ParamOpTest::RunTest(const FString&)
 {
 	const FUetkxFileScanResult Scan = FUetkxFileScan::Scan(
 		TEXT("component Foo(Mask: int32 = 1 << 3, Name: FText) {\n\treturn (<TextBlock Text=\"x\"/>);\n}\n"),
@@ -97,9 +97,9 @@ bool FRuiBugfix2ParamOpTest::RunTest(const FString&)
 }
 
 // ── SCAN-2: a comment inside the import brace list must not drop the whole import ───────────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2ImportCommentTest, "ReactiveUI.Bugfix2.ImportComment",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2ImportCommentTest, "Ruitk.Bugfix2.ImportComment",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2ImportCommentTest::RunTest(const FString&)
+bool FRuitkBugfix2ImportCommentTest::RunTest(const FString&)
 {
 	const FUetkxFileScanResult Scan =
 		FUetkxFileScan::Scan(TEXT("import { A, /* keep */ B } from \"./x\"\n\ncomponent Foo {\n\treturn "
@@ -114,9 +114,9 @@ bool FRuiBugfix2ImportCommentTest::RunTest(const FString&)
 }
 
 // ── SCAN-3: a hook `-> Ret` with no body reports UETKX2202, not swallow the next declaration ────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2HookNoBodyTest, "ReactiveUI.Bugfix2.HookNoBody",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2HookNoBodyTest, "Ruitk.Bugfix2.HookNoBody",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2HookNoBodyTest::RunTest(const FString&)
+bool FRuitkBugfix2HookNoBodyTest::RunTest(const FString&)
 {
 	using namespace Bugfix2Test;
 	const FUetkxFileScanResult Scan = FUetkxFileScan::Scan(
@@ -132,61 +132,61 @@ bool FRuiBugfix2HookNoBodyTest::RunTest(const FString&)
 }
 
 // ── STYLE-1: `$token` refs resolve against the active theme (bare AND `$`-declared forms) ────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2ThemeTokenTest, "ReactiveUI.Bugfix2.ThemeToken",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2ThemeTokenTest, "Ruitk.Bugfix2.ThemeToken",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2ThemeTokenTest::RunTest(const FString&)
+bool FRuitkBugfix2ThemeTokenTest::RunTest(const FString&)
 {
-	RUI::Slate::LoadStylesheet(TEXT("@theme rui_b2 { accent: #4f8cff; $glow: #00ffcc; }"));
-	RUI::Slate::SetActiveTheme(FName(TEXT("rui_b2")));
+	Ruitk::Slate::LoadStylesheet(TEXT("@theme rui_b2 { accent: #4f8cff; $glow: #00ffcc; }"));
+	Ruitk::Slate::SetActiveTheme(FName(TEXT("rui_b2")));
 
-	TSharedRef<FRuiStyleDict> Bare = MakeShared<FRuiStyleDict>();
-	Bare->Add(FName(TEXT("ColorAndOpacity")), FRuiValue(FString(TEXT("$accent"))));
-	const TSharedPtr<FRuiStyleDict> EffBare = RUI::Slate::BuildEffectiveStyle({}, Bare);
+	TSharedRef<FRuitkStyleDict> Bare = MakeShared<FRuitkStyleDict>();
+	Bare->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(FString(TEXT("$accent"))));
+	const TSharedPtr<FRuitkStyleDict> EffBare = Ruitk::Slate::BuildEffectiveStyle({}, Bare);
 	if (TestTrue(TEXT("bare token style resolves"), EffBare.IsValid()))
 	{
-		const FRuiValue* V = EffBare->Find(FName(TEXT("ColorAndOpacity")));
-		TestTrue(TEXT("$accent (bare decl) -> Color"), V && V->Kind == FRuiValue::EKind::Color);
+		const FRuitkValue* V = EffBare->Find(FName(TEXT("ColorAndOpacity")));
+		TestTrue(TEXT("$accent (bare decl) -> Color"), V && V->Kind == FRuitkValue::EKind::Color);
 	}
 
 	// STYLE-1: a `$`-prefixed DECLARATION is also accepted (stored bare) so the ref resolves.
-	TSharedRef<FRuiStyleDict> Dollar = MakeShared<FRuiStyleDict>();
-	Dollar->Add(FName(TEXT("ColorAndOpacity")), FRuiValue(FString(TEXT("$glow"))));
-	const TSharedPtr<FRuiStyleDict> EffDollar = RUI::Slate::BuildEffectiveStyle({}, Dollar);
+	TSharedRef<FRuitkStyleDict> Dollar = MakeShared<FRuitkStyleDict>();
+	Dollar->Add(FName(TEXT("ColorAndOpacity")), FRuitkValue(FString(TEXT("$glow"))));
+	const TSharedPtr<FRuitkStyleDict> EffDollar = Ruitk::Slate::BuildEffectiveStyle({}, Dollar);
 	if (TestTrue(TEXT("$-declared token style resolves"), EffDollar.IsValid()))
 	{
-		const FRuiValue* V = EffDollar->Find(FName(TEXT("ColorAndOpacity")));
-		TestTrue(TEXT("$glow ($-decl) -> Color"), V && V->Kind == FRuiValue::EKind::Color);
+		const FRuitkValue* V = EffDollar->Find(FName(TEXT("ColorAndOpacity")));
+		TestTrue(TEXT("$glow ($-decl) -> Color"), V && V->Kind == FRuitkValue::EKind::Color);
 	}
-	RUI::Slate::SetActiveTheme(NAME_None);
+	Ruitk::Slate::SetActiveTheme(NAME_None);
 	return true;
 }
 
 // ── STYLE-2: `"x, y"` (a space after the comma) parses as a Vector2, not a Name ─────────────────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2Vector2Test, "ReactiveUI.Bugfix2.Vector2Space",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2Vector2Test, "Ruitk.Bugfix2.Vector2Space",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2Vector2Test::RunTest(const FString&)
+bool FRuitkBugfix2Vector2Test::RunTest(const FString&)
 {
-	RUI::Slate::LoadStylesheet(TEXT(".rui_b2_vec { DesiredSizeOverride: 12, 34; }"));
-	const FRuiStyleDict* Cls = RUI::Slate::FindStyleClass(FName(TEXT("rui_b2_vec")));
+	Ruitk::Slate::LoadStylesheet(TEXT(".rui_b2_vec { DesiredSizeOverride: 12, 34; }"));
+	const FRuitkStyleDict* Cls = Ruitk::Slate::FindStyleClass(FName(TEXT("rui_b2_vec")));
 	if (!TestNotNull(TEXT("class registered"), Cls))
 	{
 		return false;
 	}
-	const FRuiValue* V = Cls->Find(FName(TEXT("DesiredSizeOverride")));
+	const FRuitkValue* V = Cls->Find(FName(TEXT("DesiredSizeOverride")));
 	if (TestTrue(TEXT("value present"), V != nullptr))
 	{
-		TestTrue(TEXT("space-after-comma parses as Vector2"), V->Kind == FRuiValue::EKind::Vector2);
+		TestTrue(TEXT("space-after-comma parses as Vector2"), V->Kind == FRuitkValue::EKind::Vector2);
 	}
 	return true;
 }
 
 // ── IW-1: NumericEntryBox clamps to [Min, Max] (AllowSpin(false) never clamped in the engine) ───
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2NumericClampTest, "ReactiveUI.Bugfix2.NumericClamp",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2NumericClampTest, "Ruitk.Bugfix2.NumericClamp",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2NumericClampTest::RunTest(const FString&)
+bool FRuitkBugfix2NumericClampTest::RunTest(const FString&)
 {
-	TSharedRef<SRuiNumericEntryBox> Num =
-		SNew(SRuiNumericEntryBox).MinValue(TOptional<float>(0.0f)).MaxValue(TOptional<float>(100.0f));
+	TSharedRef<SRuitkNumericEntryBox> Num =
+		SNew(SRuitkNumericEntryBox).MinValue(TOptional<float>(0.0f)).MaxValue(TOptional<float>(100.0f));
 	Num->SetValue(999.0f);
 	TestEqual(TEXT("clamped to Max"), Num->GetValue(), 100.0f);
 	Num->SetValue(-50.0f);
@@ -203,9 +203,9 @@ namespace Bugfix2Test
 	static TFunction<void(int32)> GGo;
 	static FString GLoc;
 	static bool GBlockerFired = false;
-	static TRuiSetter<bool> GSetBlock;
+	static TRuitkSetter<bool> GSetBlock;
 
-	static FRuiNodeArray BlockerProbe(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray BlockerProbe(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		auto [Block, SetBlock] = Ctx.UseState<bool>(false);
 		GSetBlock = SetBlock;
@@ -213,18 +213,18 @@ namespace Bugfix2Test
 		GGo = UseGo(Ctx);
 		GLoc = UseLocation(Ctx).Pathname;
 		UseBlocker(Ctx, Block, [](const FString&) { GBlockerFired = true; });
-		return {RUI::TextBlock(GLoc)};
+		return {Ruitk::TextBlock(GLoc)};
 	}
-	RUI_COMPONENT(BlockerProbe)
+	RUITK_COMPONENT(BlockerProbe)
 } // namespace Bugfix2Test
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2BlockerPopTest, "ReactiveUI.Bugfix2.BlockerPop",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2BlockerPopTest, "Ruitk.Bugfix2.BlockerPop",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2BlockerPopTest::RunTest(const FString&)
+bool FRuitkBugfix2BlockerPopTest::RunTest(const FString&)
 {
 	using namespace Bugfix2Test;
 	GBlockerFired = false;
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::Router({RUI::FC(&BlockerProbe)}, TEXT("/")));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::Router({Ruitk::FC(&BlockerProbe)}, TEXT("/")));
 	Root->FlushSync();
 	TestEqual(TEXT("starts at /"), GLoc, FString(TEXT("/")));
 
@@ -245,9 +245,9 @@ bool FRuiBugfix2BlockerPopTest::RunTest(const FString&)
 }
 
 // ── DRV-2 / IMPORT-1: an unresolved import records the WOULD-BE label (reconstructable key) ──────
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBugfix2WouldBeLabelTest, "ReactiveUI.Bugfix2.WouldBeLabel",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBugfix2WouldBeLabelTest, "Ruitk.Bugfix2.WouldBeLabel",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiBugfix2WouldBeLabelTest::RunTest(const FString&)
+bool FRuitkBugfix2WouldBeLabelTest::RunTest(const FString&)
 {
 	const FUetkxFsResolver Resolver(FPaths::ProjectDir(), {}, /*bFixtureMode*/ true);
 	const FString Label = Resolver.WouldBeLabel(TEXT("./NoSuchFile"), TEXT("Sub/Importer.uetkx"));

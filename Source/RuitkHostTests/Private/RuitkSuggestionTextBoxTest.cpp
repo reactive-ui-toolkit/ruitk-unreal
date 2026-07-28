@@ -1,42 +1,42 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Widgets.SuggestionTextBox — TD-012 tail: the autocomplete field. Verifies the real
+// Ruitk.Widgets.SuggestionTextBox — TD-012 tail: the autocomplete field. Verifies the real
 // suggestion BEHAVIOUR (the substring filter that decides which suggestions show — exactly what the
 // widget's OnShowingSuggestions returns) and the controlled text round-trip through the live widget.
 
 #include "Misc/AutomationTest.h"
 #include "Framework/Application/SlateApplication.h"
-#include "RuiElementAdapter.h"
-#include "RuiElementRegistry.h"
-#include "RuiSlateTestHarness.h"
-#include "RuiSuggestionTextBox.h"
-#include "RuiTypes.h"
+#include "RuitkElementAdapter.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkSlateTestHarness.h"
+#include "RuitkSuggestionTextBox.h"
+#include "RuitkTypes.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSuggestionTextBoxTest, "ReactiveUI.Widgets.SuggestionTextBox",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSuggestionTextBoxTest, "Ruitk.Widgets.SuggestionTextBox",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiSuggestionTextBoxTest::RunTest(const FString&)
+bool FRuitkSuggestionTextBoxTest::RunTest(const FString&)
 {
-	IRuiElementAdapter* Adapter = RUI::Slate::FindAdapter(RUI::Slate::SuggestionTextBoxType());
+	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(Ruitk::Slate::SuggestionTextBoxType());
 	if (!TestNotNull(TEXT("SuggestionTextBox adapter registered"), Adapter))
 	{
 		return false;
 	}
 
-	FRuiSuggestionTextBoxProps Props;
+	FRuitkSuggestionTextBoxProps Props;
 	Props.SetSuggestions({TEXT("apple"), TEXT("apricot"), TEXT("banana"), TEXT("Grape")});
 	int32 Changed = 0;
 	FString LastChanged;
-	Props.SetOnTextChanged(FRuiCallback::Create(
-		[&Changed, &LastChanged](const FRuiValue& V)
+	Props.SetOnTextChanged(FRuitkCallback::Create(
+		[&Changed, &LastChanged](const FRuitkValue& V)
 		{
 			++Changed;
 			LastChanged = V.TextValue.ToString();
 		}));
 
 	TSharedRef<SWidget> Widget = Adapter->CreateWidget(Props, nullptr);
-	SRuiSuggestionTextBox& Sug = static_cast<SRuiSuggestionTextBox&>(Widget.Get());
+	SRuitkSuggestionTextBox& Sug = static_cast<SRuitkSuggestionTextBox&>(Widget.Get());
 	Adapter->ApplyDiff(Sug, nullptr, Props);
 
 	// ── the suggestion filter (the real behaviour behind the dropdown) ──────────────────────────
@@ -63,11 +63,11 @@ bool FRuiSuggestionTextBoxTest::RunTest(const FString&)
 	// ── controlled text round-trip through the live widget ──────────────────────────────────────
 	if (FSlateApplication::IsInitialized())
 	{
-		RuiTest::FTestWindow Win(Widget);
+		RuitkTest::FTestWindow Win(Widget);
 		if (Win.IsValid())
 		{
 			Win.PumpGeometry();
-			FRuiSuggestionTextBoxProps WithText = Props;
+			FRuitkSuggestionTextBoxProps WithText = Props;
 			WithText.SetText(FText::FromString(TEXT("apple")));
 			Adapter->ApplyDiff(Sug, &Props, WithText);
 			TestEqual(TEXT("controlled text set on the widget"), Sug.GetText().ToString(), FString(TEXT("apple")));

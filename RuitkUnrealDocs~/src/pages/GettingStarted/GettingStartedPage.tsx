@@ -12,30 +12,30 @@ PublicDependencyModuleNames.AddRange(new[]
 });`
 
 const HELLO = `// HelloWorld.uetkx — the primary component's name matches the file.
-export FRuiNode HelloWorld() {
+export FRuitkNode HelloWorld() {
 	auto [Count, SetCount] = UseState<int32>(0);
 	return (
 		<VerticalBox>
-			<TextBlock Text={ RUI::Fmt(TEXT("Hello, Reactive UI Toolkit — {}"), Count) } />
+			<TextBlock Text={ Ruitk::Fmt(TEXT("Hello, Reactive UI Toolkit — {}"), Count) } />
 			<Button OnClicked={ SetCount(Count + 1) }>+1</Button>
 		</VerticalBox>
 	);
 }`
 
 const MOUNT = `// Mount the root anywhere you have a UWorld — a GameMode, PlayerController,
-// or GameInstance. FRuiRoot owns the reconciler and the Slate widget it drives.
-#include "RuiRoot.h"
+// or GameInstance. FRuitkRoot owns the reconciler and the Slate widget it drives.
+#include "RuitkRoot.h"
 
 void AMyHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	Root = FRuiRoot::CreateInViewport(RUI::FC(&HelloWorld), /*ZOrder*/ 10);
+	Root = FRuitkRoot::CreateInViewport(Ruitk::FC(&HelloWorld), /*ZOrder*/ 10);
 }
-// Root is a TSharedPtr<FRuiRoot> member — drop it to unmount.`
+// Root is a TSharedPtr<FRuitkRoot> member — drop it to unmount.`
 
 const COMPILE = `:: Compile every .uetkx to committed C++ (*.uetkx.inl + <Module>.Uetkx.gen.cpp),
 :: then fail on any drift between markup and the generated code.
-<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUICompile -check`
+<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkCompile -check`
 
 export const GettingStartedPage: FC = () => (
   <Box>
@@ -73,7 +73,7 @@ export const GettingStartedPage: FC = () => (
       3. Mount it
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>FRuiRoot</code> is the bridge between the reconciler and a real Slate widget.{' '}
+      <code>FRuitkRoot</code> is the bridge between the reconciler and a real Slate widget.{' '}
       <code>CreateInViewport</code> adds it to the game viewport; keep the returned{' '}
       <code>TSharedPtr</code> alive for as long as the UI should exist.
     </Typography>
@@ -85,7 +85,7 @@ export const GettingStartedPage: FC = () => (
     <Typography variant="body1" paragraph>
       In development, editing a <code>.uetkx</code> hot-reloads live via Unreal Live Coding (see{' '}
       <strong>Hot Module Replacement</strong>). For shipping, the markup compiles to committed C++
-      next to each file. The <code>RUICompile</code> commandlet regenerates it and{' '}
+      next to each file. The <code>RuitkCompile</code> commandlet regenerates it and{' '}
       <code>-check</code> gates any drift in CI:
     </Typography>
     <CodeBlock code={COMPILE} language="bash" />

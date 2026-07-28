@@ -2,7 +2,7 @@
 
 using UnrealBuildTool;
 
-// CommonUI citizenship (Phase 6): URuiActivatableScreen, UseActivation, UseInputMethod, the
+// CommonUI citizenship (Phase 6): URuitkActivatableScreen, UseActivation, UseInputMethod, the
 // UseSafeArea platform override. We live INSIDE CommonUI, never rebuild it (D-25).
 // Deps added with the code, per D-27: CoreUObject, Engine, CommonUI (via an OPTIONAL plugin
 // reference in the .uplugin -- Phase 6 verifies optional refs gate module loading cleanly and

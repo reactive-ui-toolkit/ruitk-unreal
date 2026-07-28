@@ -723,7 +723,7 @@ namespace
 	FString FmtComponent(const FUetkxComponentDecl& Decl, FFmtState& State)
 	{
 		// Form-preserving (ES-modules G-10): a legacy `component` wrapper keeps its wrapper; a
-		// new-form decl keeps the plain `FRuiNode Name(...)` head. Migration is the codemod's job.
+		// new-form decl keeps the plain `FRuitkNode Name(...)` head. Migration is the codemod's job.
 		FString Out = Decl.bLegacySyntax
 						  ? FString::Printf(TEXT("%scomponent %s%s {\n"), ExportPrefix(Decl.bExported, Decl.ExportAt),
 											*Decl.Name, *FmtParams(Decl.Params))

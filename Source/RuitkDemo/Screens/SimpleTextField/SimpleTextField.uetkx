@@ -1,4 +1,4 @@
-export FRuiNode SimpleTextField() {
+export FRuitkNode SimpleTextField() {
 	auto [Text, SetText] = UseState<FString>(FString());
 
 	return (
@@ -14,7 +14,7 @@ export FRuiNode SimpleTextField() {
 					HintText="Type here..."
 					OnTextChanged={ SetText(Value.TextValue.ToString()) } />
 				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
-				<TextBlock Text={ RUI::Fmt(TEXT("You typed: {}"), Text) } />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("You typed: {}"), Text) } />
 			</VerticalBox>
 		</Border>
 	);

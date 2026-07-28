@@ -20,7 +20,7 @@ test("index collector: tags (open + close), code refs, decl names, export marker
   const src = [
     'import { StatusChip } from "./StatusChip"',
     "",
-    "export FRuiNode Panel() {",
+    "export FRuitkNode Panel() {",
     "\tauto A = FmtScore(1);",
     "\treturn (",
     "\t\t<VerticalBox>",
@@ -57,7 +57,7 @@ test("index collector: an ES COMBINED import indexes EVERY part's tokens", () =>
   const src = [
     'import Chip, { StatusChip, Cool as Warm } from "./StatusChip"',
     'import Def2, * as P from "./Palette"',
-    "export FRuiNode T() {",
+    "export FRuitkNode T() {",
     "\treturn ( <Spacer /> );",
     "}",
     "",
@@ -77,7 +77,7 @@ test("index collector: an ES COMBINED import indexes EVERY part's tokens", () =>
 
 test("index collector: scope tracking suppresses locals (params, auto, typed, bindings)", () => {
   const src = [
-    "export FRuiNode Scoped(int32 Count) {",
+    "export FRuitkNode Scoped(int32 Count) {",
     "\tauto Cool = 1;",              // auto local
     "\tFLinearColor Warm = Tint();", // typed local (Warm), Tint stays a ref
     "\tauto [A, B] = Pair();",       // structured bindings
@@ -99,7 +99,7 @@ test("index collector: twin identity — `using`/`struct` head declarations; inn
   // Mirrors FUetkxScopedLocals::Walk (N-07): only control keywords turn type-ish OFF, so
   // `using Alias = …;` and `struct Local { … }` both declare; a brace scope ends its shadows.
   const src = [
-    "export FRuiNode Twin() {",
+    "export FRuitkNode Twin() {",
     "\tusing Alias = FLinearColor;",
     "\tstruct Local { int32 V; };",
     "\tauto A = Alias(Local());",
@@ -122,7 +122,7 @@ test("index collector: a ternary's second arm is NOT a declaration (lone-colon I
   // reset it, or `Cool ;` reads as `Type Name;` and the second-arm reference vanishes (the exact
   // C++-twin regression the Codegen ternary pin caught). A real `::` qual still keeps type-ish.
   const src = [
-    "export FRuiNode Tern(bool bOn) {",
+    "export FRuitkNode Tern(bool bOn) {",
     "\tauto U = bOn ? Cool : Cool;",
     "\tstd::atomic Flag = 1;", // `::`-qualified type still declares Flag
     "\tauto F = Flag;",
@@ -139,7 +139,7 @@ test("index collector: namespace quals emit base + member; ternary second arm st
   const src = [
     'import * as Pal from "./Palette"',
     "",
-    "export FRuiNode Q(bool bOn) {",
+    "export FRuitkNode Q(bool bOn) {",
     "\tconst FLinearColor T = bOn ? Pal::Cool : Pal::Warm;",
     "\treturn ( <Spacer /> );",
     "}",
@@ -159,22 +159,22 @@ function makeWorkspace() {
   const chip = path.join(root, "Chip.uetkx");
   fs.writeFileSync(
     chip,
-    'export FRuiNode Chip() {\n\treturn ( <Spacer /> );\n}\nexport FLinearColor Cool = FLinearColor(0.1f, 0.2f, 0.3f, 1.0f);\n',
+    'export FRuitkNode Chip() {\n\treturn ( <Spacer /> );\n}\nexport FLinearColor Cool = FLinearColor(0.1f, 0.2f, 0.3f, 1.0f);\n',
   );
   const plain = path.join(root, "PlainUser.uetkx");
   fs.writeFileSync(
     plain,
-    'import { Chip, Cool } from "./Chip"\n\nexport FRuiNode PlainUser() {\n\tauto C = Cool;\n\treturn ( <Border>\n\t\t<Chip />\n\t</Border> );\n}\n',
+    'import { Chip, Cool } from "./Chip"\n\nexport FRuitkNode PlainUser() {\n\tauto C = Cool;\n\treturn ( <Border>\n\t\t<Chip />\n\t</Border> );\n}\n',
   );
   const renamed = path.join(root, "RenamedUser.uetkx");
   fs.writeFileSync(
     renamed,
-    'import { Chip as Badge } from "./Chip"\n\nexport FRuiNode RenamedUser() {\n\treturn ( <Badge /> );\n}\n',
+    'import { Chip as Badge } from "./Chip"\n\nexport FRuitkNode RenamedUser() {\n\treturn ( <Badge /> );\n}\n',
   );
   const ns = path.join(root, "NsUser.uetkx");
   fs.writeFileSync(
     ns,
-    'import * as C from "./Chip"\n\nexport FRuiNode NsUser() {\n\tauto T = C::Cool;\n\treturn ( <Spacer /> );\n}\n',
+    'import * as C from "./Chip"\n\nexport FRuitkNode NsUser() {\n\tauto T = C::Cool;\n\treturn ( <Spacer /> );\n}\n',
   );
   return { root, chip, plain, renamed, ns };
 }
@@ -292,7 +292,7 @@ test("rename reads DIRTY text through the overlay, never stale disk state", () =
   const { root, chip } = makeWorkspace();
   try {
     // Disk still says Chip; the overlay renames the component to Zip and adds a use.
-    const live = 'export FRuiNode Zip() {\n\treturn ( <Spacer /> );\n}\nexport FLinearColor Cool = FLinearColor(0.1f, 0.2f, 0.3f, 1.0f);\n';
+    const live = 'export FRuitkNode Zip() {\n\treturn ( <Spacer /> );\n}\nexport FLinearColor Cool = FLinearColor(0.1f, 0.2f, 0.3f, 1.0f);\n';
     const overlay = new Map([[path.resolve(chip).replace(/\\/g, "/"), live]]);
     const sym = resolveSymbolAt(chip, live.indexOf("Zip"), overlay);
     assert.ok(sym && sym.type === "global" && sym.name === "Zip", "overlay text is what resolves");
@@ -305,7 +305,7 @@ test("rename reads DIRTY text through the overlay, never stale disk state", () =
 
 test("audit: markup islands see setup locals — no phantom refs (rename must never edit them)", () => {
   const src = [
-    "export FRuiNode Panel() {",
+    "export FRuitkNode Panel() {",
     "\tauto Total = Compute();",
     "\tFRuiNode Chip = <Spacer />;",
     "\tauto AfterRange = Total;", // post-range fragment still knows Total
@@ -326,7 +326,7 @@ test("audit: markup islands see setup locals — no phantom refs (rename must ne
 
 test("audit: range-for vars, lambda params, and @for loop vars are locals everywhere", () => {
   const src = [
-    "export FRuiNode Loops(TArray<FString> Items) {",
+    "export FRuitkNode Loops(TArray<FString> Items) {",
     "\tfor (const FString& Item : Items) {",
     "\t\tUse(Item);",
     "\t}",
@@ -349,7 +349,7 @@ test("audit: range-for vars, lambda params, and @for loop vars are locals everyw
 
 test("audit: directive-lead locals are live in the nested window; comma resets type-ish", () => {
   const src = [
-    "export FRuiNode Lead() {",
+    "export FRuitkNode Lead() {",
     "\tauto T = MakeTuple(1, Primary);", // B-arg of a call is a REF, not a decl
     "\treturn (",
     "\t\t<VerticalBox>",
@@ -368,7 +368,7 @@ test("audit: directive-lead locals are live in the nested window; comma resets t
 });
 
 test("audit: comments inside an import name list parse (the C++ SCAN-2 behavior)", () => {
-  const scan = scanFile('import { A, /* note */ B as C, // tail\n\tD } from "./m"\nexport FRuiNode T() {\n\treturn ( <Spacer /> );\n}\n', "T", true);
+  const scan = scanFile('import { A, /* note */ B as C, // tail\n\tD } from "./m"\nexport FRuitkNode T() {\n\treturn ( <Spacer /> );\n}\n', "T", true);
   assert.strictEqual(scan.imports.length, 1);
   assert.deepStrictEqual(scan.imports[0].names, ["A", "B", "D"]);
   assert.deepStrictEqual(scan.imports[0].localNames, ["A", "C", "D"]);
@@ -397,7 +397,7 @@ test("audit: a plain-binding rename validates only the IMPORTER it edits (no glo
 test("R9: tags + attrs INSIDE directive bodies are swept and indexed (the @for blind spot)", () => {
   const src = [
     'import { Chip } from "./Chip"',
-    "export FRuiNode Hud() {",
+    "export FRuitkNode Hud() {",
     "\treturn (",
     "\t\t<VerticalBox>",
     "\t\t\t@for (int32 i = 0; i < 4; ++i) {",
@@ -460,7 +460,7 @@ test("R14: ctor-style declarations are tracked locals (the DoomFace blind spot)"
 
 test("R10: sweep captures STRING attr values; holes and flag attrs stay valueless", () => {
   const src = [
-    "export FRuiNode Vals() {",
+    "export FRuitkNode Vals() {",
     "\treturn (",
     '\t\t<Border HAlign="cesssssnter" Padding={ FMargin(2) } AutoWrapText>',
     '\t\t\t<TextBlock Text="a \\"quoted\\" bit" />',

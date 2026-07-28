@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-namespace RUI
+namespace Ruitk
 {
 	/** Culture-change → root re-render (MASTER_PLAN Phase 7 item 2).
 	 *
@@ -26,4 +26,4 @@ namespace RUI
 	 *  semantics HMR uses, because the failure mode is the same: bailout caches serving output
 	 *  rendered under a stale environment. Coalesces into one re-render per root. */
 	RUITKCORE_API void RefreshAllRootsForCultureChange();
-} // namespace RUI
+} // namespace Ruitk

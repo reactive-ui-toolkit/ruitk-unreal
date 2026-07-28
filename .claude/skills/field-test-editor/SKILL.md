@@ -15,7 +15,7 @@ a bandaid.
   NEVER edit it while the owner's Unreal editor is open (UE locks module DLLs — your edits +
   rebuild will fail loudly anyway); NEVER kill their editor process.
 - **Work tree** (where you develop): create a git worktree (e.g.
-  `C:\Yanivs\GameDev\ReactiveUI\RUIU-work`) on first need; branches off `origin/dev`.
+  `C:\Yanivs\GameDev\ReactiveUI\RUITKU-work`) on first need; branches off `origin/dev`.
 - Engine path: per the `test-run` skill's environment facts. ALWAYS redirect engine output to a
   file.
 - **Live Coding** (Ctrl+Alt+F11) hot-patches `.cpp` function bodies only. Any header change,
@@ -26,10 +26,10 @@ a bandaid.
 ## The loop
 
 1. **Reproduce & fix** (work tree, feature branch off `origin/dev`): root cause first; extend a
-   `ReactiveUI.*` suite to catch it when possible (per-section markers so hangs name their
+   `Ruitk.*` suite to catch it when possible (per-section markers so hangs name their
    culprit).
-2. **Verify before handing over**: the dev-process gate ladder — build, `RUICompile -check`
-   (Phase 3+), affected suites, `ReactiveUI.Boot`.
+2. **Verify before handing over**: the dev-process gate ladder — build, `RuitkCompile -check`
+   (Phase 3+), affected suites, `Ruitk.Boot`.
 3. **Commit** on the feature branch (this loop is a standing ask to commit; author is the owner —
    no Co-Authored-By).
 4. **Apply to the live tree**: if it's clean, fetch + checkout the branch (ask before switching

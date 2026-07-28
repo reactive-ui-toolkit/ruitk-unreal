@@ -1,27 +1,27 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Bench.Doom — the Doom-demo workload (the family's marquee stress test): a real
+// Ruitk.Bench.Doom — the Doom-demo workload (the family's marquee stress test): a real
 // game frame's cost split the way the Godot F3 overlay splits it — sim tick, renderer cast,
 // geometry build, and the reconcile+Slate-apply of the full framebuffer (several hundred
-// keyed widgets churning per frame). NOT pass/fail; rows log as "RUIBENCH ..." and committed
+// keyed widgets churning per frame). NOT pass/fail; rows log as "RUITKBENCH ..." and committed
 // numbers live in plans/BENCH_BASELINES.md with machine/config context.
-//   Automation RunTests ReactiveUI.Bench
+//   Automation RunTests Ruitk.Bench
 
 #include "Doom/DoomGameLogic.h"
 #include "Doom/DoomScreenGeometry.h"
 #include "Doom/DoomScreenTypes.h"
 #include "Doom/DoomTypes.h"
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
+#include "RuitkContext.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
 namespace DoomBench
 {
 	// The reconcile bench's shared frame data (the component reads these; the driver mutates).
-	static const RuiDoom::FDoomFrameGeometry* GGeometry = nullptr;
+	static const RuitkDoom::FDoomFrameGeometry* GGeometry = nullptr;
 	static TFunction<void(int32)> GSetVersion;
 
 	static double ToUs(uint64 Cycles)
@@ -30,71 +30,71 @@ namespace DoomBench
 	}
 
 	/** A walking+turning input so the view (and thus the quad set) actually churns. */
-	static RuiDoom::FInputCmd WalkCmd(int32 TicIndex)
+	static RuitkDoom::FInputCmd WalkCmd(int32 TicIndex)
 	{
-		RuiDoom::FInputCmd Cmd;
+		RuitkDoom::FInputCmd Cmd;
 		Cmd.Forward = true;
 		Cmd.YawDelta = (TicIndex % 2 == 0) ? 0.015f : -0.011f;
 		return Cmd;
 	}
 
-	static FRuiNode NodeForQuad(const RuiDoom::FDoomQuad& Q)
+	static FRuitkNode NodeForQuad(const RuitkDoom::FDoomQuad& Q)
 	{
-		FRuiImageProps P;
+		FRuitkImageProps P;
 		P.SetImage(Q.Brush);
 		P.SetColorAndOpacity(Q.Tint);
-		FRuiNode Node = RUI::Slate::Image(MoveTemp(P), FRuiKey(Q.Key));
-		TSharedRef<FRuiStyleDict> Slot = MakeShared<FRuiStyleDict>();
-		Slot->Add(FName(TEXT("slot.position")), FRuiValue(Q.Position));
-		Slot->Add(FName(TEXT("slot.size")), FRuiValue(Q.Size));
-		const_cast<FRuiPropsBase&>(*Node.Props).SlotProps = Slot;
+		FRuitkNode Node = Ruitk::Slate::Image(MoveTemp(P), FRuitkKey(Q.Key));
+		TSharedRef<FRuitkStyleDict> Slot = MakeShared<FRuitkStyleDict>();
+		Slot->Add(FName(TEXT("slot.position")), FRuitkValue(Q.Position));
+		Slot->Add(FName(TEXT("slot.size")), FRuitkValue(Q.Size));
+		const_cast<FRuitkPropsBase&>(*Node.Props).SlotProps = Slot;
 		return Node;
 	}
 
 	/** The framebuffer component — the same 11 passes DoomGameScreen.uetkx renders, driven by
 	 *  a version state exactly like the real hook drives it. */
-	static FRuiNodeArray BenchFrameComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray BenchFrameComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
 		auto [Version, SetVersion] = Ctx.UseState<int32>(0);
 		GSetVersion = SetVersion;
 		(void)Version;
 
-		TArray<FRuiNode> Quads;
+		TArray<FRuitkNode> Quads;
 		if (GGeometry != nullptr)
 		{
-			const RuiDoom::FDoomFrameGeometry& G = *GGeometry;
-			const TArray<RuiDoom::FDoomQuad>* Passes[] = {
+			const RuitkDoom::FDoomFrameGeometry& G = *GGeometry;
+			const TArray<RuitkDoom::FDoomQuad>* Passes[] = {
 				&G.Sky,		  &G.FloorBackstop, &G.CeilingBands, &G.FloorBands, &G.FloorRims, &G.ExtraSegs,
 				&G.RiserRims, &G.Walls,			&G.Sprites,		 &G.Tracers,	&G.Overlay};
 			int32 Total = 0;
-			for (const TArray<RuiDoom::FDoomQuad>* Pass : Passes)
+			for (const TArray<RuitkDoom::FDoomQuad>* Pass : Passes)
 			{
 				Total += Pass->Num();
 			}
 			Quads.Reserve(Total);
-			for (const TArray<RuiDoom::FDoomQuad>* Pass : Passes)
+			for (const TArray<RuitkDoom::FDoomQuad>* Pass : Passes)
 			{
-				for (const RuiDoom::FDoomQuad& Q : *Pass)
+				for (const RuitkDoom::FDoomQuad& Q : *Pass)
 				{
 					Quads.Add(NodeForQuad(Q));
 				}
 			}
 		}
-		return {RUI::Slate::Canvas(FRuiCanvasPanelProps(), MoveTemp(Quads))};
+		return {Ruitk::Slate::Canvas(FRuitkCanvasPanelProps(), MoveTemp(Quads))};
 	}
-	RUI_COMPONENT(BenchFrameComp)
+	RUITK_COMPONENT(BenchFrameComp)
 } // namespace DoomBench
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBenchDoomTest, "ReactiveUI.Bench.Doom",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBenchDoomTest, "Ruitk.Bench.Doom",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::PerfFilter)
-bool FRuiBenchDoomTest::RunTest(const FString&)
+bool FRuitkBenchDoomTest::RunTest(const FString&)
 {
-	using namespace RuiDoom;
+	using namespace RuitkDoom;
 
 	auto Report = [this](const TCHAR* Name, TArray<double>& Us, const TCHAR* Workload)
 	{
 		Us.Sort();
-		AddInfo(FString::Printf(TEXT("RUIBENCH %s: min=%.0fus med=%.0fus max=%.0fus (n=%d, %s)"), Name, Us[0],
+		AddInfo(FString::Printf(TEXT("RUITKBENCH %s: min=%.0fus med=%.0fus max=%.0fus (n=%d, %s)"), Name, Us[0],
 								Us[Us.Num() / 2], Us.Last(), Us.Num(), Workload));
 	};
 	const FVector2D Viewport(C::VIEWPORT_W, C::VIEWPORT_H);
@@ -152,7 +152,7 @@ bool FRuiBenchDoomTest::RunTest(const FString&)
 	// whole framebuffer, per frame, exactly as the game screen's version-bump drives it.
 	{
 		DoomBench::GGeometry = &Geometry;
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&DoomBench::BenchFrameComp));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&DoomBench::BenchFrameComp));
 		Root->FlushSync();
 
 		TArray<double> Us;

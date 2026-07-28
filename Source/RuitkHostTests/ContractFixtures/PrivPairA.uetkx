@@ -1,7 +1,7 @@
-FRuiNode Row() {
+FRuitkNode Row() {
 	return ( <Spacer /> );
 }
-export FRuiNode PrivPairA() {
+export FRuitkNode PrivPairA() {
 	return (
 		<VerticalBox>
 			<Row />

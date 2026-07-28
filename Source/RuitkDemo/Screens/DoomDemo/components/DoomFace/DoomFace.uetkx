@@ -3,18 +3,18 @@ import "@Doom/DoomTextures.h"
 // DoomFace.uetkx — the Doomguy mug widget. Faithful port of the Unity sample's
 // `DoomFace.uitkx` (cross-checked against the Godot `doom_face.guitkx`).
 // `Frame` is state.Player.FaceState (0=god, 1..5 hp buckets, 6=hurt, 7=dead).
-export FRuiNode DoomFace(int32 Frame = 0) {
+export FRuitkNode DoomFace(int32 Frame = 0) {
 	const int32 Idx = FMath::Clamp(Frame, 0, 7);
 	const FLinearColor PanelBg(0.20f, 0.16f, 0.10f, 1.0f);
 	const FLinearColor BorderClr(0.85f, 0.55f, 0.20f, 1.0f);
 	const FLinearColor LabelClr(0.85f, 0.70f, 0.35f, 1.0f);
 
 	// The face brush is cached per frame index: MakeAssetBrush GC-roots the transient
-	// texture, and UseMemo keeps the brush IDENTITY stable across renders (FRuiImageProps
+	// texture, and UseMemo keeps the brush IDENTITY stable across renders (FRuitkImageProps
 	// compares the shared pointer) — re-created only when Idx changes.
 	const TSharedPtr<FSlateBrush>& FaceBrush = UseMemo<TSharedPtr<FSlateBrush>>(
-		[Idx]() { return RUI::Umg::MakeAssetBrush(RuiDoom::FDoomTextures::Face(Idx), FVector2D(48.0f, 48.0f)); },
-		RUI::Deps(Idx));
+		[Idx]() { return Ruitk::Umg::MakeAssetBrush(RuitkDoom::FDoomTextures::Face(Idx), FVector2D(48.0f, 48.0f)); },
+		Ruitk::Deps(Idx));
 
 	// The mug is 48px (not the siblings' 64): the bar's inner height is HUD_HEIGHT 90 minus
 	// top border + bar/panel padding = ~65px, and label(13) + 48 is what actually FITS —

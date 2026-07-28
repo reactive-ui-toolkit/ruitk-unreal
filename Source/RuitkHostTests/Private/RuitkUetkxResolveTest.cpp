@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Resolve — the import resolver + strict-usage diagnostics (M4). Builds scratch
+// Ruitk.Uetkx.Resolve — the import resolver + strict-usage diagnostics (M4). Builds scratch
 // .uetkx trees under Saved/ and pins the resolution of `./ ../ ~/` specifiers plus every
 // CompileSource-level family diagnostic (2300-2309). The 2308 module-boundary case uses a second
 // tree with real `*.Build.cs` module roots.
@@ -39,9 +39,9 @@ namespace UetkxResolveTest
 	}
 } // namespace UetkxResolveTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxResolveTest, "ReactiveUI.Uetkx.Resolve",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxResolveTest, "Ruitk.Uetkx.Resolve",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxResolveTest::RunTest(const FString&)
+bool FRuitkUetkxResolveTest::RunTest(const FString&)
 {
 	using namespace UetkxResolveTest;
 	IFileManager& FM = IFileManager::Get();
@@ -119,7 +119,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 	// a hand-written C++ namespace qual (exported by no file) is ambient — never 2305/2307.
 	{
 		const TArray<FString> C =
-			Codes(TEXT("component T {\n\tint32 X = RuiDemo::Value;\n\treturn ( <Spacer /> );\n}\n"), Rel, R);
+			Codes(TEXT("component T {\n\tint32 X = RuitkDemo::Value;\n\treturn ( <Spacer /> );\n}\n"), Rel, R);
 		HasNot(C, TEXT("UETKX2305"));
 		HasNot(C, TEXT("UETKX2307"));
 	}
@@ -134,9 +134,9 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 				  TEXT("FLinearColor Hidden = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);\n")
 					  TEXT("export FString FmtP(int32 S) {\n\treturn FString::FromInt(S);\n}\n"));
 		Write(Root / TEXT("Screens/Screen.uetkx"),
-			  TEXT("export FRuiNode Screen() {\n\treturn ( <Spacer /> );\n}\n") TEXT("export default Screen;\n"));
+			  TEXT("export FRuitkNode Screen() {\n\treturn ( <Spacer /> );\n}\n") TEXT("export default Screen;\n"));
 		Write(Root / TEXT("Screens/Deck.uetkx"),
-			  TEXT("export FRuiNode Card() {\n\treturn ( <Spacer /> );\n}\n")
+			  TEXT("export FRuitkNode Card() {\n\treturn ( <Spacer /> );\n}\n")
 				  TEXT("export FLinearColor Tint = FLinearColor(0.1f, 0.2f, 0.3f, 1.0f);\n")
 					  TEXT("export default Card;\n"));
 		Write(Root / TEXT("Screens/Deck2.uetkx"),
@@ -258,7 +258,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		// no consumer-side declaration exists to collide with, and a same-name default adds no
 		// rename at all: the .inl carries the bare reference and NO declaration of the binding.
 		{
-			const FString Src = TEXT("import FmtD, { Hue } from \"./Deck2\"\nexport FRuiNode T() {\n")
+			const FString Src = TEXT("import FmtD, { Hue } from \"./Deck2\"\nexport FRuitkNode T() {\n")
 				TEXT("\tauto X = Hue;\n\tauto S = FmtD(1);\n\treturn ( <Spacer /> );\n}\n");
 			const FUetkxCompileOutput Out2 = FUetkxCodegen::CompileSource(Src, TEXT("T"), Rel, &R3);
 			TArray<FString> C;
@@ -305,7 +305,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		// that live outside the scanned bodies (they emit into the generated code).
 		{ // a value used ONLY in a component param default is used
 			const TArray<FString> C =
-				Codes(TEXT("import { Tint } from \"./Deck\"\nexport FRuiNode T(FLinearColor C2 = Tint) {\n")
+				Codes(TEXT("import { Tint } from \"./Deck\"\nexport FRuitkNode T(FLinearColor C2 = Tint) {\n")
 						  TEXT("\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
 			HasNot(C, TEXT("UETKX2304"));
@@ -313,7 +313,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		{ // a value used ONLY in a util's param default is used
 			const TArray<FString> C =
 				Codes(TEXT("import { Tint } from \"./Deck\"\nexport FString F2(FLinearColor C2 = Tint) {\n")
-						  TEXT("\treturn FString();\n}\nexport FRuiNode T() {\n\treturn ( <Spacer /> );\n}\n"),
+						  TEXT("\treturn FString();\n}\nexport FRuitkNode T() {\n\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
 			HasNot(C, TEXT("UETKX2304"));
 		}
@@ -335,19 +335,19 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		// spelling (a reference BEFORE the local declaration) still diagnoses.
 		{
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
+				Codes(TEXT("export FRuitkNode T() {\n\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
 						  TEXT("\tauto X = Cool;\n\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
 			HasNot(C, TEXT("UETKX2305"));
 		}
 		{
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T(FLinearColor Cool) {\n\tauto X = Cool;\n\treturn ( <Spacer /> );\n}\n"),
+				Codes(TEXT("export FRuitkNode T(FLinearColor Cool) {\n\tauto X = Cool;\n\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
 			HasNot(C, TEXT("UETKX2305"));
 		}
 		{ // the reference sits BEFORE the shadowing declaration → still an external ref → 2305
-			const TArray<FString> C = Codes(TEXT("export FRuiNode T() {\n\tauto X = Cool;\n")
+			const TArray<FString> C = Codes(TEXT("export FRuitkNode T() {\n\tauto X = Cool;\n")
 												TEXT("\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
 													TEXT("\treturn ( <Spacer /> );\n}\n"),
 											Rel, R3);
@@ -355,7 +355,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		}
 		{ // a RANGE-FOR variable named like an exported value is a local — no 2305 (audit)
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n\tTArray<FLinearColor> Tints;\n")
+				Codes(TEXT("export FRuitkNode T() {\n\tTArray<FLinearColor> Tints;\n")
 						  TEXT("\tfor (const FLinearColor& Cool : Tints) {\n\t\tauto X = Cool;\n\t}\n")
 							  TEXT("\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
@@ -363,7 +363,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		}
 		{ // a LAMBDA parameter named like an exported value is a local — no 2305 (audit)
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n")
+				Codes(TEXT("export FRuitkNode T() {\n")
 						  TEXT("\tauto Fn = [](const FLinearColor& Cool) { auto X = Cool; return X; };\n")
 							  TEXT("\treturn ( <Spacer /> );\n}\n"),
 					  Rel, R3);
@@ -375,7 +375,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 			Write(Root / TEXT("Screens/Props.uetkx"),
 				  TEXT("export FLinearColor Value = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f);\n"));
 			const FUetkxFsResolver R4(Root, {Root}, /*bFixtureMode*/ true);
-			const TArray<FString> C = Codes(TEXT("export FRuiNode T(bool bOn) {\n")
+			const TArray<FString> C = Codes(TEXT("export FRuitkNode T(bool bOn) {\n")
 												TEXT("\tif (bOn) {\n\t\treturn ( <Slider Value={ 0.5f } /> );\n\t}\n")
 													TEXT("\tauto X = Value;\n\treturn ( <Spacer /> );\n}\n"),
 											Rel, R4);
@@ -384,7 +384,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		{ // a directive-lead local shadowing an exported value stays local inside the nested
 		  // window's attr expression — no 2305 (audit)
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n\treturn (\n\t\t<VerticalBox>\n") TEXT("\t\t\t@if (true) {\n")
+				Codes(TEXT("export FRuitkNode T() {\n\treturn (\n\t\t<VerticalBox>\n") TEXT("\t\t\t@if (true) {\n")
 						  TEXT("\t\t\t\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
 							  TEXT("\t\t\t\treturn ( <Border BorderBackgroundColor={ Cool } /> )\n\t\t\t}\n")
 								  TEXT("\t\t</VerticalBox>\n\t);\n}\n"),
@@ -395,21 +395,21 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		// N5 (TD-034 #3): markup-window usage joins the reference set — attr expressions,
 		// directive headers/bodies. Text children never count (N-08).
 		{ // a value used ONLY in an attr expression: its import is USED (no false 2304)
-			const TArray<FString> C = Codes(TEXT("import { Cool } from \"./Palette\"\nexport FRuiNode T() {\n")
+			const TArray<FString> C = Codes(TEXT("import { Cool } from \"./Palette\"\nexport FRuitkNode T() {\n")
 												TEXT("\treturn ( <Border BorderBackgroundColor={ Cool } /> );\n}\n"),
 											Rel, R3);
 			HasNot(C, TEXT("UETKX2304"));
 			HasNot(C, TEXT("UETKX2305"));
 		}
 		{ // …and WITHOUT the import, the attr-expr use is 2305 (silent before N5)
-			const TArray<FString> C = Codes(TEXT("export FRuiNode T() {\n")
+			const TArray<FString> C = Codes(TEXT("export FRuitkNode T() {\n")
 												TEXT("\treturn ( <Border BorderBackgroundColor={ Cool } /> );\n}\n"),
 											Rel, R3);
 			Has(C, TEXT("UETKX2305"));
 		}
 		{ // a util called inside an @if directive body → 2305 without the import
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n\treturn (\n\t\t<VerticalBox>\n")
+				Codes(TEXT("export FRuitkNode T() {\n\treturn (\n\t\t<VerticalBox>\n")
 						  TEXT("\t\t\t@if (true) {\n\t\t\t\treturn ( <TextBlock Text={ FText::FromString(FmtP(1)) } /> "
 							   ")\n\t\t\t}\n") TEXT("\t\t</VerticalBox>\n\t);\n}\n"),
 					  Rel, R3);
@@ -417,7 +417,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		}
 		{ // an @for loop var named like an exported value is a LOCAL — never a false 2305
 			const TArray<FString> C =
-				Codes(TEXT("export FRuiNode T() {\n\treturn (\n\t\t<VerticalBox>\n")
+				Codes(TEXT("export FRuitkNode T() {\n\treturn (\n\t\t<VerticalBox>\n")
 						  TEXT("\t\t\t@for (int32 Cool = 0; Cool < 3; ++Cool) {\n")
 							  TEXT("\t\t\t\treturn ( <TextBlock Text={ FText::AsNumber(Cool) } /> )\n\t\t\t}\n")
 								  TEXT("\t\t</VerticalBox>\n\t);\n}\n"),
@@ -426,7 +426,7 @@ bool FRuiUetkxResolveTest::RunTest(const FString&)
 		}
 		{ // a setup local is live inside markup islands (the conservative union seed)
 			const TArray<FString> C = Codes(
-				TEXT("export FRuiNode T() {\n") TEXT("\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
+				TEXT("export FRuitkNode T() {\n") TEXT("\tFLinearColor Cool = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);\n")
 					TEXT("\treturn ( <Border BorderBackgroundColor={ Cool } /> );\n}\n"),
 				Rel, R3);
 			HasNot(C, TEXT("UETKX2305"));

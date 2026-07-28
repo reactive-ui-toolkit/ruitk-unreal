@@ -7,8 +7,8 @@
 #include "ILiveCodingModule.h"
 #include "Modules/ModuleManager.h"
 #include "ReactiveUetkxEditorSettings.h"
-#include "RuiReconciler.h"
-#include "RuiNode.h"
+#include "RuitkReconciler.h"
+#include "RuitkNode.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
 #if PLATFORM_WINDOWS
@@ -98,7 +98,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 	PatchCompleteHandle = LC->GetOnPatchCompleteDelegate().AddRaw(this, &FUetkxHmrController::OnPatchComplete);
 	bActive = true;
 	bDirtyAgain = false;
-	RUI::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
+	Ruitk::SetHmrHookTracking(true); // TB-13: record hook shapes so a shape-changing edit resets state
 	StartConsoleHider();		   // keep Epic's console window hidden while HMR drives the compiles (opt-out setting)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
@@ -132,7 +132,7 @@ void FUetkxHmrController::StopInternal(bool bForceDisableSession)
 	PatchCompleteHandle.Reset();
 	StopConsoleHider();
 	bActive = false;
-	RUI::SetHmrHookTracking(false); // TB-13
+	Ruitk::SetHmrHookTracking(false); // TB-13
 	bDirtyAgain = false;
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] stopped%s"),
 		   bForceDisableSession ? TEXT(" (Live Coding session disabled — external builds restored)") : TEXT(""));
@@ -356,7 +356,7 @@ void FUetkxHmrController::OnPatchComplete()
 	{
 		return;
 	}
-	RUI::BumpHmrGeneration(); // TB-13: the refresh renders compare hook shapes across THIS boundary
+	Ruitk::BumpHmrGeneration(); // TB-13: the refresh renders compare hook shapes across THIS boundary
 	RefreshLiveRoots();
 	++Status.Swaps;
 	Status.LastMs = (FPlatformTime::Seconds() - CycleStartSeconds) * 1000.0;
@@ -401,8 +401,8 @@ void FUetkxHmrController::RefreshLiveRoots()
 {
 	// The compiled component functions were patched in place; re-render every live root so the fibers
 	// call the new code. Hook state lives on the heap (untouched by the patch) → preserved.
-	FRuiReconciler::ForEachLive(
-		[](FRuiReconciler& Reconciler)
+	FRuitkReconciler::ForEachLive(
+		[](FRuitkReconciler& Reconciler)
 		{
 			Reconciler.HmrRefreshAll();
 			Reconciler.FlushSync();

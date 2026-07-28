@@ -2,7 +2,7 @@
 //
 // TD-022 / D-17 — asset brushes. An FSlateBrush that points at a UObject (UTexture2D,
 // UMaterialInterface, ...) carries only a RAW ResourceObject pointer; nothing roots it, so GC
-// would collect the asset out from under Slate mid-paint. RUI::Umg::MakeAssetBrush builds the
+// would collect the asset out from under Slate mid-paint. Ruitk::Umg::MakeAssetBrush builds the
 // brush AND registers it with a process-wide FGCObject that keeps every LIVE brush's resource
 // object referenced (dead brushes — the props that owned them released — are compacted out).
 //
@@ -17,7 +17,7 @@
 
 class UObject;
 
-namespace RUI::Umg
+namespace Ruitk::Umg
 {
 	/**
 	 * Build a GC-rooted asset brush. `ResourceObject` is a UTexture2D / UMaterialInterface / etc.
@@ -31,4 +31,4 @@ namespace RUI::Umg
 
 	/** How many live asset brushes the GC root currently tracks (test/diagnostic). */
 	RUITKUMG_API int32 NumTrackedAssetBrushes();
-} // namespace RUI::Umg
+} // namespace Ruitk::Umg

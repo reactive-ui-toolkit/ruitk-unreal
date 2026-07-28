@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Slate.DragDrop — TD-004 drag-and-drop half: the FRuiDragDropOp payload carrier, the
-// SRuiDropTarget accept/reject + hover + drop-fire logic, and the SRuiDragSource begin-drag path.
+// Ruitk.Slate.DragDrop — TD-004 drag-and-drop half: the FRuitkDragDropOp payload carrier, the
+// SRuitkDropTarget accept/reject + hover + drop-fire logic, and the SRuitkDragSource begin-drag path.
 // Slate DnD overrides are directly callable, so the suite drives a synthetic drop (a hand-built
 // FDragDropEvent over our op) without a live Slate drag loop.
 
@@ -9,7 +9,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Input/DragAndDrop.h"
 #include "Input/Events.h"
-#include "RuiDragDrop.h"
+#include "RuitkDragDrop.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
@@ -22,11 +22,11 @@ namespace DragDropTest
 	static int32 GDragEnded = -1; // -1 unset, 0 = not handled, 1 = handled
 } // namespace DragDropTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiDragDropTest, "ReactiveUI.Slate.DragDrop",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDragDropTest, "Ruitk.Slate.DragDrop",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiDragDropTest::RunTest(const FString&)
+bool FRuitkDragDropTest::RunTest(const FString&)
 {
-	using namespace RUI::Slate;
+	using namespace Ruitk::Slate;
 	using namespace DragDropTest;
 
 	if (!FSlateApplication::IsInitialized())
@@ -39,7 +39,7 @@ bool FRuiDragDropTest::RunTest(const FString&)
 	{
 		GDragEnded = -1;
 		int32 EndCalls = 0;
-		TSharedRef<FRuiDragDropOp> Op = FRuiDragDropOp::New(FName(TEXT("card")), FRuiValue(7),
+		TSharedRef<FRuitkDragDropOp> Op = FRuitkDragDropOp::New(FName(TEXT("card")), FRuitkValue(7),
 															[&EndCalls](bool bHandled)
 															{
 																++EndCalls;
@@ -58,12 +58,12 @@ bool FRuiDragDropTest::RunTest(const FString&)
 	// ── drop target: accepts a matching type, fires OnDrop with the payload ─────────────────────
 	{
 		GDropped = -99;
-		TSharedRef<SRuiDropTarget> Target = SNew(SRuiDropTarget);
+		TSharedRef<SRuitkDropTarget> Target = SNew(SRuitkDropTarget);
 		Target->SetAcceptTypes({FName(TEXT("card"))});
-		Target->SetOnDrop(FRuiCallback::Create([](const FRuiValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
+		Target->SetOnDrop(FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
 
 		FPointerEvent Pointer;
-		FDragDropEvent Accepted(Pointer, FRuiDragDropOp::New(FName(TEXT("card")), FRuiValue(42)));
+		FDragDropEvent Accepted(Pointer, FRuitkDragDropOp::New(FName(TEXT("card")), FRuitkValue(42)));
 		const FReply R = Target->OnDrop(FGeometry(), Accepted);
 		TestTrue(TEXT("accepted drop is handled"), R.IsEventHandled());
 		TestEqual(TEXT("OnDrop received the payload"), GDropped, 42);
@@ -72,12 +72,12 @@ bool FRuiDragDropTest::RunTest(const FString&)
 	// ── drop target: rejects a non-accepted type (no fire, unhandled) ───────────────────────────
 	{
 		GDropped = -99;
-		TSharedRef<SRuiDropTarget> Target = SNew(SRuiDropTarget);
+		TSharedRef<SRuitkDropTarget> Target = SNew(SRuitkDropTarget);
 		Target->SetAcceptTypes({FName(TEXT("card"))});
-		Target->SetOnDrop(FRuiCallback::Create([](const FRuiValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
+		Target->SetOnDrop(FRuitkCallback::Create([](const FRuitkValue& V) { GDropped = static_cast<int32>(V.IntValue); }));
 
 		FPointerEvent Pointer;
-		FDragDropEvent Rejected(Pointer, FRuiDragDropOp::New(FName(TEXT("token")), FRuiValue(99)));
+		FDragDropEvent Rejected(Pointer, FRuitkDragDropOp::New(FName(TEXT("token")), FRuitkValue(99)));
 		const FReply R = Target->OnDrop(FGeometry(), Rejected);
 		TestFalse(TEXT("rejected drop is unhandled"), R.IsEventHandled());
 		TestEqual(TEXT("OnDrop did not fire for a rejected type"), GDropped, -99);
@@ -87,14 +87,14 @@ bool FRuiDragDropTest::RunTest(const FString&)
 	{
 		GEntered = -99;
 		GLeft = false;
-		TSharedRef<SRuiDropTarget> Target = SNew(SRuiDropTarget);
+		TSharedRef<SRuitkDropTarget> Target = SNew(SRuitkDropTarget);
 		// no SetAcceptTypes -> accept any
 		Target->SetOnDragEnter(
-			FRuiCallback::Create([](const FRuiValue& V) { GEntered = static_cast<int32>(V.IntValue); }));
-		Target->SetOnDragLeave(FRuiCallback::Create([](const FRuiValue&) { GLeft = true; }));
+			FRuitkCallback::Create([](const FRuitkValue& V) { GEntered = static_cast<int32>(V.IntValue); }));
+		Target->SetOnDragLeave(FRuitkCallback::Create([](const FRuitkValue&) { GLeft = true; }));
 
 		FPointerEvent Pointer;
-		FDragDropEvent Enter(Pointer, FRuiDragDropOp::New(FName(TEXT("anything")), FRuiValue(5)));
+		FDragDropEvent Enter(Pointer, FRuitkDragDropOp::New(FName(TEXT("anything")), FRuitkValue(5)));
 		Target->OnDragEnter(FGeometry(), Enter);
 		TestTrue(TEXT("hover is set on enter"), Target->IsOver());
 		TestEqual(TEXT("OnDragEnter received the payload"), GEntered, 5);
@@ -107,11 +107,11 @@ bool FRuiDragDropTest::RunTest(const FString&)
 	// ── drag source: OnDragDetected begins the operation and fires OnDragStart with the payload ──
 	{
 		GDragStarted = -99;
-		TSharedRef<SRuiDragSource> Source = SNew(SRuiDragSource);
+		TSharedRef<SRuitkDragSource> Source = SNew(SRuitkDragSource);
 		Source->SetDragType(FName(TEXT("card")));
-		Source->SetPayload(FRuiValue(123));
+		Source->SetPayload(FRuitkValue(123));
 		Source->SetOnDragStart(
-			FRuiCallback::Create([](const FRuiValue& V) { GDragStarted = static_cast<int32>(V.IntValue); }));
+			FRuitkCallback::Create([](const FRuitkValue& V) { GDragStarted = static_cast<int32>(V.IntValue); }));
 
 		FPointerEvent Pointer;
 		const FReply R = Source->OnDragDetected(FGeometry(), Pointer);

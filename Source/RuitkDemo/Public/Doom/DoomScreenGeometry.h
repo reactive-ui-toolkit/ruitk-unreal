@@ -40,7 +40,7 @@
 
 #include "CoreMinimal.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	/** Minimum wall/seg brightness (GODOT ADDITION, inherited): dark sectors otherwise crush
 	 *  walls, thin stair risers and mortar columns to near-black (hard black bars). Raise for
@@ -161,4 +161,4 @@ namespace RuiDoom
 	 *  frame the sibling ports hardcode (all math scales from it). */
 	RUITKDEMO_API void BuildFrameGeometry(const FGameState& State, FDoomBrushPool& Brushes, const FVector2D& ViewportSize,
 										FDoomFrameGeometry& Out);
-} // namespace RuiDoom
+} // namespace RuitkDoom

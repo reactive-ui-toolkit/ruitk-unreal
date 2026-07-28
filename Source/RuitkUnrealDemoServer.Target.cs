@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 // Dedicated-server target. Exists from day one because MASTER_PLAN D-27's server policy is
 // CI-verified: ReactiveUI modules stay present on Server targets (no TargetDenyList — that
-// would break user Build.cs), and runtime behavior is gated instead (URuiSubsystem declines
+// would break user Build.cs), and runtime behavior is gated instead (URuitkSubsystem declines
 // to create on dedicated servers; mounts checkf a non-server world).
 public class RuitkUnrealDemoServerTarget : TargetRules
 {
@@ -14,6 +14,6 @@ public class RuitkUnrealDemoServerTarget : TargetRules
 		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
-		ExtraModuleNames.Add("RuiDemo");
+		ExtraModuleNames.Add("RuitkDemo");
 	}
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // ── component-pipeline station 5 TEMPLATE ────────────────────────────────────────────────
-// Per-widget automation test. Lives in Source/RuiHostTests/Private/Widgets/. Replace
+// Per-widget automation test. Lives in Source/RuitkHostTests/Private/Widgets/. Replace
 // __TAG__/__SLATE_CLASS__; keep the four sections — they are the family contract for what
 // EVERY widget must prove. Demonstrate red→green once before calling it done (break the
 // adapter, watch this fail, restore) — a test that never failed asserts nothing.
@@ -10,15 +10,15 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRui__TAG__Test, "ReactiveUI.Widgets.__TAG__",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitk__TAG__Test, "Ruitk.Widgets.__TAG__",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
-bool FRui__TAG__Test::RunTest(const FString& Parameters)
+bool FRuitk__TAG__Test::RunTest(const FString& Parameters)
 {
 	// Print per-section markers so hangs name their culprit (house rule).
 
 	AddInfo(TEXT("[__TAG__] 1/4 create"));
-	// Mount RUI::__TAG__() with initial props on the test root; assert the live widget is
+	// Mount Ruitk::__TAG__() with initial props on the test root; assert the live widget is
 	// S__SLATE_CLASS__ and every initial prop landed (read back via the widget's getters).
 
 	AddInfo(TEXT("[__TAG__] 2/4 diff"));

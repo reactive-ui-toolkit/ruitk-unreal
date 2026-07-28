@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-022 closure (WIDGET_COMPLETION_PLAN wave 4) — the hierarchical item-model view.
-// STreeView on the SRuiListView pattern: per-row reconciler sub-roots + a GetChildren
-// accessor (the piece the flat FRuiValue item type couldn't carry) + CONTROLLED expansion
+// STreeView on the SRuitkListView pattern: per-row reconciler sub-roots + a GetChildren
+// accessor (the piece the flat FRuitkValue item type couldn't carry) + CONTROLLED expansion
 // (ExpandedItems diffed onto SetItemExpansion; OnExpansionChanged reports user toggles) +
 // the P5c column protocol (a Columns list builds the SHeaderRow; construct-only).
 //
@@ -12,26 +12,26 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiListView.h" // FRuiItemRenderer + the item-model conventions
+#include "RuitkListView.h" // FRuitkItemRenderer + the item-model conventions
 #include "Widgets/SCompoundWidget.h"
 #include "Widgets/Views/SHeaderRow.h"
 #include "Widgets/Views/STreeView.h"
 
-class FRuiRoot;
-class SRuiTreeRow;
+class FRuitkRoot;
+class SRuitkTreeRow;
 
 /** Child accessor: item -> its children (return the SAME TSharedPtrs every call — identity
  *  keys the rows and the expansion map). */
-using FRuiChildAccessor = TFunction<TArray<TSharedPtr<FRuiValue>>(const FRuiValue&)>;
+using FRuitkChildAccessor = TFunction<TArray<TSharedPtr<FRuitkValue>>(const FRuitkValue&)>;
 
 /** One header column (P5c): construct-only on the tree (a Columns change rebuilds the header). */
-struct FRuiHeaderColumn
+struct FRuitkHeaderColumn
 {
 	FName Id;
 	FText Label;
 	float FillWidth = 1.0f;
 
-	bool operator==(const FRuiHeaderColumn& O) const
+	bool operator==(const FRuitkHeaderColumn& O) const
 	{
 		return Id == O.Id && FillWidth == O.FillWidth &&
 			   (Label.IdenticalTo(O.Label) || Label.ToString() == O.Label.ToString());
@@ -41,45 +41,45 @@ struct FRuiHeaderColumn
 /** TreeView props. Expansion is CONTROLLED: ExpandedItems (by item identity) diffs onto the
  *  widget; user toggles report via OnExpansionChanged (Value = bool; pair with selection to
  *  know which item — or use the P2 handle for imperative reads). */
-struct RUITKSLATE_API FRuiTreeViewProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuitkTreeViewProps final : public FRuitkPropsBase
 {
-	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, Items, 0) // root items
-	RUI_PROP(TSharedPtr<FRuiItemRenderer>, RenderItem, 1)
-	RUI_PROP(TSharedPtr<FRuiChildAccessor>, GetChildren, 2)
-	RUI_PROP(TArray<TSharedPtr<FRuiValue>>, ExpandedItems, 3)
-	RUI_PROP(TArray<FRuiHeaderColumn>, Columns, 4)
-	RUI_PROP(FName, SelectionMode, 5)
-	RUI_PROP_EVENT(OnSelectionChanged, 6)
-	RUI_PROP_EVENT(OnExpansionChanged, 7)
-	RUI_PROPS_BODY(FRuiTreeViewProps,
-				   RUI_EQ(Items) RUI_EQ(RenderItem) RUI_EQ(GetChildren) RUI_EQ(ExpandedItems) RUI_EQ(Columns)
-					   RUI_EQ(SelectionMode) RUI_EQ(OnSelectionChanged) RUI_EQ(OnExpansionChanged))
+	RUITK_PROP(TArray<TSharedPtr<FRuitkValue>>, Items, 0) // root items
+	RUITK_PROP(TSharedPtr<FRuitkItemRenderer>, RenderItem, 1)
+	RUITK_PROP(TSharedPtr<FRuitkChildAccessor>, GetChildren, 2)
+	RUITK_PROP(TArray<TSharedPtr<FRuitkValue>>, ExpandedItems, 3)
+	RUITK_PROP(TArray<FRuitkHeaderColumn>, Columns, 4)
+	RUITK_PROP(FName, SelectionMode, 5)
+	RUITK_PROP_EVENT(OnSelectionChanged, 6)
+	RUITK_PROP_EVENT(OnExpansionChanged, 7)
+	RUITK_PROPS_BODY(FRuitkTreeViewProps,
+				   RUITK_EQ(Items) RUITK_EQ(RenderItem) RUITK_EQ(GetChildren) RUITK_EQ(ExpandedItems) RUITK_EQ(Columns)
+					   RUITK_EQ(SelectionMode) RUITK_EQ(OnSelectionChanged) RUITK_EQ(OnExpansionChanged))
 };
 
 /** The concrete tree widget (adapter-driven via the Set*() surface; headless helpers mirror
- *  SRuiListView's). */
-class RUITKSLATE_API SRuiTreeView : public SCompoundWidget
+ *  SRuitkListView's). */
+class RUITKSLATE_API SRuitkTreeView : public SCompoundWidget
 {
 public:
-	using FItemType = TSharedPtr<FRuiValue>;
+	using FItemType = TSharedPtr<FRuitkValue>;
 
-	SLATE_BEGIN_ARGS(SRuiTreeView) {}
-	SLATE_ARGUMENT(TArray<FRuiHeaderColumn>, Columns)
+	SLATE_BEGIN_ARGS(SRuitkTreeView) {}
+	SLATE_ARGUMENT(TArray<FRuitkHeaderColumn>, Columns)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
 	void SetItems(TArray<FItemType> InItems);
-	void SetRenderer(TSharedPtr<FRuiItemRenderer> InRenderer);
-	void SetChildAccessor(TSharedPtr<FRuiChildAccessor> InAccessor);
+	void SetRenderer(TSharedPtr<FRuitkItemRenderer> InRenderer);
+	void SetChildAccessor(TSharedPtr<FRuitkChildAccessor> InAccessor);
 	/** Controlled expansion: expand exactly this set (collapse everything else known). */
 	void SetExpandedItems(const TArray<FItemType>& InExpanded);
 	void SetSelectionMode(ESelectionMode::Type InMode);
-	void SetOnSelectionChanged(FRuiCallback InCallback);
-	void SetOnExpansionChanged(FRuiCallback InCallback);
+	void SetOnSelectionChanged(FRuitkCallback InCallback);
+	void SetOnExpansionChanged(FRuitkCallback InCallback);
 
-	FRuiNode BuildNodeFor(const FItemType& Item) const;
-	void TrackRow(const TSharedRef<SRuiTreeRow>& Row);
+	FRuitkNode BuildNodeFor(const FItemType& Item) const;
+	void TrackRow(const TSharedRef<SRuitkTreeRow>& Row);
 	void ForceGenerateRows(FVector2D ViewportSize);
 	int32 NumGeneratedRows() const;
 
@@ -94,28 +94,28 @@ private:
 	TSharedPtr<STreeView<FItemType>> TreeWidget;
 	TSharedPtr<SHeaderRow> Header;
 	TArray<FItemType> Items;
-	TSharedPtr<FRuiItemRenderer> Renderer;
-	TSharedPtr<FRuiChildAccessor> ChildAccessor;
+	TSharedPtr<FRuitkItemRenderer> Renderer;
+	TSharedPtr<FRuitkChildAccessor> ChildAccessor;
 	TArray<FItemType> KnownExpanded; // last controlled set (for collapse diffing)
-	FRuiCallback OnSelectionChanged;
-	FRuiCallback OnExpansionChanged;
+	FRuitkCallback OnSelectionChanged;
+	FRuitkCallback OnExpansionChanged;
 	ESelectionMode::Type SelectionModeValue = ESelectionMode::None;
 	bool bApplyingExpansion = false; // suppress OnExpansionChanged for programmatic changes
-	TArray<TWeakPtr<SRuiTreeRow>> LiveRows;
+	TArray<TWeakPtr<SRuitkTreeRow>> LiveRows;
 };
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	RUITKSLATE_API FRuiElementTypeId TreeViewType();
+	RUITKSLATE_API FRuitkElementTypeId TreeViewType();
 
 	/** A virtualized hierarchical tree (TD-022). C++-first, like ListView. */
-	RUITKSLATE_API FRuiNode TreeView(FRuiTreeViewProps Props = FRuiTreeViewProps(), FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuitkNode TreeView(FRuitkTreeViewProps Props = FRuitkTreeViewProps(), FRuitkKey Key = FRuitkKey());
 
 	/** Wrap a child accessor ONCE (UseMemo/UseRef it) — identity participates in props equality. */
-	RUITKSLATE_API TSharedPtr<FRuiChildAccessor> MakeChildAccessor(FRuiChildAccessor Fn);
+	RUITKSLATE_API TSharedPtr<FRuitkChildAccessor> MakeChildAccessor(FRuitkChildAccessor Fn);
 
 	namespace Detail
 	{
 		void RegisterTreeViewAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

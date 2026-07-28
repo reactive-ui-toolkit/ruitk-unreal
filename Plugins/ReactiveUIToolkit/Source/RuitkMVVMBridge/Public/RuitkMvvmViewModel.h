@@ -1,24 +1,24 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TD-021 — the MVVM-plugin-coupled reverse bridge + global-collection registration. URuiSignalViewModel
+// TD-021 — the MVVM-plugin-coupled reverse bridge + global-collection registration. URuitkSignalViewModel
 // (RuitkUMG) is the plugin-INDEPENDENT reverse bridge (hand-rolled FieldNotification). This is its
-// MVVM-plugin sibling: URuiMvvmViewModel derives UMVVMViewModelBase, so it can be REGISTERED IN THE MVVM
+// MVVM-plugin sibling: URuitkMvvmViewModel derives UMVVMViewModelBase, so it can be REGISTERED IN THE MVVM
 // GLOBAL VIEWMODEL COLLECTION and resolved by any UMG view binding by context name — the "globally
-// bindable, ours feeding theirs" story that needs the ModelViewViewModel plugin. Rui writes it via typed
-// setters or Set(FRuiValue); the MVVM base handles skip-when-equal + FieldNotify broadcast.
+// bindable, ours feeding theirs" story that needs the ModelViewViewModel plugin. Ruitk writes it via typed
+// setters or Set(FRuitkValue); the MVVM base handles skip-when-equal + FieldNotify broadcast.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "MVVMViewModelBase.h"
 #include "Templates/SubclassOf.h"
-#include "RuiMvvmViewModel.generated.h"
+#include "RuitkMvvmViewModel.generated.h"
 
-struct FRuiValue;
+struct FRuitkValue;
 class UGameInstance;
 
 UCLASS(BlueprintType, meta = (DisplayName = "ReactiveUI MVVM ViewModel"))
-class RUITKMVVMBRIDGE_API URuiMvvmViewModel : public UMVVMViewModelBase
+class RUITKMVVMBRIDGE_API URuitkMvvmViewModel : public UMVVMViewModelBase
 {
 	GENERATED_BODY()
 
@@ -40,11 +40,11 @@ public:
 	void SetBool(bool InValue);
 	void SetText(const FText& InValue);
 
-	/** Route an FRuiValue to the field matching its kind (Rui state -> the bound field). */
-	void Set(const FRuiValue& Value);
+	/** Route an FRuitkValue to the field matching its kind (Ruitk state -> the bound field). */
+	void Set(const FRuitkValue& Value);
 };
 
-namespace RUI::Mvvm
+namespace Ruitk::Mvvm
 {
 	/** Register `ViewModel` in the game instance's MVVM GLOBAL viewmodel collection under `ContextName`
 	 *  (context class = the viewmodel's class). Any UMG view can then bind it globally. False if the
@@ -56,4 +56,4 @@ namespace RUI::Mvvm
 	RUITKMVVMBRIDGE_API UMVVMViewModelBase*
 	FindGlobalViewModel(UGameInstance* GameInstance, FName ContextName,
 						TSubclassOf<UMVVMViewModelBase> ContextClass = nullptr);
-} // namespace RUI::Mvvm
+} // namespace Ruitk::Mvvm

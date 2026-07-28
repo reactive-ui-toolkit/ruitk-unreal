@@ -6,7 +6,7 @@
 #include "TextureResource.h"
 #include "UObject/StrongObjectPtr.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	namespace
 	{
@@ -1260,4 +1260,4 @@ namespace RuiDoom
 		check(Index >= 0 && Index < 8);
 		return GWeapons[Index].Get();
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

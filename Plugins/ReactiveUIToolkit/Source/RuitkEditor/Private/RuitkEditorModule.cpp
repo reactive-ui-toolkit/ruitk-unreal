@@ -38,7 +38,7 @@ public:
 		// R13 — inject the engine's FCoreStyle brush set into the toolchain: brush-name attrs
 		// (BorderImage) resolve at runtime EXCLUSIVELY through this fixed style set, so the
 		// valid names are closed per engine. The toolchain has no Slate dependency (D-27) —
-		// enumeration happens here and feeds both the UETKX0106 compile check (RUICompile,
+		// enumeration happens here and feeds both the UETKX0106 compile check (RuitkCompile,
 		// the watcher) and the schema export (`brushNames` — LSP validation + completion).
 		{
 			// Candidate names come from EVERY registered style set (GetStyleKeys does not walk

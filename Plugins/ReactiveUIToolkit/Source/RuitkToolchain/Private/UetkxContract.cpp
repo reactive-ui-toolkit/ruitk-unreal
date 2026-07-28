@@ -19,7 +19,7 @@ namespace
 
 FString FUetkxContract::DefaultFixtureDir()
 {
-	return FPaths::Combine(FPaths::ProjectDir(), TEXT("Source/RuiHostTests/ContractFixtures"));
+	return FPaths::Combine(FPaths::ProjectDir(), TEXT("Source/RuitkHostTests/ContractFixtures"));
 }
 
 FString FUetkxContract::SerializeDiags(const FUetkxCompileOutput& Output)
@@ -73,7 +73,7 @@ FUetkxContractResult FUetkxContract::Run(const FString& FixtureDir, bool bWrite)
 		{
 			++Out.Mismatched;
 			Out.Messages.Add(
-				FString::Printf(TEXT("%s: golden missing (%s) — run -run=RUIContractDump"), *Fixture, *GoldenPath));
+				FString::Printf(TEXT("%s: golden missing (%s) — run -run=RuitkContractDump"), *Fixture, *GoldenPath));
 			continue;
 		}
 		if (Normalized(Golden) != Normalized(Actual))

@@ -4,7 +4,7 @@
 
 #include "Doom/DoomTextures.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// ───── Builder ─────
 
@@ -969,4 +969,4 @@ namespace RuiDoom
 
 		return B.Build();
 	}
-} // namespace RuiDoom
+} // namespace RuitkDoom

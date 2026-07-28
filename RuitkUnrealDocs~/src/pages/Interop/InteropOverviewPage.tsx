@@ -10,12 +10,12 @@ const PILLARS: Array<[string, string, string]> = [
   [
     'UMG',
     'A door in both directions',
-    'Designers drop our UI inside their UserWidgets (URuiHostWidget); their widgets work inside our tree (RUI::Umg::UserWidget). See the UMG guide.',
+    'Designers drop our UI inside their UserWidgets (URuitkHostWidget); their widgets work inside our tree (Ruitk::Umg::UserWidget). See the UMG guide.',
   ],
   [
     'CommonUI',
     'Keeps owning menus & input',
-    'Input routing, back-handling, and focus stay CommonUI’s job. Our screens are pushed onto their activatable stacks (URuiActivatableScreen) and react via activation hooks. See the CommonUI guide.',
+    'Input routing, back-handling, and focus stay CommonUI’s job. Our screens are pushed onto their activatable stacks (URuitkActivatableScreen) and react via activation hooks. See the CommonUI guide.',
   ],
   [
     'MVVM / FieldNotify',
@@ -65,15 +65,15 @@ export const InteropOverviewPage: FC = () => (
       The named-component registry — how hosts find your UI
     </Typography>
     <Typography variant="body1" paragraph>
-      Every Epic-side host — <code>URuiHostWidget</code>, <code>URuiActivatableScreen</code>,{' '}
-      <code>URuiWorldSubsystem::MountNamed</code> — takes a <code>ComponentName</code> and resolves
+      Every Epic-side host — <code>URuitkHostWidget</code>, <code>URuitkActivatableScreen</code>,{' '}
+      <code>URuitkWorldSubsystem::MountNamed</code> — takes a <code>ComponentName</code> and resolves
       it against the <strong>named-component registry</strong>. Compiled <code>.uetkx</code>{' '}
       components self-register under a <em>file-qualified</em> id (every file is its own module,
       so two files may export the same component name); the <strong>short name still works</strong>{' '}
       whenever it is unambiguous — the registry resolves it by suffix. If two files export the
       same name, the host shows the qualified candidates and you paste one. Hand-written C++
-      components register with <code>RUI_COMPONENT(Fn)</code> or{' '}
-      <code>RUI::RegisterNamedFactory</code>; <code>RUI::GetRegisteredFactoryNames</code>{' '}
+      components register with <code>RUITK_COMPONENT(Fn)</code> or{' '}
+      <code>Ruitk::RegisterNamedFactory</code>; <code>Ruitk::GetRegisteredFactoryNames</code>{' '}
       enumerates everything registered.
     </Typography>
 
@@ -88,10 +88,10 @@ export const InteropOverviewPage: FC = () => (
     </Typography>
 
     <Alert severity="info">
-      Both doors are fully parameterizable: <code>URuiHostWidget</code> takes designer/Blueprint
+      Both doors are fully parameterizable: <code>URuitkHostWidget</code> takes designer/Blueprint
       <code>InitialProps</code> and a <code>ViewModel</code> (see the UMG guide), and a hosted
       tree designates its gamepad focus target with{' '}
-      <code>RUI::CommonUI::UseDesiredFocus</code> (see the CommonUI guide).
+      <code>Ruitk::CommonUI::UseDesiredFocus</code> (see the CommonUI guide).
     </Alert>
   </Box>
 )

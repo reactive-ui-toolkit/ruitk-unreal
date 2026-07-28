@@ -3,23 +3,23 @@ import { Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
 const OURS_IN_THEIRS = `// 1) Register a component (compiled .uetkx components self-register under a file-qualified id; short names resolve when unambiguous).
-RUI_COMPONENT(InventoryPanel);   // or: RUI::RegisterNamedFactory(TEXT("InventoryPanel"), ...);
+RUITK_COMPONENT(InventoryPanel);   // or: Ruitk::RegisterNamedFactory(TEXT("InventoryPanel"), ...);
 
-// 2) In the UMG Designer: drop a "ReactiveUI Host" (URuiHostWidget) into any
+// 2) In the UMG Designer: drop a "ReactiveUI Host" (URuitkHostWidget) into any
 //    UserWidget layout and set its ComponentName to "InventoryPanel".
 //    Design time shows a placeholder — live component code never runs in the Designer.
 //    At runtime RebuildWidget() mounts the tree; ReleaseSlateResources unmounts it
 //    (cleanups run first). Remount() re-resolves after changing ComponentName.
 
 // World-scoped alternative (Blueprint-callable, no UMG wrapper needed):
-URuiWorldSubsystem* Rui = World->GetSubsystem<URuiWorldSubsystem>();
-int32 Handle = Rui->MountNamed(TEXT("InventoryPanel"), /*ZOrder*/ 10);
+URuitkWorldSubsystem* Ruitk = World->GetSubsystem<URuitkWorldSubsystem>();
+int32 Handle = Ruitk->MountNamed(TEXT("InventoryPanel"), /*ZOrder*/ 10);
 // Roots tear down automatically when the world dies (PIE-end safe).`
 
 const HOST_PROPS = `// Inside the hosted component — read what the Designer/Blueprint set on the host:
-const FString Title = RUI::Umg::UseHostProp(FName(TEXT("Title")), TEXT("Inventory"));
-UObject* Vm = RUI::Umg::UseHostViewModel();                  // the host's ViewModel property
-const int32 Gold = RUI::Umg::UseField<int32>(Ctx, Vm, "Gold", 0); // subscribes; re-renders on change
+const FString Title = Ruitk::Umg::UseHostProp(FName(TEXT("Title")), TEXT("Inventory"));
+UObject* Vm = Ruitk::Umg::UseHostViewModel();                  // the host's ViewModel property
+const int32 Gold = Ruitk::Umg::UseField<int32>(Ctx, Vm, "Gold", 0); // subscribes; re-renders on change
 
 // On the UMG side (Designer details panel or Blueprint):
 //   Host->InitialProps.Add("Title", "War Chest");
@@ -29,13 +29,13 @@ const int32 Gold = RUI::Umg::UseField<int32>(Ctx, Vm, "Gold", 0); // subscribes;
 const THEIRS_IN_OURS = `// A UUserWidget as a child of our tree — from the InteropShowcase demo.
 // The widget is created for the owning world and its SObjectWidget slots in
 // like any other child; it stays GC-alive while mounted, released on unmount.
-{ RUI::Umg::UserWidget(UDemoUmgWidget::StaticClass(), World) }
+{ Ruitk::Umg::UserWidget(UDemoUmgWidget::StaticClass(), World) }
 
 // With a declarative prop map — name -> value, applied to the widget's
 // matching UPROPERTYs by reflection each commit (unknown names are skipped):
-FRuiStyleDict WidgetProps;
-WidgetProps.Add(FName(TEXT("Score")), FRuiValue(42));
-{ RUI::Umg::UserWidget(UScoreCard::StaticClass(), World, MoveTemp(WidgetProps)) }`
+FRuitkStyleDict WidgetProps;
+WidgetProps.Add(FName(TEXT("Score")), FRuitkValue(42));
+{ Ruitk::Umg::UserWidget(UScoreCard::StaticClass(), World, MoveTemp(WidgetProps)) }`
 
 export const UmgGuidePage: FC = () => (
   <Box>
@@ -49,13 +49,13 @@ export const UmgGuidePage: FC = () => (
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
-      Our UI inside theirs — <code>URuiHostWidget</code>
+      Our UI inside theirs — <code>URuitkHostWidget</code>
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>URuiHostWidget</code> is a designer-placeable <code>UWidget</code> (&quot;ReactiveUI
+      <code>URuitkHostWidget</code> is a designer-placeable <code>UWidget</code> (&quot;ReactiveUI
       Host&quot; in the palette). Point it at a registered component name; it mounts the tree when
       the widget builds and unmounts — running effect cleanups — when Slate resources release. For
-      HUD-style overlays with no UMG wrapper at all, <code>URuiWorldSubsystem::MountNamed</code>{' '}
+      HUD-style overlays with no UMG wrapper at all, <code>URuitkWorldSubsystem::MountNamed</code>{' '}
       mounts straight into the viewport, Blueprint-callable, with automatic teardown on world death.
     </Typography>
     <CodeBlock code={OURS_IN_THEIRS} language="uetkx" />
@@ -74,7 +74,7 @@ export const UmgGuidePage: FC = () => (
     <CodeBlock code={HOST_PROPS} language="uetkx" />
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
-      Their widgets inside ours — <code>RUI::Umg::UserWidget</code>
+      Their widgets inside ours — <code>Ruitk::Umg::UserWidget</code>
     </Typography>
     <Typography variant="body1" paragraph>
       Any <code>UUserWidget</code> class drops into the tree as an expression child. The host
@@ -89,7 +89,7 @@ export const UmgGuidePage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       To show a <code>UTexture2D</code>/material in a Slate <code>Image</code> or{' '}
-      <code>Border</code>, wrap it with <code>RUI::Umg::MakeAssetBrush</code> — the brush is
+      <code>Border</code>, wrap it with <code>Ruitk::Umg::MakeAssetBrush</code> — the brush is
       GC-rooted for its lifetime, no manual rooting. See <strong>Assets</strong>.
     </Typography>
   </Box>

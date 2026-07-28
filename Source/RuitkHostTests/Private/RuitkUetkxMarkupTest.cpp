@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Markup — pins the byte-compatible grammar: node shapes, attribute kinds,
+// Ruitk.Uetkx.Markup — pins the byte-compatible grammar: node shapes, attribute kinds,
 // rebasable offsets, the text model (braces literal mid-run), and the UETKX#### error codes
 // (family numbers). Cases mirror the semantics guitkx_test.gd pins for the Godot dialect.
 
@@ -20,9 +20,9 @@ namespace UetkxMarkupTest
 	}
 } // namespace UetkxMarkupTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxMarkupTest, "ReactiveUI.Uetkx.Markup",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxMarkupTest, "Ruitk.Uetkx.Markup",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxMarkupTest::RunTest(const FString&)
+bool FRuitkUetkxMarkupTest::RunTest(const FString&)
 {
 	using namespace UetkxMarkupTest;
 

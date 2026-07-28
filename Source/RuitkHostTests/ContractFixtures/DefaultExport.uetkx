@@ -1,4 +1,4 @@
-export FRuiNode DefaultExport() {
+export FRuitkNode DefaultExport() {
 	return (
 		<Spacer />
 	);

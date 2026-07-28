@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiCoreMisc.h"
+#include "RuitkCoreMisc.h"
 #include "HAL/IConsoleManager.h"
 #include "Misc/App.h"
 
@@ -46,27 +46,27 @@ static TAutoConsoleVariable<bool> CVarRuiStrictMode(TEXT("rui.StrictMode"), fals
 													TEXT("Dev double-render: render functions run twice, first result "
 														 "discarded (flushes impure renders and stale captures)."));
 
-bool FRuiConfig::IsTimeSlicing()
+bool FRuitkConfig::IsTimeSlicing()
 {
 	return CVarRuiTimeSlicing.GetValueOnGameThread();
 }
-float FRuiConfig::FrameBudgetMs()
+float FRuitkConfig::FrameBudgetMs()
 {
 	return CVarRuiFrameBudgetMs.GetValueOnGameThread();
 }
-bool FRuiConfig::IsHostNodePoolEnabled()
+bool FRuitkConfig::IsHostNodePoolEnabled()
 {
 	return CVarRuiHostNodePool.GetValueOnGameThread();
 }
-bool FRuiConfig::IsHookValidationEnabled()
+bool FRuitkConfig::IsHookValidationEnabled()
 {
 	return CVarRuiHookValidation.GetValueOnGameThread();
 }
-bool FRuiConfig::IsStrictDiagnosticsEnabled()
+bool FRuitkConfig::IsStrictDiagnosticsEnabled()
 {
 	return CVarRuiStrictDiagnostics.GetValueOnGameThread();
 }
-bool FRuiConfig::IsStrictModeEnabled()
+bool FRuitkConfig::IsStrictModeEnabled()
 {
 #if UE_BUILD_SHIPPING
 	return false; // never in shipping, regardless of the CVar
@@ -77,16 +77,16 @@ bool FRuiConfig::IsStrictModeEnabled()
 
 // ── Diagnostics ──────────────────────────────────────────────────────────────────────────
 
-bool FRuiDiagnostics::bEnabled = false;
-bool FRuiDiagnostics::bCapture = false;
-TArray<FString> FRuiDiagnostics::Messages;
-int32 FRuiDiagnostics::Renders = 0;
-int32 FRuiDiagnostics::Commits = 0;
-int32 FRuiDiagnostics::Placements = 0;
-int32 FRuiDiagnostics::Updates = 0;
-int32 FRuiDiagnostics::Deletions = 0;
+bool FRuitkDiagnostics::bEnabled = false;
+bool FRuitkDiagnostics::bCapture = false;
+TArray<FString> FRuitkDiagnostics::Messages;
+int32 FRuitkDiagnostics::Renders = 0;
+int32 FRuitkDiagnostics::Commits = 0;
+int32 FRuitkDiagnostics::Placements = 0;
+int32 FRuitkDiagnostics::Updates = 0;
+int32 FRuitkDiagnostics::Deletions = 0;
 
-void FRuiDiagnostics::Emit(const FString& Msg)
+void FRuitkDiagnostics::Emit(const FString& Msg)
 {
 	if (bCapture)
 	{
@@ -94,12 +94,12 @@ void FRuiDiagnostics::Emit(const FString& Msg)
 	}
 }
 
-void FRuiDiagnostics::ClearMessages()
+void FRuitkDiagnostics::ClearMessages()
 {
 	Messages.Empty();
 }
 
-void FRuiDiagnostics::Reset()
+void FRuitkDiagnostics::Reset()
 {
 	Renders = Commits = Placements = Updates = Deletions = 0;
 }
@@ -114,7 +114,7 @@ namespace
 	bool bGRuiIsRendering = false;
 } // namespace
 
-namespace RUI
+namespace Ruitk
 {
 	void FailRender(const FString& Reason)
 	{
@@ -139,4 +139,4 @@ namespace RUI
 	{
 		bGRuiIsRendering = bInRendering;
 	}
-} // namespace RUI
+} // namespace Ruitk

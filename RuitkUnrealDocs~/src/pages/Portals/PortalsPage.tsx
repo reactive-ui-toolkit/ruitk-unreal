@@ -5,16 +5,16 @@ import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 const PORTAL = `// 1) Get a target: a portal target is a host handle. Capture one from any
 //    mounted widget with the universal Ref={ } attribute (React ref lifecycle:
 //    called with the handle on attach, cleared on detach):
-const TSharedRef<TRuiRef<FRuiPortalHandle>>& Target = UseRef<FRuiPortalHandle>();
+const TSharedRef<TRuitkRef<FRuitkPortalHandle>>& Target = UseRef<FRuitkPortalHandle>();
 
-<Overlay Ref={ [Target](const FRuiHostHandle& H) { Target->Current = H; } }>
+<Overlay Ref={ [Target](const FRuitkHostHandle& H) { Target->Current = H; } }>
 	{ /* ...app content... */ }
 </Overlay>
 
 // 2) Render children into it from anywhere in the tree (an {expr} child):
 { bShowModal && Target->Current
-	? RUI::Portal(Target->Current, { RUI::FC(&PauseModal) })
-	: RUI::Fragment({}) }`
+	? Ruitk::Portal(Target->Current, { Ruitk::FC(&PauseModal) })
+	: Ruitk::Fragment({}) }`
 
 export const PortalsPage: FC = () => (
   <Box>
@@ -22,7 +22,7 @@ export const PortalsPage: FC = () => (
       Portals
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>RUI::Portal(Target, Children, Key)</code> renders children under a different widget
+      <code>Ruitk::Portal(Target, Children, Key)</code> renders children under a different widget
       than their parent — the escape hatch for modals, tooltips and overlays that must break out
       of their ancestor&apos;s clipping or stacking. The portal&apos;s fiber still belongs to the
       component that rendered it: state, context and effects work normally, and unmounting the
@@ -34,7 +34,7 @@ export const PortalsPage: FC = () => (
       Targets are host handles
     </Typography>
     <Typography variant="body1" paragraph>
-      A portal target (<code>FRuiPortalHandle</code>) is a handle to a live host widget — capture
+      A portal target (<code>FRuitkPortalHandle</code>) is a handle to a live host widget — capture
       one with the universal <code>Ref=&#123; expr &#125;</code> attribute (markup) or the
       props-level <code>Ref</code> field (C++); both receive the handle on attach and clear on
       detach. On the Slate host, targets are ordinary widget handles, so any panel you can

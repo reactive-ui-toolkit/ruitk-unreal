@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// TRuiSignal<T> — reactive value stores OUTSIDE the component tree (signal_store.gd /
+// TRuitkSignal<T> — reactive value stores OUTSIDE the component tree (signal_store.gd /
 // signal_registry.gd), plus the UseSignal/UseSignalKey hooks implemented with React's
 // useSyncExternalStore discipline (D-08.5): render reads the snapshot; SUBSCRIPTION happens
 // in a passive effect with a post-subscribe re-check — restart-safe by construction, which
@@ -9,19 +9,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiContext.h"
+#include "RuitkContext.h"
 
 /** Type-erased base so the FName registry can hold heterogeneous signals. */
-class RUITKCORE_API FRuiSignalBase
+class RUITKCORE_API FRuitkSignalBase
 {
 public:
-	virtual ~FRuiSignalBase() = default;
+	virtual ~FRuitkSignalBase() = default;
 };
 
-template <typename T> class TRuiSignal final : public FRuiSignalBase
+template <typename T> class TRuitkSignal final : public FRuitkSignalBase
 {
 public:
-	explicit TRuiSignal(T Initial = T()) : Value(MoveTemp(Initial)) {}
+	explicit TRuitkSignal(T Initial = T()) : Value(MoveTemp(Initial)) {}
 
 	const T& Get() const { return Value; }
 
@@ -72,54 +72,54 @@ private:
 /** Process-wide FName-keyed shared signals (signal_registry.gd). Keyed signals OUTLIVE the
  *  components that read them — that is the point (shared app state). Runtime type check on
  *  key collision (family: the registry is honest about misuse, never silent). */
-namespace RUI
+namespace Ruitk
 {
-	RUITKCORE_API TSharedPtr<FRuiSignalBase>* FindOrAddSignalSlot(FName Key);
-	RUITKCORE_API TSharedPtr<FRuiSignalBase> TryGetSignal(FName Key);
+	RUITKCORE_API TSharedPtr<FRuitkSignalBase>* FindOrAddSignalSlot(FName Key);
+	RUITKCORE_API TSharedPtr<FRuitkSignalBase> TryGetSignal(FName Key);
 	RUITKCORE_API bool HasSignal(FName Key);
 	/** Drop all keyed signals (subscribers NOT notified) — full session reset. */
 	RUITKCORE_API void ClearSignals();
 
-	template <typename T> TSharedRef<TRuiSignal<T>> GetOrCreateSignal(FName Key, T Initial = T())
+	template <typename T> TSharedRef<TRuitkSignal<T>> GetOrCreateSignal(FName Key, T Initial = T())
 	{
-		TSharedPtr<FRuiSignalBase>* Slot = FindOrAddSignalSlot(Key);
+		TSharedPtr<FRuitkSignalBase>* Slot = FindOrAddSignalSlot(Key);
 		if (!Slot->IsValid())
 		{
-			*Slot = MakeShared<TRuiSignal<T>>(MoveTemp(Initial));
+			*Slot = MakeShared<TRuitkSignal<T>>(MoveTemp(Initial));
 		}
-		return StaticCastSharedRef<TRuiSignal<T>>(Slot->ToSharedRef());
+		return StaticCastSharedRef<TRuitkSignal<T>>(Slot->ToSharedRef());
 	}
-} // namespace RUI
+} // namespace Ruitk
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // The signal hooks. Cell holds the SNAPSHOT + the live unsubscribe (dtor releases it —
 // teardown-by-destructor, the C++ half of _dispose_fiber_state).
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-template <typename TSelected> struct TRuiSignalCell final : IRuiHookCell
+template <typename TSelected> struct TRuitkSignalCell final : IRuitkHookCell
 {
 	TSelected Value{};
 	TFunction<void()> Unsub;
 	const void* BoundSignal = nullptr; // identity of the subscribed signal (re-subscribe detection)
 
-	virtual ~TRuiSignalCell() override
+	virtual ~TRuitkSignalCell() override
 	{
 		if (Unsub)
 		{
 			Unsub();
 		}
 	}
-	virtual ERuiHookKind GetKind() const override { return ERuiHookKind::Signal; }
-	RUI_HOOK_CELL_TYPE()
+	virtual ERuitkHookKind GetKind() const override { return ERuitkHookKind::Signal; }
+	RUITK_HOOK_CELL_TYPE()
 };
 
-namespace RUI
+namespace Ruitk
 {
 	/** UseSignal with selector: re-renders when the SELECTED slice changes. */
 	template <typename T, typename TSelected>
-	TSelected UseSignal(FRuiContext& Ctx, const TSharedRef<TRuiSignal<T>>& Sig, TFunction<TSelected(const T&)> Selector)
+	TSelected UseSignal(FRuitkContext& Ctx, const TSharedRef<TRuitkSignal<T>>& Sig, TFunction<TSelected(const T&)> Selector)
 	{
-		TRuiSignalCell<TSelected>* Cell = Ctx.template AcquireCell<TRuiSignalCell<TSelected>>(ERuiHookKind::Signal);
+		TRuitkSignalCell<TSelected>* Cell = Ctx.template AcquireCell<TRuitkSignalCell<TSelected>>(ERuitkHookKind::Signal);
 		const bool bFirst = (Cell->BoundSignal == nullptr);
 
 		// Render reads the snapshot directly from the store (never stale).
@@ -127,22 +127,22 @@ namespace RUI
 
 		// Subscribe in an EFFECT keyed on the signal's identity; the effect body re-checks
 		// the snapshot (the useSyncExternalStore tear-window re-check).
-		TWeakPtr<FRuiComponentState> Weak = Ctx.StateWeak();
+		TWeakPtr<FRuitkComponentState> Weak = Ctx.StateWeak();
 		const int32 SlotIndex = Ctx.GetState().HookIndex - 1;
-		TSharedRef<TRuiSignal<T>> SigCopy = Sig;
+		TSharedRef<TRuitkSignal<T>> SigCopy = Sig;
 		TFunction<TSelected(const T&)> SelCopy = Selector;
 		Ctx.InternalUseEffect(
-			[Weak, SlotIndex, SigCopy, SelCopy]() -> FRuiEffectCleanup
+			[Weak, SlotIndex, SigCopy, SelCopy]() -> FRuitkEffectCleanup
 			{
 				auto ReadAndMaybeNotify = [Weak, SlotIndex, SigCopy, SelCopy]()
 				{
-					TSharedPtr<FRuiComponentState> S = Weak.Pin();
+					TSharedPtr<FRuitkComponentState> S = Weak.Pin();
 					if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
-						S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
+						S->Hooks[SlotIndex]->TypeHash() != TRuitkSignalCell<TSelected>::StaticTypeHash())
 					{
 						return;
 					}
-					TRuiSignalCell<TSelected>* C = static_cast<TRuiSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
+					TRuitkSignalCell<TSelected>* C = static_cast<TRuitkSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
 					TSelected Now = SelCopy(SigCopy->Get());
 					if (!(C->Value == Now))
 					{
@@ -151,13 +151,13 @@ namespace RUI
 					}
 				};
 
-				TSharedPtr<FRuiComponentState> S = Weak.Pin();
+				TSharedPtr<FRuitkComponentState> S = Weak.Pin();
 				if (!S.IsValid() || SlotIndex >= S->Hooks.Num() ||
-					S->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
+					S->Hooks[SlotIndex]->TypeHash() != TRuitkSignalCell<TSelected>::StaticTypeHash())
 				{
-					return FRuiEffectCleanup();
+					return FRuitkEffectCleanup();
 				}
-				TRuiSignalCell<TSelected>* C = static_cast<TRuiSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
+				TRuitkSignalCell<TSelected>* C = static_cast<TRuitkSignalCell<TSelected>*>(S->Hooks[SlotIndex].Get());
 				if (C->Unsub) // re-subscribing (signal instance changed)
 				{
 					C->Unsub();
@@ -165,17 +165,17 @@ namespace RUI
 				C->BoundSignal = &SigCopy.Get();
 				C->Unsub = SigCopy->Subscribe(ReadAndMaybeNotify);
 				ReadAndMaybeNotify(); // tear-window re-check: value may have moved between render and effect
-				return FRuiEffectCleanup(
+				return FRuitkEffectCleanup(
 					[Weak, SlotIndex]()
 					{
-						TSharedPtr<FRuiComponentState> S2 = Weak.Pin();
+						TSharedPtr<FRuitkComponentState> S2 = Weak.Pin();
 						if (!S2.IsValid() || SlotIndex >= S2->Hooks.Num() ||
-							S2->Hooks[SlotIndex]->TypeHash() != TRuiSignalCell<TSelected>::StaticTypeHash())
+							S2->Hooks[SlotIndex]->TypeHash() != TRuitkSignalCell<TSelected>::StaticTypeHash())
 						{
 							return;
 						}
-						TRuiSignalCell<TSelected>* C2 =
-							static_cast<TRuiSignalCell<TSelected>*>(S2->Hooks[SlotIndex].Get());
+						TRuitkSignalCell<TSelected>* C2 =
+							static_cast<TRuitkSignalCell<TSelected>*>(S2->Hooks[SlotIndex].Get());
 						if (C2->Unsub)
 						{
 							C2->Unsub();
@@ -184,20 +184,20 @@ namespace RUI
 						}
 					});
 			},
-			RUI::Deps(&SigCopy.Get()));
+			Ruitk::Deps(&SigCopy.Get()));
 		(void)bFirst;
 		return Cell->Value;
 	}
 
 	/** UseSignal without selector: the whole value. */
-	template <typename T> T UseSignal(FRuiContext& Ctx, const TSharedRef<TRuiSignal<T>>& Sig)
+	template <typename T> T UseSignal(FRuitkContext& Ctx, const TSharedRef<TRuitkSignal<T>>& Sig)
 	{
 		return UseSignal<T, T>(Ctx, Sig, [](const T& V) { return V; });
 	}
 
 	/** Process-wide keyed signal (created lazily; shared by every reader of the key). */
-	template <typename T> T UseSignalKey(FRuiContext& Ctx, FName Key, T Initial = T())
+	template <typename T> T UseSignalKey(FRuitkContext& Ctx, FName Key, T Initial = T())
 	{
 		return UseSignal<T>(Ctx, GetOrCreateSignal<T>(Key, MoveTemp(Initial)));
 	}
-} // namespace RUI
+} // namespace Ruitk

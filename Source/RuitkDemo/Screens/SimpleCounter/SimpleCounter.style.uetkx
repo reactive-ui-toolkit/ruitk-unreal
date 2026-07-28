@@ -2,7 +2,7 @@
 // FILE_SCOPED_EXPORTS living proof: `PanelBackground` is ALSO exported by ContextDemo.style
 // — same-name exports across files are legal ES-module scoping (each file is its own module).
 // same pattern as ContextDemo.style.uetkx). Element-attr margins are real FMargin values;
-// Slot.* paddings stay strings (FRuiValue has no FMargin kind — the slot dict parses the
+// Slot.* paddings stay strings (FRuitkValue has no FMargin kind — the slot dict parses the
 // "l,t,r,b" literal at apply time).
 
 export FLinearColor PanelBackground = { 0.02f, 0.02f, 0.03f, 0.85f };

@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-012 tail — SNumericEntryBox<float>, the typed numeric field. SNumericEntryBox has NO value
-// setter (its Value is a bound attribute), so SRuiNumericEntryBox holds the controlled value in a
+// setter (its Value is a bound attribute), so SRuitkNumericEntryBox holds the controlled value in a
 // member the attribute reads — `Value` is applied skip-when-equal against that live value (D-16),
 // exactly the controlled-input contract of the editable-text widgets. OnValueChanged/OnValueCommitted
 // forward the float payload. Verifiable headless: the displayed value is read from the inner editable
@@ -10,30 +10,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RuiNode.h"
-#include "RuiPropsBase.h"
+#include "RuitkNode.h"
+#include "RuitkPropsBase.h"
 #include "Widgets/SCompoundWidget.h"
 
 template <typename NumericType> class SNumericEntryBox;
 
 /** SNumericEntryBox<float> (Leaf): a controlled numeric field. Value is applied skip-when-equal;
  *  MinValue/MaxValue bound the typed input; OnValueChanged/OnValueCommitted carry the float. */
-struct RUITKSLATE_API FRuiNumericEntryBoxProps final : public FRuiPropsBase
+struct RUITKSLATE_API FRuitkNumericEntryBoxProps final : public FRuitkPropsBase
 {
-	RUI_PROP(float, Value, 0)
-	RUI_PROP(float, MinValue, 1)
-	RUI_PROP(float, MaxValue, 2)
-	RUI_PROP_EVENT(OnValueChanged, 3)
-	RUI_PROP_EVENT(OnValueCommitted, 4)
-	RUI_PROPS_BODY(FRuiNumericEntryBoxProps,
-				   RUI_EQ(Value) RUI_EQ(MinValue) RUI_EQ(MaxValue) RUI_EQ(OnValueChanged) RUI_EQ(OnValueCommitted))
+	RUITK_PROP(float, Value, 0)
+	RUITK_PROP(float, MinValue, 1)
+	RUITK_PROP(float, MaxValue, 2)
+	RUITK_PROP_EVENT(OnValueChanged, 3)
+	RUITK_PROP_EVENT(OnValueCommitted, 4)
+	RUITK_PROPS_BODY(FRuitkNumericEntryBoxProps,
+				   RUITK_EQ(Value) RUITK_EQ(MinValue) RUITK_EQ(MaxValue) RUITK_EQ(OnValueChanged) RUITK_EQ(OnValueCommitted))
 };
 
 /** Wraps SNumericEntryBox<float> with the controlled-value member the widget's Value attribute reads. */
-class RUITKSLATE_API SRuiNumericEntryBox final : public SCompoundWidget
+class RUITKSLATE_API SRuitkNumericEntryBox final : public SCompoundWidget
 {
 public:
-	SLATE_BEGIN_ARGS(SRuiNumericEntryBox) {}
+	SLATE_BEGIN_ARGS(SRuitkNumericEntryBox) {}
 	SLATE_ARGUMENT(TOptional<float>, MinValue)
 	SLATE_ARGUMENT(TOptional<float>, MaxValue)
 	SLATE_END_ARGS()
@@ -44,8 +44,8 @@ public:
 	float GetValue() const { return CurrentValue; }
 	void SetMinValue(TOptional<float> InMin) { MinValue = InMin; }
 	void SetMaxValue(TOptional<float> InMax) { MaxValue = InMax; }
-	void SetOnValueChanged(FRuiCallback InCb) { OnValueChangedCb = MoveTemp(InCb); }
-	void SetOnValueCommitted(FRuiCallback InCb) { OnValueCommittedCb = MoveTemp(InCb); }
+	void SetOnValueChanged(FRuitkCallback InCb) { OnValueChangedCb = MoveTemp(InCb); }
+	void SetOnValueCommitted(FRuitkCallback InCb) { OnValueCommittedCb = MoveTemp(InCb); }
 
 private:
 	TOptional<float> GetOptionalValue() const { return CurrentValue; }
@@ -59,21 +59,21 @@ private:
 	float CurrentValue = 0.0f;
 	TOptional<float> MinValue;
 	TOptional<float> MaxValue;
-	FRuiCallback OnValueChangedCb;
-	FRuiCallback OnValueCommittedCb;
+	FRuitkCallback OnValueChangedCb;
+	FRuitkCallback OnValueCommittedCb;
 	TSharedPtr<SNumericEntryBox<float>> Entry;
 };
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	RUITKSLATE_API FRuiElementTypeId NumericEntryBoxType();
+	RUITKSLATE_API FRuitkElementTypeId NumericEntryBoxType();
 
 	/** A controlled numeric field. Drive `Value` from state; OnValueChanged fires as the user types. */
-	RUITKSLATE_API FRuiNode NumericEntryBox(FRuiNumericEntryBoxProps Props = FRuiNumericEntryBoxProps(),
-												 FRuiKey Key = FRuiKey());
+	RUITKSLATE_API FRuitkNode NumericEntryBox(FRuitkNumericEntryBoxProps Props = FRuitkNumericEntryBoxProps(),
+												 FRuitkKey Key = FRuitkKey());
 
 	namespace Detail
 	{
 		void RegisterNumericEntryBoxAdapter();
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate

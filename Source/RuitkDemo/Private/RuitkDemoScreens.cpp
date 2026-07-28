@@ -1,41 +1,41 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiDemoScreens.h"
+#include "RuitkDemoScreens.h"
 
-#include "RuiContext.h"
-#include "RuiDemoShared.h"
-#include "RuiStyle.h"
+#include "RuitkContext.h"
+#include "RuitkDemoShared.h"
+#include "RuitkStyle.h"
 
-using namespace RuiDemo;
+using namespace RuitkDemo;
 
-namespace RuiDemo
+namespace RuitkDemo
 {
 	// Every screen is a COMPILED .uetkx component (Screens/*.uetkx -> committed .uetkx.inl,
-	// built through RuiDemo.Uetkx.gen.cpp). The generated code self-registers named factories;
-	// entries resolve through RUI::Named — the wrappers themselves are TU-local by design.
-	const TArray<FRuiDemoEntry>& GetGalleryEntries()
+	// built through RuitkDemo.Uetkx.gen.cpp). The generated code self-registers named factories;
+	// entries resolve through Ruitk::Named — the wrappers themselves are TU-local by design.
+	const TArray<FRuitkDemoEntry>& GetGalleryEntries()
 	{
-		static const TArray<FRuiDemoEntry> Entries = {
-			{TEXT("Hello World"), +[]() { return RUI::Named(FName(TEXT("HelloWorld"))); }},
-			{TEXT("Counter"), +[]() { return RUI::Named(FName(TEXT("SimpleCounter"))); }},
-			{TEXT("Click Counter"), +[]() { return RUI::Named(FName(TEXT("ClickCounter"))); }},
-			{TEXT("Text Field"), +[]() { return RUI::Named(FName(TEXT("SimpleTextField"))); }},
-			{TEXT("Use Effect"), +[]() { return RUI::Named(FName(TEXT("SimpleUseEffect"))); }},
-			{TEXT("Signals"), +[]() { return RUI::Named(FName(TEXT("SignalCounter"))); }},
-			{TEXT("Context"), +[]() { return RUI::Named(FName(TEXT("ContextDemo"))); }},
-			{TEXT("Keyed Diff"), +[]() { return RUI::Named(FName(TEXT("KeyedDiff"))); }},
-			{TEXT("Styled Panels"), +[]() { return RUI::Named(FName(TEXT("StyledPanels"))); }},
-			{TEXT("Tic Tac Toe"), +[]() { return RUI::Named(FName(TEXT("TicTacToe"))); }},
-			{TEXT("Custom Draw"), +[]() { return RUI::Named(FName(TEXT("CustomDraw"))); }},
-			{TEXT("Stress Test"), +[]() { return RUI::Named(FName(TEXT("StressTest"))); }},
-			{TEXT("Router"), +[]() { return RUI::Named(FName(TEXT("RouterDemo"))); }},
-			{TEXT("Doom"), +[]() { return RUI::Named(FName(TEXT("DoomGame"))); }},
-			{TEXT("Acceptance Lab"), +[]() { return RUI::Named(FName(TEXT("AcceptanceLab"))); }},
+		static const TArray<FRuitkDemoEntry> Entries = {
+			{TEXT("Hello World"), +[]() { return Ruitk::Named(FName(TEXT("HelloWorld"))); }},
+			{TEXT("Counter"), +[]() { return Ruitk::Named(FName(TEXT("SimpleCounter"))); }},
+			{TEXT("Click Counter"), +[]() { return Ruitk::Named(FName(TEXT("ClickCounter"))); }},
+			{TEXT("Text Field"), +[]() { return Ruitk::Named(FName(TEXT("SimpleTextField"))); }},
+			{TEXT("Use Effect"), +[]() { return Ruitk::Named(FName(TEXT("SimpleUseEffect"))); }},
+			{TEXT("Signals"), +[]() { return Ruitk::Named(FName(TEXT("SignalCounter"))); }},
+			{TEXT("Context"), +[]() { return Ruitk::Named(FName(TEXT("ContextDemo"))); }},
+			{TEXT("Keyed Diff"), +[]() { return Ruitk::Named(FName(TEXT("KeyedDiff"))); }},
+			{TEXT("Styled Panels"), +[]() { return Ruitk::Named(FName(TEXT("StyledPanels"))); }},
+			{TEXT("Tic Tac Toe"), +[]() { return Ruitk::Named(FName(TEXT("TicTacToe"))); }},
+			{TEXT("Custom Draw"), +[]() { return Ruitk::Named(FName(TEXT("CustomDraw"))); }},
+			{TEXT("Stress Test"), +[]() { return Ruitk::Named(FName(TEXT("StressTest"))); }},
+			{TEXT("Router"), +[]() { return Ruitk::Named(FName(TEXT("RouterDemo"))); }},
+			{TEXT("Doom"), +[]() { return Ruitk::Named(FName(TEXT("DoomGame"))); }},
+			{TEXT("Acceptance Lab"), +[]() { return Ruitk::Named(FName(TEXT("AcceptanceLab"))); }},
 			// Epic-interop pillars (compiled .uetkx like everything else).
-			{TEXT("MVVM (data feed)"), +[]() { return RUI::Named(FName(TEXT("MvvmDemo"))); }},
-			{TEXT("CommonUI (activation)"), +[]() { return RUI::Named(FName(TEXT("CommonUiDemo"))); }},
-			{TEXT("UMG Host & Reverse MVVM"), +[]() { return RUI::Named(FName(TEXT("UmgHostDemo"))); }},
-			{TEXT("Interop — all 4 pillars"), +[]() { return RUI::Named(FName(TEXT("InteropShowcase"))); }},
+			{TEXT("MVVM (data feed)"), +[]() { return Ruitk::Named(FName(TEXT("MvvmDemo"))); }},
+			{TEXT("CommonUI (activation)"), +[]() { return Ruitk::Named(FName(TEXT("CommonUiDemo"))); }},
+			{TEXT("UMG Host & Reverse MVVM"), +[]() { return Ruitk::Named(FName(TEXT("UmgHostDemo"))); }},
+			{TEXT("Interop — all 4 pillars"), +[]() { return Ruitk::Named(FName(TEXT("InteropShowcase"))); }},
 		};
 		return Entries;
 	}
@@ -53,11 +53,11 @@ namespace RuiDemo
 		};
 		return Names;
 	}
-} // namespace RuiDemo
+} // namespace RuitkDemo
 
 // ── the shell: menu column + selected screen (switching remounts — cleanups exercised) ────
 
-static FRuiNodeArray GalleryShellComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray GalleryShellComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Selected, SetSelected] = Ctx.UseState<int32>(0);
 	TFunction<void(int32)> Select = SetSelected;
@@ -66,35 +66,35 @@ static FRuiNodeArray GalleryShellComp(FRuiContext& Ctx, const FRuiEmptyProps&, c
 	Ctx.UseEffect(
 		[]()
 		{
-			FRuiStyleDict Dim;
-			Dim.Add(FName(TEXT("RenderOpacity")), FRuiValue(0.35f));
-			RUI::Slate::RegisterStyleClass(FName(TEXT("rui-demo-dim")), MoveTemp(Dim));
+			FRuitkStyleDict Dim;
+			Dim.Add(FName(TEXT("RenderOpacity")), FRuitkValue(0.35f));
+			Ruitk::Slate::RegisterStyleClass(FName(TEXT("rui-demo-dim")), MoveTemp(Dim));
 		},
-		RUI::Deps());
+		Ruitk::Deps());
 
-	const TArray<FRuiDemoEntry>& Entries = GetGalleryEntries();
+	const TArray<FRuitkDemoEntry>& Entries = GetGalleryEntries();
 
-	TArray<FRuiNode> MenuRows;
+	TArray<FRuitkNode> MenuRows;
 	MenuRows.Add(StyledText(TEXT("Examples"), 14.0f, FLinearColor(0.7f, 0.7f, 0.8f)));
 	MenuRows.Add(Gap(4.0f));
 	for (int32 i = 0; i < Entries.Num(); ++i)
 	{
-		FRuiButtonProps P;
-		P.SetOnClicked(FRuiCallback::Create([Select, i]() { Select(i); }));
+		FRuitkButtonProps P;
+		P.SetOnClicked(FRuitkCallback::Create([Select, i]() { Select(i); }));
 		P.SetContentPadding(FMargin(10.0f, 3.0f));
-		FRuiNode Row = RUI::Slate::Button(
-			MoveTemp(P), {RUI::TextBlock((i == SelectedNow ? TEXT("> ") : TEXT("  ")) + Entries[i].Name)});
-		Row.Key = FRuiKey(i);
-		FRuiNode Spaced = WithSlot(MoveTemp(Row), FName(TEXT("Slot.Padding")), FRuiValue(TEXT("0,0,0,3")));
-		MenuRows.Add(WithSlot(MoveTemp(Spaced), FName(TEXT("Slot.HAlign")), FRuiValue(FName(TEXT("fill")))));
+		FRuitkNode Row = Ruitk::Slate::Button(
+			MoveTemp(P), {Ruitk::TextBlock((i == SelectedNow ? TEXT("> ") : TEXT("  ")) + Entries[i].Name)});
+		Row.Key = FRuitkKey(i);
+		FRuitkNode Spaced = WithSlot(MoveTemp(Row), FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("0,0,0,3")));
+		MenuRows.Add(WithSlot(MoveTemp(Spaced), FName(TEXT("Slot.HAlign")), FRuitkValue(FName(TEXT("fill")))));
 	}
 
-	FRuiBorderProps MenuCard;
+	FRuitkBorderProps MenuCard;
 	MenuCard.SetPadding(FMargin(8.0f));
 	MenuCard.SetBorderImage(FName(TEXT("WhiteBrush")));
 	MenuCard.SetBorderBackgroundColor(FLinearColor(0.02f, 0.02f, 0.03f, 0.85f));
 
-	FRuiBoxProps MenuWidth;
+	FRuitkBoxProps MenuWidth;
 	MenuWidth.SetWidthOverride(180.0f);
 	MenuWidth.SetVAlign(FName(TEXT("top")));
 
@@ -102,30 +102,30 @@ static FRuiNodeArray GalleryShellComp(FRuiContext& Ctx, const FRuiEmptyProps&, c
 	// The content slot FILLS the remaining viewport (Slot.Fill both axes) — card-style demo
 	// screens are top-left content and look the same, but screens that scale to their area
 	// (Doom's ScaleBox letterbox) get the real estate they need to reach the window bottom.
-	FRuiNode Content = Entries[SelectedNow].Make();
-	Content.Key = FRuiKey(1000 + SelectedNow);
-	FRuiNode ContentSlot = WithSlot(MoveTemp(Content), FName(TEXT("Slot.Padding")), FRuiValue(TEXT("10,0,0,0")));
-	ContentSlot = WithSlot(MoveTemp(ContentSlot), FName(TEXT("Slot.Fill")), FRuiValue(1.0f));
+	FRuitkNode Content = Entries[SelectedNow].Make();
+	Content.Key = FRuitkKey(1000 + SelectedNow);
+	FRuitkNode ContentSlot = WithSlot(MoveTemp(Content), FName(TEXT("Slot.Padding")), FRuitkValue(TEXT("10,0,0,0")));
+	ContentSlot = WithSlot(MoveTemp(ContentSlot), FName(TEXT("Slot.Fill")), FRuitkValue(1.0f));
 
-	FRuiNode BodyRow = RUI::Slate::HorizontalBox(
-		FRuiHorizontalBoxProps(),
-		{RUI::Slate::Box(MoveTemp(MenuWidth),
-						 {RUI::Slate::Border(MoveTemp(MenuCard),
-											 {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), MoveTemp(MenuRows))})}),
+	FRuitkNode BodyRow = Ruitk::Slate::HorizontalBox(
+		FRuitkHorizontalBoxProps(),
+		{Ruitk::Slate::Box(MoveTemp(MenuWidth),
+						 {Ruitk::Slate::Border(MoveTemp(MenuCard),
+											 {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(MenuRows))})}),
 		 MoveTemp(ContentSlot)});
-	BodyRow = WithSlot(MoveTemp(BodyRow), FName(TEXT("Slot.Fill")), FRuiValue(1.0f));
+	BodyRow = WithSlot(MoveTemp(BodyRow), FName(TEXT("Slot.Fill")), FRuitkValue(1.0f));
 
-	return {RUI::Slate::Box(
-		FRuiBoxProps(), {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(),
+	return {Ruitk::Slate::Box(
+		FRuitkBoxProps(), {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(),
 												 {StyledText(TEXT("Reactive UI Toolkit for Unreal — example gallery"), 20.0f),
 												  Gap(4.0f), MoveTemp(BodyRow)})})};
 }
-RUI_COMPONENT(GalleryShellComp)
+RUITK_COMPONENT(GalleryShellComp)
 
-namespace RuiDemo
+namespace RuitkDemo
 {
-	FRuiNode GalleryRoot()
+	FRuitkNode GalleryRoot()
 	{
-		return RUI::FC(&GalleryShellComp);
+		return Ruitk::FC(&GalleryShellComp);
 	}
-} // namespace RuiDemo
+} // namespace RuitkDemo

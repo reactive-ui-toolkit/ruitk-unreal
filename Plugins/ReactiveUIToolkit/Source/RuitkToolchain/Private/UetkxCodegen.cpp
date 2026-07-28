@@ -26,14 +26,14 @@ namespace
 		Margin,	 // FMargin prop   -> expr-only for non-uniform; str "a" -> FMargin(a)
 		Vector2, // FVector2D prop -> expr-only recommended
 		Color,	 // FLinearColor   -> expr-only (hex parsing is post-v1)
-		Event,	 // FRuiCallback   -> Set<Name>(FRuiCallback::Create([=]() { expr; }))
+		Event,	 // FRuitkCallback   -> Set<Name>(FRuitkCallback::Create([=]() { expr; }))
 		Expr	 // expression-only value (callable/brush/...) -> {expr} required
 	};
 
 	struct FTagDef
 	{
-		FString Factory;   // e.g. "RUI::Slate::Button"
-		FString PropsType; // e.g. "FRuiButtonProps"
+		FString Factory;   // e.g. "Ruitk::Slate::Button"
+		FString PropsType; // e.g. "FRuitkButtonProps"
 		bool bChildren = true;
 		TMap<FName, EAttrType> Attrs;
 		FString SinceUE; // engine-version gate ("5.7" = absent from earlier engines); empty = all
@@ -45,39 +45,39 @@ namespace
 		{
 			TMap<FName, FTagDef> M;
 			{
-				FTagDef T{TEXT("RUI::TextBlock"), FString(), false, {}};
+				FTagDef T{TEXT("Ruitk::TextBlock"), FString(), false, {}};
 				// TextBlock is special-cased in EmitElement (factory takes the FText directly).
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				M.Add(TEXT("TextBlock"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Button"), TEXT("FRuiButtonProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Button"), TEXT("FRuitkButtonProps"), true, {}};
 				T.Attrs.Add(TEXT("OnClicked"), EAttrType::Event);
 				T.Attrs.Add(TEXT("bEnabled"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("ContentPadding"), EAttrType::Margin);
 				T.Attrs.Add(TEXT("bIsFocusable"), EAttrType::Bool);
 				M.Add(TEXT("Button"), MoveTemp(T));
 			}
-			M.Add(TEXT("VerticalBox"), {TEXT("RUI::Slate::VerticalBox"), TEXT("FRuiVerticalBoxProps"), true, {}});
-			M.Add(TEXT("HorizontalBox"), {TEXT("RUI::Slate::HorizontalBox"), TEXT("FRuiHorizontalBoxProps"), true, {}});
-			M.Add(TEXT("Overlay"), {TEXT("RUI::Slate::Overlay"), TEXT("FRuiOverlayProps"), true, {}});
-			M.Add(TEXT("Canvas"), {TEXT("RUI::Slate::Canvas"), TEXT("FRuiCanvasPanelProps"), true, {}});
+			M.Add(TEXT("VerticalBox"), {TEXT("Ruitk::Slate::VerticalBox"), TEXT("FRuitkVerticalBoxProps"), true, {}});
+			M.Add(TEXT("HorizontalBox"), {TEXT("Ruitk::Slate::HorizontalBox"), TEXT("FRuitkHorizontalBoxProps"), true, {}});
+			M.Add(TEXT("Overlay"), {TEXT("Ruitk::Slate::Overlay"), TEXT("FRuitkOverlayProps"), true, {}});
+			M.Add(TEXT("Canvas"), {TEXT("Ruitk::Slate::Canvas"), TEXT("FRuitkCanvasPanelProps"), true, {}});
 			M.Add(TEXT("ConstraintCanvas"),
-				  {TEXT("RUI::Slate::ConstraintCanvas"), TEXT("FRuiConstraintCanvasProps"), true, {}});
+				  {TEXT("Ruitk::Slate::ConstraintCanvas"), TEXT("FRuitkConstraintCanvasProps"), true, {}});
 			{
-				FTagDef T{TEXT("RUI::Slate::Splitter"), TEXT("FRuiSplitterProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Splitter"), TEXT("FRuitkSplitterProps"), true, {}};
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
 				T.Attrs.Add(TEXT("PhysicalSplitterHandleSize"), EAttrType::Float);
 				T.Attrs.Add(TEXT("OnSplitterFinishedResizing"), EAttrType::Event);
 				M.Add(TEXT("Splitter"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Splitter2x2"), TEXT("FRuiSplitter2x2Props"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Splitter2x2"), TEXT("FRuitkSplitter2x2Props"), true, {}};
 				T.Attrs.Add(TEXT("Percentages"), EAttrType::Expr);
 				M.Add(TEXT("Splitter2x2"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::MenuAnchor"), TEXT("FRuiMenuAnchorProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::MenuAnchor"), TEXT("FRuitkMenuAnchorProps"), true, {}};
 				T.Attrs.Add(TEXT("bIsOpen"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("Placement"), EAttrType::Name);
 				T.Attrs.Add(TEXT("bFitInWindow"), EAttrType::Bool);
@@ -85,7 +85,7 @@ namespace
 				M.Add(TEXT("MenuAnchor"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::WindowTitleBarArea"), TEXT("FRuiWindowTitleBarAreaProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::WindowTitleBarArea"), TEXT("FRuitkWindowTitleBarAreaProps"), true, {}};
 				T.Attrs.Add(TEXT("HAlign"), EAttrType::Name);
 				T.Attrs.Add(TEXT("VAlign"), EAttrType::Name);
 				T.Attrs.Add(TEXT("Padding"), EAttrType::Margin);
@@ -93,7 +93,7 @@ namespace
 				M.Add(TEXT("WindowTitleBarArea"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::NumericDropDown"), TEXT("FRuiNumericDropDownProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::NumericDropDown"), TEXT("FRuitkNumericDropDownProps"), false, {}};
 				T.Attrs.Add(TEXT("Values"), EAttrType::Expr);
 				T.Attrs.Add(TEXT("Labels"), EAttrType::Expr);
 				T.Attrs.Add(TEXT("Value"), EAttrType::Float);
@@ -102,16 +102,16 @@ namespace
 				M.Add(TEXT("NumericDropDown"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::BreadcrumbTrail"), TEXT("FRuiBreadcrumbTrailProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::BreadcrumbTrail"), TEXT("FRuitkBreadcrumbTrailProps"), false, {}};
 				T.Attrs.Add(TEXT("Crumbs"), EAttrType::Expr);
 				T.Attrs.Add(TEXT("bShowLeadingDelimiter"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("OnCrumbClicked"), EAttrType::Event);
 				M.Add(TEXT("BreadcrumbTrail"), MoveTemp(T));
 			}
 			M.Add(TEXT("NotificationList"),
-				  {TEXT("RUI::Slate::NotificationList"), TEXT("FRuiNotificationListProps"), false, {}});
+				  {TEXT("Ruitk::Slate::NotificationList"), TEXT("FRuitkNotificationListProps"), false, {}});
 			{
-				FTagDef T{TEXT("RUI::Slate::SearchableComboBox"), TEXT("FRuiSearchableComboBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::SearchableComboBox"), TEXT("FRuitkSearchableComboBoxProps"), false, {}};
 				T.SinceUE = TEXT("5.7"); // SSearchableComboBox does not exist in 5.6
 				T.Attrs.Add(TEXT("Options"), EAttrType::Expr);
 				T.Attrs.Add(TEXT("SelectedItem"), EAttrType::Text);
@@ -119,14 +119,14 @@ namespace
 				M.Add(TEXT("SearchableComboBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::LinkedBox"), TEXT("FRuiLinkedBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::LinkedBox"), TEXT("FRuitkLinkedBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("GroupKey"), EAttrType::Name);
 				M.Add(TEXT("LinkedBox"), MoveTemp(T));
 			}
 			M.Add(TEXT("VirtualJoystick"),
-				  {TEXT("RUI::Slate::VirtualJoystick"), TEXT("FRuiVirtualJoystickProps"), false, {}});
+				  {TEXT("Ruitk::Slate::VirtualJoystick"), TEXT("FRuitkVirtualJoystickProps"), false, {}});
 			{
-				FTagDef T{TEXT("RUI::Slate::VectorInputBox"), TEXT("FRuiVectorInputBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::VectorInputBox"), TEXT("FRuitkVectorInputBoxProps"), false, {}};
 				T.Attrs.Add(TEXT("X"), EAttrType::Float);
 				T.Attrs.Add(TEXT("Y"), EAttrType::Float);
 				T.Attrs.Add(TEXT("Z"), EAttrType::Float);
@@ -137,7 +137,7 @@ namespace
 				M.Add(TEXT("VectorInputBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::RotatorInputBox"), TEXT("FRuiRotatorInputBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::RotatorInputBox"), TEXT("FRuitkRotatorInputBoxProps"), false, {}};
 				T.Attrs.Add(TEXT("Roll"), EAttrType::Float);
 				T.Attrs.Add(TEXT("Pitch"), EAttrType::Float);
 				T.Attrs.Add(TEXT("Yaw"), EAttrType::Float);
@@ -148,7 +148,7 @@ namespace
 				M.Add(TEXT("RotatorInputBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ColorBlock"), TEXT("FRuiColorBlockProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ColorBlock"), TEXT("FRuitkColorBlockProps"), false, {}};
 				T.Attrs.Add(TEXT("Color"), EAttrType::Color);
 				T.Attrs.Add(TEXT("Size"), EAttrType::Vector2);
 				T.Attrs.Add(TEXT("bUseSRGB"), EAttrType::Bool);
@@ -158,7 +158,7 @@ namespace
 				M.Add(TEXT("ColorBlock"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::SimpleGradient"), TEXT("FRuiSimpleGradientProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::SimpleGradient"), TEXT("FRuitkSimpleGradientProps"), false, {}};
 				T.Attrs.Add(TEXT("StartColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("EndColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
@@ -166,7 +166,7 @@ namespace
 				M.Add(TEXT("SimpleGradient"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ComplexGradient"), TEXT("FRuiComplexGradientProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ComplexGradient"), TEXT("FRuitkComplexGradientProps"), false, {}};
 				T.Attrs.Add(TEXT("GradientColors"), EAttrType::Expr);
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
 				T.Attrs.Add(TEXT("bHasAlphaBackground"), EAttrType::Bool);
@@ -174,17 +174,17 @@ namespace
 				M.Add(TEXT("ComplexGradient"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Hyperlink"), TEXT("FRuiHyperlinkProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Hyperlink"), TEXT("FRuitkHyperlinkProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("Padding"), EAttrType::Margin);
 				T.Attrs.Add(TEXT("OnNavigate"), EAttrType::Event);
 				M.Add(TEXT("Hyperlink"), MoveTemp(T));
 			}
-			M.Add(TEXT("EnableBox"), {TEXT("RUI::Slate::EnableBox"), TEXT("FRuiEnableBoxProps"), true, {}});
+			M.Add(TEXT("EnableBox"), {TEXT("Ruitk::Slate::EnableBox"), TEXT("FRuitkEnableBoxProps"), true, {}});
 			M.Add(TEXT("ScissorRectBox"),
-				  {TEXT("RUI::Slate::ScissorRectBox"), TEXT("FRuiScissorRectBoxProps"), true, {}});
+				  {TEXT("Ruitk::Slate::ScissorRectBox"), TEXT("FRuitkScissorRectBoxProps"), true, {}});
 			{
-				FTagDef T{TEXT("RUI::Slate::BackgroundBlur"), TEXT("FRuiBackgroundBlurProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::BackgroundBlur"), TEXT("FRuitkBackgroundBlurProps"), true, {}};
 				T.Attrs.Add(TEXT("BlurStrength"), EAttrType::Float);
 				T.Attrs.Add(TEXT("BlurRadius"), EAttrType::Int);
 				T.Attrs.Add(TEXT("bApplyAlphaToBlur"), EAttrType::Bool);
@@ -192,12 +192,12 @@ namespace
 				M.Add(TEXT("BackgroundBlur"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::InvalidationPanel"), TEXT("FRuiInvalidationPanelProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::InvalidationPanel"), TEXT("FRuitkInvalidationPanelProps"), true, {}};
 				T.Attrs.Add(TEXT("bCanCache"), EAttrType::Bool);
 				M.Add(TEXT("InvalidationPanel"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::VolumeControl"), TEXT("FRuiVolumeControlProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::VolumeControl"), TEXT("FRuitkVolumeControlProps"), false, {}};
 				T.Attrs.Add(TEXT("Volume"), EAttrType::Float);
 				T.Attrs.Add(TEXT("bMuted"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("OnVolumeChanged"), EAttrType::Event);
@@ -205,7 +205,7 @@ namespace
 				M.Add(TEXT("VolumeControl"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::TextScroller"), TEXT("FRuiTextScrollerProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::TextScroller"), TEXT("FRuitkTextScrollerProps"), true, {}};
 				T.Attrs.Add(TEXT("Speed"), EAttrType::Float);
 				T.Attrs.Add(TEXT("StartDelay"), EAttrType::Float);
 				T.Attrs.Add(TEXT("EndDelay"), EAttrType::Float);
@@ -213,7 +213,7 @@ namespace
 				M.Add(TEXT("TextScroller"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::RadialBox"), TEXT("FRuiRadialBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::RadialBox"), TEXT("FRuitkRadialBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("PreferredWidth"), EAttrType::Float);
 				T.Attrs.Add(TEXT("bUseAllottedWidth"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("StartingAngle"), EAttrType::Float);
@@ -223,7 +223,7 @@ namespace
 				M.Add(TEXT("RadialBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ColorWheel"), TEXT("FRuiColorWheelProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ColorWheel"), TEXT("FRuitkColorWheelProps"), false, {}};
 				T.Attrs.Add(TEXT("SelectedColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("OnValueChanged"), EAttrType::Event);
 				T.Attrs.Add(TEXT("OnMouseCaptureBegin"), EAttrType::Event);
@@ -231,7 +231,7 @@ namespace
 				M.Add(TEXT("ColorWheel"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ColorSpectrum"), TEXT("FRuiColorSpectrumProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ColorSpectrum"), TEXT("FRuitkColorSpectrumProps"), false, {}};
 				T.Attrs.Add(TEXT("SelectedColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("OnValueChanged"), EAttrType::Event);
 				T.Attrs.Add(TEXT("OnMouseCaptureBegin"), EAttrType::Event);
@@ -239,7 +239,7 @@ namespace
 				M.Add(TEXT("ColorSpectrum"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::LayeredImage"), TEXT("FRuiLayeredImageProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::LayeredImage"), TEXT("FRuitkLayeredImageProps"), false, {}};
 				T.Attrs.Add(TEXT("ColorAndOpacity"), EAttrType::Color);
 				T.Attrs.Add(TEXT("DesiredSizeOverride"), EAttrType::Vector2);
 				T.Attrs.Add(TEXT("Image"), EAttrType::Expr);
@@ -247,7 +247,7 @@ namespace
 				M.Add(TEXT("LayeredImage"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::InputKeySelector"), TEXT("FRuiInputKeySelectorProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::InputKeySelector"), TEXT("FRuitkInputKeySelectorProps"), false, {}};
 				T.Attrs.Add(TEXT("SelectedKey"), EAttrType::Name);
 				T.Attrs.Add(TEXT("KeySelectionText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("NoKeySpecifiedText"), EAttrType::Text);
@@ -259,7 +259,7 @@ namespace
 				M.Add(TEXT("InputKeySelector"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::EditableText"), TEXT("FRuiEditableTextProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::EditableText"), TEXT("FRuitkEditableTextProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsReadOnly"), EAttrType::Bool);
@@ -271,7 +271,7 @@ namespace
 			}
 			{
 				FTagDef T{
-					TEXT("RUI::Slate::InlineEditableTextBlock"), TEXT("FRuiInlineEditableTextBlockProps"), false, {}};
+					TEXT("Ruitk::Slate::InlineEditableTextBlock"), TEXT("FRuitkInlineEditableTextBlockProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsReadOnly"), EAttrType::Bool);
@@ -281,7 +281,7 @@ namespace
 				M.Add(TEXT("InlineEditableTextBlock"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::VirtualKeyboardEntry"), TEXT("FRuiVirtualKeyboardEntryProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::VirtualKeyboardEntry"), TEXT("FRuitkVirtualKeyboardEntryProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsReadOnly"), EAttrType::Bool);
@@ -291,7 +291,7 @@ namespace
 				M.Add(TEXT("VirtualKeyboardEntry"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ColorGradingWheel"), TEXT("FRuiColorGradingWheelProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ColorGradingWheel"), TEXT("FRuitkColorGradingWheelProps"), false, {}};
 				T.Attrs.Add(TEXT("SelectedColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("DesiredWheelSize"), EAttrType::Int);
 				T.Attrs.Add(TEXT("ExponentDisplacement"), EAttrType::Float);
@@ -301,7 +301,7 @@ namespace
 				M.Add(TEXT("ColorGradingWheel"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ExpandableButton"), TEXT("FRuiExpandableButtonProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ExpandableButton"), TEXT("FRuitkExpandableButtonProps"), true, {}};
 				T.Attrs.Add(TEXT("CollapsedText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("ExpandedText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsExpanded"), EAttrType::Bool);
@@ -310,7 +310,7 @@ namespace
 				M.Add(TEXT("ExpandableButton"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Border"), TEXT("FRuiBorderProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Border"), TEXT("FRuitkBorderProps"), true, {}};
 				T.Attrs.Add(TEXT("Padding"), EAttrType::Margin);
 				T.Attrs.Add(TEXT("BorderBackgroundColor"), EAttrType::Color);
 				T.Attrs.Add(TEXT("HAlign"), EAttrType::Name);
@@ -319,7 +319,7 @@ namespace
 				M.Add(TEXT("Border"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Box"), TEXT("FRuiBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Box"), TEXT("FRuitkBoxProps"), true, {}};
 				for (const TCHAR* P : {TEXT("WidthOverride"), TEXT("HeightOverride"), TEXT("MinDesiredWidth"),
 									   TEXT("MinDesiredHeight"), TEXT("MaxDesiredWidth"), TEXT("MaxDesiredHeight")})
 				{
@@ -330,14 +330,14 @@ namespace
 				M.Add(TEXT("Box"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Image"), TEXT("FRuiImageProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Image"), TEXT("FRuitkImageProps"), false, {}};
 				T.Attrs.Add(TEXT("ColorAndOpacity"), EAttrType::Color);
 				T.Attrs.Add(TEXT("DesiredSizeOverride"), EAttrType::Vector2);
 				T.Attrs.Add(TEXT("Image"), EAttrType::Expr); // asset brush (TSharedPtr<FSlateBrush> expr — D-17)
 				M.Add(TEXT("Image"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ScrollBox"), TEXT("FRuiScrollBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ScrollBox"), TEXT("FRuitkScrollBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
 				T.Attrs.Add(TEXT("bAllowOverscroll"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("bAnimateWheelScrolling"), EAttrType::Bool);
@@ -345,12 +345,12 @@ namespace
 				M.Add(TEXT("ScrollBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Spacer"), TEXT("FRuiSpacerProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Spacer"), TEXT("FRuitkSpacerProps"), false, {}};
 				T.Attrs.Add(TEXT("Size"), EAttrType::Vector2);
 				M.Add(TEXT("Spacer"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::EditableTextBox"), TEXT("FRuiEditableTextBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::EditableTextBox"), TEXT("FRuitkEditableTextBoxProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsReadOnly"), EAttrType::Bool);
@@ -359,13 +359,13 @@ namespace
 				M.Add(TEXT("EditableTextBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::CheckBox"), TEXT("FRuiCheckBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::CheckBox"), TEXT("FRuitkCheckBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("bIsChecked"), EAttrType::Bool);
 				T.Attrs.Add(TEXT("OnCheckStateChanged"), EAttrType::Event);
 				M.Add(TEXT("CheckBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Slider"), TEXT("FRuiSliderProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Slider"), TEXT("FRuitkSliderProps"), false, {}};
 				for (const TCHAR* P : {TEXT("Value"), TEXT("MinValue"), TEXT("MaxValue"), TEXT("StepSize")})
 				{
 					T.Attrs.Add(P, EAttrType::Float);
@@ -379,26 +379,26 @@ namespace
 				M.Add(TEXT("Slider"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ProgressBar"), TEXT("FRuiProgressBarProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ProgressBar"), TEXT("FRuitkProgressBarProps"), false, {}};
 				T.Attrs.Add(TEXT("Percent"), EAttrType::Float);
 				T.Attrs.Add(TEXT("BarFillType"), EAttrType::Name);
 				M.Add(TEXT("ProgressBar"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::RuiCanvas"), TEXT("FRuiCanvasProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::RuitkCanvas"), TEXT("FRuitkCanvasProps"), false, {}};
 				T.Attrs.Add(TEXT("RedrawKey"), EAttrType::Int);
 				T.Attrs.Add(TEXT("CanvasSize"), EAttrType::Vector2);
 				T.Attrs.Add(TEXT("DrawFn"), EAttrType::Expr); // identity semantics — {expr} only
-				M.Add(TEXT("RuiCanvas"), MoveTemp(T));
+				M.Add(TEXT("RuitkCanvas"), MoveTemp(T));
 			}
 			// ── Batch 2 (Phase 7 step 8) — the everyday game set ────────────────────────────
 			{
-				FTagDef T{TEXT("RUI::Slate::WidgetSwitcher"), TEXT("FRuiWidgetSwitcherProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::WidgetSwitcher"), TEXT("FRuitkWidgetSwitcherProps"), true, {}};
 				T.Attrs.Add(TEXT("WidgetIndex"), EAttrType::Int);
 				M.Add(TEXT("WidgetSwitcher"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::ScaleBox"), TEXT("FRuiScaleBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::ScaleBox"), TEXT("FRuitkScaleBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("Stretch"), EAttrType::Name);
 				T.Attrs.Add(TEXT("StretchDirection"), EAttrType::Name);
 				T.Attrs.Add(TEXT("HAlign"), EAttrType::Name);
@@ -406,13 +406,13 @@ namespace
 				M.Add(TEXT("ScaleBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Throbber"), TEXT("FRuiThrobberProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Throbber"), TEXT("FRuitkThrobberProps"), false, {}};
 				T.Attrs.Add(TEXT("NumPieces"), EAttrType::Int);
 				T.Attrs.Add(TEXT("Animate"), EAttrType::Name);
 				M.Add(TEXT("Throbber"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::WrapBox"), TEXT("FRuiWrapBoxProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::WrapBox"), TEXT("FRuitkWrapBoxProps"), true, {}};
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
 				T.Attrs.Add(TEXT("WrapSize"), EAttrType::Float);
 				T.Attrs.Add(TEXT("InnerSlotPadding"), EAttrType::Vector2);
@@ -421,7 +421,7 @@ namespace
 			}
 			{
 				FTagDef T{
-					TEXT("RUI::Slate::MultiLineEditableTextBox"), TEXT("FRuiMultiLineEditableTextBoxProps"), false, {}};
+					TEXT("Ruitk::Slate::MultiLineEditableTextBox"), TEXT("FRuitkMultiLineEditableTextBoxProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bIsReadOnly"), EAttrType::Bool);
@@ -430,7 +430,7 @@ namespace
 				M.Add(TEXT("MultiLineEditableTextBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::SearchBox"), TEXT("FRuiSearchBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::SearchBox"), TEXT("FRuitkSearchBoxProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("HintText"), EAttrType::Text);
 				T.Attrs.Add(TEXT("OnTextChanged"), EAttrType::Event);
@@ -438,7 +438,7 @@ namespace
 				M.Add(TEXT("SearchBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::SafeZone"), TEXT("FRuiSafeZoneProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::SafeZone"), TEXT("FRuitkSafeZoneProps"), true, {}};
 				for (const TCHAR* P :
 					 {TEXT("bIsTitleSafe"), TEXT("bPadLeft"), TEXT("bPadRight"), TEXT("bPadTop"), TEXT("bPadBottom")})
 				{
@@ -447,19 +447,19 @@ namespace
 				M.Add(TEXT("SafeZone"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::DPIScaler"), TEXT("FRuiDPIScalerProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::DPIScaler"), TEXT("FRuitkDPIScalerProps"), true, {}};
 				T.Attrs.Add(TEXT("DPIScale"), EAttrType::Float);
 				M.Add(TEXT("DPIScaler"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::Separator"), TEXT("FRuiSeparatorProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::Separator"), TEXT("FRuitkSeparatorProps"), false, {}};
 				T.Attrs.Add(TEXT("Orientation"), EAttrType::Name);
 				T.Attrs.Add(TEXT("Thickness"), EAttrType::Float);
 				T.Attrs.Add(TEXT("ColorAndOpacity"), EAttrType::Color);
 				M.Add(TEXT("Separator"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::SpinBox"), TEXT("FRuiSpinBoxProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::SpinBox"), TEXT("FRuitkSpinBoxProps"), false, {}};
 				for (const TCHAR* P : {TEXT("Value"), TEXT("MinValue"), TEXT("MaxValue"), TEXT("Delta")})
 				{
 					T.Attrs.Add(P, EAttrType::Float);
@@ -468,20 +468,20 @@ namespace
 				M.Add(TEXT("SpinBox"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::UniformWrapPanel"), TEXT("FRuiUniformWrapPanelProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::UniformWrapPanel"), TEXT("FRuitkUniformWrapPanelProps"), true, {}};
 				T.Attrs.Add(TEXT("SlotPadding"), EAttrType::Float);
 				T.Attrs.Add(TEXT("HAlign"), EAttrType::Name);
 				M.Add(TEXT("UniformWrapPanel"), MoveTemp(T));
 			}
 			{
-				FTagDef T{TEXT("RUI::Slate::RichTextBlock"), TEXT("FRuiRichTextBlockProps"), false, {}};
+				FTagDef T{TEXT("Ruitk::Slate::RichTextBlock"), TEXT("FRuitkRichTextBlockProps"), false, {}};
 				T.Attrs.Add(TEXT("Text"), EAttrType::Text);
 				T.Attrs.Add(TEXT("bAutoWrapText"), EAttrType::Bool);
 				M.Add(TEXT("RichTextBlock"), MoveTemp(T));
 			}
-			M.Add(TEXT("GridPanel"), {TEXT("RUI::Slate::GridPanel"), TEXT("FRuiGridPanelProps"), true, {}});
+			M.Add(TEXT("GridPanel"), {TEXT("Ruitk::Slate::GridPanel"), TEXT("FRuitkGridPanelProps"), true, {}});
 			{
-				FTagDef T{TEXT("RUI::Slate::UniformGridPanel"), TEXT("FRuiUniformGridPanelProps"), true, {}};
+				FTagDef T{TEXT("Ruitk::Slate::UniformGridPanel"), TEXT("FRuitkUniformGridPanelProps"), true, {}};
 				for (const TCHAR* P : {TEXT("SlotPadding"), TEXT("MinDesiredSlotWidth"), TEXT("MinDesiredSlotHeight")})
 				{
 					T.Attrs.Add(P, EAttrType::Float);
@@ -586,7 +586,7 @@ namespace
 
 	// R10 — enum-string vocabularies, keyed by attr/style/slot name exactly as written in
 	// markup. The Slate adapters parse these Name-typed values with SILENT fallbacks
-	// (ParseHAlign et al in RuiCoreAdapters/RuiWidgetAdapters*/RuiStyle/RuiListView) — a
+	// (ParseHAlign et al in RuitkCoreAdapters/RuitkWidgetAdapters*/RuitkStyle/RuitkListView) — a
 	// typo'd value compiled clean and quietly rendered as the fallback. Exported to the
 	// schema as `attrEnums` (LSP live check, UETKX2311) and enforced here as UETKX0106.
 	// Each set = the adapter's accepted spellings PLUS the fallback's own name (typing the
@@ -986,12 +986,12 @@ namespace
 	/** Hook auto-prefix over verbatim C++ (shared by component setup/exprs AND `hook` decl
 	 *  bodies): bare BUILT-IN hook calls become Ctx.-qualified; bare USER hook calls
 	 *  (`Use<Upper>...` not in the built-in table, incl. `NS::Use...`) get `Ctx` injected as
-	 *  their first argument — user hooks are plain functions taking FRuiContext& first (the
+	 *  their first argument — user hooks are plain functions taking FRuitkContext& first (the
 	 *  documented divergence from Unity's ambient statics). Member access (`.`/`->`) blocks
 	 *  both transforms. `Aliases` (the import-binding plane) runs as a pre-pass — see
 	 *  RewriteAliases; same-file references need no qualification at all since every decl of a
 	 *  file shares its file namespace (FILE_SCOPED_EXPORTS — the old `Qualified` private-prefix
-	 *  plane retired with `RuiPriv_`). `ParamNames` (TD-034 #1, N4) seeds the scope tracker: a
+	 *  plane retired with `RuitkPriv_`). `ParamNames` (TD-034 #1, N4) seeds the scope tracker: a
 	 *  LOCAL (param or body declaration) matching a binding/value name is never
 	 *  rewritten/injected. `ValueCalls` = SAME-FILE value names (TB-15 — bare refs lower as
 	 *  calls; imported values are already call-lowered by the pre-pass). */
@@ -1043,7 +1043,7 @@ namespace
 			{
 				for (const FString& Hook : FUetkxFileScan::HookNames())
 				{
-					// UseSignal/UseSignalKey are RUI:: free functions taking Ctx as an
+					// UseSignal/UseSignalKey are Ruitk:: free functions taking Ctx as an
 					// argument — never Ctx.-prefixable (authors write the qualified form).
 					if (Hook == TEXT("UseSignal") || Hook == TEXT("UseSignalKey"))
 					{
@@ -1282,7 +1282,7 @@ namespace
 		return Tag.Factory.FindLastChar(TEXT(':'), Colon) ? Tag.Factory.RightChop(Colon + 1) : Tag.Factory;
 	}
 
-	/** A `hook` declaration → an inline free function taking FRuiContext& first (built-in hook
+	/** A `hook` declaration → an inline free function taking FRuitkContext& first (built-in hook
 	 *  calls in the body Ctx.-prefixed, nested user hooks Ctx-injected). DECL phase = the forward
 	 *  declaration; BODY phase = the definition. FILE_SCOPED_EXPORTS: every decl (exported or
 	 *  private) lives in the FILE namespace — the assembly wrap owns it, nothing per-decl.
@@ -1295,12 +1295,12 @@ namespace
 							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		const FString Ret = Hook.Ret.IsEmpty() ? FString(TEXT("void")) : Hook.Ret;
-		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuiContext& Ctx%s%s)"), *Ret, *Hook.Name,
+		const FString Sig = FString::Printf(TEXT("inline %s %s(FRuitkContext& Ctx%s%s)"), *Ret, *Hook.Name,
 											Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
 		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Hook.Name, *BodyHash);
 		FEmittedDecl E;
 		E.DeclPhase = Sig + TEXT(";\n");
-		FString Def = FString::Printf(TEXT("static %s %s(FRuiContext& Ctx%s%s)\n{\n"), *Ret, *BodyName,
+		FString Def = FString::Printf(TEXT("static %s %s(FRuitkContext& Ctx%s%s)\n{\n"), *Ret, *BodyName,
 									  Hook.Params.IsEmpty() ? TEXT("") : TEXT(", "), *Hook.Params);
 		const TArray<FString> HookParams = FUetkxScopedLocals::ParamNamesOf(Hook.Params);
 		const FString Body = PrefixHookCalls(Hook.Body.TrimStartAndEnd(), Aliases, &HookParams, ValueCalls);
@@ -1365,7 +1365,7 @@ namespace
 	}
 
 	/** ES-modules (U-04): a `[export] <Type> Name(params) { body }` UTIL function → an inline
-	 *  free function, EXACTLY like `EmitHookInl` minus the `FRuiContext& Ctx` parameter and minus
+	 *  free function, EXACTLY like `EmitHookInl` minus the `FRuitkContext& Ctx` parameter and minus
 	 *  HookSig participation (utils are never scanned into a component's HookCalls — the scanner
 	 *  never records them there). The body still runs through the full `PrefixHookCalls` text
 	 *  transform (built-in hook Ctx.-prefixing, user-hook Ctx-injection, alias rewriting) — a util
@@ -1375,7 +1375,7 @@ namespace
 							 const FUetkxAliasPlane* Aliases = nullptr, const TSet<FString>* ValueCalls = nullptr)
 	{
 		// TB-23: hashed body behind the stable forwarder, exactly like EmitHookInl (a util body
-		// may hand out closures too — e.g. building an FRuiCallback).
+		// may hand out closures too — e.g. building an FRuitkCallback).
 		const FString Sig = FString::Printf(TEXT("inline %s %s(%s)"), *Util.RetType, *Util.Name, *Util.Params);
 		const FString BodyName = FString::Printf(TEXT("%s_RuiBody_%s"), *Util.Name, *BodyHash);
 		FEmittedDecl E;
@@ -1508,8 +1508,8 @@ namespace
 					return Expr;
 				}
 				// Short-circuit markup desugars in place (wave G — the Unity Phase 1.5 port;
-				// UETKX3002 retired): `cond && <X/>` -> `cond ? <X/> : FRuiNode()` and
-				// `cond || <X/>` -> `cond ? FRuiNode() : <X/>` (a default FRuiNode is an empty
+				// UETKX3002 retired): `cond && <X/>` -> `cond ? <X/> : FRuitkNode()` and
+				// `cond || <X/>` -> `cond ? FRuitkNode() : <X/>` (a default FRuitkNode is an empty
 				// fragment — renders nothing). `&&`/`||` bind tighter than `?:`, so the bare
 				// condition text is safe on the left of the emitted ternary.
 				const bool bShortCircuit = !Range.Op.IsEmpty();
@@ -1526,8 +1526,8 @@ namespace
 				const FString Node = EmitNodeExpr(*Pr.Nodes[0], AbsAt);
 				if (bShortCircuit)
 				{
-					Out += Range.Op == TEXT("&&") ? FString::Printf(TEXT(" ? %s : FRuiNode()"), *Node)
-												  : FString::Printf(TEXT(" ? FRuiNode() : %s"), *Node);
+					Out += Range.Op == TEXT("&&") ? FString::Printf(TEXT(" ? %s : FRuitkNode()"), *Node)
+												  : FString::Printf(TEXT(" ? FRuitkNode() : %s"), *Node);
 				}
 				else
 				{
@@ -1540,7 +1540,7 @@ namespace
 			return Out;
 		}
 
-		/** One node as a C++ FRuiNode expression. */
+		/** One node as a C++ FRuitkNode expression. */
 		FString EmitNodeExpr(const FUetkxNode& Node, int32 AbsAt, int32 TrueBase = -1);
 
 		/** Children statements appending into `Ch`. `ParentTag` (R12), when it names a known
@@ -1578,7 +1578,7 @@ namespace
 		switch (Node.Type)
 		{
 		case EUetkxNodeType::Text:
-			return FString::Printf(TEXT("RUI::TextBlock(%s)"), *NsLocText(Node.Value));
+			return FString::Printf(TEXT("Ruitk::TextBlock(%s)"), *NsLocText(Node.Value));
 		case EUetkxNodeType::Expr:
 			return FString::Printf(
 				TEXT("(%s)"), *EmitExpr(Node.Code, AbsAt, TrueBase >= 0 && Node.Vat >= 0 ? TrueBase + Node.Vat : -1));
@@ -1586,21 +1586,21 @@ namespace
 			return FString(); // comments emit nothing
 		case EUetkxNodeType::Frag:
 		{
-			FString Out = TEXT("[&]() -> FRuiNode {\n\t\tTArray<FRuiNode> Ch;\n");
+			FString Out = TEXT("[&]() -> FRuitkNode {\n\t\tTArray<FRuitkNode> Ch;\n");
 			EmitChildren(Out, Node.Children, TEXT("\t\t"), AbsAt, TrueBase);
-			FString Key = TEXT("FRuiKey()");
+			FString Key = TEXT("FRuitkKey()");
 			for (const FUetkxAttr& Attr : Node.Attrs)
 			{
 				if (Attr.Name == TEXT("key"))
 				{
 					Key = Attr.Kind == EUetkxAttrKind::Expr
-							  ? FString::Printf(TEXT("FRuiKey(%s)"),
+							  ? FString::Printf(TEXT("FRuitkKey(%s)"),
 												*EmitExpr(Attr.Value, AbsAt,
 														  TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
-							  : FString::Printf(TEXT("FRuiKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
+							  : FString::Printf(TEXT("FRuitkKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
 				}
 			}
-			Out += FString::Printf(TEXT("\t\treturn RUI::Fragment(MoveTemp(Ch), %s);\n\t}()"), *Key);
+			Out += FString::Printf(TEXT("\t\treturn Ruitk::Fragment(MoveTemp(Ch), %s);\n\t}()"), *Key);
 			return Out;
 		}
 		case EUetkxNodeType::If:
@@ -1609,11 +1609,11 @@ namespace
 		case EUetkxNodeType::Match:
 		{
 			// A directive as a ROOT/expression position lowers to a fragment of its output.
-			FString Out = TEXT("[&]() -> FRuiNode {\n\t\tTArray<FRuiNode> Ch;\n");
+			FString Out = TEXT("[&]() -> FRuitkNode {\n\t\tTArray<FRuitkNode> Ch;\n");
 			TArray<TSharedPtr<FUetkxNode>> Self;
 			Self.Add(MakeShared<FUetkxNode>(Node));
 			EmitChildren(Out, Self, TEXT("\t\t"), AbsAt, TrueBase);
-			Out += TEXT("\t\treturn Ch.Num() == 1 ? MoveTemp(Ch[0]) : RUI::Fragment(MoveTemp(Ch));\n\t}()");
+			Out += TEXT("\t\treturn Ch.Num() == 1 ? MoveTemp(Ch[0]) : Ruitk::Fragment(MoveTemp(Ch));\n\t}()");
 			return Out;
 		}
 		case EUetkxNodeType::El:
@@ -1633,13 +1633,13 @@ namespace
 				 FString::Printf(TEXT("unknown tag <%s> — host tags are case-sensitive (1:1 with the Slate class)"),
 								 *Node.Tag),
 				 AbsAt + Node.At);
-			return FString(TEXT("FRuiNode()"));
+			return FString(TEXT("FRuitkNode()"));
 		}
 		const bool bComponent = Tag == nullptr;
 		if (bComponent && !(Node.Tag[0] >= 'A' && Node.Tag[0] <= 'Z'))
 		{
 			Fail(TEXT("UETKX0105"), FString::Printf(TEXT("unknown tag <%s>"), *Node.Tag), AbsAt + Node.At);
-			return FString(TEXT("FRuiNode()"));
+			return FString(TEXT("FRuitkNode()"));
 		}
 		// ES-modules (U-03) / FILE_SCOPED_EXPORTS (FS-03): a component tag spelled with an import
 		// binding (`import { A }` / `import { A as B }` + `<B/>`) emits against the TARGET name in
@@ -1696,7 +1696,7 @@ namespace
 		if (!bComponent && Node.Tag == TEXT("TextBlock"))
 		{
 			FString TextExpr = TEXT("FText::GetEmpty()");
-			FString Key = TEXT("FRuiKey()");
+			FString Key = TEXT("FRuitkKey()");
 			bool bStyled = false;
 			FString StyleStmts;
 			FString ClassStmts;
@@ -1719,10 +1719,10 @@ namespace
 				else if (Attr.Name == TEXT("key"))
 				{
 					Key = Attr.Kind == EUetkxAttrKind::Expr
-							  ? FString::Printf(TEXT("FRuiKey(%s)"),
+							  ? FString::Printf(TEXT("FRuitkKey(%s)"),
 												*EmitExpr(Attr.Value, AbsAt,
 														  TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
-							  : FString::Printf(TEXT("FRuiKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
+							  : FString::Printf(TEXT("FRuitkKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
 				}
 				else if (Attr.Name == TEXT("classes"))
 				{
@@ -1799,12 +1799,12 @@ namespace
 					}
 					const FString Value =
 						Attr.Kind == EUetkxAttrKind::Expr
-							? FString::Printf(TEXT("FRuiValue(%s)"),
+							? FString::Printf(TEXT("FRuitkValue(%s)"),
 											  *EmitExpr(Attr.Value, AbsAt,
 														TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
 						: Attr.Kind == EUetkxAttrKind::Bool
-							? FString(TEXT("FRuiValue(true)"))
-							: FString::Printf(TEXT("FRuiValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
+							? FString(TEXT("FRuitkValue(true)"))
+							: FString::Printf(TEXT("FRuitkValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
 					StyleStmts += FString::Printf(TEXT("\t\t__%s->Add(FName(TEXT(\"%s\")), %s);\n"),
 												  bSlot ? TEXT("Slot") : TEXT("Style"), *Attr.Name, *Value);
 				}
@@ -1816,14 +1816,14 @@ namespace
 			}
 			if (!bStyled)
 			{
-				return FString::Printf(TEXT("RUI::TextBlock(%s, %s)"), *TextExpr, *Key);
+				return FString::Printf(TEXT("Ruitk::TextBlock(%s, %s)"), *TextExpr, *Key);
 			}
-			FString Out = TEXT("[&]() -> FRuiNode {\n");
-			Out += FString::Printf(TEXT("\t\tFRuiNode __N = RUI::TextBlock(%s, %s);\n"), *TextExpr, *Key);
-			Out += TEXT("\t\tTSharedRef<FRuiTextBlockProps> __P = "
-						"MakeShared<FRuiTextBlockProps>(static_cast<const FRuiTextBlockProps&>(*__N.Props));\n");
-			Out += TEXT("\t\tTSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();\n");
-			Out += TEXT("\t\tTSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();\n");
+			FString Out = TEXT("[&]() -> FRuitkNode {\n");
+			Out += FString::Printf(TEXT("\t\tFRuiNode __N = Ruitk::TextBlock(%s, %s);\n"), *TextExpr, *Key);
+			Out += TEXT("\t\tTSharedRef<FRuitkTextBlockProps> __P = "
+						"MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*__N.Props));\n");
+			Out += TEXT("\t\tTSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();\n");
+			Out += TEXT("\t\tTSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();\n");
 			Out += ClassStmts;
 			Out += RefStmts;
 			Out += StyleStmts;
@@ -1841,9 +1841,9 @@ namespace
 			bComponent ? FString::Printf(TEXT("%sF%sUetkxProps"), *Prefix, *EmitTag) : Tag->PropsType;
 		const FString Factory = bComponent ? Prefix + EmitTag : Tag->Factory;
 
-		FString Out = TEXT("[&]() -> FRuiNode {\n");
+		FString Out = TEXT("[&]() -> FRuitkNode {\n");
 		Out += FString::Printf(TEXT("\t\t%s P;\n"), *PropsType);
-		FString Key = TEXT("FRuiKey()");
+		FString Key = TEXT("FRuitkKey()");
 		FString StyleStmts;
 		for (const FUetkxAttr& Attr : Node.Attrs)
 		{
@@ -1855,9 +1855,9 @@ namespace
 			{
 				Key = Attr.Kind == EUetkxAttrKind::Expr
 						  ? FString::Printf(
-								TEXT("FRuiKey(%s)"),
+								TEXT("FRuitkKey(%s)"),
 								*EmitExpr(Attr.Value, AbsAt, TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
-						  : FString::Printf(TEXT("FRuiKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
+						  : FString::Printf(TEXT("FRuitkKey(FName(TEXT(\"%s\")))"), *CppStringLiteral(Attr.Value));
 				continue;
 			}
 			if (Attr.Kind == EUetkxAttrKind::Spread)
@@ -1891,8 +1891,8 @@ namespace
 			{
 				// universal reserved prop: `Ref={ expr }` — the props-level host-handle capture
 				// (React ref lifecycle: called with the handle on attach, cleared on detach). The
-				// expression yields anything assignable to FRuiPropsBase::Ref — a
-				// TFunction<void(const FRuiHostHandle&)> lambda or a RUI::Slate::UseFocus
+				// expression yields anything assignable to FRuitkPropsBase::Ref — a
+				// TFunction<void(const FRuitkHostHandle&)> lambda or a Ruitk::Slate::UseFocus
 				// handle's `.Ref`. Expr-only: a string form has no meaning for a callable.
 				if (Attr.Kind == EUetkxAttrKind::Expr)
 				{
@@ -1948,13 +1948,13 @@ namespace
 				const FString Value =
 					Attr.Kind == EUetkxAttrKind::Expr
 						? FString::Printf(
-							  TEXT("FRuiValue(%s)"),
+							  TEXT("FRuitkValue(%s)"),
 							  *EmitExpr(Attr.Value, AbsAt, TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
 					: Attr.Kind == EUetkxAttrKind::Bool
 						// R11: the flag form means TRUE (like element bool attrs) — it used to
-						// lower as FRuiValue(TEXT("")), which the runtime read as false.
-						? FString(TEXT("FRuiValue(true)"))
-						: FString::Printf(TEXT("FRuiValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
+						// lower as FRuitkValue(TEXT("")), which the runtime read as false.
+						? FString(TEXT("FRuitkValue(true)"))
+						: FString::Printf(TEXT("FRuitkValue(TEXT(\"%s\"))"), *CppStringLiteral(Attr.Value));
 				StyleStmts += FString::Printf(TEXT("\t\t__%s->Add(FName(TEXT(\"%s\")), %s);\n"),
 											  bSlot ? TEXT("Slot") : TEXT("Style"), *Attr.Name, *Value);
 				continue;
@@ -1981,11 +1981,11 @@ namespace
 			FString Value;
 			if (Attr.Kind == EUetkxAttrKind::Expr)
 			{
-				// Events: the handler body sees the payload as `Value` (FRuiValue — text/bool/
+				// Events: the handler body sees the payload as `Value` (FRuitkValue — text/bool/
 				// float of the widget event); zero-payload events simply ignore it.
 				Value = *AttrType == EAttrType::Event
 							? FString::Printf(
-								  TEXT("FRuiCallback::Create([=](const FRuiValue& Value) { %s; })"),
+								  TEXT("FRuitkCallback::Create([=](const FRuitkValue& Value) { %s; })"),
 								  *PrefixHooks(Attr.Value, TrueBase >= 0 && Attr.Vat >= 0 ? TrueBase + Attr.Vat : -1))
 							: FString::Printf(TEXT("(%s)"),
 											  *EmitExpr(Attr.Value, AbsAt,
@@ -2046,8 +2046,8 @@ namespace
 		}
 		if (!StyleStmts.IsEmpty())
 		{
-			Out += TEXT("\t\tTSharedRef<FRuiStyleDict> __Style = MakeShared<FRuiStyleDict>();\n");
-			Out += TEXT("\t\tTSharedRef<FRuiStyleDict> __Slot = MakeShared<FRuiStyleDict>();\n");
+			Out += TEXT("\t\tTSharedRef<FRuitkStyleDict> __Style = MakeShared<FRuitkStyleDict>();\n");
+			Out += TEXT("\t\tTSharedRef<FRuitkStyleDict> __Slot = MakeShared<FRuitkStyleDict>();\n");
 			Out += StyleStmts;
 			Out += TEXT("\t\tif (!__Style->IsEmpty()) { P.Style = __Style; }\n");
 			Out += TEXT("\t\tif (!__Slot->IsEmpty()) { P.SlotProps = __Slot; }\n");
@@ -2069,7 +2069,7 @@ namespace
 			Out += FString::Printf(TEXT("\t\treturn %s(MoveTemp(P), %s);\n\t}()"), *Factory, *Key);
 			return Out;
 		}
-		Out += TEXT("\t\tTArray<FRuiNode> Ch;\n");
+		Out += TEXT("\t\tTArray<FRuitkNode> Ch;\n");
 		// R12: components re-slot their children wherever their own markup places them —
 		// only a HOST container's tag arms the direct-child slot/key checks.
 		EmitChildren(Out, Node.Children, TEXT("\t\t"), AbsAt, TrueBase, bComponent ? FString() : Node.Tag);
@@ -2272,7 +2272,7 @@ namespace
 
 		// ── DECL phase: the COMPLETE props struct (call sites construct it BY VALUE, so it must be
 		// fully defined before every caller — a forward declaration is not enough).
-		FString Struct = FString::Printf(TEXT("struct %s final : public FRuiPropsBase\n{\n"), *PropsType);
+		FString Struct = FString::Printf(TEXT("struct %s final : public FRuitkPropsBase\n{\n"), *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
 		{
 			if (Param.Type.IsEmpty())
@@ -2286,7 +2286,7 @@ namespace
 				FString::Printf(TEXT("\t%s %s%s;\n"), *Param.Type, *Param.Name,
 								Param.Default.IsEmpty() ? TEXT("{}") : *FString::Printf(TEXT(" = %s"), *Param.Default));
 		}
-		Struct += TEXT("\n\tvirtual bool Equals(const FRuiPropsBase& OtherBase) const override\n\t{\n");
+		Struct += TEXT("\n\tvirtual bool Equals(const FRuitkPropsBase& OtherBase) const override\n\t{\n");
 		Struct +=
 			FString::Printf(TEXT("\t\tconst %s& O = static_cast<const %s&>(OtherBase);\n"), *PropsType, *PropsType);
 		Struct += TEXT("\t\tbool bEq = BaseFieldsEqual(O);\n");
@@ -2309,8 +2309,8 @@ namespace
 		// BODY-phase definition repeats the signature WITHOUT defaults (repeating them is a C++
 		// redefinition error; omitting them on the definition is legal).
 		const FString WrapDecl = FString::Printf(
-			TEXT("inline FRuiNode %s(%s InProps = %s(), TArray<FRuiNode> InChildren = TArray<FRuiNode>(), FRuiKey "
-				 "InKey = FRuiKey());\n"),
+			TEXT("inline FRuitkNode %s(%s InProps = %s(), TArray<FRuitkNode> InChildren = TArray<FRuitkNode>(), FRuitkKey "
+				 "InKey = FRuitkKey());\n"),
 			*Decl.Name, *PropsType, *PropsType);
 		E.DeclPhase = Struct + WrapDecl;
 
@@ -2334,7 +2334,7 @@ namespace
 		const FString ImplName = FString::Printf(TEXT("%s_UetkxImpl"), *Decl.Name);
 		const FString BodyName = FString::Printf(TEXT("%s_UetkxBody_%s"), *Decl.Name, *BodyHash);
 		FString Impl =
-			FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, const TArray<FRuiNode>& "
+			FString::Printf(TEXT("static FRuitkNodeArray %s(FRuitkContext& Ctx, const %s& Props, const TArray<FRuitkNode>& "
 								 "children)\n{\n"),
 							*BodyName, *PropsType);
 		for (const FUetkxParam& Param : Decl.Params)
@@ -2345,7 +2345,7 @@ namespace
 		{
 			// Single markup return — the legacy shape (byte-stable goldens; EmitExpr degenerates to
 			// PrefixHooks when setup holds no markup). Markup-as-value (§4 markup-everywhere) lowers
-			// in place: `auto X = (<VerticalBox>…);` becomes a plain FRuiNode local.
+			// in place: `auto X = (<VerticalBox>…);` becomes a plain FRuitkNode local.
 			const FString Setup = Decl.Setup.TrimStartAndEnd();
 			if (!Setup.IsEmpty())
 			{
@@ -2400,8 +2400,8 @@ namespace
 			Impl += TEXT("}\n");
 		}
 		// The STABLE impl shim (TB-23): pointer identity + Live Coding's redirect anchor.
-		Impl += FString::Printf(TEXT("static FRuiNodeArray %s(FRuiContext& Ctx, const %s& Props, "
-									 "const TArray<FRuiNode>& children)\n{\n\treturn %s(Ctx, Props, children);\n}\n"),
+		Impl += FString::Printf(TEXT("static FRuitkNodeArray %s(FRuitkContext& Ctx, const %s& Props, "
+									 "const TArray<FRuitkNode>& children)\n{\n\treturn %s(Ctx, Props, children);\n}\n"),
 								*ImplName, *PropsType, *BodyName);
 		// FILE_SCOPED_EXPORTS (FS-04, supersedes TD-026's split): runtime identity = the FILE-
 		// QUALIFIED emitted C++ name for EVERY component, exported or private — two files may
@@ -2409,15 +2409,15 @@ namespace
 		// (HMR maps included) key on `<FileNs>::<Name>`. The G-01 semantic is now uniform:
 		// renaming/moving a file renames its namespace ⇒ fresh runtime identity ⇒ remount on the
 		// next sweep (React Fast Refresh parity — module path is the key). Short-name lookup at
-		// the designer edges resolves by suffix (RUI::ResolveNamed).
+		// the designer edges resolves by suffix (Ruitk::ResolveNamed).
 		const FString RuntimeId = FileNs + TEXT("::") + Decl.Name;
-		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = RUI::RegisterComponentId((void*)&%s, "
+		Impl += FString::Printf(TEXT("static const FName G%sUetkxId = Ruitk::RegisterComponentId((void*)&%s, "
 									 "FName(TEXT(\"%s\")));\n"),
 								*Decl.Name, *ImplName, *RuntimeId);
 		Impl += FString::Printf(TEXT("static constexpr uint32 %s_RUI_HOOK_SIG = 0x%08Xu;\n"), *Decl.Name,
 								FUetkxFileScan::HookSignature(Decl.HookCalls));
-		Impl += FString::Printf(TEXT("inline FRuiNode %s(%s InProps, TArray<FRuiNode> InChildren, FRuiKey "
-									 "InKey)\n{\n\treturn RUI::FC(&%s, MoveTemp(InProps), "
+		Impl += FString::Printf(TEXT("inline FRuitkNode %s(%s InProps, TArray<FRuitkNode> InChildren, FRuitkKey "
+									 "InKey)\n{\n\treturn Ruitk::FC(&%s, MoveTemp(InProps), "
 									 "MoveTemp(InChildren), InKey);\n}\n"),
 								*Decl.Name, *PropsType, *ImplName);
 		// A PRIVATE component stays TREE-SHAKEN (no named factory); the file namespace comes from
@@ -2425,7 +2425,7 @@ namespace
 		if (Decl.bExported)
 		{
 			Impl += FString::Printf(TEXT("static const bool G%sUetkxFactoryReg = "
-										 "RUI::RegisterNamedFactory(FName(TEXT(\"%s\")), []() { return %s(); });\n"),
+										 "Ruitk::RegisterNamedFactory(FName(TEXT(\"%s\")), []() { return %s(); });\n"),
 									*Decl.Name, *RuntimeId, *Decl.Name);
 		}
 		E.BodyPhase = Impl;
@@ -2463,8 +2463,8 @@ FString FUetkxCodegen::FileNamespaceFor(const FString& ProjectRelPath, const FSt
 	// dots fold to `_` (`SimpleCounter.style` → `SimpleCounter_style`).
 	//
 	// ONE FLAT IDENTIFIER, deliberately — NOT nested namespaces: a nested segment named after a
-	// real C++ namespace (`RuiUetkx::Source::RuiDemo::…`) SHADOWS it inside generated code, so a
-	// user expression `RuiDemo::GDemoThemeCtx` would resolve against the enclosing segment
+	// real C++ namespace (`RuitkUetkx::Source::RuitkDemo::…`) SHADOWS it inside generated code, so a
+	// user expression `RuitkDemo::GDemoThemeCtx` would resolve against the enclosing segment
 	// instead of the global namespace (found live: the ContextDemo tree broke exactly there).
 	// A single identifier can shadow nothing. Two different paths that flat-join identically
 	// (`A_B/C` vs `A/B_C`) are DETECTED, not silent — the UETKX2329 folded-FQN ledger keys on
@@ -2478,7 +2478,7 @@ FString FUetkxCodegen::FileNamespaceFor(const FString& ProjectRelPath, const FSt
 	}
 	TArray<FString> Segs;
 	NoExt.ParseIntoArray(Segs, TEXT("/"), true);
-	FString Ns = TEXT("RuiUetkx");
+	FString Ns = TEXT("RuitkUetkx");
 	for (const FString& Seg : Segs)
 	{
 		Ns += TEXT("_") + SanitizeNsSegment(Seg);
@@ -2500,7 +2500,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	}
 
 	FString Inl;
-	Inl += TEXT("// AUTO-GENERATED by RUICompile — DO NOT EDIT. Source: ") + Basename + TEXT(".uetkx\n");
+	Inl += TEXT("// AUTO-GENERATED by RuitkCompile — DO NOT EDIT. Source: ") + Basename + TEXT(".uetkx\n");
 	// D-32(a): seller copyright inside this repo, neutral "belongs to your project" banner in a
 	// customer project (bughunt CG-1 — was an unconditional seller line stamped into customer output).
 	Inl += GeneratedCopyrightLine(Basename, bSellerRepoOverride) + TEXT("\n");
@@ -2641,7 +2641,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 
 	// De-binarized emit (mixed-decl v1) split into the two aggregator phases (M6). Modules emit into
 	// the DECL phase FIRST (member defaults may reference them). Components + hooks emit in SOURCE
-	// order into both phases. The whole .inl is wrapped `#if defined(RUI_UETKX_DECL_PHASE) … #else …
+	// order into both phases. The whole .inl is wrapped `#if defined(RUITK_UETKX_DECL_PHASE) … #else …
 	// #endif` so the aggregator can include it once per phase.
 	TSet<FString> Uses;
 	TMap<FString, int32> UseAts;
@@ -2705,7 +2705,7 @@ FUetkxCompileOutput FUetkxCodegen::CompileSource(const FString& Source, const FS
 	// is ordinary namespace reopening in the aggregator TU.
 	const FString NsOpen = FString::Printf(TEXT("namespace %s\n{\n"), *FileNs);
 	const FString NsClose = FString::Printf(TEXT("} // namespace %s\n"), *FileNs);
-	Inl += TEXT("#if defined(RUI_UETKX_DECL_PHASE)\n");
+	Inl += TEXT("#if defined(RUITK_UETKX_DECL_PHASE)\n");
 	Inl += NsOpen;
 	Inl += ModuleDecls + OtherDecls;
 	Inl += NsClose;
@@ -2898,7 +2898,7 @@ FString FUetkxCodegen::ExportSchemaJson()
 	}
 	Root->SetArrayField(TEXT("hooks"), HookArray);
 
-	// TD-016: per-event payload KIND — the FRuiValue field an event handler's `Value` carries, so
+	// TD-016: per-event payload KIND — the FRuitkValue field an event handler's `Value` carries, so
 	// the LSP can complete `Value.<Field>` typed by the event (text -> Value.TextValue, etc.). Keyed
 	// by event attr name (payload is per event name in v1). "void" = zero-payload (OnClicked).
 	auto EventPayloadKind = [](const FString& EventName) -> const TCHAR*

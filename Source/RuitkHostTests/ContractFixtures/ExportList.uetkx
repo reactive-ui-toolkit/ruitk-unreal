@@ -1,6 +1,6 @@
 // U-09: the deferred export list marks decls declared BEFORE and AFTER it; ExportAt stays -1
 // (the formatter keeps their bare heads — no inline-export duplication on reformat).
-FRuiNode ListedCard() {
+FRuitkNode ListedCard() {
 	return (
 		<Spacer />
 	);

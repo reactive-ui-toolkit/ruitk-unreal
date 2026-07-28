@@ -10,7 +10,7 @@
 #include "CoreMinimal.h"
 #include "Doom/DoomTypes.h"
 
-namespace RuiDoom
+namespace RuitkDoom
 {
 	// Everything a level hands to the game on load.
 	struct FLevelStart
@@ -97,4 +97,4 @@ namespace RuiDoom
 	RUITKDEMO_API FLevelStart Level4();
 	RUITKDEMO_API FLevelStart Level5();
 	RUITKDEMO_API FLevelStart Level6();
-} // namespace RuiDoom
+} // namespace RuitkDoom

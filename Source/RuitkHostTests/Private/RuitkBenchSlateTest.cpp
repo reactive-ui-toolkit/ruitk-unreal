@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Bench.SlateReorder — the Phase 2 step 1 reorder-strategy spike, decided on
+// Ruitk.Bench.SlateReorder — the Phase 2 step 1 reorder-strategy spike, decided on
 // numbers, not vibes (MASTER_PLAN: detach/attach minimal-move vs full rebuild; the
 // invalidation-boundary wrap claim was downgraded by the critique and is measured only if
 // these two disagree badly). Rows land in plans/BENCH_BASELINES.md; the strategy decision
-// in plans/TECH_DEBT.md. PerfFilter — run: Automation RunTests ReactiveUI.Bench
+// in plans/TECH_DEBT.md. PerfFilter — run: Automation RunTests Ruitk.Bench
 //
 // Workloads on a raw SVerticalBox of N=200 STextBlocks (no reconciler — pure panel cost):
 //   move_one:     one widget end->front. minimal-move = 1 RemoveSlot + 1 InsertSlot;
@@ -17,7 +17,7 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-namespace RuiSlateBench
+namespace RuitkSlateBench
 {
 	static constexpr int32 N = 200;
 	static constexpr int32 Reps = 5;
@@ -77,18 +77,18 @@ namespace RuiSlateBench
 			Slot.AttachWidget(W);
 		}
 	}
-} // namespace RuiSlateBench
+} // namespace RuitkSlateBench
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiBenchSlateReorderTest, "ReactiveUI.Bench.SlateReorder",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBenchSlateReorderTest, "Ruitk.Bench.SlateReorder",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::PerfFilter)
-bool FRuiBenchSlateReorderTest::RunTest(const FString&)
+bool FRuitkBenchSlateReorderTest::RunTest(const FString&)
 {
-	using namespace RuiSlateBench;
+	using namespace RuitkSlateBench;
 
 	auto Report = [this](const TCHAR* Name, TArray<double>& Us, const TCHAR* Workload)
 	{
 		Us.Sort();
-		AddInfo(FString::Printf(TEXT("RUIBENCH %s: min=%.0fus med=%.0fus max=%.0fus (n=%d, %s)"), Name, Us[0],
+		AddInfo(FString::Printf(TEXT("RUITKBENCH %s: min=%.0fus med=%.0fus max=%.0fus (n=%d, %s)"), Name, Us[0],
 								Us[Us.Num() / 2], Us.Last(), Us.Num(), Workload));
 	};
 

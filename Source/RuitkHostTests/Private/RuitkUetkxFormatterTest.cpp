@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Uetkx.Formatter — runs the shared golden corpus (uetkx-formatter-cases.json,
+// Ruitk.Uetkx.Formatter — runs the shared golden corpus (uetkx-formatter-cases.json,
 // the same file the lsp-server TS port replays in Phase 5) plus the uetkx.config.json
 // walk-up. Every non-fellback case doubles as an idempotence pin: Format(expect) == expect.
 
@@ -15,9 +15,9 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUetkxFormatterTest, "ReactiveUI.Uetkx.Formatter",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUetkxFormatterTest, "Ruitk.Uetkx.Formatter",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUetkxFormatterTest::RunTest(const FString&)
+bool FRuitkUetkxFormatterTest::RunTest(const FString&)
 {
 	// ── the golden corpus ──────────────────────────────────────────────────────────────────
 	{

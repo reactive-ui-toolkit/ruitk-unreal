@@ -7,7 +7,7 @@
 // embedded C++ expressions, a UseEffect, an imported HOOK, an imported MODULE, and an imported
 // SUB-COMPONENT. Each <Border> section below is one focused test; read its comment for what to do.
 //
-// HOW TO REACH IT: PIE → gallery menu → "Acceptance Lab" (registered in RuiDemoScreens.cpp).
+// HOW TO REACH IT: PIE → gallery menu → "Acceptance Lab" (registered in RuitkDemoScreens.cpp).
 // IDE (checklist D/E): just open THIS file — colors/completion/hover/diagnostics/format all have
 // something to bite on here. IMPORTS below are the go-to-def / import-completion targets.
 // ============================================================================================
@@ -17,7 +17,7 @@ import * as LabStyle from "./AcceptanceLab.style"
 import { LabCard } from "./components/LabCard/LabCard"
 import { LabScopeProof } from "./components/LabScopeProof/LabScopeProof"
 
-export FRuiNode AcceptanceLab() {
+export FRuitkNode AcceptanceLab() {
 	// ── state (checklist B — HMR keeps these VALUES across style/structure saves) ──────────────
 	// Imported hook: destructured from a 3-tuple. F12 on UseLabState jumps to AcceptanceLab.hooks.
 	auto [Count, Increment, Reset] = UseLabState(0);
@@ -29,17 +29,17 @@ export FRuiNode AcceptanceLab() {
 
 	// UseEffect (checklist A "Use Effect"): runs once on mount, flips a flag we display below.
 	auto [bMounted, SetMounted] = UseState<bool>(false);
-	UseEffect([SetMounted]() { SetMounted(true); }, RUI::Deps());
+	UseEffect([SetMounted]() { SetMounted(true); }, Ruitk::Deps());
 
 	// Ref={ } capture (section 9): the handle arrives on attach (post-commit); the effect flips
 	// a flag so the label below proves the markup-level Ref actually fired.
-	const TSharedRef<TRuiRef<FRuiHostHandle>>& RefTarget = UseRef<FRuiHostHandle>();
+	const TSharedRef<TRuitkRef<FRuitkHostHandle>>& RefTarget = UseRef<FRuitkHostHandle>();
 	auto [bRefAttached, SetRefAttached] = UseState<bool>(false);
 	UseEffect(
 		[RefTarget, SetRefAttached, bRefAttached]() {
 			if (!bRefAttached && RefTarget->Current.IsValid()) { SetRefAttached(true); }
 		},
-		RUI::EveryCommit());
+		Ruitk::EveryCommit());
 
 	// A fixed list for the @for section (keyed rows).
 	static const TCHAR* Fruits[] = {TEXT("Apple"), TEXT("Banana"), TEXT("Cherry"), TEXT("Date")};
@@ -50,13 +50,13 @@ export FRuiNode AcceptanceLab() {
 
 	// ── 10 · MARKUP AS A VALUE (§4 markup-everywhere) — markup is first-class at every
 	// expression boundary: assigned to a local (both the parenthesized and bare `=` spellings),
-	// then spliced below with { Badge } / { Chip }. The same FRuiNode splices TWICE — two
+	// then spliced below with { Badge } / { Chip }. The same FRuitkNode splices TWICE — two
 	// mounted instances from one value. Editing THIS markup and saving must HMR without
 	// resetting the counter above (the hook signature ignores markup text).
 	auto Badge = (<TextBlock
-		Text={ RUI::Fmt(TEXT("count is {}"), Count) }
+		Text={ Ruitk::Fmt(TEXT("count is {}"), Count) }
 		ColorAndOpacity={ LabStyle::Accent } />);
-	FRuiNode Chip = <TextBlock Text="   a bare `=` markup value" />;
+	FRuitkNode Chip = <TextBlock Text="   a bare `=` markup value" />;
 
 	return (
 		<Border
@@ -72,7 +72,7 @@ export FRuiNode AcceptanceLab() {
 						Text="Acceptance Lab — one screen to test them all"
 						Font.Size={ 18.0f }
 						ColorAndOpacity={ LabStyle::Accent } />
-					<TextBlock Text={ RUI::Fmt(TEXT("UseEffect mounted: {}"), bMounted) } />
+					<TextBlock Text={ Ruitk::Fmt(TEXT("UseEffect mounted: {}"), bMounted) } />
 					<Spacer Size={ FVector2D(1.0f, 8.0f) } />
 					<!-- 1 · COUNTER — checklist A (counter +) and B (style/structure/hook HMR).
 					     · A: click "+1" a few times; value increments; "Reset" zeroes it.
@@ -85,7 +85,7 @@ export FRuiNode AcceptanceLab() {
 						BorderBackgroundColor={ FLinearColor(0.04f, 0.04f, 0.06f, 0.9f) }
 					>
 						<VerticalBox>
-							<TextBlock Text={ RUI::Fmt(TEXT("1. Counter (hook): {}"), Count) } />
+							<TextBlock Text={ Ruitk::Fmt(TEXT("1. Counter (hook): {}"), Count) } />
 							<HorizontalBox>
 								<Button OnClicked={ Increment() } ContentPadding="12,4" Slot.Padding="0,0,6,0">+1</Button>
 								<Button OnClicked={ Reset() } ContentPadding="12,4" Slot.Padding="0,0,6,0">Reset</Button>
@@ -105,7 +105,7 @@ export FRuiNode AcceptanceLab() {
 								Text={ FText::FromString(Name) }
 								HintText="Type here — the mirror below tracks you"
 								OnTextChanged={ SetName(Value.TextValue.ToString()) } />
-							<TextBlock Text={ RUI::Fmt(TEXT("2. You typed: {}"), Name) } />
+							<TextBlock Text={ Ruitk::Fmt(TEXT("2. You typed: {}"), Name) } />
 						</VerticalBox>
 					</Border>
 					<Spacer Size={ FVector2D(1.0f, 6.0f) } />
@@ -180,7 +180,7 @@ export FRuiNode AcceptanceLab() {
 							@for (int32 i = 0; i < UE_ARRAY_COUNT(Fruits); ++i) {
 								return (
 									<HorizontalBox key={ FName(Fruits[i]) }>
-										<TextBlock Text={ RUI::Fmt(TEXT("   {}. {}"), i, Fruits[i]) } />
+										<TextBlock Text={ Ruitk::Fmt(TEXT("   {}. {}"), i, Fruits[i]) } />
 									</HorizontalBox>
 								);
 							}
@@ -201,7 +201,7 @@ export FRuiNode AcceptanceLab() {
 								++WhileI;
 								return (
 									<TextBlock
-										Text={ RUI::Fmt(TEXT("   while row {}"), Shown) }
+										Text={ Ruitk::Fmt(TEXT("   while row {}"), Shown) }
 										key={ FName(*FString::Printf(TEXT("w%d"), Shown)) } />
 								);
 							}
@@ -272,12 +272,12 @@ export FRuiNode AcceptanceLab() {
 						Padding="8"
 						BorderImage="WhiteBrush"
 						BorderBackgroundColor={ FLinearColor(0.04f, 0.04f, 0.06f, 0.9f) }
-						Ref={ [RefTarget](const FRuiHostHandle& H) { RefTarget->Current = H; } }
+						Ref={ [RefTarget](const FRuitkHostHandle& H) { RefTarget->Current = H; } }
 					>
-						<TextBlock Text={ RUI::Fmt(TEXT("9. Ref captured this Border - attached: {}"), bRefAttached) } />
+						<TextBlock Text={ Ruitk::Fmt(TEXT("9. Ref captured this Border - attached: {}"), bRefAttached) } />
 					</Border>
 					<Spacer Size={ FVector2D(1.0f, 6.0f) } />
-					<!-- 10 · MARKUP AS A VALUE — `Badge`/`Chip` are FRuiNode locals built in setup (see
+					<!-- 10 · MARKUP AS A VALUE — `Badge`/`Chip` are FRuitkNode locals built in setup (see
 					     the top of the component). The Badge splices TWICE: both rows track the counter.
 					     Short-circuit + ternary value markup ride along inline. -->
 					<Border
@@ -286,7 +286,7 @@ export FRuiNode AcceptanceLab() {
 						BorderBackgroundColor={ FLinearColor(0.04f, 0.04f, 0.06f, 0.9f) }
 					>
 						<VerticalBox>
-							<TextBlock Text="10. Markup as a value (FRuiNode locals, spliced below)" />
+							<TextBlock Text="10. Markup as a value (FRuitkNode locals, spliced below)" />
 							{ Badge }
 							{ Badge }
 							{ Chip }

@@ -1,8 +1,8 @@
 import { UseCounter } from "./SimpleCounter.hooks"
 import { PanelBackground, PanelPadding, ButtonPadding, RowGap, PanelSlotPadding, ButtonSlotPadding } from "./SimpleCounter.style"
 
-export FRuiNode SimpleCounter() {
-	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, RUI::Deps());
+export FRuitkNode SimpleCounter() {
+	// const FString& Title = UseMemo<FString>([]() { return FString(TEXT("DOOM COUNTERaaaaaaaaaaaa")); }, Ruitk::Deps());
 	auto [Count, Increment] = UseCounter(0);
 	auto [Count2, Increment2] = UseState<int32>(0);
 
@@ -15,8 +15,8 @@ export FRuiNode SimpleCounter() {
 		>
 			<VerticalBox>
 				<TextBlock Text={ FText::FromString(TEXT("DOOM COUNTER02")) } />
-				<TextBlock Text={ RUI::Fmt(TEXT("Count1: {}"), Count) } />
-				<TextBlock Text={ RUI::Fmt(TEXT("Count2: {}"), Count2) } />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("Count1: {}"), Count) } />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("Count2: {}"), Count2) } />
 				<Spacer Size={ RowGap } />
 				<HorizontalBox>
 					<Button

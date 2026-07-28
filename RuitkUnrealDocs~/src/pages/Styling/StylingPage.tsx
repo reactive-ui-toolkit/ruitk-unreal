@@ -12,7 +12,7 @@ const ATTRS = `<Border
 </Border>`
 
 const CLASSES = `// Register a named style class once (startup, a module, a theme file):
-RUI::Slate::RegisterStyleClass(TEXT("dim"), Style);
+Ruitk::Slate::RegisterStyleClass(TEXT("dim"), Style);
 
 // Any element can wear one or more classes; inline style wins over them.
 <TextBlock Text={ Mirror } classes="dim" />`
@@ -26,8 +26,8 @@ const THEME = `// A .uss-style stylesheet source: @theme token blocks + .class r
 .panel { RenderOpacity: 1; ColorAndOpacity: $accent; }
 
 // C++: load + activate, then $tokens resolve against the active theme.
-RUI::Slate::LoadStylesheet(Source);
-RUI::Slate::SetActiveTheme(TEXT("dark"));`
+Ruitk::Slate::LoadStylesheet(Source);
+Ruitk::Slate::SetActiveTheme(TEXT("dark"));`
 
 const STYLE_KEYS: Array<[string, string]> = [
   ['RenderOpacity', 'float 0..1'],
@@ -144,8 +144,8 @@ export const StylingPage: FC = () => (
     <CodeBlock code={THEME} language="uetkx" />
 
     <Alert severity="info">
-      From C++, the fluent builders mirror the markup: <code>RUI::Style().FontSize(16).
-      ColorAndOpacity(Color)</code> and <code>RUI::Slot().Padding(...).HAlign(...)</code> produce
+      From C++, the fluent builders mirror the markup: <code>Ruitk::Style().FontSize(16).
+      ColorAndOpacity(Color)</code> and <code>Ruitk::Slot().Padding(...).HAlign(...)</code> produce
       the same dictionaries the compiler emits.
     </Alert>
   </Box>

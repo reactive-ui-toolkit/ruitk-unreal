@@ -2,7 +2,7 @@
 	// F5 from the repo root = test the VS Code extension (Unity-sibling parity: the folder you
 	// already have open carries the config). The preLaunchTask rebuilds the language server AND
 	// the client (which re-bundles the server), then an Extension Development Host opens on THIS
-	// repo — the gallery screens under Source/RuiDemo/Screens are right there to poke.
+	// repo — the gallery screens under Source/RuitkDemo/Screens are right there to poke.
 	// One-time prep on a fresh clone: `npm ci` in ide-extensions/lsp-server AND
 	// ide-extensions/vscode-uetkx (see .claude/skills/rebuild-ide-extensions).
 	// Client breakpoints work directly (outFiles below); for SERVER-side breakpoints run the

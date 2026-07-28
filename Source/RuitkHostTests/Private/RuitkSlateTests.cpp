@@ -1,23 +1,23 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Slate.* — the Slate host over REAL widgets, headless (widgets construct and
+// Ruitk.Slate.* — the Slate host over REAL widgets, headless (widgets construct and
 // mutate fine under NullRHI; nothing here needs painting). What the mock suites can't
 // prove: adapter create/diff rows, panel child mechanics, slot.* props, the event proxy's
 // bind-once-swap-inner chain, widget POINTER IDENTITY across re-renders (the D-12 "a
-// re-render never reconstructs" claim), and FRuiRoot mount/unmount surfaces.
+// re-render never reconstructs" claim), and FRuitkRoot mount/unmount surfaces.
 
 #include "Misc/AutomationTest.h"
-#include "RuiContext.h"
-#include "RuiRoot.h"
-#include "RuiSlateElements.h"
-#include "RuiSlateHost.h"
+#include "RuitkContext.h"
+#include "RuitkRoot.h"
+#include "RuitkSlateElements.h"
+#include "RuitkSlateHost.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Text/STextBlock.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-#define RUI_SLATE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+#define RUITK_SLATE_TEST_FLAGS (EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 namespace SlateTest
 {
@@ -32,8 +32,8 @@ namespace SlateTest
 		LastClickTag.Empty();
 	}
 
-	/** The SRuiRoot inner overlay's first slot widget. */
-	static TSharedPtr<SWidget> RootChild(FRuiRoot& Root, int32 Index = 0)
+	/** The SRuitkRoot inner overlay's first slot widget. */
+	static TSharedPtr<SWidget> RootChild(FRuitkRoot& Root, int32 Index = 0)
 	{
 		FChildren* Children = Root.GetWidget()->GetRootPanel()->GetChildren();
 		return Children->Num() > Index ? TSharedPtr<SWidget>(Children->GetChildAt(Index)) : nullptr;
@@ -57,24 +57,24 @@ namespace SlateTest
 
 // ── mount: component -> real widgets ──────────────────────────────────────────────────────
 
-static FRuiNodeArray SlateMountComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SlateMountComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Count, SetCount] = Ctx.UseState<int32>(1);
 	SlateTest::IntSetter = SetCount;
-	TArray<FRuiNode> Rows;
+	TArray<FRuitkNode> Rows;
 	for (int32 i = 0; i < Count; ++i)
 	{
-		Rows.Add(RUI::TextBlock(FString::Printf(TEXT("row %d"), i)));
+		Rows.Add(Ruitk::TextBlock(FString::Printf(TEXT("row %d"), i)));
 	}
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), MoveTemp(Rows))};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(Rows))};
 }
-RUI_COMPONENT(SlateMountComp)
+RUITK_COMPONENT(SlateMountComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSlateMountTest, "ReactiveUI.Slate.Mount", RUI_SLATE_TEST_FLAGS)
-bool FRuiSlateMountTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSlateMountTest, "Ruitk.Slate.Mount", RUITK_SLATE_TEST_FLAGS)
+bool FRuitkSlateMountTest::RunTest(const FString&)
 {
 	SlateTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&SlateMountComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&SlateMountComp));
 
 	TSharedPtr<SWidget> Panel = SlateTest::RootChild(*Root);
 	if (!TestTrue(TEXT("a panel mounted under the root overlay"), Panel.IsValid()))
@@ -100,19 +100,19 @@ bool FRuiSlateMountTest::RunTest(const FString&)
 
 // ── pointer identity: updates NEVER reconstruct (D-12) ────────────────────────────────────
 
-static FRuiNodeArray SlateIdentityComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SlateIdentityComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Value, SetValue] = Ctx.UseState<int32>(0);
 	SlateTest::IntSetter = SetValue;
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {RUI::TextBlock(FString::Printf(TEXT("v=%d"), Value))})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {Ruitk::TextBlock(FString::Printf(TEXT("v=%d"), Value))})};
 }
-RUI_COMPONENT(SlateIdentityComp)
+RUITK_COMPONENT(SlateIdentityComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSlateIdentityTest, "ReactiveUI.Slate.PointerIdentity", RUI_SLATE_TEST_FLAGS)
-bool FRuiSlateIdentityTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSlateIdentityTest, "Ruitk.Slate.PointerIdentity", RUITK_SLATE_TEST_FLAGS)
+bool FRuitkSlateIdentityTest::RunTest(const FString&)
 {
 	SlateTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&SlateIdentityComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&SlateIdentityComp));
 	TSharedPtr<SWidget> Panel = SlateTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -134,26 +134,26 @@ bool FRuiSlateIdentityTest::RunTest(const FString&)
 
 // ── keyed reorder on a real panel ─────────────────────────────────────────────────────────
 
-static FRuiNodeArray SlateReorderComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SlateReorderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Flip, SetFlip] = Ctx.UseState<int32>(0);
 	SlateTest::IntSetter = SetFlip;
 	TArray<int32> Order = Flip != 0 ? TArray<int32>{2, 0, 1} : TArray<int32>{0, 1, 2};
-	TArray<FRuiNode> Rows;
+	TArray<FRuitkNode> Rows;
 	for (int32 Id : Order)
 	{
-		Rows.Add(RUI::TextBlock(FString::Printf(TEXT("item %d"), Id)));
-		Rows.Last().Key = FRuiKey(Id);
+		Rows.Add(Ruitk::TextBlock(FString::Printf(TEXT("item %d"), Id)));
+		Rows.Last().Key = FRuitkKey(Id);
 	}
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), MoveTemp(Rows))};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), MoveTemp(Rows))};
 }
-RUI_COMPONENT(SlateReorderComp)
+RUITK_COMPONENT(SlateReorderComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSlateReorderTest, "ReactiveUI.Slate.KeyedReorder", RUI_SLATE_TEST_FLAGS)
-bool FRuiSlateReorderTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSlateReorderTest, "Ruitk.Slate.KeyedReorder", RUITK_SLATE_TEST_FLAGS)
+bool FRuitkSlateReorderTest::RunTest(const FString&)
 {
 	SlateTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&SlateReorderComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&SlateReorderComp));
 	TSharedPtr<SWidget> Panel = SlateTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{
@@ -174,28 +174,28 @@ bool FRuiSlateReorderTest::RunTest(const FString&)
 
 // ── the event proxy: bind-once-swap-inner ─────────────────────────────────────────────────
 
-static FRuiNodeArray SlateButtonComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SlateButtonComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Gen, SetGen] = Ctx.UseState<int32>(0);
 	SlateTest::IntSetter = SetGen;
-	FRuiButtonProps Props;
+	FRuitkButtonProps Props;
 	const int32 CapturedGen = Gen;
-	Props.SetOnClicked(FRuiCallback::Create(
+	Props.SetOnClicked(FRuitkCallback::Create(
 		[CapturedGen]()
 		{
 			++SlateTest::Clicks;
 			SlateTest::LastClickTag = FString::Printf(TEXT("gen%d"), CapturedGen);
 		}));
 	Props.SetbEnabled(Gen % 2 == 0);
-	return {RUI::Slate::Button(MoveTemp(Props), {RUI::TextBlock(TEXT("press"))})};
+	return {Ruitk::Slate::Button(MoveTemp(Props), {Ruitk::TextBlock(TEXT("press"))})};
 }
-RUI_COMPONENT(SlateButtonComp)
+RUITK_COMPONENT(SlateButtonComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSlateButtonTest, "ReactiveUI.Slate.EventProxy", RUI_SLATE_TEST_FLAGS)
-bool FRuiSlateButtonTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSlateButtonTest, "Ruitk.Slate.EventProxy", RUITK_SLATE_TEST_FLAGS)
+bool FRuitkSlateButtonTest::RunTest(const FString&)
 {
 	SlateTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&SlateButtonComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&SlateButtonComp));
 	TSharedPtr<SWidget> ButtonWidget = SlateTest::RootChild(*Root);
 	if (!TestTrue(TEXT("button mounted"), ButtonWidget.IsValid()))
 	{
@@ -223,26 +223,26 @@ bool FRuiSlateButtonTest::RunTest(const FString&)
 
 // ── slot.* props on a box panel ───────────────────────────────────────────────────────────
 
-static FRuiNodeArray SlateSlotPropsComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+static FRuitkNodeArray SlateSlotPropsComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 {
 	auto [Pad, SetPad] = Ctx.UseState<int32>(4);
 	SlateTest::IntSetter = SetPad;
-	FRuiNode Text = RUI::TextBlock(TEXT("padded"));
-	TSharedRef<FRuiTextBlockProps> Props =
-		MakeShared<FRuiTextBlockProps>(static_cast<const FRuiTextBlockProps&>(*Text.Props));
-	Props->SlotProps = MakeShared<FRuiStyleDict>();
-	Props->SlotProps->Add(FName(TEXT("slot.padding")), FRuiValue(static_cast<float>(Pad)));
-	Props->SlotProps->Add(FName(TEXT("slot.halign")), FRuiValue(TEXT("center")));
+	FRuitkNode Text = Ruitk::TextBlock(TEXT("padded"));
+	TSharedRef<FRuitkTextBlockProps> Props =
+		MakeShared<FRuitkTextBlockProps>(static_cast<const FRuitkTextBlockProps&>(*Text.Props));
+	Props->SlotProps = MakeShared<FRuitkStyleDict>();
+	Props->SlotProps->Add(FName(TEXT("slot.padding")), FRuitkValue(static_cast<float>(Pad)));
+	Props->SlotProps->Add(FName(TEXT("slot.halign")), FRuitkValue(TEXT("center")));
 	Text.Props = Props;
-	return {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(), {MoveTemp(Text)})};
+	return {Ruitk::Slate::VerticalBox(FRuitkVerticalBoxProps(), {MoveTemp(Text)})};
 }
-RUI_COMPONENT(SlateSlotPropsComp)
+RUITK_COMPONENT(SlateSlotPropsComp)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiSlateSlotPropsTest, "ReactiveUI.Slate.SlotProps", RUI_SLATE_TEST_FLAGS)
-bool FRuiSlateSlotPropsTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSlateSlotPropsTest, "Ruitk.Slate.SlotProps", RUITK_SLATE_TEST_FLAGS)
+bool FRuitkSlateSlotPropsTest::RunTest(const FString&)
 {
 	SlateTest::Reset();
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&SlateSlotPropsComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&SlateSlotPropsComp));
 	TSharedPtr<SWidget> Panel = SlateTest::RootChild(*Root);
 	if (!TestTrue(TEXT("panel mounted"), Panel.IsValid()))
 	{

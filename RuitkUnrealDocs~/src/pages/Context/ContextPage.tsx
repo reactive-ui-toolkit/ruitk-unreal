@@ -2,7 +2,7 @@ import type { FC } from 'react'
 import { Alert, Box, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const PROVIDE = `export FRuiNode ThemeRoot() {
+const PROVIDE = `export FRuitkNode ThemeRoot() {
 	auto [bDark, SetDark] = UseState<bool>(true);
 	const FLinearColor Theme = bDark ? CoolTheme : WarmTheme;
 
@@ -18,7 +18,7 @@ const PROVIDE = `export FRuiNode ThemeRoot() {
 }`
 
 const CONSUME = `// Any descendant reads the nearest provided value with UseContext.
-export FRuiNode Panel() {
+export FRuitkNode Panel() {
 	const FLinearColor Theme = UseContext(GDemoThemeCtx);
 	return <Border BorderBackgroundColor={ Theme }><TextBlock Text="Themed" /></Border>;
 }`

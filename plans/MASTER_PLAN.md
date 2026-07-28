@@ -12,12 +12,12 @@
 > (GitHub); Fab waits for 1.0.
 > **STATUS UPDATE — 2026-07-15 (Phase 7 COMPLETE — `feat/v1-gate-closeout`).** Localization
 > shipped, closing the last Phase-7 production gap: markup text gathers through the stock
-> pipeline (`*.inl` in the gather masks; reference target `Config/Localization/RuiDemo_Gather.ini`
-> with committed output) and a culture change re-renders every mounted root (`RuiCultureSync`).
-> Suite `ReactiveUI.Loc` (3 tests incl. a gather-manifest tripwire); battery **108/108** on
+> pipeline (`*.inl` in the gather masks; reference target `Config/Localization/RuitkDemo_Gather.ini`
+> with committed output) and a culture change re-renders every mounted root (`RuitkCultureSync`).
+> Suite `Ruitk.Loc` (3 tests incl. a gather-manifest tripwire); battery **108/108** on
 > UE 5.6; plugin **0.4.0**. Same campaign: TD-020 RESOLVED (embedded-C++ COMPLETION via clangd —
 > hover/definition/completion all forwarded; extensions **0.2.0**), TD-028 RESOLVED
-> (`URuiHostWidget` `InitialProps`+`ViewModel` → `UseHostProp`/`UseHostViewModel`), TD-029
+> (`URuitkHostWidget` `InitialProps`+`ViewModel` → `UseHostProp`/`UseHostViewModel`), TD-029
 > RESOLVED (`UseDesiredFocus` + the screen's `GetDesiredFocusTarget` contract), RouterDemo
 > gallery screen (17 screens; the docs' router samples, compiled and mounted). The gate's
 > "Production gaps closed" line is now fully green; the consolidated backlog is
@@ -31,7 +31,7 @@
 > (3) The gate's OUT-of-v1 list is stale — the router, stylesheet layer, exit animations,
 > drag-and-drop + shortcuts, and the read-only live-preview panel ALL SHIPPED (Phase 7 / HMR v2).
 > (4) **OWNER QUESTION (D-17/D-27):** the shipped world-mount subsystem is
-> `URuiWorldSubsystem : UWorldSubsystem`, not the locked `URuiSubsystem : UGameInstanceSubsystem`
+> `URuitkWorldSubsystem : UWorldSubsystem`, not the locked `URuitkSubsystem : UGameInstanceSubsystem`
 > — per-world teardown is arguably the better design; bless-as-built or treat as a defect?
 > **STATUS RECONCILIATION — 2026-07-12.** This banner's `1/10 done` had lagged the delivered
 > state. Phases 1–6 shipped across `feat/core-library` + `feat/uetkx-compiler` + `feat/uetkx-imports`;
@@ -112,18 +112,18 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
 - **D-01 — Names & headers.** Plugin folder `Plugins/ReactiveUIToolkit/`, descriptor `ReactiveUIToolkit.uplugin`,
   FriendlyName "Reactive UI Toolkit for Unreal" (final store name is owner's call — §7 Q1, .NET-ReactiveUI
-  collision noted). Type prefixes: `FRui*` structs/classes, `SRui*` Slate widgets, `URui*`
-  UObjects, `IRui*` interfaces, `TRui*` templates. Free-function factories live in namespace
-  `RUI::` (`RUI::VBox()`, `RUI::Button()`, `RUI::FC(&Counter, {...})`). Markup extension is
+  collision noted). Type prefixes: `FRuitk*` structs/classes, `SRuitk*` Slate widgets, `URuitk*`
+  UObjects, `IRuitk*` interfaces, `TRuitk*` templates. Free-function factories live in namespace
+  `Ruitk::` (`Ruitk::VBox()`, `Ruitk::Button()`, `Ruitk::FC(&Counter, {...})`). Markup extension is
   **`.uetkx`** (settles the `.uitkx`/`.uetkx` drift found across research docs). UMG host widget
-  is **`URuiHostWidget`** (settles `UReactiveWidget` vs `UReactiveHostWidget` drift). Root object
-  `FRuiRoot::Create(...)` + Slate widget `SRuiRoot`. **Every source file carries the seller
+  is **`URuitkHostWidget`** (settles `UReactiveWidget` vs `UReactiveHostWidget` drift). Root object
+  `FRuitkRoot::Create(...)` + Slate widget `SRuitkRoot`. **Every source file carries the seller
   copyright line** (Fab review checks it): decided in Phase 0, baked into module scaffolds, all
   `templates/`, AND the codegen emitter (committed `.inl`/`.gen.cpp` files carry it too —
   retrofitting after generated code is committed is a full-tree sweep), enforced by an engine-free
   CI lint.
 - **D-02 — The codegen contract is the fluent builder API.** `.uetkx` compiles to chained-setter
-  builder calls (`RUI::Button().Label(X).OnClicked(H)`), NOT designated initializers — attribute
+  builder calls (`Ruitk::Button().Label(X).OnClicked(H)`), NOT designated initializers — attribute
   order in markup must not matter, and builders give that for free. The builder API is therefore
   a **public, stable contract**: every prop the markup schema exposes exists as a builder method.
   Hand-written C++ uses the identical API; markup and hand-written components are
@@ -138,7 +138,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   "stylesheet layer is post-v1" `UETKX####` diagnostic. Reserved props (`key, ref, style, classes,
   children, items, draw_fn, redraw_key, reuse_by_slot`) and event-prop conventions (`onClick`
   aliases + `on_<delegate>` escape hatch) are the family's. Structural primitives
-  (Portal/Suspense/ErrorBoundary/Memo) are NOT markup tags — they are `RUI::` escape-hatch calls
+  (Portal/Suspense/ErrorBoundary/Memo) are NOT markup tags — they are `Ruitk::` escape-hatch calls
   inside `{expr}`, mirroring the family's `V.*` convention. Only the embedded-language *lexis* is
   swapped (C++ instead of GDScript/C#) — exactly how `guitkx_lexer.gd` is described in its own
   header. A shared contract corpus pins all of this (D-22).
@@ -146,31 +146,31 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 ### Core architecture (full detail: `research/round2-implementation/distill-corpus.md` §1, `react-reconciler.md`)
 
 - **D-04 — Typed per-element props structs + set-bitmask. No prop bags.**
-  `FRuiButtonProps : FRuiPropsBase { FText Label; bool bEnabled; FRuiCallback OnClicked; uint64 SetBits; }`.
+  `FRuitkButtonProps : FRuitkPropsBase { FText Label; bool bEnabled; FRuitkCallback OnClicked; uint64 SetBits; }`.
   Diff = adapter downcast + memberwise compare-and-set — flat, branch-predictable, zero FName
   hashing. `SetBits` records which fields this render specified; a bit set last render but clear
   now is **ignored for plain fields** (family semantic: removed plain props don't reset) but
-  **cleaned up for event/ref/style bits**. Boilerplate via `RUI_PROP(Type, Name, Bit)` macro
-  (field + builder setter + compare row + apply row). Rejected: `TMap<FName,FRuiValue>` bags and
+  **cleaned up for event/ref/style bits**. Boilerplate via `RUITK_PROP(Type, Name, Bit)` macro
+  (field + builder setter + compare row + apply row). Rejected: `TMap<FName,FRuitkValue>` bags and
   `FInstancedStruct` (reasons recorded in distill §1.2).
 - **D-05 — Components are free functions + explicit context; identity is a registry FName, not a
-  raw function pointer.** `FRuiNode Counter(FRuiContext& Ctx, const FCounterProps&)`, wrapped as
-  `RUI::FC(&Counter, {...})`. **Correction from the React research:** Live Coding relocates code,
+  raw function pointer.** `FRuitkNode Counter(FRuitkContext& Ctx, const FCounterProps&)`, wrapped as
+  `Ruitk::FC(&Counter, {...})`. **Correction from the React research:** Live Coding relocates code,
   so raw fn-pointer identity would destroy all state on every C++ hot patch. Components register
-  a stable `FName` id (codegen emits it; hand-written components use `RUI_COMPONENT(Counter)`);
+  a stable `FName` id (codegen emits it; hand-written components use `RUITK_COMPONENT(Counter)`);
   `matches()` compares ids; the registry re-binds pointers after Live Coding (`ILiveCodingModule`'s
   patch-complete delegate). Lambda components are allowed with documented always-re-render semantics.
-  `FRuiContext` is non-copyable, passed by reference; a debug-only thread-local asserts in-render
+  `FRuitkContext` is non-copyable, passed by reference; a debug-only thread-local asserts in-render
   use. (Honest claim only: this *narrows* the misuse class — capturing `Ctx` in a stored lambda
   still compiles and corrupts the cursor at runtime; StrictMode (D-14) is the runtime net.)
 - **D-06 — Fiber memory: reconciler-owned slab allocator, raw intra-tree pointers, React-style
   double buffering.** Fibers live in paged slabs (fixed addresses, free-list); `Parent/Child/
-  Sibling/Alternate` are raw `FRuiFiber*`; matching positions reuse `Old->Alternate` → zero
+  Sibling/Alternate` are raw `FRuitkFiber*`; matching positions reuse `Old->Alternate` → zero
   allocation on stable frames and pointer stability for stored closures (mandatory without GC).
   Note: the Godot port ALSO double-buffers since commit `f300ee3` — its "fresh fibers each pass"
-  header comment is stale; do not propagate it. `FRuiComponentState` lives outside the slab as
+  header comment is stale; do not propagate it. `FRuitkComponentState` lives outside the slab as
   `TSharedRef`, shared across alternates, back-pointer raw and re-pointed each render; closures
-  hold `TWeakPtr<FRuiComponentState>`, never raw `this`. All Slate delegate binds use `CreateSP`.
+  hold `TWeakPtr<FRuitkComponentState>`, never raw `this`. All Slate delegate binds use `CreateSP`.
 - **D-07 — Reconciler phases port 1:1** (begin_work descend / complete_work ascend / commit:
   deletions → placement/update/layout → reorder (structural frames only) → swap → two-pass passive
   flush → deferred-update replay). Keep the React-17-style singly-linked effect list (right for a
@@ -206,25 +206,25 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   (fast-leaf-list, keys-stable prepass, `reuse_by_slot`) plus the apply-plan inline cache and node
   pooling — React has no equivalent and they matter more on Slate.
 - **D-09 — Keyed diff: three tiers port verbatim** (fast-leaf-list in-place → keys-stable
-  positional → full keyed with persistent cleared-per-call `TMap<FRuiKey, FRuiFiber*>` +
+  positional → full keyed with persistent cleared-per-call `TMap<FRuitkKey, FRuitkFiber*>` +
   per-fiber `MatchedPass` mark-sweep). Unkeyed children get namespaced positional sentinel keys.
 - **D-10 — Error handling without exceptions.** UE ships `bEnableExceptions=false`; there is no
   throw path. Keep the family's structural error boundaries (`eb_active`/`reset_key`/`fallback`/
-  `on_error`) AND add a cooperative error latch: `RUI_RENDER_FAIL(...)` sets a thread-local
-  `FRuiRenderError`; the reconciler checks it after each component render and unwinds the WIP to
+  `on_error`) AND add a cooperative error latch: `RUITK_RENDER_FAIL(...)` sets a thread-local
+  `FRuitkRenderError`; the reconciler checks it after each component render and unwinds the WIP to
   the nearest boundary (popping context stacks), discarding the partial subtree — safe pre-commit
   because of double buffering. Never `setjmp/longjmp`. Dev-only editor try/catch is a bonus, never
   shipping behavior.
-- **D-11 — Host seam: `IRuiHostConfig` + per-element adapter registry** (`IRuiElementAdapter`
+- **D-11 — Host seam: `IRuitkHostConfig` + per-element adapter registry** (`IRuitkElementAdapter`
   keyed by element type id — the Unity `ITypedElementAdapter` shape, which is cleaner than
   Godot's two-file host). Adapter contract: `CreateWidget` (SNew with construct-only args →
   `ApplyFull`), `ApplyDiff` (memberwise setters), `Equals`, `GetChildContainer` (multi-slot panel
   ops / single-content `SetContent` with `warn_capacity` / leaf), an explicit
   **reconstruct-on-prop mask** (construct-only props force widget replacement via the type-change
   path), and an **event table** (bind once at construction to a per-node
-  `TSharedRef<FRuiEventProxy>`; prop updates swap the proxy's inner `TFunction` — no rebinds, no
+  `TSharedRef<FRuitkEventProxy>`; prop updates swap the proxy's inner `TFunction` — no rebinds, no
   `TFunction` equality problem). Slot layout props (padding/alignment/fill/ZOrder) are a nested
-  `FRuiSlotProps` on the child vnode applied via UE 5.0 runtime slot setters — the `slot.*`
+  `FRuitkSlotProps` on the child vnode applied via UE 5.0 runtime slot setters — the `slot.*`
   namespace in markup. Raw `FText`/`FString` children auto-wrap to `STextBlock`. Port the
   apply-plan inline cache, GO-05 pooling (detach + stash last props + diff-on-reuse, cap 256/type,
   never stateful widgets, drained on unmount/`ReleaseSlateResources`) and GO-09 `reuse_by_slot`
@@ -232,7 +232,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 - **D-12 — Setters, never delegate-bound TAttributes** (critique verdict: CONFIRMED). Constant
   attributes at construction, engine setters on change — widgets stay non-volatile and fast-path
   valid under `Slate.EnableGlobalInvalidation`. Manual `Invalidate`/`MarkPrepassAsDirty` only on
-  custom leaves (`SRuiCanvas`, the `draw_fn` analogue — register-once paint trampoline,
+  custom leaves (`SRuitkCanvas`, the `draw_fn` analogue — register-once paint trampoline,
   invalidate(Paint) only on callback identity / `redraw_key` change).
 - **D-13 — Style system v1 is load-bearing, not deferred** (critique gap 19). The hot-path style
   keys (colors, opacity, font size, padding, margins, visibility, render transform) map to
@@ -252,19 +252,19 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   / `LogRuiEditor`; the MessageLog page name is `"ReactiveUI"` (used by the D-19 watcher de-dup
   and D-20 interpreter errors).
 - **D-15 — Threading contract** (critique gap 8): every public entry point `checkf(IsInGameThread())`;
-  one documented marshaling helper `RUI::PostToGameThread(TFunction<void()>)` for async/network
+  one documented marshaling helper `Ruitk::PostToGameThread(TFunction<void()>)` for async/network
   callbacks. FieldNotify delegates are game-thread-only anyway.
 - **D-16 — Commit reentrancy contract** (critique gap 7): Slate setters fire delegates
   synchronously (SetText→OnTextChanged), so hook setters called during commit are **queued into
   the deferred-update replay** (already ordered post-commit). Generalize the editable-text
   skip-when-equal guard to all self-notifying setters in adapter apply rows.
 - **D-17 — Memory across the UObject boundary + lifetime/teardown contract:** fibers/widgets are
-  non-UObject; every UObject we reference (brush textures/materials, `RUI::Umg` widgets, viewmodels)
+  non-UObject; every UObject we reference (brush textures/materials, `Ruitk::Umg` widgets, viewmodels)
   is held via `TWeakObjectPtr` (observe) or `TStrongObjectPtr`/single `FGCObject` root on the
   mount surface (own) — decision per case recorded in the phase that introduces it (brushes:
   critique gap 2 — one `FGCObject` root per mount surface owning all brush-referenced UObjects,
-  plus an `FRuiAssetRef` soft-path + async-load-policy type). **World teardown (critique gap 17,
-  decided):** `URuiSubsystem : UGameInstanceSubsystem` with per-world root tracking; the teardown
+  plus an `FRuitkAssetRef` soft-path + async-load-policy type). **World teardown (critique gap 17,
+  decided):** `URuitkSubsystem : UGameInstanceSubsystem` with per-world root tracking; the teardown
   order contract is *unmount all roots of a dying world + drain the widget pool BEFORE GC runs*
   (wired to world-cleanup delegates); PIE-end and level-travel are CI-tested against this contract
   (Phase 6 step 6).
@@ -276,8 +276,8 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   Unreal setter/property/delegate they drive, minus `Set` (`WidthOverride`, `BorderBackgroundColor`,
   `ColorAndOpacity`, `RenderOpacity`, `RenderTranslation`, `Justification`, `AutoWrapText`,
   `OnCheckStateChanged`, `Slot.Padding`/`Slot.HAlign`/`Slot.Fill`/`Slot.ZOrder`); enum values = the
-  Unreal enum names; FName matching stays case-insensitive. OUR custom widgets carry the `Rui` mark
-  (`SRuiCanvas` -> tag `RuiCanvas`) so engine names are never squatted. Family congruence yields to
+  Unreal enum names; FName matching stays case-insensitive. OUR custom widgets carry the `Ruitk` mark
+  (`SRuitkCanvas` -> tag `RuitkCanvas`) so engine names are never squatted. Family congruence yields to
   native familiarity in this repo; the `.uetkx` schema (Phase 3) inherits this vocabulary.
 
 ### Toolchain & DX (full detail: `research/round2-implementation/uetkx-toolchain.md`)
@@ -306,7 +306,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   pitfall): the compiled file set is **constant**; only file contents change. Generated files are
   **committed** (inversion of Godot's gitignore — UE has no headless regenerate-from-nothing on a
   cold clone; Launcher customers can't add Program targets). CI runs
-  `-run=RUICompile -check` and fails on drift. Editor compile-on-save ports plugin.gd's three
+  `-run=RuitkCompile -check` and fails on drift. Editor compile-on-save ports plugin.gd's three
   triggers (directory watcher + 2s `HasStale` poll + window-activation) with busy-guard/30s
   deadman/first-sweep proof-of-life/MessageLog de-dup + green "resolved" line.
   **Placement & lifecycle contract:** `.uetkx` files live under a C++ module's `Source/` dir
@@ -330,7 +330,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   e.g. `UseState(0)`), event handlers **re-bound by name** to compiled functions. The expression
   VM is restricted and side-effect-free (literals, prop/state/loop/context paths,
   arithmetic/comparison/logic/ternary, member/index access, whitelisted pure calls via
-  `RUI::RegisterInterpFn`) — with ONE sanctioned side effect: **hook setters are callable from
+  `Ruitk::RegisterInterpFn`) — with ONE sanctioned side effect: **hook setters are callable from
   event-handler expressions** (`onClick={ SetCount(Count + 1) }` — the setter identifiers from
   the component's `UseState` calls resolve in the VM; this is the markup-only interactivity
   surface, and it participates in the hook-signature hash like any state slot). **Handler
@@ -360,9 +360,9 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   `uetkx-scanner-cases.json` + `uetkx-formatter-cases.json` `{input, at, expect}` run by BOTH the
   C++ automation tests and `node --test`; (c) a **full-file fixtures + goldens harness** (the
   `tests/contract/` analogue): fixture `.uetkx` files (flattened copies of every shipped demo +
-  targeted edge cases) live under `Source/RuiHostTests/ContractFixtures/` — a path EXCLUDED from
-  the `RUICompile` sweep and UBT (the `.gdignore` analogue), goldens dumped by
-  `-run=RUIContractDump` with a `--check` drift mode wired into CI, TS side replays every golden;
+  targeted edge cases) live under `Source/RuitkHostTests/ContractFixtures/` — a path EXCLUDED from
+  the `RuitkCompile` sweep and UBT (the `.gdignore` analogue), goldens dumped by
+  `-run=RuitkContractDump` with a `--check` drift mode wired into CI, TS side replays every golden;
   (d) the **`.pending` fixture convention** pins KNOWN divergences — the test asserts the
   divergence still exists, so fixing one forces the rename+regen; (e) the cross-repo grammar
   corpus pins byte-compatibility across **all three siblings** (Unity `.uitkx` is the origin,
@@ -389,7 +389,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   degradation is the family rule:** no compile DB → markup intelligence fully works, embedded C++
   goes dark with a one-line actionable notice. Markup-side schema has two sources: a curated
   shipped Slate vocabulary (Slate is not reflected — no dump can produce it) + a reflection JSON
-  exporter commandlet (`-run=RUIExportSchema`) for UMG wrappers/USTRUCT/UENUM/delegate signatures,
+  exporter commandlet (`-run=RuitkExportSchema`) for UMG wrappers/USTRUCT/UENUM/delegate signatures,
   with pre-generated engine-builtin schemas shipped per engine version. This design **removes**
   the per-platform-vsix pain (no napi addon for Unreal). Editor coverage: VS Code + VS2022 in v1;
   **Rider: SKIPPED for v1 entirely (owner 2026-07-11)** — no TextMate bundle, no plugin work;
@@ -400,19 +400,19 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
 ### Interop (full detail: `research/round2-implementation/distill-corpus.md` §3)
 
-- **D-24 — UMG both directions.** (a) `URuiHostWidget : UWidget` — designer-placeable;
-  `RebuildWidget()` returns `SRuiRoot`; `ReleaseSlateResources` unmounts; `SynchronizeProperties`
+- **D-24 — UMG both directions.** (a) `URuitkHostWidget : UWidget` — designer-placeable;
+  `RebuildWidget()` returns `SRuitkRoot`; `ReleaseSlateResources` unmounts; `SynchronizeProperties`
   forwards designer props; **design-time renders a placeholder, never runs user effects when
-  `IsDesignTime()`** (critique gap 11). (b) `RUI::Umg(Class, Props)` — `CreateWidget` with the
+  `IsDesignTime()`** (critique gap 11). (b) `Ruitk::Umg(Class, Props)` — `CreateWidget` with the
   owning player threaded down from the mount surface (required for CommonInput/localization),
   `TakeWidget()`, `TStrongObjectPtr` held on the fiber's host handle, released in deletion commit;
   props via cached per-class `FProperty` maps preferring `Set<Name>` UFUNCTIONs; FieldNotify
   targets via `UFieldNotificationLibrary::SetPropertyValueAndBroadcast`; events via pooled UObject
   trampolines for dynamic multicast delegates.
 - **D-25 — CommonUI: two rules, never rebuild.** Screens live inside
-  `URuiActivatableScreen : UCommonActivatableWidget` pushed onto EXISTING activatable containers;
+  `URuitkActivatableScreen : UCommonActivatableWidget` pushed onto EXISTING activatable containers;
   `UseActivation()` surfaces activate/deactivate; `autofocus` maps to `GetDesiredFocusTarget()`.
-  Common widgets wrap fine via `RUI::Umg`; wrapping activatable subclasses as plain children is
+  Common widgets wrap fine via `Ruitk::Umg`; wrapping activatable subclasses as plain children is
   rejected with a diagnostic. Never touch: stacks/back-handling, `UCommonUIActionRouter` (no
   custom input preprocessor ever), `UCommonInputSubsystem` (read + rebroadcast via
   `UseInputMethod()`), gamepad focus/analog cursor, platform traits/safe zones. Lives in an
@@ -423,7 +423,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   hook state + explicit remove on cleanup; on broadcast: re-read, `FProperty::Identical` compare,
   only-if-changed mark dirty → coalesced re-render. VM held `TWeakObjectPtr` (observe, never own)
   with a stale policy; `UseOwnedViewModel<T>` uses `TStrongObjectPtr` for UI-local VMs. Reverse
-  direction: `URuiSignalViewModel` implements `INotifyFieldValueChanged` (engine-level) so classic
+  direction: `URuitkSignalViewModel` implements `INotifyFieldValueChanged` (engine-level) so classic
   UMG/MVVM views can bind to our state; global-collection registration lives in the tiny optional
   `RuitkMVVMBridge` module (the only part needing the ModelViewViewModel plugin).
 
@@ -433,14 +433,14 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 
   | Module | Type | Deps (beyond Core) | Contents |
   |---|---|---|---|
-  | `RuitkCore` | Runtime | — (**no UObject/CoreUObject**) | vnode, fibers, reconciler, hooks, keys, context, signals, `IRuiHostConfig` |
-  | `RuitkSlate` | Runtime | SlateCore, Slate, InputCore | `FRuiSlateHost`, adapter registry, widgets, `SRuiRoot`, pool, `SRuiCanvas`, style v1 |
-  | `RuitkUMG` | Runtime | CoreUObject, Engine, UMG, FieldNotification | `URuiHostWidget`, `URuiSubsystem`, `RUI::Umg`, `UseField`/`UseViewModel`, `UseSfx` glue, `URuiSignalViewModel`, brush GC root |
-  | `RuitkCommonUI` | Runtime | + CommonUI (optional plugin ref) | `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`, `UseSafeArea` platform override |
+  | `RuitkCore` | Runtime | — (**no UObject/CoreUObject**) | vnode, fibers, reconciler, hooks, keys, context, signals, `IRuitkHostConfig` |
+  | `RuitkSlate` | Runtime | SlateCore, Slate, InputCore | `FRuitkSlateHost`, adapter registry, widgets, `SRuitkRoot`, pool, `SRuitkCanvas`, style v1 |
+  | `RuitkUMG` | Runtime | CoreUObject, Engine, UMG, FieldNotification | `URuitkHostWidget`, `URuitkSubsystem`, `Ruitk::Umg`, `UseField`/`UseViewModel`, `UseSfx` glue, `URuitkSignalViewModel`, brush GC root |
+  | `RuitkCommonUI` | Runtime | + CommonUI (optional plugin ref) | `URuitkActivatableScreen`, `UseActivation`, `UseInputMethod`, `UseSafeArea` platform override |
   | `RuitkMVVMBridge` | Runtime | + ModelViewViewModel (optional plugin ref) | global viewmodel-collection registration only |
   | `RuitkInterp` | Runtime + `TargetConfigurationDenyList: ["Shipping"]` | RuitkCore | **markup lexer + parser (the single grammar implementation — Toolchain consumes it)**, markup AST interpreter, expression VM, interp registry, HMR wiring |
   | `RuitkToolchain` | UncookedOnly | Interp (parser) | codegen, formatter, sidecars, fingerprint, `UETKX####` catalog |
-  | `RuitkEditor` | Editor | + editor modules, DirectoryWatcher | watcher/compile-on-save, `RUICompile`/`RUIExportSchema` commandlets, asset actions, Inspector tab (later) |
+  | `RuitkEditor` | Editor | + editor modules, DirectoryWatcher | watcher/compile-on-save, `RuitkCompile`/`RuitkExportSchema` commandlets, asset actions, Inspector tab (later) |
 
   **Router is post-v1** (the family's 17 router hooks + `router_match`/`router_spine` suite ports
   are deliberately NOT in v1 scope — recorded in `plans/TECH_DEBT.md` at Phase 0 and in the ship
@@ -457,18 +457,18 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
   Phase 0's empty-plugin packaged build proves the arrangement.
   **Dedicated servers:** modules stay present on Server targets (NO `TargetDenyList: ["Server"]` —
   it would break any user game module that lists us unconditionally in Build.cs). Instead:
-  `URuiSubsystem::ShouldCreateSubsystem` returns false on dedicated servers
+  `URuitkSubsystem::ShouldCreateSubsystem` returns false on dedicated servers
   (`IsRunningDedicatedServer()`), every mount entry point `checkf`s a non-server world, and the
   rule is documented in Notes & limitations. A server-target compile leg joins the engine CI
   matrix when armed.
 
-  Automation tests live in the **host project** (`Source/RuiHostTests`), keeping the shipped
+  Automation tests live in the **host project** (`Source/RuitkHostTests`), keeping the shipped
   plugin lean. Verify the optional-plugin-reference mechanism (`"Optional": true` in the
   `.uplugin` `Plugins` array) for CommonUI/MVVMBridge in Phase 6 — if it doesn't gate module
   loading cleanly, fall back to `WITH_COMMONUI`-style Build.cs conditionals.
 - **D-28 — Engine support: floor UE 5.6; launch matrix 5.6 / 5.7 / 5.8** (the "three latest" as
   of mid-2026; 5.8 is the final UE5 release, UE6 EA targeted end-2027). All engine-version churn
-  is quarantined in the Slate host boundary + one `RuiEngineCompat.h` using
+  is quarantined in the Slate host boundary + one `RuitkEngineCompat.h` using
   `UE_VERSION_NEWER_THAN`/`UE_VERSION_OLDER_THAN` from `Misc/EngineVersionComparison.h`. Fab rule
   compliance: new products must support latest; maintain ≥1 of latest 3; one zip per engine
   version with matching `.uplugin` `EngineVersion`. OWNER CONFIRMED 2026-07-11: UE 5.6.1 is
@@ -551,8 +551,8 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 ReactiveUI-Unreal/                          # repo root IS the demo host project (Godot-repo pattern)
   RuitkUnrealDemo.uproject             # host project; enables the plugin; demo maps
   Source/
-    RuiDemo/                                # demo game module (gallery screens, .uetkx demos)
-    RuiHostTests/                           # ALL automation tests (ReactiveUI.* hierarchy) — not shipped in plugin
+    RuitkDemo/                                # demo game module (gallery screens, .uetkx demos)
+    RuitkHostTests/                           # ALL automation tests (Ruitk.* hierarchy) — not shipped in plugin
   Content/                                  # demo maps + minimal assets
   Config/                                   # DefaultEngine.ini etc.
   Plugins/ReactiveUIToolkit/                       # DELIVERABLE 1 — the plugin (self-contained: own README/CHANGELOG/LICENSE)
@@ -634,21 +634,21 @@ IN v1 (all must be green, verified by running):
       save mid-PIE, sub-second update, hook-signature state rule working and reported.
 - [ ] IDE tooling: **VS Code AND VS2022** extensions (shared server), markup intelligence
       offline, embedded-C++ via clangd with graceful degradation. (Rider: skipped for v1 — owner 2026-07-11.)
-- [ ] Interop (the thesis — v1 ships it or the tagline is false): `URuiHostWidget`, `RUI::Umg`,
+- [ ] Interop (the thesis — v1 ships it or the tagline is false): `URuitkHostWidget`, `Ruitk::Umg`,
       `UseField`~~/`UseViewModel`~~ (never built — SUPERSEDED 2026-07-14; `UseField` is the
-      shipped API), `URuiActivatableScreen` on a CommonUI stack — each with a demo.
+      shipped API), `URuitkActivatableScreen` on a CommonUI stack — each with a demo.
 - [x] Production gaps closed: virtualization, localization, brush/asset GC, focus restore,
       portals. — DONE 2026-07-15 (the last piece, localization, shipped on
-      `feat/v1-gate-closeout`: suite `ReactiveUI.Loc`, gather target + committed output,
-      `RuiCultureSync`; the rest per Phase 7's 2026-07-11/12 record — battery 108/108).
+      `feat/v1-gate-closeout`: suite `Ruitk.Loc`, gather target + committed output,
+      `RuitkCultureSync`; the rest per Phase 7's 2026-07-11/12 record — battery 108/108).
 - [ ] Demo gallery + docs site + measured benchmark table (no unmeasured perf claims).
 
 OUT of v1 (deliberate, tracked in `plans/TECH_DEBT.md` from Phase 0 — not "demand-gated where
 marked" hand-waving; THIS is the list): ~~the router subsystem (17 family router hooks + both
 router suites), the stylesheet third style layer, exit-animation protocol (designed in Phase 7,
 shipped v1.x), drag-and-drop + keyboard-shortcut APIs~~ — **SUPERSEDED 2026-07-14: all four
-SHIPPED in Phase 7** (audit-verified: `RuiRouter.h`, `RuiStyle.h` themes/stylesheets,
-`RuiPresence.h`, `RuiDragDrop.h`/`RuiInput.h`) — Rider support (ALL of it — skipped v1, owner 2026-07-11),
+SHIPPED in Phase 7** (audit-verified: `RuitkRouter.h`, `RuitkStyle.h` themes/stylesheets,
+`RuitkPresence.h`, `RuitkDragDrop.h`/`RuitkInput.h`) — Rider support (ALL of it — skipped v1, owner 2026-07-11),
 the in-Unreal-editor `.uetkx` tab ~~(and its cheaper cousin, a read-only live-preview panel — the
 realistic someday-step toward designer-ish workflows)~~ — **the live-preview panel also SHIPPED
 (HMR v2's `SUetkxPreviewPanel`)** — Phase-4-style on-device remote reload,
@@ -726,12 +726,12 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      so required checks always report from commit one with NO paths filters. Engine jobs
      (`build-and-test-5.6/5.7/5.8` on `ghcr.io/epicgames/unreal-engine:dev-slim-<ver>` Linux
      containers, needs Epic-org-linked PAT secret; a DedicatedServer-target compile leg per D-27;
-     Windows packaging job on self-hosted runner) gated behind `RUI_CI_ENGINE_ARMED`.
+     Windows packaging job on self-hosted runner) gated behind `RUITK_CI_ENGINE_ARMED`.
      **Required-checks trap:** PR triggers carry NO paths filter (Godot lesson — required checks
      must always report). Write the reason as an in-file comment (house style: incident
      commentary in workflows). Commit a **secrets inventory table** into `CLAUDE.md`
      (secret/variable name → consuming workflow → local-mirror key in `publisher-secrets.json` →
-     who creates it): `RUI_CI_ENGINE_ARMED`, `EPIC_GHCR_PAT`, `VSCE_PAT`, `OVSX_TOKEN`,
+     who creates it): `RUITK_CI_ENGINE_ARMED`, `EPIC_GHCR_PAT`, `VSCE_PAT`, `OVSX_TOKEN`,
      `VS_MARKETPLACE_TOKEN` — all owner-created; none block unarmed CI.
   7. CI `publish.yml`: workflow_dispatch; per-artifact version-read → tag-exists check → skip or
      build+tag+GitHub-Release (idempotent); plugin job runs BuildPlugin per engine version and
@@ -774,9 +774,9 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   `addons/reactive_ui/core/*.gd` (algorithm reference — read them, they are the spec);
   Unity `FiberHostConfig.cs`/`ElementRegistry` shape for the adapter seam.
 - **Steps:**
-  1. `FRuiNode`/`FRuiPropsBase`/`RUI_PROP` macro/`FRuiKey`/`FRuiCallback` + the builder base.
+  1. `FRuitkNode`/`FRuitkPropsBase`/`RUITK_PROP` macro/`FRuitkKey`/`FRuitkCallback` + the builder base.
      Per-frame **vnode arena** (frame allocator reset post-commit — critique gap 9) from day one.
-  2. Fiber slab allocator + `FRuiFiber` (fields per the Godot fiber inventory: parent/child/
+  2. Fiber slab allocator + `FRuitkFiber` (fields per the Godot fiber inventory: parent/child/
      sibling/index, tag, key, type id, component id, props/pending/input_children, host handle,
      portal target, alternate, effect flags + next_effect, deletions, matched_pass, context
      fields, dirty flags, state ref, apply-plan cache, eb fields).
@@ -801,31 +801,31 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      `RuitkUMG`). All five are FULLY WIRED before the ship gate — the gate forbids stubs.
      Deps equality decision: value-equality for value types, identity for shared refs —
      documented (§5).
-  5. `FRuiMockHost : IRuiHostConfig` recording ops; port `core_test.gd`'s ~36 test funcs and
-     `update_test.gd` as Automation Specs under `ReactiveUI.Core` / `ReactiveUI.Update` in
-     `RuiHostTests`; **create the `ReactiveUI.Boot` spec** (module `StartupModule` runs, a root
+  5. `FRuitkMockHost : IRuitkHostConfig` recording ops; port `core_test.gd`'s ~36 test funcs and
+     `update_test.gd` as Automation Specs under `Ruitk.Core` / `Ruitk.Update` in
+     `RuitkHostTests`; **create the `Ruitk.Boot` spec** (module `StartupModule` runs, a root
      mounts on the mock host — the gate ladder's boot check exists from here on); port the bench
-     harness shape (`ReactiveUI.Bench`, not pass/fail) with its first baseline rows committed to
+     harness shape (`Ruitk.Bench`, not pass/fail) with its first baseline rows committed to
      `plans/BENCH_BASELINES.md`.
   6. StrictMode/hook-order-validation/set-during-render diagnostics behind CVars (D-14).
-- **Files touched:** `Plugins/ReactiveUIToolkit/Source/RuitkCore/**`, `Source/RuiHostTests/**`.
-- **Verify:** `test-run` skill: build + `Automation RunTests ReactiveUI.Core; ReactiveUI.Update`
+- **Files touched:** `Plugins/ReactiveUIToolkit/Source/RuitkCore/**`, `Source/RuitkHostTests/**`.
+- **Verify:** `test-run` skill: build + `Automation RunTests Ruitk.Core; Ruitk.Update`
   headless (NullRHI) green with per-section markers; bench numbers recorded; boot check
-  (`ReactiveUI.Boot` smoke: module starts, root mounts on mock host).
+  (`Ruitk.Boot` smoke: module starts, root mounts on mock host).
 - **Done when:** every ported test green; subtree-skip demonstrably skips (a counter test asserts
   render counts); zero allocations on a stable frame (bench asserts slab/arena reuse).
-- **Status:** COMPLETE 2026-07-10 — evidence: 23 core/update/boot automation tests green headless (ReactiveUI.Core.*, .Update.*, .Boot); Bench.Core rows in BENCH_BASELINES.md (1000-leaf mount ~190us, SUBTREE-SKIP noop ~0us); SubtreeSkip test asserts render counts; slab reuse via noop-rerender 0-alloc path. NOTE: the Phase 1 step 1 vnode-arena idea was SUPERSEDED by shared FRuiChildren (bailout caches make vnodes cross-frame; see RuiNode.h).
+- **Status:** COMPLETE 2026-07-10 — evidence: 23 core/update/boot automation tests green headless (Ruitk.Core.*, .Update.*, .Boot); Bench.Core rows in BENCH_BASELINES.md (1000-leaf mount ~190us, SUBTREE-SKIP noop ~0us); SubtreeSkip test asserts render counts; slab reuse via noop-rerender 0-alloc path. NOTE: the Phase 1 step 1 vnode-arena idea was SUPERSEDED by shared FRuitkChildren (bailout caches make vnodes cross-frame; see RuitkNode.h).
 
 ### - [ ] Phase 2 — Slate host + first widgets (`RuitkSlate`)
 
-- **Objective:** real pixels: `FRuiSlateHost`, adapter registry, `SRuiRoot`, ~15 core widgets with
+- **Objective:** real pixels: `FRuitkSlateHost`, adapter registry, `SRuitkRoot`, ~15 core widgets with
   events + v1 styles + slot props, pooling, `reuse_by_slot`; the demo host project shows a live
   hooks-driven screen in PIE.
 - **Inputs:** D-11..D-13, D-16, D-17; `distill-corpus.md` §§1.5–1.6, 2 (Slate ground truth);
   the prop-map schema from Phase 0.
 - **Steps:**
-  1. `FRuiSlateHost : IRuiHostConfig`; adapter interface + registry; event proxy
-     (`FRuiEventProxy`, bind-once-swap-inner). **Event-handler API decided HERE, not in Phase 6**
+  1. `FRuitkSlateHost : IRuitkHostConfig`; adapter interface + registry; event proxy
+     (`FRuitkEventProxy`, bind-once-swap-inner). **Event-handler API decided HERE, not in Phase 6**
      (15 widgets ship on this signature): user callbacks are `void`-returning by default with the
      proxy returning `FReply::Handled()`; per-event an optional `FReply`-returning overload exists
      where pass-through matters (mouse/key events); the typedefs live in `RuitkSlate`
@@ -835,21 +835,21 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      detach/attach vs remove+insert vs invalidation-boundary wrap, per the critique's downgrade of
      the invalidation claim; numbers land in `plans/BENCH_BASELINES.md`, the decision in
      `plans/TECH_DEBT.md`).
-  2. `SRuiRoot` + `FRuiRoot::Create/Unmount`; mount surfaces: game viewport
+  2. `SRuitkRoot` + `FRuitkRoot::Create/Unmount`; mount surfaces: game viewport
      (`AddViewportWidgetContent`), a plain `SWindow`, and the standalone test path (the editor
      *tab* spawner is editor-only code — it ships with Phase 8's Inspector in `RuitkEditor`);
      `OnPreTick` scheduling wiring; `FlushSync`.
   3. First widgets, hand-written to establish the pattern (opus-class): `STextBlock`, `SImage`,
      `SButton`, `SBorder`, `SBox`, `SVerticalBox`, `SHorizontalBox`, `SOverlay`, `SScrollBox`,
      `SSpacer`, `SEditableTextBox` (controlled-input caret rule), `SCheckBox`, `SSlider`,
-     `SProgressBar`, `SRuiCanvas` (draw_fn trampoline). Each: prop-map entry → props struct →
+     `SProgressBar`, `SRuitkCanvas` (draw_fn trampoline). Each: prop-map entry → props struct →
      adapter → contract case → per-widget test → docs row. After the first five, the remaining
      ten run as **[production-line]** via the `component-pipeline` skill.
   4. Style v1 (D-13): central style-key registry (key → type → setter → reset behavior), hot-path
      keys OFF every reconstruct mask; `classes` merge layer; removal-reset semantics tests.
   5. Node pool + `reuse_by_slot` + apply-plan cache ports; pooling excluded for stateful widgets.
-  6. Port `style_test.gd` → `ReactiveUI.Style`; widget tests under `ReactiveUI.Widgets.*`; a
-     `ReactiveUI.Demos` suite that mounts every demo screen headlessly (NullRHI) — the analogue of
+  6. Port `style_test.gd` → `Ruitk.Style`; widget tests under `Ruitk.Widgets.*`; a
+     `Ruitk.Demos` suite that mounts every demo screen headlessly (NullRHI) — the analogue of
      `demos_test.gd`; focus capture/restore pre/post-commit per FSlateUser (critique gap 6) with a
      test; ship the `rui.Stats` console overlay (renders/frame, fibers, patch counts) and the
      `STATGROUP_ReactiveUI` counters (D-14) — the Doom-demo perf-overlay pattern, needed for every
@@ -857,16 +857,16 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   7. Demo screen in the host project (hand-written C++ builder API — markup arrives Phase 3/4):
      a counter + a dynamic keyed list + styled panels. Owner playtests in PIE (**field-test
      touchpoint**).
-- **Files touched:** `RuitkSlate/**`, `RuiHostTests/**`, `Source/RuiDemo/**`, `templates/*`
+- **Files touched:** `RuitkSlate/**`, `RuitkHostTests/**`, `Source/RuitkDemo/**`, `templates/*`
   refinements, prop-map schema entries.
-- **Verify:** `ReactiveUI.Core|Update|Style|Widgets|Demos` green headless; reorder-spike numbers
+- **Verify:** `Ruitk.Core|Update|Style|Widgets|Demos` green headless; reorder-spike numbers
   recorded; owner confirms the PIE demo (visuals can't be verified headlessly — §4).
 - **Done when:** 15 widgets shipped through the full pipeline; style tweak provably does not
   reconstruct (test asserts widget pointer identity across a style-only re-render); pool
   cheap-path benchmarked vs SNew.
 - **Status:** CODE-COMPLETE 2026-07-10 (owner PIE playtest pending — the field-test touchpoint): 15 widgets + style v1 (pointer-identity test green) + GO-05 pool (same-pointer reuse test) + focus fences + STATGROUP; 38/38 suites incl. ReactiveUI.{Slate,Widgets,Style,Demos}; reorder spike decided (TD-010, rows in BENCH_BASELINES.md). Header-sweep audit mapped remaining widget surface to TD-012.
 
-### - [x] Phase 3 — `.uetkx` compiler + build integration (`RuitkToolchain` + parser in `RuitkInterp`) — DONE 2026-07-11 (battery 46/46 incl. ReactiveUI.Uetkx.* + Contract; gallery's 11 screens run from committed codegen; RUICompile -check + RUIContractDump -check exit 0)
+### - [x] Phase 3 — `.uetkx` compiler + build integration (`RuitkToolchain` + parser in `RuitkInterp`) — DONE 2026-07-11 (battery 46/46 incl. Ruitk.Uetkx.* + Contract; gallery's 11 screens run from committed codegen; RuitkCompile -check + RuitkContractDump -check exit 0)
 
 - **Objective:** `Foo.uetkx` → committed `Foo.uetkx.inl` + stable aggregator TU, byte-compatible
   grammar, sidecar diagnostics, staleness machinery, commandlets — CI-gated for drift. (Steps 1–8
@@ -881,7 +881,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      function (`uetkx-scanner-cases.json`, D-22).
   2. Markup parser + jsx scan (byte-compatible grammar; port the `GUITKX####` catalog as
      `UETKX####` including 2101/2106/2107/2507/0304 semantics).
-  3. Codegen: reflection-free `.inl` (builder calls + `RUI_COMPONENT` registration + baked
+  3. Codegen: reflection-free `.inl` (builder calls + `RUITK_COMPONENT` registration + baked
      hook-signature hash constant; `FText` literals emit as `NSLOCTEXT` — self-namespaced, so
      aggregated `.inl`s need no `LOCTEXT_NAMESPACE` pairs, and the D-32 context-aware
      copyright/generated banner) + codegen shapes for **`hook` and `module` companion files**
@@ -892,27 +892,27 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      (every field-capture-hardened rule from the toolchain digest §1.3 ports: error-verdict
      sidecars, env-hold GUITKX2507→UETKX2507 with outputs KEPT, mtime-tie hash break, orphan +
      refs/2107 sweeps, duplicate-binding incumbent).
-  5. Commandlets in `RuitkEditor`: `-run=RUICompile [-full] [-check]` (CI drift gate),
-     `-run=RUIExportSchema`.
+  5. Commandlets in `RuitkEditor`: `-run=RuitkCompile [-full] [-check]` (CI drift gate),
+     `-run=RuitkExportSchema`.
   6. Formatter (C++ side) + `uetkx.config.json` walk-up loader; `uetkx-formatter-cases.json`
      goldens.
   7. Cross-repo grammar corpus: copy the `.guitkx` corpus cases that are host-language-agnostic,
      add C++-lexis cases; wire the `grammar-contract` skill's sync procedure; the Godot repo
      gains the mirrored cases in a follow-up PR there (tracked in TECH_DEBT until done).
   8. Full-file contract harness per D-22(c)–(d): fixtures under
-     `Source/RuiHostTests/ContractFixtures/` (excluded from the `RUICompile` sweep + UBT),
-     `-run=RUIContractDump` commandlet with `--check` wired into CI, `.pending` convention
+     `Source/RuitkHostTests/ContractFixtures/` (excluded from the `RuitkCompile` sweep + UBT),
+     `-run=RuitkContractDump` commandlet with `--check` wired into CI, `.pending` convention
      documented in `grammar-contract`.
   9. Convert the Phase 2 demo screens AND the example-gallery screens to `.uetkx` (compiled
-     path); `ReactiveUI.Uetkx` + `ReactiveUI.Contract` suites; the `ReactiveUI.Demos` battery
+     path); `Ruitk.Uetkx` + `Ruitk.Contract` suites; the `Ruitk.Demos` battery
      RE-TARGETS the compiled screens so CI exercises the shipped path (owner directive
      2026-07-11: existing tests convert to the new syntax as it lands, not after).
 - **Files touched:** `RuitkToolchain/**`, `RuitkEditor/Private/RUI*Commandlet.cpp`,
-  `RuiHostTests/**`, `ide-extensions/lsp-server/test-fixtures/uetkx-*.json`, demo `.uetkx` files
+  `RuitkHostTests/**`, `ide-extensions/lsp-server/test-fixtures/uetkx-*.json`, demo `.uetkx` files
   + committed `.inl`/aggregators.
-- **Verify:** `RUICompile -check` exits 0 on clean tree, non-zero after touching a `.uetkx`
-  without recompile (test both); `ReactiveUI.Uetkx|Contract` green; scanner corpus green on the
-  C++ side (TS side arrives Phase 5); generated demo `.inl` compiles and `ReactiveUI.Demos` still
+- **Verify:** `RuitkCompile -check` exits 0 on clean tree, non-zero after touching a `.uetkx`
+  without recompile (test both); `Ruitk.Uetkx|Contract` green; scanner corpus green on the
+  C++ side (TS side arrives Phase 5); generated demo `.inl` compiles and `Ruitk.Demos` still
   green through the compiled path.
 - **Done when:** demos run from committed codegen; drift gate is a required CI check; corpus is
   the compiler's regression suite.
@@ -921,7 +921,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   codegen (props/hook-prefix/hook-sig/NSLOCTEXT/named-factory self-registration; leaf arity;
   event payload `Value`; `classes`), driver (sidecars v2, error-verdict + mtime-tie + env-hold
   staleness, orphan sweep, UETKX2106 duplicate binding, fingerprint, stable aggregators),
-  RUICompile/-full/-check + RUIExportSchema + RUIContractDump commandlets, formatter + 16-case
+  RuitkCompile/-full/-check + RuitkExportSchema + RuitkContractDump commandlets, formatter + 16-case
   golden corpus + uetkx.config.json walk-up, contract harness (4 fixtures incl. an error
   fixture + non-BMP pin), all 11 gallery screens converted (committed .inl; Demos battery
   drives the compiled path incl. registration coverage). Deliberate deferrals recorded:
@@ -929,15 +929,15 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   decls — UE hooks are plain C++ functions), TD-018 (Godot-repo corpus-mirror PR). Post-write
   parse verification subsumed by CI compiling the committed .inl for real.
 
-### - [x] Phase 4 — Interpreter + hot reload (`RuitkInterp` + watcher) — DONE 2026-07-11 (battery 48/48 incl. ReactiveUI.Hmr end-to-end: hot-link, interpreted click, state-preserving swap, hook-shape reset, parse-error isolation; owner PIE field-test on the acceptance checklist)
+### - [x] Phase 4 — Interpreter + hot reload (`RuitkInterp` + watcher) — DONE 2026-07-11 (battery 48/48 incl. Ruitk.Hmr end-to-end: hot-link, interpreted click, state-preserving swap, hook-shape reset, parse-error isolation; owner PIE field-test on the acceptance checklist)
 
 - **Objective:** the headline: save `.uetkx` mid-PIE → UI updates in place <1 s, state preserved
   per the hook-signature rule, honest fallbacks for non-interpretable edits.
 - **Inputs:** D-20; toolchain digest §§1.4–1.5, 2(b)5–6, 2(c); Godot `plugin.gd` + `hmr.gd` +
   `hmr_debugger.gd` as behavior reference (in-process here — no debugger channel needed).
 - **Steps:**
-  1. Expression VM over `FRuiValue` (the restricted set per D-20; whitelist registry
-     `RUI::RegisterInterpFn` shipping fmt/math/LexToString helpers). Total evaluation: errors →
+  1. Expression VM over `FRuitkValue` (the restricted set per D-20; whitelist registry
+     `Ruitk::RegisterInterpFn` shipping fmt/math/LexToString helpers). Total evaluation: errors →
      typed default + MessageLog + dev error-leaf widget.
   2. AST → interp component: emits builder calls; hook calls interpreted structurally; handlers
      resolved by name (compiled functions via the component/handler registry; `UFUNCTION` logic
@@ -955,13 +955,13 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      Getting Started depends on them): content-browser visibility for `.uetkx`, right-click →
      ReactiveUI → New Component (writes the template `.uetkx` + triggers the sweep), double-click
      → open in external editor, MessageLog deep links; plus the convenience mount path —
-     `URuiSubsystem::Mount(<component or .uetkx path>)` and a drop-in mount actor for
+     `URuitkSubsystem::Mount(<component or .uetkx path>)` and a drop-in mount actor for
      "see it on screen in one step".
-  7. `ReactiveUI.Hmr` suite (port `hmr_test.gd` semantics: targeted vs global refresh, signature
+  7. `Ruitk.Hmr` suite (port `hmr_test.gd` semantics: targeted vs global refresh, signature
      reset, isolation); owner field-tests the mid-PIE loop (**cannot be verified headlessly**).
 - **Files touched:** `RuitkInterp/**`, `RuitkEditor/Private/UetkxWatcher.cpp`,
-  `RuiHostTests/**`.
-- **Verify:** `ReactiveUI.Hmr` green; scripted end-to-end: launch editor commandlet-driven PIE?
+  `RuitkHostTests/**`.
+- **Verify:** `Ruitk.Hmr` green; scripted end-to-end: launch editor commandlet-driven PIE?
   — no: the PIE loop is the owner's playtest; the headless proxy is the suite + a
   watcher-simulation test (inject file-change events, assert re-render + state rules).
 - **Done when:** owner confirms: style edit <1 s state-preserved; structure edit <1 s; hook-shape
@@ -970,17 +970,17 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
 - **Status:** COMPLETE 2026-07-11 (code-complete; the mid-PIE loop itself is the owner's
   field-test — OWNER_ACCEPTANCE_CHECKLIST). Delivered: FUetkxExprVm (D-20 subset + whitelist
   registry + Printf/FText/FMath/ctor builtins), FUetkxInterpDef (prepared markup tree, UseState
-  hooks over FRuiValue slots, setup value/setter aliases, setter-call event handlers evaluated
+  hooks over FRuitkValue slots, setup value/setter aliases, setter-call event handlers evaluated
   at fire time with the `Value` payload, C-style @for/@while/@if/@match, cross-component refs
-  via RUI::Named, fallback notes), FRuiHmr (swap/link/reset/status line; per-file isolation),
-  reconciler seams (RUI::SetComponentOverride consulted in RenderComponent, per-state
+  via Ruitk::Named, fallback notes), FRuitkHmr (swap/link/reset/status line; per-file isolation),
+  reconciler seams (Ruitk::SetComponentOverride consulted in RenderComponent, per-state
   HmrGeneration + HmrResetHooks, HmrRefreshAll, ForEachLive), RegisterHookSignature ledger,
   FUetkxWatcher (three triggers + busy/deadman + proof-of-life + MessageLog "ReactiveUI"
   dedup + resolved line) and rui.Hmr.AutoLiveCoding (default off). Honest limitations recorded:
   TD-019 (first compiled→interp swap resets — representation change), interp events =
   setter-calls (others noted "rebuild required"), effects/memo not interpreted, params render
   defaults under interp. Deferred to later phases per plan: New Component menu + Content
-  Browser UX (Phase 8 bundle, TD-014), URuiSubsystem mount surface (Phase 6).
+  Browser UX (Phase 8 bundle, TD-014), URuitkSubsystem mount surface (Phase 6).
 
 ### - [x] Phase 5 — IDE tooling (lsp-server + VS Code + VS2022) — DONE 2026-07-11 (markup baseline shipped: TS front-end corpus-locked to the C++ compiler [scanner 57 + formatter 16 + hash pins replay byte-identically], schema-driven server, VS Code + VS2022 clients; clangd enhancement layer = TD-020)
 
@@ -993,7 +993,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   1. `cppScanner.ts` (C++ lexis, corpus-pinned against the C++ lexer via
      `uetkx-scanner-cases.json` — run in `node --test` AND the C++ automation suite).
   2. `uetkxSchema.ts`: shipped Slate vocabulary generated FROM the prop-map schema (single
-     source) + `Saved/ReactiveUI/schema.json` reader (RUIExportSchema output) + pre-generated
+     source) + `Saved/ReactiveUI/schema.json` reader (RuitkExportSchema output) + pre-generated
      engine-builtin schemas per engine version.
   3. `uetkxVirtualDoc.ts` + `HookStubs.h` (real shipped header; signature parity test vs the
      runtime hooks header); `clangdProxy.ts` (child process, request forwarding through the
@@ -1021,7 +1021,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
 - **Status:** COMPLETE 2026-07-11 (the fully-supported markup BASELINE — the family's shipped
   degradation contract). Delivered: `ide-extensions/lsp-server` (codePoints, cppScanner,
   uetkxMarkup, uetkxFileScan, formatUetkx — every piece corpus-locked to the C++ side via the
-  two shared fixtures + srcHash pins, 7/7 `node --test`), uetkxSchema (shipped RUIExportSchema
+  two shared fixtures + srcHash pins, 7/7 `node --test`), uetkxSchema (shipped RuitkExportSchema
   copy + Saved/ReactiveUI/schema.json walk-up override), hash-gated sidecar diagnostics, live
   parse diagnostics, completions (tag/attr/style/slot/directive/hook), hover, golden-corpus
   formatting with uetkx.config.json walk-up; `vscode-uetkx` (language id, TextMate grammar with
@@ -1032,46 +1032,46 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
   VS2022 polish set), Rider cut (owner). Owner manual check of VS Code UX on the acceptance
   checklist.
 
-### - [x] Phase 6 — Epic interop (UMG / CommonUI / MVVM) — DONE 2026-07-11 (interop CORE: battery 50/50 incl. ReactiveUI.Umg + ReactiveUI.Mvvm; CommonUI/MVVM-plugin layers + prop-map bridge recorded as TD-021)
+### - [x] Phase 6 — Epic interop (UMG / CommonUI / MVVM) — DONE 2026-07-11 (interop CORE: battery 50/50 incl. Ruitk.Umg + Ruitk.Mvvm; CommonUI/MVVM-plugin layers + prop-map bridge recorded as TD-021)
 
 - **Objective:** the thesis made real: our UI inside theirs, theirs inside ours, their data
   feeding ours — with the migration story shippable at every step.
 - **Inputs:** D-24..D-27; `distill-corpus.md` §3 in full.
 - **Steps:**
-  1. `URuiHostWidget` (design-time placeholder rule; `ReleaseSlateResources` unmount; pool drain).
-  2. `RUI::Umg` (owning-player plumbing, `TStrongObjectPtr` handle lifecycle, per-class prop maps,
+  1. `URuitkHostWidget` (design-time placeholder rule; `ReleaseSlateResources` unmount; pool drain).
+  2. `Ruitk::Umg` (owning-player plumbing, `TStrongObjectPtr` handle lifecycle, per-class prop maps,
      delegate trampoline pool, unbind on cleanup).
   3. `UseField`/`UseViewModel` (+ read-tracking), stale-VM policy, `UseOwnedViewModel`;
-     `URuiSignalViewModel` reverse bridge; `RuitkMVVMBridge` global-collection registration.
-  4. `RuitkCommonUI`: `URuiActivatableScreen`, `UseActivation`, `UseInputMethod`,
+     `URuitkSignalViewModel` reverse bridge; `RuitkMVVMBridge` global-collection registration.
+  4. `RuitkCommonUI`: `URuitkActivatableScreen`, `UseActivation`, `UseInputMethod`,
      activatable-as-child rejection diagnostic; verify optional-plugin gating (D-27 fallback if
      needed).
   5. Input policy, CommonUI half (the handler-signature decision itself moved to Phase 2 step 1):
      document how handled-vs-unhandled interacts with CommonUI's action router and gamepad
      navigation; drag-drop + shortcuts recorded in TECH_DEBT as post-v1. Verify Editor Utility
-     Widgets work implicitly by placing `URuiHostWidget` in one (no separate surface — one test +
+     Widgets work implicitly by placing `URuitkHostWidget` in one (no separate surface — one test +
      a docs note).
-  6. Suites: `ReactiveUI.Umg`, `ReactiveUI.Mvvm` (FieldNotify round-trip on a test VM),
-     `ReactiveUI.CommonUI` (activation lifecycle headless where possible); world-space UI
+  6. Suites: `Ruitk.Umg`, `Ruitk.Mvvm` (FieldNotify round-trip on a test VM),
+     `Ruitk.CommonUI` (activation lifecycle headless where possible); world-space UI
      (`UWidgetComponent`) verified + demo (critique gap 10); PIE-end/level-travel teardown-order
-     tests verifying the D-17 contract (`URuiSubsystem` per-world tracking; unmount + pool drain
+     tests verifying the D-17 contract (`URuitkSubsystem` per-world tracking; unmount + pool drain
      BEFORE GC); `UseSafeArea` CommonUI override wired (the Phase 1 stub's final owner).
 - **Files touched:** `RuitkUMG/**`, `RuitkCommonUI/**`, `RuitkMVVMBridge/**`,
-  `RuiHostTests/**`, demo screens.
-- **Verify:** suites green; owner playtests the mixed demo (UMG screen hosting Rui island +
-  Rui screen hosting a Common button; gamepad focus walks through both).
+  `RuitkHostTests/**`, demo screens.
+- **Verify:** suites green; owner playtests the mixed demo (UMG screen hosting Ruitk island +
+  Ruitk screen hosting a Common button; gamepad focus walks through both).
 - **Done when:** the four-step migration story (§3.5 of distill) each demonstrated by a demo.
 - **Status:** COMPLETE 2026-07-11 (the interop CORE — the thesis's three directions, each
-  suite-proven headlessly): URuiHostWidget (a compiled .uetkx component renders inside a UMG
+  suite-proven headlessly): URuitkHostWidget (a compiled .uetkx component renders inside a UMG
   hierarchy; design-time placeholder; ReleaseSlateResources unmounts — live-root count
-  verified), URuiWorldSubsystem (MountNamed/MountNode/UnmountAll; Deinitialize unmounts every
+  verified), URuitkWorldSubsystem (MountNamed/MountNode/UnmountAll; Deinitialize unmounts every
   root on world death — the PIE-end/level-travel D-17 contract, tested via
-  UWorld::CreateWorld/DestroyWorld), RUI::Umg::UserWidget (a UUserWidget hosted as a Rui leaf
+  UWorld::CreateWorld/DestroyWorld), Ruitk::Umg::UserWidget (a UUserWidget hosted as a Ruitk leaf
   through SObjectWidget's own strong-ref lifecycle; class/world are reconstruct-mask
-  construct-only), and RUI::Umg::UseField<T> over the engine FieldNotification module
+  construct-only), and Ruitk::Umg::UseField<T> over the engine FieldNotification module
   (broadcast→re-render, slot-stable subscription, ~cell unbind, stale-VM default policy —
   MVVM-plugin-INDEPENDENT by design, so UMVVMViewModelBase works unchanged). Suites:
-  ReactiveUI.Umg + ReactiveUI.Mvvm (battery 50/50). Deferred by decision to TD-021: CommonUI
+  Ruitk.Umg + Ruitk.Mvvm (battery 50/50). Deferred by decision to TD-021: CommonUI
   activatables/UseInputMethod (plugin not enabled in the demo yet), MVVM-plugin reverse
   bridge + global collection, per-class UMG prop maps/trampolines, UWidgetComponent
   world-space demo, UseSafeArea CommonUI override. Owner playtest of the mixed demo rides
@@ -1090,7 +1090,7 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      refs in the generated `.inl` (Phase 3 already emits NSLOCTEXT — no custom `.uetkx` gatherer
      needed: add `*.inl` to the project's `GatherTextFromSource` file masks and verify entries
      appear); culture-change event → root re-render.
-  3. **Brush/asset lifetime** (gap 2): `FRuiAssetRef` + mount-surface `FGCObject` root; async
+  3. **Brush/asset lifetime** (gap 2): `FRuitkAssetRef` + mount-surface `FGCObject` root; async
      load policy; tests that GC never collects a displayed texture.
   4. **Focus** (gap 6): implemented in Phase 2 — extend to keyed-reorder restore + FSlateUser
      multiplicity; document reconstruct⇒focus-loss rule.
@@ -1112,19 +1112,19 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      Phases 6–8; the COUNT is the gate).
 - **Files touched:** `RuitkSlate/**`, `RuitkCore/**` (portals/exit-anim touch the
   reconciler), `RuitkUMG/**` (assets, UseSfx), docs, demos, prop-map schema entries.
-- **Verify:** per-item suites (`ReactiveUI.Widgets.ListView` with a 5,000-row source asserting
+- **Verify:** per-item suites (`Ruitk.Widgets.ListView` with a 5,000-row source asserting
   live-widget count; loc gather produces entries; GC test; focus tests; portal lifecycle;
-  `ReactiveUI.Widgets.<Name>` per batch-2 widget; tween/sfx hook tests); bench: virtualized list
+  `Ruitk.Widgets.<Name>` per batch-2 widget; tween/sfx hook tests); bench: virtualized list
   scroll numbers.
 - **Done when:** items 1–6 + 8 shipped (item 5's exit-animation sub-part ship-or-defer); 7
   verified; all 23 hooks now stub-free.
 - **Status:** COMPLETE 2026-07-11 (the live items; production lines tracked elsewhere stay
   tracked). Delivered: UseTween/UseAnimate/UseTweenValue are REAL — host-clock driven
-  (IRuiHostConfig::GetTimeSeconds; mock override makes tween tests deterministic),
+  (IRuitkHostConfig::GetTimeSeconds; mock override makes tween tests deterministic),
   prime-at-target, retarget-from-current (no snap), self-re-arming RequestFrame chain, cubic
   easing, float/FVector2D/FLinearColor lerps; UseSfx dispatches through the process-wide sink
-  (RUI::SetSfxSink — the game registers how a bus plays). Every hook is now stub-free. Suites:
-  ReactiveUI.Hooks.Tween + ReactiveUI.Hooks.Sfx (battery 52/52).
+  (Ruitk::SetSfxSink — the game registers how a bus plays). Every hook is now stub-free. Suites:
+  Ruitk.Hooks.Tween + Ruitk.Hooks.Sfx (battery 52/52).
   plans/archive/EXIT_ANIMATION_DESIGN.md written (Presence-boundary protocol; implementation remains
   TD-003 by the ship-or-defer clause). The §4 parity ledger is substantially in place from
   Phases 1-2 (Slate.Events/KeyedReorder, Style.Classes/NodePool, Update tail, Widgets.*;
@@ -1156,8 +1156,8 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      semantics incl. the honest limitation set (D-20 verbatim), **Diagnostics** (the `UETKX####`
      code catalog — GENERATED from the Phase 3 catalog source, docs-drift-checkable), **Config**
      (`uetkx.config.json`, CVars, settings), **Styling**, **Events**, **Signals**, **Context**,
-     **Custom rendering** (`SRuiCanvas`/draw_fn), **Portals**, **Suspense**, **Assets**
-     (`FRuiAssetRef`/brush lifetime), **Debugging** (`rui.Stats`/`rui.DumpTree`/Inspector),
+     **Custom rendering** (`SRuitkCanvas`/draw_fn), **Portals**, **Suspense**, **Assets**
+     (`FRuitkAssetRef`/brush lifetime), **Debugging** (`rui.Stats`/`rui.DumpTree`/Inspector),
      Interop guides (UMG/CommonUI/MVVM), Differences vs siblings, Notes & limitations,
      **Known issues**, FAQ, Roadmap.
   3. Editor Inspector tab (fiber tree, hook slots, render counts, flash-on-rerender,
@@ -1177,9 +1177,9 @@ distribution, and always opt-in — never a mandatory VM under the shipped UI, p
      owner records or approves the capture — linked from README, docs landing, `discordpost`,
      and the Fab listing (Fab listings live or die on media; the AI cannot record video, so this
      is a scheduled owner dependency, not an afterthought).
-- **Files touched:** `Source/RuiDemo/**`, `Content/**` (demo maps), `RuitkUnrealDocs~/**`,
+- **Files touched:** `Source/RuitkDemo/**`, `Content/**` (demo maps), `RuitkUnrealDocs~/**`,
   `RuitkEditor/**` (Inspector tab), root + plugin READMEs, `discordpost`, `plans/`.
-- **Verify:** `ReactiveUI.Demos` covers every gallery screen; docs `npm run build && npm run lint`;
+- **Verify:** `Ruitk.Demos` covers every gallery screen; docs `npm run build && npm run lint`;
   `node ide-extensions/scripts/docs-drift.mjs` (claimed counts vs registries) green; bench table
   committed.
 - **Done when:** a newcomer can go install→hello-world→hot-edit in five minutes following only
@@ -1252,29 +1252,29 @@ per-phase PRs and fast-forwarding master.
 
 **Family-suite parity ledger (owner directive 2026-07-11 — "copy more tests"):** the sibling
 suites not yet ported land WITH the subsystem that makes them portable, each PR citing its
-source file: `react_events` -> `ReactiveUI.Slate.Events` (Phase 6 input policy);
+source file: `react_events` -> `Ruitk.Slate.Events` (Phase 6 input policy);
 `item_list`/`tree` -> the item-model suites (Phase 7, SListView/STileView/STreeView batch);
 `classes_stylesheet` beyond the v1 keys (Phase 7 style growth); `custom_draw` parity ->
-RuiCanvas cases; `host_node_pool` internals; the remaining `update_test` edge cases. When the
+RuitkCanvas cases; `host_node_pool` internals; the remaining `update_test` edge cases. When the
 `.uetkx` compiler lands (Phase 3 step 9), existing demo-driven suites CONVERT to the compiled
 syntax rather than accumulating a hand-built shadow path.
 
 | Suite | Ports / covers | Phase |
 |---|---|---|
-| `ReactiveUI.Boot` | module startup, root mount smoke (the "_enter_tree analogue" — unit suites don't run `StartupModule`) | 1 |
-| `ReactiveUI.Core` | `core_test.gd` (~36 funcs: hooks, effects, bailout, context, keyed, suspense, portals, error latch) | 1 |
-| `ReactiveUI.Update` | `update_test.gd` (diff correctness) | 1 |
-| `ReactiveUI.Style` | `style_test.gd` + removal-reset + no-reconstruct-on-style | 2 |
-| `ReactiveUI.Widgets.*` | per-widget adapter tests | 2+ |
-| `ReactiveUI.Demos` | mounts every demo headlessly — the real "generated code runs" check | 2+ |
-| `ReactiveUI.Uetkx` | compiler/codegen (`guitkx_test.gd` analogue) | 3 |
-| `ReactiveUI.Contract` | scanner/formatter corpora (C++ side) + cross-repo grammar cases | 3 |
-| `ReactiveUI.Hmr` | `hmr_test.gd` analogue: targeted/global refresh, signature reset, isolation | 4 |
-| `ReactiveUI.Umg` / `.Mvvm` / `.CommonUI` | interop + teardown-order + world-space | 6 |
-| `ReactiveUI.Bench` | NOT pass/fail; committed baseline tables | 1+ |
+| `Ruitk.Boot` | module startup, root mount smoke (the "_enter_tree analogue" — unit suites don't run `StartupModule`) | 1 |
+| `Ruitk.Core` | `core_test.gd` (~36 funcs: hooks, effects, bailout, context, keyed, suspense, portals, error latch) | 1 |
+| `Ruitk.Update` | `update_test.gd` (diff correctness) | 1 |
+| `Ruitk.Style` | `style_test.gd` + removal-reset + no-reconstruct-on-style | 2 |
+| `Ruitk.Widgets.*` | per-widget adapter tests | 2+ |
+| `Ruitk.Demos` | mounts every demo headlessly — the real "generated code runs" check | 2+ |
+| `Ruitk.Uetkx` | compiler/codegen (`guitkx_test.gd` analogue) | 3 |
+| `Ruitk.Contract` | scanner/formatter corpora (C++ side) + cross-repo grammar cases | 3 |
+| `Ruitk.Hmr` | `hmr_test.gd` analogue: targeted/global refresh, signature reset, isolation | 4 |
+| `Ruitk.Umg` / `.Mvvm` / `.CommonUI` | interop + teardown-order + world-space | 6 |
+| `Ruitk.Bench` | NOT pass/fail; committed baseline tables | 1+ |
 
 (No router suites: the router subsystem is post-v1 by decision — see the ship gate's OUT list.
-When it lands, `router_match_test.gd` + `router_spine_test.gd` port as `ReactiveUI.Router.*`.)
+When it lands, `router_match_test.gd` + `router_spine_test.gd` port as `Ruitk.Router.*`.)
 
 **The canonical local/CI run (this order — order is load-bearing):**
 
@@ -1283,17 +1283,17 @@ When it lands, `router_match_test.gd` + `router_spine_test.gd` port as `Reactive
 <Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (mirror of tests/guitkx_build.gd)
-<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RuitkCompile -check
 
 :: 2. Suites (headless; ALWAYS redirect output to a file — console buffering lies)
 <Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject ^
-  -ExecCmds="Automation RunTests ReactiveUI; Quit" ^
+  -ExecCmds="Automation RunTests Ruitk; Quit" ^
   -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput ^
   -ReportExportPath=<scratch>\report
 :: pass/fail: parse <scratch>\report\index.json (exit code alone is unreliable)
 ```
 
-Single suite: same command with `Automation RunTests ReactiveUI.Core;` (prefix match).
+Single suite: same command with `Automation RunTests Ruitk.Core;` (prefix match).
 Extensions: `cd ide-extensions/lsp-server && npm ci && npm run build && node --test out/test/*.test.js && node scripts/smoke.js`.
 Docs: `cd docs && npm ci && npm run build && npm run lint`.
 
@@ -1308,7 +1308,7 @@ docs-drift tripwire (`scripts/docs-drift.mjs`) greps claimed counts against regi
 
 **What CANNOT be verified headlessly (owner playtest checkpoints):** actual visuals/layout
 correctness in PIE (Phases 2, 6, 8), the mid-PIE HMR feel and <1 s latency (Phase 4), gamepad
-focus walking through mixed CommonUI/Rui trees (Phase 6), screen-reader pass (Phase 7),
+focus walking through mixed CommonUI/Ruitk trees (Phase 6), screen-reader pass (Phase 7),
 fresh-project install fidelity on a machine without the repo (Phase 9), and anything requiring a
 GPU. Each phase's Done-when says which of these it needs.
 
@@ -1346,7 +1346,7 @@ Risks (mitigations in parentheses):
   reports) — the fragile spot for a reconciler (reorder benchmark spike Phase 2; minimal-move
   diff D-08.2; invalidation-boundary wrapping as measured fallback).
 - **UE6 transition** (EA end-2027) inside our support window; Slate carry-over expected but not
-  guaranteed (engine churn quarantined in host boundary + `RuiEngineCompat.h`; support-window
+  guaranteed (engine churn quarantined in host boundary + `RuitkEngineCompat.h`; support-window
   policy is "three latest").
 - **SlateIM / Viewmodel+Verse data-binding "good enough" erosion** over 12–24 months (our moat is
   the full DX loop: markup+HMR+LSP, which no first-party effort has signaled).
@@ -1364,7 +1364,7 @@ Risks (mitigations in parentheses):
    slot construction only. Claim requires the Phase 2 benchmark.
 2. "76× faster than Immediate MVVM bindings" — benchmark misapplication. Defensible: "we batch
    to one pass per frame like Delayed mode." Anything stronger needs our own Phase 8 numbers.
-3. "`FRuiContext&` makes out-of-render hooks a compile error" — overclaim; it narrows the misuse
+3. "`FRuitkContext&` makes out-of-render hooks a compile error" — overclaim; it narrows the misuse
    class. StrictMode is the runtime net.
 4. "PreBuildSteps codegen is solved/proven" — it is NOT the design (D-19 exists because of this).
 5. "<1 s state-preserving hot reload" unqualified — true only within the hook-signature rule and
@@ -1439,8 +1439,8 @@ files, and the evidence packet — never whole-repo context. Off-checklist ⇒ S
 
 | Recurring task | Tier | Inputs handed over | Verification gate |
 |---|---|---|---|
-| Slate widget wrapper (after pattern established, Phase 2.3+) | sonnet (research station) / haiku (stations 2–6) | `component-pipeline` skill; `S<Name>.h` path; templates; prop-map schema; traps list (SLATE_ARGUMENT=construct-only vs SLATE_ATTRIBUTE=bindable; slot props live on slots; events return FReply) | build + `ReactiveUI.Widgets.<Name>` + contract suite; opus review only if a new host-config *mechanism* was needed |
-| Style key addition | haiku | style registry + one worked key; reset-behavior rule; contract-case template | `ReactiveUI.Style` + apply→remove→default case + changelog line |
+| Slate widget wrapper (after pattern established, Phase 2.3+) | sonnet (research station) / haiku (stations 2–6) | `component-pipeline` skill; `S<Name>.h` path; templates; prop-map schema; traps list (SLATE_ARGUMENT=construct-only vs SLATE_ATTRIBUTE=bindable; slot props live on slots; events return FReply) | build + `Ruitk.Widgets.<Name>` + contract suite; opus review only if a new host-config *mechanism* was needed |
+| Style key addition | haiku | style registry + one worked key; reset-behavior rule; contract-case template | `Ruitk.Style` + apply→remove→default case + changelog line |
 | Hook/element doc page | haiku | `docs-sync` skill; source + doc comment; an existing page as template | docs build+lint; docs-drift tripwire; sonnet skim for semantic claims |
 | Changelog entry | haiku | `release-process` §lanes; the diff/PR title; `--message-file` rule | `changelog.mjs verify` + mirror tripwire |
 | Contract-corpus case | haiku | `grammar-contract` skill; corpus schema; 3 examples; the behavior sentence to pin | corpus green BOTH sides; cross-repo sync confirmed |
@@ -1472,7 +1472,7 @@ exist)" section; each encodes its STOP conditions. Full specs in
    feat→dev; master is fast-forward release-only; no Co-Authored-By; user merges; **never commit
    engine-derived source or Epic-owned content to the MIT repo** — D-32d), PLUS the UE
    deltas: the compile-step gate ladder (compiles Development Editor + packaged → suites green →
-   **boot check** `Automation RunTests ReactiveUI.Boot` because unit suites don't run
+   **boot check** `Automation RunTests Ruitk.Boot` because unit suites don't run
    `StartupModule` → demo renders), the changelog/version tables (D-30/D-31).
 2. **`release-process`** (port) — the runbook, in order: **drain `plans/PENDING_CHANGELOG.md`
    into Lanes A/B/C, then empty it**; what-bumps diff check; patch-by-default incl. perf-only;
@@ -1499,7 +1499,7 @@ exist)" section; each encodes its STOP conditions. Full specs in
    contract green.
 6. **`test-run`** ⭐ — the §4 command block verbatim + environment facts (engine paths per §7 Q3,
    ALWAYS redirect output to a file, index.json parsing, prefix-match filters, single-test
-   invocation, the RUICompile pre-step).
+   invocation, the RuitkCompile pre-step).
 7. **`field-test-editor`** (port) — live tree vs work tree; never edit live tree while the
    owner's editor is open; Live Coding patches `.cpp` bodies only — header/UPROPERTY/module
    changes ⇒ ask owner to close editor + rebuild; ask for `Saved/Logs/<Project>.log` + Message

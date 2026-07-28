@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Umg + ReactiveUI.Mvvm — the Phase-6 interop seams, headless:
-//   our-inside-theirs: URuiHostWidget mounts a registered component and unmounts on
+// Ruitk.Umg + Ruitk.Mvvm — the Phase-6 interop seams, headless:
+//   our-inside-theirs: URuitkHostWidget mounts a registered component and unmounts on
 //     ReleaseSlateResources (live-root count proves the teardown);
-//   theirs-inside-ours: RUI::Umg::UserWidget hosts a UUserWidget via SObjectWidget;
-//   world teardown: URuiWorldSubsystem unmounts every root on world death (the PIE-end /
+//   theirs-inside-ours: Ruitk::Umg::UserWidget hosts a UUserWidget via SObjectWidget;
+//   world teardown: URuitkWorldSubsystem unmounts every root on world death (the PIE-end /
 //     level-travel contract);
 //   their-data-feeding-ours: UseField re-renders on FieldNotify broadcasts, unbinds on
 //     unmount, and reads the default quietly once the VM is gone (stale-VM policy).
@@ -14,20 +14,20 @@
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
 #include "Misc/AutomationTest.h"
-#include "RuiAssetBrush.h"
-#include "RuiCoreElements.h"
-#include "RuiFieldHooks.h"
-#include "RuiHostProps.h"
-#include "RuiHostWidget.h"
-#include "RuiMarshal.h"
-#include "RuiNode.h"
-#include "RuiReconciler.h"
-#include "RuiRoot.h"
-#include "RuiSignalViewModel.h"
-#include "RuiSlateElements.h"
-#include "RuiTestViewModel.h"
-#include "RuiUmgElement.h"
-#include "RuiWorldSubsystem.h"
+#include "RuitkAssetBrush.h"
+#include "RuitkCoreElements.h"
+#include "RuitkFieldHooks.h"
+#include "RuitkHostProps.h"
+#include "RuitkHostWidget.h"
+#include "RuitkMarshal.h"
+#include "RuitkNode.h"
+#include "RuitkReconciler.h"
+#include "RuitkRoot.h"
+#include "RuitkSignalViewModel.h"
+#include "RuitkSlateElements.h"
+#include "RuitkTestViewModel.h"
+#include "RuitkUmgElement.h"
+#include "RuitkWorldSubsystem.h"
 #include "Slate/SObjectWidget.h"
 #include "UObject/StrongObjectPtr.h"
 #include "Widgets/Images/SImage.h"
@@ -37,14 +37,14 @@
 
 namespace UmgTest
 {
-	static URuiTestViewModel* GViewModel = nullptr;
+	static URuitkTestViewModel* GViewModel = nullptr;
 
-	static FRuiNodeArray FieldReaderComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray FieldReaderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const int32 Score = RUI::Umg::UseField<int32>(Ctx, GViewModel, FName(TEXT("Score")), -1);
-		return {RUI::TextBlock(FString::Printf(TEXT("Score: %d"), Score))};
+		const int32 Score = Ruitk::Umg::UseField<int32>(Ctx, GViewModel, FName(TEXT("Score")), -1);
+		return {Ruitk::TextBlock(FString::Printf(TEXT("Score: %d"), Score))};
 	}
-	RUI_COMPONENT(FieldReaderComp)
+	RUITK_COMPONENT(FieldReaderComp)
 
 	static bool ContainsText(SWidget& RootWidget, const FString& Needle)
 	{
@@ -67,23 +67,23 @@ namespace UmgTest
 	static int32 CountLiveReconcilers()
 	{
 		int32 Count = 0;
-		FRuiReconciler::ForEachLive([&Count](FRuiReconciler&) { ++Count; });
+		FRuitkReconciler::ForEachLive([&Count](FRuitkReconciler&) { ++Count; });
 		return Count;
 	}
 } // namespace UmgTest
 
-const ::UE::FieldNotification::FFieldId URuiTestViewModel::FFieldNotificationClassDescriptor::Score(TEXT("Score"), 0);
+const ::UE::FieldNotification::FFieldId URuitkTestViewModel::FFieldNotificationClassDescriptor::Score(TEXT("Score"), 0);
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUmgTest, "ReactiveUI.Umg",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUmgTest, "Ruitk.Umg",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUmgTest::RunTest(const FString&)
+bool FRuitkUmgTest::RunTest(const FString&)
 {
 	AddExpectedError(TEXT("is not a registered component"), EAutomationExpectedErrorFlags::Contains, 0);
 	const int32 Baseline = UmgTest::CountLiveReconcilers();
 
-	// ── our UI inside theirs: URuiHostWidget ──────────────────────────────────────────────
+	// ── our UI inside theirs: URuitkHostWidget ──────────────────────────────────────────────
 	{
-		URuiHostWidget* Host = NewObject<URuiHostWidget>(GetTransientPackage());
+		URuitkHostWidget* Host = NewObject<URuitkHostWidget>(GetTransientPackage());
 		Host->ComponentName = FName(TEXT("HelloWorld")); // a compiled .uetkx gallery component
 		TSharedRef<SWidget> Widget = Host->TakeWidget();
 		TestEqual(TEXT("host mounted one root"), UmgTest::CountLiveReconcilers(), Baseline + 1);
@@ -92,18 +92,18 @@ bool FRuiUmgTest::RunTest(const FString&)
 		Host->ReleaseSlateResources(true);
 		TestEqual(TEXT("ReleaseSlateResources unmounts"), UmgTest::CountLiveReconcilers(), Baseline);
 
-		URuiHostWidget* Unknown = NewObject<URuiHostWidget>(GetTransientPackage());
+		URuitkHostWidget* Unknown = NewObject<URuitkHostWidget>(GetTransientPackage());
 		Unknown->ComponentName = FName(TEXT("NoSuchComponent"));
 		TestTrue(TEXT("unknown component -> placeholder, no crash"),
 				 UmgTest::ContainsText(Unknown->TakeWidget().Get(), TEXT("not a registered component")));
 	}
 
-	// ── world teardown contract: URuiWorldSubsystem ───────────────────────────────────────
+	// ── world teardown contract: URuitkWorldSubsystem ───────────────────────────────────────
 	{
-		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuiUmgTestWorld"));
+		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuitkUmgTestWorld"));
 		if (TestNotNull(TEXT("test world"), World))
 		{
-			URuiWorldSubsystem* Subsystem = World->GetSubsystem<URuiWorldSubsystem>();
+			URuitkWorldSubsystem* Subsystem = World->GetSubsystem<URuitkWorldSubsystem>();
 			if (TestNotNull(TEXT("subsystem"), Subsystem))
 			{
 				const int32 Handle = Subsystem->MountNamed(FName(TEXT("HelloWorld")));
@@ -118,13 +118,13 @@ bool FRuiUmgTest::RunTest(const FString&)
 		}
 	}
 
-	// ── theirs inside ours: RUI::Umg::UserWidget ──────────────────────────────────────────
+	// ── theirs inside ours: Ruitk::Umg::UserWidget ──────────────────────────────────────────
 	{
-		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuiUmgHostWorld"));
+		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuitkUmgHostWorld"));
 		if (TestNotNull(TEXT("umg world"), World))
 		{
-			TSharedRef<FRuiRoot> Root =
-				FRuiRoot::Create(RUI::Umg::UserWidget(URuiTestUserWidget::StaticClass(), World));
+			TSharedRef<FRuitkRoot> Root =
+				FRuitkRoot::Create(Ruitk::Umg::UserWidget(URuitkTestUserWidget::StaticClass(), World));
 			Root->FlushSync();
 			TestTrue(TEXT("hosted UMG widget produced a Slate child"),
 					 Root->GetWidget()->GetRootPanel()->GetChildren()->Num() > 0);
@@ -135,15 +135,15 @@ bool FRuiUmgTest::RunTest(const FString&)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiMvvmTest, "ReactiveUI.Mvvm",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkMvvmTest, "Ruitk.Mvvm",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiMvvmTest::RunTest(const FString&)
+bool FRuitkMvvmTest::RunTest(const FString&)
 {
-	URuiTestViewModel* Vm = NewObject<URuiTestViewModel>(GetTransientPackage());
+	URuitkTestViewModel* Vm = NewObject<URuitkTestViewModel>(GetTransientPackage());
 	Vm->AddToRoot();
 	UmgTest::GViewModel = Vm;
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&UmgTest::FieldReaderComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&UmgTest::FieldReaderComp));
 	Root->FlushSync();
 	SWidget& RootWidget = Root->GetWidget().Get();
 	TestTrue(TEXT("initial field read"), UmgTest::ContainsText(RootWidget, TEXT("Score: 0")));
@@ -181,21 +181,21 @@ namespace UmgTest
 {
 	static TSharedPtr<FSlateBrush> GBrush;
 
-	static FRuiNodeArray AssetImageComp(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray AssetImageComp(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		FRuiImageProps P;
+		FRuitkImageProps P;
 		P.SetImage(GBrush);
 		P.SetDesiredSizeOverride(FVector2D(16.0f, 16.0f));
-		return {RUI::Slate::Image(MoveTemp(P))};
+		return {Ruitk::Slate::Image(MoveTemp(P))};
 	}
-	RUI_COMPONENT(AssetImageComp)
+	RUITK_COMPONENT(AssetImageComp)
 } // namespace UmgTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiAssetBrushTest, "ReactiveUI.Umg.AssetBrush",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkAssetBrushTest, "Ruitk.Umg.AssetBrush",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiAssetBrushTest::RunTest(const FString&)
+bool FRuitkAssetBrushTest::RunTest(const FString&)
 {
-	const int32 Baseline = RUI::Umg::NumTrackedAssetBrushes();
+	const int32 Baseline = Ruitk::Umg::NumTrackedAssetBrushes();
 
 	UTexture2D* Texture = UTexture2D::CreateTransient(4, 4);
 	if (!TestNotNull(TEXT("transient texture created"), Texture))
@@ -204,19 +204,19 @@ bool FRuiAssetBrushTest::RunTest(const FString&)
 	}
 	FWeakObjectPtr WeakTexture(Texture);
 
-	UmgTest::GBrush = RUI::Umg::MakeAssetBrush(Texture, FVector2D(16.0f, 16.0f), FLinearColor::White);
+	UmgTest::GBrush = Ruitk::Umg::MakeAssetBrush(Texture, FVector2D(16.0f, 16.0f), FLinearColor::White);
 	if (!TestTrue(TEXT("brush built"), UmgTest::GBrush.IsValid()))
 	{
 		return false;
 	}
 	TestTrue(TEXT("brush resource is the texture"), UmgTest::GBrush->GetResourceObject() == Texture);
-	TestTrue(TEXT("tracked count grew"), RUI::Umg::NumTrackedAssetBrushes() > Baseline);
+	TestTrue(TEXT("tracked count grew"), Ruitk::Umg::NumTrackedAssetBrushes() > Baseline);
 
 	// The Image adapter applies the brush onto a real SImage. Scoped so the host (and its GO-05
 	// node pool, which stashes the released widget's props — and thus a brush ref) is destroyed
 	// before the final baseline check.
 	{
-		TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&UmgTest::AssetImageComp));
+		TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&UmgTest::AssetImageComp));
 		Root->FlushSync();
 		TSharedRef<SWidget> ImageW = Root->GetWidget()->GetRootPanel()->GetChildren()->GetChildAt(0);
 		TestEqual(TEXT("SImage mounted"), ImageW->GetType(), FName(TEXT("SImage")));
@@ -232,35 +232,35 @@ bool FRuiAssetBrushTest::RunTest(const FString&)
 	// Release: the brush drops, the root compacts the dead entry, the asset is free again.
 	UmgTest::GBrush.Reset();
 	CollectGarbage(RF_NoFlags, /*bPerformFullPurge*/ true);
-	TestEqual(TEXT("tracked count returns to baseline after release"), RUI::Umg::NumTrackedAssetBrushes(), Baseline);
+	TestEqual(TEXT("tracked count returns to baseline after release"), Ruitk::Umg::NumTrackedAssetBrushes(), Baseline);
 	return true;
 }
 
-// ── TD-021: the REVERSE MVVM bridge — URuiSignalViewModel (ours feeding theirs) ────────────
+// ── TD-021: the REVERSE MVVM bridge — URuitkSignalViewModel (ours feeding theirs) ────────────
 
 namespace UmgTest
 {
-	static URuiSignalViewModel* GSignalVm = nullptr;
+	static URuitkSignalViewModel* GSignalVm = nullptr;
 
-	static FRuiNodeArray SignalReaderComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray SignalReaderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const int32 N = RUI::Umg::UseField<int32>(Ctx, GSignalVm, FName(TEXT("Int")), -1);
-		return {RUI::TextBlock(FString::Printf(TEXT("N:%d"), N))};
+		const int32 N = Ruitk::Umg::UseField<int32>(Ctx, GSignalVm, FName(TEXT("Int")), -1);
+		return {Ruitk::TextBlock(FString::Printf(TEXT("N:%d"), N))};
 	}
-	RUI_COMPONENT(SignalReaderComp)
+	RUITK_COMPONENT(SignalReaderComp)
 } // namespace UmgTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiReverseBridgeTest, "ReactiveUI.Mvvm.ReverseBridge",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkReverseBridgeTest, "Ruitk.Mvvm.ReverseBridge",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiReverseBridgeTest::RunTest(const FString&)
+bool FRuitkReverseBridgeTest::RunTest(const FString&)
 {
-	URuiSignalViewModel* Vm = NewObject<URuiSignalViewModel>();
+	URuitkSignalViewModel* Vm = NewObject<URuitkSignalViewModel>();
 	Vm->AddToRoot();
 
 	// ── the bridge broadcasts on change and skips when equal ──────────────────────────────────
 	int32 IntBroadcasts = 0;
 	const FDelegateHandle Handle = Vm->AddFieldValueChangedDelegate(
-		URuiSignalViewModel::FFieldNotificationClassDescriptor::Int,
+		URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int,
 		INotifyFieldValueChanged::FFieldValueChangedDelegate::CreateLambda(
 			[&IntBroadcasts](UObject*, ::UE::FieldNotification::FFieldId) { ++IntBroadcasts; }));
 
@@ -269,22 +269,22 @@ bool FRuiReverseBridgeTest::RunTest(const FString&)
 	TestEqual(TEXT("broadcast fired once"), IntBroadcasts, 1);
 	Vm->SetInt(5); // equal set
 	TestEqual(TEXT("equal set did not broadcast"), IntBroadcasts, 1);
-	Vm->RemoveFieldValueChangedDelegate(URuiSignalViewModel::FFieldNotificationClassDescriptor::Int, Handle);
+	Vm->RemoveFieldValueChangedDelegate(URuitkSignalViewModel::FFieldNotificationClassDescriptor::Int, Handle);
 
-	// ── Set(FRuiValue) routes by kind ─────────────────────────────────────────────────────────
-	Vm->Set(FRuiValue(3.5f));
+	// ── Set(FRuitkValue) routes by kind ─────────────────────────────────────────────────────────
+	Vm->Set(FRuitkValue(3.5f));
 	TestEqual(TEXT("float routed"), Vm->Float, 3.5f);
-	Vm->Set(FRuiValue(true));
+	Vm->Set(FRuitkValue(true));
 	TestTrue(TEXT("bool routed"), Vm->Bool);
-	Vm->Set(FRuiValue(FText::FromString(TEXT("hello"))));
+	Vm->Set(FRuitkValue(FText::FromString(TEXT("hello"))));
 	TestEqual(TEXT("text routed"), Vm->Text.ToString(), FString(TEXT("hello")));
-	Vm->Set(FRuiValue(FString(TEXT("world"))));
+	Vm->Set(FRuitkValue(FString(TEXT("world"))));
 	TestEqual(TEXT("string routed to text"), Vm->Text.ToString(), FString(TEXT("world")));
 
-	// ── round-trip: Rui writes the VM -> VM broadcasts -> a UseField consumer re-renders ──────
+	// ── round-trip: Ruitk writes the VM -> VM broadcasts -> a UseField consumer re-renders ──────
 	UmgTest::GSignalVm = Vm;
 	Vm->SetInt(5);
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&UmgTest::SignalReaderComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&UmgTest::SignalReaderComp));
 	Root->FlushSync();
 	SWidget& RootWidget = *Root->GetWidget();
 	TestTrue(TEXT("consumer reads the field"), UmgTest::ContainsText(RootWidget, TEXT("N:5")));
@@ -300,7 +300,7 @@ bool FRuiReverseBridgeTest::RunTest(const FString&)
 	return true;
 }
 
-// ── ReactiveUI.Umg.Lifecycle — Remount, MountNode, and the hosted-widget GC contract (audit §13)
+// ── Ruitk.Umg.Lifecycle — Remount, MountNode, and the hosted-widget GC contract (audit §13)
 
 namespace UmgLifecycleTest
 {
@@ -323,15 +323,15 @@ namespace UmgLifecycleTest
 	}
 } // namespace UmgLifecycleTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUmgLifecycleTest, "ReactiveUI.Umg.Lifecycle",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUmgLifecycleTest, "Ruitk.Umg.Lifecycle",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUmgLifecycleTest::RunTest(const FString&)
+bool FRuitkUmgLifecycleTest::RunTest(const FString&)
 {
 	const int32 Baseline = UmgTest::CountLiveReconcilers();
 
-	// ── URuiHostWidget::Remount — re-resolves without leaking a root ─────────────────────────
+	// ── URuitkHostWidget::Remount — re-resolves without leaking a root ─────────────────────────
 	{
-		URuiHostWidget* Host = NewObject<URuiHostWidget>(GetTransientPackage());
+		URuitkHostWidget* Host = NewObject<URuitkHostWidget>(GetTransientPackage());
 		Host->ComponentName = FName(TEXT("HelloWorld"));
 		TSharedRef<SWidget> Widget = Host->TakeWidget();
 		TestEqual(TEXT("mounted one root"), UmgTest::CountLiveReconcilers(), Baseline + 1);
@@ -347,15 +347,15 @@ bool FRuiUmgLifecycleTest::RunTest(const FString&)
 		TestEqual(TEXT("released"), UmgTest::CountLiveReconcilers(), Baseline);
 	}
 
-	// ── URuiWorldSubsystem::MountNode — node-based mounting (only MountNamed was tested) ──────
+	// ── URuitkWorldSubsystem::MountNode — node-based mounting (only MountNamed was tested) ──────
 	{
-		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuiUmgLifecycleWorld"));
+		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuitkUmgLifecycleWorld"));
 		if (TestNotNull(TEXT("test world"), World))
 		{
-			URuiWorldSubsystem* Subsystem = World->GetSubsystem<URuiWorldSubsystem>();
+			URuitkWorldSubsystem* Subsystem = World->GetSubsystem<URuitkWorldSubsystem>();
 			if (TestNotNull(TEXT("subsystem"), Subsystem))
 			{
-				const int32 Handle = Subsystem->MountNode(RUI::TextBlock(TEXT("NODE-MOUNT")));
+				const int32 Handle = Subsystem->MountNode(Ruitk::TextBlock(TEXT("NODE-MOUNT")));
 				TestTrue(TEXT("MountNode returns a handle"), Handle != INDEX_NONE);
 				TestEqual(TEXT("one live root"), Subsystem->NumLiveRoots(), 1);
 				Subsystem->UnmountHandle(Handle);
@@ -367,11 +367,11 @@ bool FRuiUmgLifecycleTest::RunTest(const FString&)
 
 	// ── hosted UUserWidget lifetime — alive across a full GC purge while mounted ─────────────
 	{
-		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuiUmgGcWorld"));
+		UWorld* World = UWorld::CreateWorld(EWorldType::Game, false, TEXT("RuitkUmgGcWorld"));
 		if (TestNotNull(TEXT("gc world"), World))
 		{
-			TSharedRef<FRuiRoot> Root =
-				FRuiRoot::Create(RUI::Umg::UserWidget(URuiTestUserWidget::StaticClass(), World));
+			TSharedRef<FRuitkRoot> Root =
+				FRuitkRoot::Create(Ruitk::Umg::UserWidget(URuitkTestUserWidget::StaticClass(), World));
 			Root->FlushSync();
 
 			TWeakObjectPtr<UUserWidget> Hosted = UmgLifecycleTest::FindHostedUserWidget(Root->GetWidget().Get());
@@ -390,41 +390,41 @@ bool FRuiUmgLifecycleTest::RunTest(const FString&)
 	return true;
 }
 
-// ── RuiMarshal — the single FRuiValue ↔ UPROPERTY conversion table (research-promised helper) ──
+// ── RuitkMarshal — the single FRuitkValue ↔ UPROPERTY conversion table (research-promised helper) ──
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiMarshalTest, "ReactiveUI.Umg.Marshal",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkMarshalTest, "Ruitk.Umg.Marshal",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiMarshalTest::RunTest(const FString&)
+bool FRuitkMarshalTest::RunTest(const FString&)
 {
-	URuiSignalViewModel* Vm = NewObject<URuiSignalViewModel>();
+	URuitkSignalViewModel* Vm = NewObject<URuitkSignalViewModel>();
 	Vm->AddToRoot();
 
 	// write: every supported category, with kind coercion where documented
-	TestTrue(TEXT("int written"), RUI::Umg::MarshalToProperty(Vm, FName(TEXT("Int")), FRuiValue(7)));
+	TestTrue(TEXT("int written"), Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("Int")), FRuitkValue(7)));
 	TestEqual(TEXT("int landed"), Vm->Int, 7);
-	TestTrue(TEXT("float<-int coerces"), RUI::Umg::MarshalToProperty(Vm, FName(TEXT("Float")), FRuiValue(3)));
+	TestTrue(TEXT("float<-int coerces"), Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("Float")), FRuitkValue(3)));
 	TestEqual(TEXT("float landed"), Vm->Float, 3.0f);
-	TestTrue(TEXT("bool written"), RUI::Umg::MarshalToProperty(Vm, FName(TEXT("Bool")), FRuiValue(true)));
+	TestTrue(TEXT("bool written"), Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("Bool")), FRuitkValue(true)));
 	TestTrue(TEXT("bool landed"), Vm->Bool);
 	TestTrue(TEXT("text<-string coerces"),
-			 RUI::Umg::MarshalToProperty(Vm, FName(TEXT("Text")), FRuiValue(FString(TEXT("hello")))));
+			 Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("Text")), FRuitkValue(FString(TEXT("hello")))));
 	TestEqual(TEXT("text landed"), Vm->Text.ToString(), FString(TEXT("hello")));
 
 	// mismatches are skipped, never mangled (B13 rules)
-	TestFalse(TEXT("bool into int refuses"), RUI::Umg::MarshalToProperty(Vm, FName(TEXT("Int")), FRuiValue(true)));
+	TestFalse(TEXT("bool into int refuses"), Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("Int")), FRuitkValue(true)));
 	TestEqual(TEXT("int untouched by the refusal"), Vm->Int, 7);
 	TestFalse(TEXT("missing property refuses"),
-			  RUI::Umg::MarshalToProperty(Vm, FName(TEXT("NoSuchProp")), FRuiValue(1)));
-	TestFalse(TEXT("null object refuses"), RUI::Umg::MarshalToProperty(nullptr, FName(TEXT("Int")), FRuiValue(1)));
+			  Ruitk::Umg::MarshalToProperty(Vm, FName(TEXT("NoSuchProp")), FRuitkValue(1)));
+	TestFalse(TEXT("null object refuses"), Ruitk::Umg::MarshalToProperty(nullptr, FName(TEXT("Int")), FRuitkValue(1)));
 
 	// read: round-trips with the kind following the property type
-	FRuiValue Out;
-	TestTrue(TEXT("int read"), RUI::Umg::MarshalFromProperty(Vm, FName(TEXT("Int")), Out));
-	TestTrue(TEXT("int kind + value"), Out.Kind == FRuiValue::EKind::Int && Out.IntValue == 7);
-	TestTrue(TEXT("text read"), RUI::Umg::MarshalFromProperty(Vm, FName(TEXT("Text")), Out));
+	FRuitkValue Out;
+	TestTrue(TEXT("int read"), Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("Int")), Out));
+	TestTrue(TEXT("int kind + value"), Out.Kind == FRuitkValue::EKind::Int && Out.IntValue == 7);
+	TestTrue(TEXT("text read"), Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("Text")), Out));
 	TestTrue(TEXT("text kind + value"),
-			 Out.Kind == FRuiValue::EKind::Text && Out.TextValue.ToString() == TEXT("hello"));
-	TestFalse(TEXT("missing property read refuses"), RUI::Umg::MarshalFromProperty(Vm, FName(TEXT("NoSuchProp")), Out));
+			 Out.Kind == FRuitkValue::EKind::Text && Out.TextValue.ToString() == TEXT("hello"));
+	TestFalse(TEXT("missing property read refuses"), Ruitk::Umg::MarshalFromProperty(Vm, FName(TEXT("NoSuchProp")), Out));
 
 	Vm->RemoveFromRoot();
 	return true;
@@ -434,35 +434,35 @@ bool FRuiMarshalTest::RunTest(const FString&)
 
 namespace UmgTest
 {
-	static URuiSignalViewModel* GOwnedVmSeen = nullptr;
+	static URuitkSignalViewModel* GOwnedVmSeen = nullptr;
 	static int32 GOwnedVmRenders = 0;
 
-	static FRuiNodeArray OwnedVmComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray OwnedVmComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		URuiSignalViewModel* Vm = RUI::Umg::UseOwnedViewModel<URuiSignalViewModel>(Ctx);
+		URuitkSignalViewModel* Vm = Ruitk::Umg::UseOwnedViewModel<URuitkSignalViewModel>(Ctx);
 		GOwnedVmSeen = Vm;
 		++GOwnedVmRenders;
-		const int32 N = RUI::Umg::UseField<int32>(Ctx, Vm, FName(TEXT("Int")), -1);
-		return {RUI::TextBlock(FString::Printf(TEXT("Owned:%d"), N))};
+		const int32 N = Ruitk::Umg::UseField<int32>(Ctx, Vm, FName(TEXT("Int")), -1);
+		return {Ruitk::TextBlock(FString::Printf(TEXT("Owned:%d"), N))};
 	}
-	RUI_COMPONENT(OwnedVmComp)
+	RUITK_COMPONENT(OwnedVmComp)
 } // namespace UmgTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiOwnedViewModelTest, "ReactiveUI.Mvvm.OwnedViewModel",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkOwnedViewModelTest, "Ruitk.Mvvm.OwnedViewModel",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiOwnedViewModelTest::RunTest(const FString&)
+bool FRuitkOwnedViewModelTest::RunTest(const FString&)
 {
 	UmgTest::GOwnedVmSeen = nullptr;
 	UmgTest::GOwnedVmRenders = 0;
 
-	TSharedRef<FRuiRoot> Root = FRuiRoot::Create(RUI::FC(&UmgTest::OwnedVmComp));
+	TSharedRef<FRuitkRoot> Root = FRuitkRoot::Create(Ruitk::FC(&UmgTest::OwnedVmComp));
 	Root->FlushSync();
-	URuiSignalViewModel* Vm = UmgTest::GOwnedVmSeen;
+	URuitkSignalViewModel* Vm = UmgTest::GOwnedVmSeen;
 	if (!TestNotNull(TEXT("hook created a viewmodel on first render"), Vm))
 	{
 		return false;
 	}
-	TWeakObjectPtr<URuiSignalViewModel> Weak(Vm);
+	TWeakObjectPtr<URuitkSignalViewModel> Weak(Vm);
 	TestTrue(TEXT("component reads its own VM"), UmgTest::ContainsText(*Root->GetWidget(), TEXT("Owned:0")));
 
 	// identity is stable across re-renders, and the VM survives a full GC purge while mounted
@@ -486,29 +486,29 @@ bool FRuiOwnedViewModelTest::RunTest(const FString&)
 
 namespace UmgTest
 {
-	static FRuiNodeArray HostPropReaderComp(FRuiContext& Ctx, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray HostPropReaderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		const FString Title = RUI::Umg::UseHostProp(Ctx, FName(TEXT("Title")), TEXT("<default>"));
-		UObject* Vm = RUI::Umg::UseHostViewModel(Ctx);
-		const int32 N = RUI::Umg::UseField<int32>(Ctx, Vm, FName(TEXT("Int")), -1);
-		return {RUI::TextBlock(FString::Printf(TEXT("T:%s N:%d"), *Title, N))};
+		const FString Title = Ruitk::Umg::UseHostProp(Ctx, FName(TEXT("Title")), TEXT("<default>"));
+		UObject* Vm = Ruitk::Umg::UseHostViewModel(Ctx);
+		const int32 N = Ruitk::Umg::UseField<int32>(Ctx, Vm, FName(TEXT("Int")), -1);
+		return {Ruitk::TextBlock(FString::Printf(TEXT("T:%s N:%d"), *Title, N))};
 	}
-	RUI_COMPONENT(HostPropReaderComp)
+	RUITK_COMPONENT(HostPropReaderComp)
 } // namespace UmgTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiUmgHostPropsTest, "ReactiveUI.Umg.HostProps",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkUmgHostPropsTest, "Ruitk.Umg.HostProps",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiUmgHostPropsTest::RunTest(const FString&)
+bool FRuitkUmgHostPropsTest::RunTest(const FString&)
 {
-	RUI::RegisterNamedFactory(FName(TEXT("RuiHostPropReader")), []() { return RUI::FC(&UmgTest::HostPropReaderComp); });
+	Ruitk::RegisterNamedFactory(FName(TEXT("RuitkHostPropReader")), []() { return Ruitk::FC(&UmgTest::HostPropReaderComp); });
 
-	URuiSignalViewModel* Vm = NewObject<URuiSignalViewModel>();
+	URuitkSignalViewModel* Vm = NewObject<URuitkSignalViewModel>();
 	Vm->AddToRoot();
 	Vm->SetInt(5);
 
 	// ── BP-set props + VM reach the hosted component ───────────────────────────────────────
-	URuiHostWidget* Host = NewObject<URuiHostWidget>(GetTransientPackage());
-	Host->ComponentName = FName(TEXT("RuiHostPropReader"));
+	URuitkHostWidget* Host = NewObject<URuitkHostWidget>(GetTransientPackage());
+	Host->ComponentName = FName(TEXT("RuitkHostPropReader"));
 	Host->InitialProps.Add(FName(TEXT("Title")), TEXT("Hello"));
 	Host->ViewModel = Vm;
 	TSharedRef<SWidget> Widget = Host->TakeWidget();
@@ -525,8 +525,8 @@ bool FRuiUmgHostPropsTest::RunTest(const FString&)
 	Host->ReleaseSlateResources(true);
 
 	// ── nothing set → quiet defaults ─────────────────────────────────────────────────────────
-	URuiHostWidget* Bare = NewObject<URuiHostWidget>(GetTransientPackage());
-	Bare->ComponentName = FName(TEXT("RuiHostPropReader"));
+	URuitkHostWidget* Bare = NewObject<URuitkHostWidget>(GetTransientPackage());
+	Bare->ComponentName = FName(TEXT("RuitkHostPropReader"));
 	TestTrue(TEXT("unset host props read the caller defaults"),
 			 UmgTest::ContainsText(Bare->TakeWidget().Get(), TEXT("T:<default> N:-1")));
 	Bare->ReleaseSlateResources(true);

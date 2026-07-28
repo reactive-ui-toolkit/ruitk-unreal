@@ -1,16 +1,16 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// ReactiveUI.Core.Presence — TD-003 exit-animation (delayed-unmount) protocol. A <Presence>
+// Ruitk.Core.Presence — TD-003 exit-animation (delayed-unmount) protocol. A <Presence>
 // boundary keeps a removed keyed child MOUNTED so it can animate out, flips bPresent=false into
 // it via context, and unmounts for real only on NotifyDone() (or the MaxExitSeconds timeout).
 // Covered: deferred deletion, NotifyDone-driven real unmount, the timeout fence for a child that
 // never notifies, and re-entry cancelling an in-flight exit (fiber + tween state preserved).
 
 #include "Misc/AutomationTest.h"
-#include "RuiCoreElements.h"
-#include "RuiMockHost.h"
-#include "RuiNode.h"
-#include "RuiPresence.h"
+#include "RuitkCoreElements.h"
+#include "RuitkMockHost.h"
+#include "RuitkNode.h"
+#include "RuitkPresence.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
@@ -21,10 +21,10 @@ namespace PresenceTest
 	static bool GIncludeB = false;
 	static bool GIncludeC = false;
 
-	struct FItemProps final : public FRuiPropsBase
+	struct FItemProps final : public FRuitkPropsBase
 	{
-		RUI_PROP(FString, Label, 0)
-		RUI_PROPS_BODY(FItemProps, RUI_EQ(Label))
+		RUITK_PROP(FString, Label, 0)
+		RUITK_PROPS_BODY(FItemProps, RUITK_EQ(Label))
 	};
 
 	static FItemProps ItemProps(const TCHAR* Label)
@@ -36,12 +36,12 @@ namespace PresenceTest
 
 	// A child that animates out and reports completion: when exiting (bPresent=false) and its
 	// UseAnimate driver has settled at 0, it calls NotifyDone so the boundary can unmount it.
-	static FRuiNodeArray ExitItem(FRuiContext& Ctx, const FItemProps& Props, const TArray<FRuiNode>&)
+	static FRuitkNodeArray ExitItem(FRuitkContext& Ctx, const FItemProps& Props, const TArray<FRuitkNode>&)
 	{
-		const FRuiPresenceState P = UsePresence(Ctx);
-		const float T = Ctx.UseAnimate(P.bPresent, 1.0f, ERuiEase::Linear);
+		const FRuitkPresenceState P = UsePresence(Ctx);
+		const float T = Ctx.UseAnimate(P.bPresent, 1.0f, ERuitkEase::Linear);
 		const bool bPresent = P.bPresent;
-		const FRuiCallback Done = P.NotifyDone;
+		const FRuitkCallback Done = P.NotifyDone;
 		Ctx.UseEffect(
 			[bPresent, T, Done]()
 			{
@@ -50,46 +50,46 @@ namespace PresenceTest
 					Done.Execute();
 				}
 			},
-			RUI::EveryCommit());
-		return {RuiTest::Box(RuiTest::BoxProps(Props.Label))};
+			Ruitk::EveryCommit());
+		return {RuitkTest::Box(RuitkTest::BoxProps(Props.Label))};
 	}
-	RUI_COMPONENT(ExitItem)
+	RUITK_COMPONENT(ExitItem)
 
 	// A child that reads the signal but NEVER notifies — proves the timeout fence unmounts it.
-	static FRuiNodeArray SilentItem(FRuiContext& Ctx, const FItemProps& Props, const TArray<FRuiNode>&)
+	static FRuitkNodeArray SilentItem(FRuitkContext& Ctx, const FItemProps& Props, const TArray<FRuitkNode>&)
 	{
 		(void)UsePresence(Ctx);
-		return {RuiTest::Box(RuiTest::BoxProps(Props.Label))};
+		return {RuitkTest::Box(RuitkTest::BoxProps(Props.Label))};
 	}
-	RUI_COMPONENT(SilentItem)
+	RUITK_COMPONENT(SilentItem)
 
-	static FRuiNodeArray PresenceHost(FRuiContext&, const FRuiEmptyProps&, const TArray<FRuiNode>&)
+	static FRuitkNodeArray PresenceHost(FRuitkContext&, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
 	{
-		TArray<FRuiNode> Kids;
+		TArray<FRuitkNode> Kids;
 		if (GIncludeA)
 		{
-			Kids.Add(RUI::FC<FItemProps>(&ExitItem, ItemProps(TEXT("A")), {}, FRuiKey(TEXT("A"))));
+			Kids.Add(Ruitk::FC<FItemProps>(&ExitItem, ItemProps(TEXT("A")), {}, FRuitkKey(TEXT("A"))));
 		}
 		if (GIncludeB)
 		{
-			Kids.Add(RUI::FC<FItemProps>(&ExitItem, ItemProps(TEXT("B")), {}, FRuiKey(TEXT("B"))));
+			Kids.Add(Ruitk::FC<FItemProps>(&ExitItem, ItemProps(TEXT("B")), {}, FRuitkKey(TEXT("B"))));
 		}
 		if (GIncludeC)
 		{
-			Kids.Add(RUI::FC<FItemProps>(&SilentItem, ItemProps(TEXT("C")), {}, FRuiKey(TEXT("C"))));
+			Kids.Add(Ruitk::FC<FItemProps>(&SilentItem, ItemProps(TEXT("C")), {}, FRuitkKey(TEXT("C"))));
 		}
-		return {RUI::Presence(MoveTemp(Kids), /*MaxExitSeconds*/ 2.0f)};
+		return {Ruitk::Presence(MoveTemp(Kids), /*MaxExitSeconds*/ 2.0f)};
 	}
-	RUI_COMPONENT(PresenceHost)
+	RUITK_COMPONENT(PresenceHost)
 } // namespace PresenceTest
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuiPresenceTest, "ReactiveUI.Core.Presence",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkPresenceTest, "Ruitk.Core.Presence",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
-bool FRuiPresenceTest::RunTest(const FString&)
+bool FRuitkPresenceTest::RunTest(const FString&)
 {
 	using namespace PresenceTest;
 
-	FRuiTestHarness H;
+	FRuitkTestHarness H;
 	H.Host.MockTimeSeconds = 100.0;
 
 	// The live (un-released) host box labels, in tree order.
@@ -126,7 +126,7 @@ bool FRuiPresenceTest::RunTest(const FString&)
 	GIncludeA = true;
 	GIncludeB = true;
 	GIncludeC = false;
-	H.Mount(RUI::FC(&PresenceHost));
+	H.Mount(Ruitk::FC(&PresenceHost));
 	TestEqual(TEXT("mounted A + B"), Labels().Num(), 2);
 	TestTrue(TEXT("A present"), Has(TEXT("A")));
 	TestTrue(TEXT("B present"), Has(TEXT("B")));

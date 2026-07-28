@@ -2,20 +2,20 @@ import type { FC } from 'react'
 import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
 
-const ROUTER = `#include "RuiRouter.h"
+const ROUTER = `#include "RuitkRouter.h"
 
 // A router owns an in-memory history; Routes renders the best match for the current location.
-FRuiNode App(FRuiContext& Ctx) {
-	return RUI::Router({
-		RUI::Routes({
-			RUI::FRuiRoute{ TEXT("/"),          RUI::FC(&HomeScreen) },
-			RUI::FRuiRoute{ TEXT("/users/:id"), RUI::FC(&UserScreen) },
+FRuitkNode App(FRuitkContext& Ctx) {
+	return Ruitk::Router({
+		Ruitk::Routes({
+			Ruitk::FRuitkRoute{ TEXT("/"),          Ruitk::FC(&HomeScreen) },
+			Ruitk::FRuitkRoute{ TEXT("/users/:id"), Ruitk::FC(&UserScreen) },
 		}),
 	}, TEXT("/"));
 }
 
 // Inside a route component: the family's 17 router hooks (global free functions, not RUI-scoped).
-const FRuiLocation&           Loc    = UseLocation(Ctx);
+const FRuitkLocation&           Loc    = UseLocation(Ctx);
 const TMap<FString, FString>& Params = UseParams(Ctx);      // { "id": "42" }
 auto                          Nav    = UseNavigate(Ctx);    // Nav(TEXT("/users/7"), false)
 auto                          Search = UseSearchParams(Ctx);`
@@ -29,40 +29,40 @@ const STYLESHEET = `// theme.uss — @theme tokens + $token refs; the cascade is
 .panel { RenderOpacity: 1; BorderBackgroundColor: $accent; }   // $accent -> #4f8cff under theme "dark"
 
 // C++: register + activate, then reference tokens from style dicts.
-RUI::Slate::LoadStylesheet(Source);
-RUI::Slate::SetActiveTheme("dark");`
+Ruitk::Slate::LoadStylesheet(Source);
+Ruitk::Slate::SetActiveTheme("dark");`
 
-const LISTVIEW = `#include "RuiListView.h"
+const LISTVIEW = `#include "RuitkListView.h"
 
 // Virtualized: only visible rows have widgets. Each generated row is its own
-// FRuiRoot sub-root rendering RenderItem(item, index).
-FRuiListViewProps P;
-P.SetItems(Items);                                  // stable TSharedPtr<FRuiValue> array
-P.SetRenderItem(RUI::Slate::MakeItemRenderer(
-	[](const FRuiValue& V, int32) { return RUI::TextBlock(V.StringValue); }));
+// FRuitkRoot sub-root rendering RenderItem(item, index).
+FRuitkListViewProps P;
+P.SetItems(Items);                                  // stable TSharedPtr<FRuitkValue> array
+P.SetRenderItem(Ruitk::Slate::MakeItemRenderer(
+	[](const FRuitkValue& V, int32) { return Ruitk::TextBlock(V.StringValue); }));
 P.SetSelectionMode(FName(TEXT("single")));          // none | single | singleToggle | multi
-return RUI::Slate::ListView(MoveTemp(P));            // or TileView(...)`
+return Ruitk::Slate::ListView(MoveTemp(P));            // or TileView(...)`
 
-const DND = `#include "RuiDragDrop.h"
+const DND = `#include "RuitkDragDrop.h"
 
 // A draggable carrying a typed payload; a drop zone filtering by type.
-RUI::Slate::DragSource(SourceProps /* DragType, Payload */, { Card });
-RUI::Slate::DropTarget(TargetProps /* AcceptTypes, OnDrop */, { Slot });`
+Ruitk::Slate::DragSource(SourceProps /* DragType, Payload */, { Card });
+Ruitk::Slate::DropTarget(TargetProps /* AcceptTypes, OnDrop */, { Slot });`
 
-const PRESENCE = `#include "RuiPresence.h"
+const PRESENCE = `#include "RuitkPresence.h"
 
 // Children removed from the tree stay mounted until they signal done (or time out).
-RUI::Presence({ /* keyed children */ });
-FRuiPresenceState S = UsePresence(Ctx);              // global hook: { bPresent, NotifyDone }`
+Ruitk::Presence({ /* keyed children */ });
+FRuitkPresenceState S = UsePresence(Ctx);              // global hook: { bPresent, NotifyDone }`
 
-const COMMONUI = `#include "RuiActivatableScreen.h"   // our tree as a CommonUI screen
+const COMMONUI = `#include "RuitkActivatableScreen.h"   // our tree as a CommonUI screen
 
 // Inside the hosted component: react to activation + input method.
-bool             bActive = RUI::CommonUI::UseIsActive(Ctx);
-ERuiInputMethod  Method  = RUI::CommonUI::UseInputMethod(Ctx);
+bool             bActive = Ruitk::CommonUI::UseIsActive(Ctx);
+ERuitkInputMethod  Method  = Ruitk::CommonUI::UseInputMethod(Ctx);
 
 // MVVM: register a viewmodel globally; UMG views bind it by context name.
-RUI::Mvvm::RegisterGlobalViewModel(GameInstance, "PlayerStats", ViewModel);`
+Ruitk::Mvvm::RegisterGlobalViewModel(GameInstance, "PlayerStats", ViewModel);`
 
 const WIDGETS: Array<[string, string]> = [
   ['WidgetSwitcher, ScaleBox, Throbber, WrapBox', 'the batch-2 everyday set'],
@@ -129,7 +129,7 @@ export const FeaturesPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       Typed DnD over Slate&apos;s <code>FDragDropOperation</code> — a <code>DragSource</code>{' '}
-      carries an <code>FRuiValue</code> payload + type tag, a <code>DropTarget</code> filters by
+      carries an <code>FRuitkValue</code> payload + type tag, a <code>DropTarget</code> filters by
       accepted types. Exit animations use a <code>&lt;Presence&gt;</code> boundary: a removed child
       stays mounted until it signals done (or a timeout fires).
     </Typography>
@@ -140,10 +140,10 @@ export const FeaturesPage: FC = () => (
       CommonUI &amp; MVVM citizenship
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>URuiActivatableScreen</code> pushes our tree onto a CommonUI activatable stack; the
+      <code>URuitkActivatableScreen</code> pushes our tree onto a CommonUI activatable stack; the
       hosted component reacts with <code>UseActivation</code> / <code>UseInputMethod</code>. On the
       MVVM side, a viewmodel can be registered in the plugin&apos;s global collection, and a hosted{' '}
-      <code>UUserWidget</code> receives Rui props declaratively through the reflection prop-map.
+      <code>UUserWidget</code> receives Ruitk props declaratively through the reflection prop-map.
     </Typography>
     <CodeBlock code={COMMONUI} language="uetkx" />
 

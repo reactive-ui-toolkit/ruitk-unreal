@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
-// IRuiHostConfig — THE seam (D-11). The reconciler touches engines only through this
-// interface over opaque FRuiHostHandle values. RuitkSlate implements it against real
-// widgets; FRuiMockHost implements it for the headless core suites — which is what makes
+// IRuitkHostConfig — THE seam (D-11). The reconciler touches engines only through this
+// interface over opaque FRuitkHostHandle values. RuitkSlate implements it against real
+// widgets; FRuitkMockHost implements it for the headless core suites — which is what makes
 // the entire reconciler testable without an RHI, exactly like react-dom vs react-test-renderer.
 //
 // Shape follows React's mutation-mode HostConfig where it earns its keep and the family
@@ -13,31 +13,31 @@
 
 #include "CoreMinimal.h"
 #include "HAL/PlatformTime.h"
-#include "RuiTypes.h"
-#include "RuiPropsBase.h"
+#include "RuitkTypes.h"
+#include "RuitkPropsBase.h"
 
-class RUITKCORE_API IRuiHostConfig
+class RUITKCORE_API IRuitkHostConfig
 {
 public:
-	virtual ~IRuiHostConfig() = default;
+	virtual ~IRuitkHostConfig() = default;
 
 	// --- instances ---------------------------------------------------------------------
 
 	/** Create a host node for the interned element type with its full initial props applied
 	 *  (construct-only args consumed here; then a full apply — the adapters' CreateWidget). */
-	virtual FRuiHostHandle CreateInstance(FRuiElementTypeId Type, const FRuiPropsBase& Props) = 0;
+	virtual FRuitkHostHandle CreateInstance(FRuitkElementTypeId Type, const FRuitkPropsBase& Props) = 0;
 
 	/** Diff-apply in commit (React-19 commitUpdate — no prepareUpdate payloads). OldProps may
 	 *  be null on pool reuse with no stashed props. */
-	virtual void CommitUpdate(const FRuiHostHandle& Node, FRuiElementTypeId Type, const FRuiPropsBase* OldProps,
-							  const FRuiPropsBase& NewProps) = 0;
+	virtual void CommitUpdate(const FRuitkHostHandle& Node, FRuitkElementTypeId Type, const FRuitkPropsBase* OldProps,
+							  const FRuitkPropsBase& NewProps) = 0;
 
 	/** Destroy or pool the node (host's choice — GO-05 pooling lives host-side; the
 	 *  reconciler only promises the node is detached and done). bWasChildless lets the host
 	 *  apply the family's pool-only-childless-leaves rule without re-walking. LastProps is
 	 *  SHARED so a pool can stash it and diff-on-reuse (GO-05). */
-	virtual void ReleaseInstance(const FRuiHostHandle& Node, FRuiElementTypeId Type,
-								 const TSharedPtr<const FRuiPropsBase>& LastProps, bool bWasChildless) = 0;
+	virtual void ReleaseInstance(const FRuitkHostHandle& Node, FRuitkElementTypeId Type,
+								 const TSharedPtr<const FRuitkPropsBase>& LastProps, bool bWasChildless) = 0;
 
 	// --- tree mutation -----------------------------------------------------------------
 
@@ -46,22 +46,22 @@ public:
 	 *  ReorderChildren on structural frames for exact order (the family model); precise
 	 *  indices arrive only from hosts' own internal uses. Single-content containers
 	 *  enforce/warn capacity themselves (warn_capacity). */
-	virtual void InsertChild(const FRuiHostHandle& Parent, const FRuiHostHandle& Child, int32 Index) = 0;
+	virtual void InsertChild(const FRuitkHostHandle& Parent, const FRuitkHostHandle& Child, int32 Index) = 0;
 
 	/** Remove Child from Parent (Parent null = root container). Never destroys — Release does. */
-	virtual void RemoveChild(const FRuiHostHandle& Parent, const FRuiHostHandle& Child) = 0;
+	virtual void RemoveChild(const FRuitkHostHandle& Parent, const FRuitkHostHandle& Child) = 0;
 
 	/** Re-assert the full child order under Parent (the enforce-order fallback; hosts that
 	 *  can move precisely may optimize). Called only on structural frames (family rule). */
-	virtual void ReorderChildren(const FRuiHostHandle& Parent, const TArray<FRuiHostHandle>& Ordered) = 0;
+	virtual void ReorderChildren(const FRuitkHostHandle& Parent, const TArray<FRuitkHostHandle>& Ordered) = 0;
 
 	/** Portal support: insert/remove against an out-of-tree target handle. Defaults to the
 	 *  normal child ops (targets ARE host handles); hosts may specialize. */
-	virtual void InsertPortalChild(const FRuiPortalHandle& Target, const FRuiHostHandle& Child, int32 Index)
+	virtual void InsertPortalChild(const FRuitkPortalHandle& Target, const FRuitkHostHandle& Child, int32 Index)
 	{
 		InsertChild(Target, Child, Index);
 	}
-	virtual void RemovePortalChild(const FRuiPortalHandle& Target, const FRuiHostHandle& Child)
+	virtual void RemovePortalChild(const FRuitkPortalHandle& Target, const FRuitkHostHandle& Child)
 	{
 		RemoveChild(Target, Child);
 	}
@@ -69,7 +69,7 @@ public:
 	// --- text (family: raw string children auto-wrap to text elements) -------------------
 
 	/** The host's text element type (STextBlock / mock text). Invalid id = host has none. */
-	virtual FRuiElementTypeId GetTextElementType() const = 0;
+	virtual FRuitkElementTypeId GetTextElementType() const = 0;
 
 	// --- commit fences ---------------------------------------------------------------------
 

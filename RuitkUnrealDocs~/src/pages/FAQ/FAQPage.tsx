@@ -27,7 +27,7 @@ const QA: Array<[string, ReactNode]> = [
   ],
   [
     'Can I use my existing UMG widgets and MVVM view-models?',
-    <>Yes. Embed a <code>UUserWidget</code> with <code>RUI::Umg::UserWidget</code>, read FieldNotify
+    <>Yes. Embed a <code>UUserWidget</code> with <code>Ruitk::Umg::UserWidget</code>, read FieldNotify
       view-model fields with <code>UseField</code>, and host on CommonUI activatable stacks. Interop
       is a first-class design pillar.</>,
   ],

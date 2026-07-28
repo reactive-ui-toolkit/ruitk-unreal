@@ -2,7 +2,7 @@
 //
 // Foundational value types for the engine-blind core. HARD CONSTRAINT (MASTER_PLAN D-27):
 // this module sees Core only — no CoreUObject, no Slate. Everything engine-facing goes
-// through IRuiHostConfig (RuiHostConfig.h) over the opaque handle types defined here.
+// through IRuitkHostConfig (RuitkHostConfig.h) over the opaque handle types defined here.
 
 #pragma once
 
@@ -13,10 +13,10 @@
 /**
  * Reconciliation key — the family's `key` prop. A key is either unset, an integer, or a
  * string (FName-interned). Unkeyed children get NAMESPACED positional keys during keyed
- * reconciliation (see FRuiReconciler) so an integer user key can never collide with a
+ * reconciliation (see FRuitkReconciler) so an integer user key can never collide with a
  * positional index (the Godot port's [audit M1]).
  */
-struct FRuiKey
+struct FRuitkKey
 {
 	enum class EKind : uint8
 	{
@@ -29,16 +29,16 @@ struct FRuiKey
 	int64 IntValue = 0;
 	FName NameValue;
 
-	FRuiKey() = default;
-	FRuiKey(int32 In) : Kind(EKind::Int), IntValue(In) {}
-	FRuiKey(int64 In) : Kind(EKind::Int), IntValue(In) {}
-	FRuiKey(FName In) : Kind(EKind::Name), NameValue(In) {}
-	FRuiKey(const TCHAR* In) : Kind(EKind::Name), NameValue(In) {}
-	FRuiKey(const FString& In) : Kind(EKind::Name), NameValue(*In) {}
+	FRuitkKey() = default;
+	FRuitkKey(int32 In) : Kind(EKind::Int), IntValue(In) {}
+	FRuitkKey(int64 In) : Kind(EKind::Int), IntValue(In) {}
+	FRuitkKey(FName In) : Kind(EKind::Name), NameValue(In) {}
+	FRuitkKey(const TCHAR* In) : Kind(EKind::Name), NameValue(In) {}
+	FRuitkKey(const FString& In) : Kind(EKind::Name), NameValue(*In) {}
 
 	bool IsSet() const { return Kind != EKind::None; }
 
-	bool operator==(const FRuiKey& Other) const
+	bool operator==(const FRuitkKey& Other) const
 	{
 		if (Kind != Other.Kind)
 		{
@@ -55,9 +55,9 @@ struct FRuiKey
 		}
 		return false;
 	}
-	bool operator!=(const FRuiKey& Other) const { return !(*this == Other); }
+	bool operator!=(const FRuitkKey& Other) const { return !(*this == Other); }
 
-	friend uint32 GetTypeHash(const FRuiKey& K)
+	friend uint32 GetTypeHash(const FRuitkKey& K)
 	{
 		switch (K.Kind)
 		{
@@ -77,7 +77,7 @@ struct FRuiKey
  * and the mock host speak this; typed props structs are the fast path — D-04). Core-module
  * types only: no FMargin (SlateCore), no UObject*.
  */
-struct FRuiValue
+struct FRuitkValue
 {
 	enum class EKind : uint8
 	{
@@ -104,23 +104,23 @@ struct FRuiValue
 	FLinearColor ColorValue = FLinearColor::White;
 	TSharedPtr<void> OpaqueValue;
 
-	FRuiValue() = default;
-	FRuiValue(bool In) : Kind(EKind::Bool), BoolValue(In) {}
-	FRuiValue(int32 In) : Kind(EKind::Int), IntValue(In) {}
-	FRuiValue(int64 In) : Kind(EKind::Int), IntValue(In) {}
-	FRuiValue(float In) : Kind(EKind::Float), FloatValue(In) {}
-	FRuiValue(double In) : Kind(EKind::Float), FloatValue(In) {}
-	FRuiValue(const TCHAR* In) : Kind(EKind::String), StringValue(In) {}
-	FRuiValue(const FString& In) : Kind(EKind::String), StringValue(In) {}
-	FRuiValue(FName In) : Kind(EKind::Name), NameValue(In) {}
-	FRuiValue(const FText& In) : Kind(EKind::Text), TextValue(In) {}
-	FRuiValue(const FVector2D& In) : Kind(EKind::Vector2), Vector2Value(In) {}
-	FRuiValue(const FLinearColor& In) : Kind(EKind::Color), ColorValue(In) {}
+	FRuitkValue() = default;
+	FRuitkValue(bool In) : Kind(EKind::Bool), BoolValue(In) {}
+	FRuitkValue(int32 In) : Kind(EKind::Int), IntValue(In) {}
+	FRuitkValue(int64 In) : Kind(EKind::Int), IntValue(In) {}
+	FRuitkValue(float In) : Kind(EKind::Float), FloatValue(In) {}
+	FRuitkValue(double In) : Kind(EKind::Float), FloatValue(In) {}
+	FRuitkValue(const TCHAR* In) : Kind(EKind::String), StringValue(In) {}
+	FRuitkValue(const FString& In) : Kind(EKind::String), StringValue(In) {}
+	FRuitkValue(FName In) : Kind(EKind::Name), NameValue(In) {}
+	FRuitkValue(const FText& In) : Kind(EKind::Text), TextValue(In) {}
+	FRuitkValue(const FVector2D& In) : Kind(EKind::Vector2), Vector2Value(In) {}
+	FRuitkValue(const FLinearColor& In) : Kind(EKind::Color), ColorValue(In) {}
 
 	bool IsNull() const { return Kind == EKind::Null; }
 
 	/** Value equality for value kinds; IDENTITY for Opaque (the family's Object.is split). */
-	bool operator==(const FRuiValue& Other) const
+	bool operator==(const FRuitkValue& Other) const
 	{
 		if (Kind != Other.Kind)
 		{
@@ -151,11 +151,11 @@ struct FRuiValue
 		}
 		return false;
 	}
-	bool operator!=(const FRuiValue& Other) const { return !(*this == Other); }
+	bool operator!=(const FRuitkValue& Other) const { return !(*this == Other); }
 };
 
 /** Style dict — the inline `style={...}` layer (v1 styling, D-13). Host maps keys to setters. */
-using FRuiStyleDict = TMap<FName, FRuiValue>;
+using FRuitkStyleDict = TMap<FName, FRuitkValue>;
 
 /**
  * An event callback prop. TFunction has NO operator== (the C++ reality that shapes the whole
@@ -163,34 +163,34 @@ using FRuiStyleDict = TMap<FName, FRuiValue>;
  * exactly what UseCallback/UseStableCallback hand out. A freshly-minted lambda every render
  * compares unequal — same as React; wrap in UseCallback for memo-friendliness.
  */
-class FRuiCallback
+class FRuitkCallback
 {
 public:
-	FRuiCallback() = default;
+	FRuitkCallback() = default;
 
 	/** 1-arg form (event payload). */
-	static FRuiCallback Create(TFunction<void(const FRuiValue&)> InFn)
+	static FRuitkCallback Create(TFunction<void(const FRuitkValue&)> InFn)
 	{
-		FRuiCallback Out;
+		FRuitkCallback Out;
 		if (InFn)
 		{
-			Out.Inner = MakeShared<TFunction<void(const FRuiValue&)>>(MoveTemp(InFn));
+			Out.Inner = MakeShared<TFunction<void(const FRuitkValue&)>>(MoveTemp(InFn));
 		}
 		return Out;
 	}
 
 	/** 0-arg convenience (onClick etc.). */
-	static FRuiCallback Create(TFunction<void()> InFn)
+	static FRuitkCallback Create(TFunction<void()> InFn)
 	{
 		if (!InFn)
 		{
-			return FRuiCallback();
+			return FRuitkCallback();
 		}
-		return Create(TFunction<void(const FRuiValue&)>([Fn = MoveTemp(InFn)](const FRuiValue&) { Fn(); }));
+		return Create(TFunction<void(const FRuitkValue&)>([Fn = MoveTemp(InFn)](const FRuitkValue&) { Fn(); }));
 	}
 
 	bool IsBound() const { return Inner.IsValid(); }
-	void Execute(const FRuiValue& Arg = FRuiValue()) const
+	void Execute(const FRuitkValue& Arg = FRuitkValue()) const
 	{
 		if (Inner.IsValid())
 		{
@@ -199,11 +199,11 @@ public:
 	}
 
 	/** Identity compare (see class comment). */
-	bool operator==(const FRuiCallback& Other) const { return Inner == Other.Inner; }
-	bool operator!=(const FRuiCallback& Other) const { return !(*this == Other); }
+	bool operator==(const FRuitkCallback& Other) const { return Inner == Other.Inner; }
+	bool operator!=(const FRuitkCallback& Other) const { return !(*this == Other); }
 
 private:
-	TSharedPtr<TFunction<void(const FRuiValue&)>> Inner;
+	TSharedPtr<TFunction<void(const FRuitkValue&)>> Inner;
 };
 
 /**
@@ -211,17 +211,17 @@ private:
  * interprets them (Slate: a type-erased TSharedPtr<SWidget>; mock host: a test node).
  * TSharedPtr<void> keeps ownership semantics without the core knowing the concrete type.
  */
-using FRuiHostHandle = TSharedPtr<void>;
+using FRuitkHostHandle = TSharedPtr<void>;
 
 /** Portal target — same opacity as node handles (an overlay slot, a window, a mock node). */
-using FRuiPortalHandle = TSharedPtr<void>;
+using FRuitkPortalHandle = TSharedPtr<void>;
 
-/** Registry-interned host element type (the markup tag / RUI:: factory → adapter key). */
-struct FRuiElementTypeId
+/** Registry-interned host element type (the markup tag / Ruitk:: factory → adapter key). */
+struct FRuitkElementTypeId
 {
 	uint16 Value = 0; // 0 = invalid/none
 	bool IsValid() const { return Value != 0; }
-	bool operator==(const FRuiElementTypeId& O) const { return Value == O.Value; }
-	bool operator!=(const FRuiElementTypeId& O) const { return Value != O.Value; }
-	friend uint32 GetTypeHash(const FRuiElementTypeId& Id) { return Id.Value; }
+	bool operator==(const FRuitkElementTypeId& O) const { return Value == O.Value; }
+	bool operator!=(const FRuitkElementTypeId& O) const { return Value != O.Value; }
+	friend uint32 GetTypeHash(const FRuitkElementTypeId& Id) { return Id.Value; }
 };

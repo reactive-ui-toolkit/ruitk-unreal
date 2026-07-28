@@ -6,7 +6,7 @@ import "@Doom/DoomTypes.h"
 // (Slot.Position / Slot.Size), each quad a WhiteBrush Border tinted with the exact
 // original color. `State` is the live game state, mutated in place — `Version` exists
 // purely to defeat the props-equality bailout (bump it every simulation tick).
-export FRuiNode DoomMinimap(const RuiDoom::FGameState* State = nullptr, int32 Version = 0) {
+export FRuitkNode DoomMinimap(const RuitkDoom::FGameState* State = nullptr, int32 Version = 0) {
 	(void)Version; // re-render key only
 
 	constexpr int32 MAP_PX = 160;
@@ -46,14 +46,14 @@ export FRuiNode DoomMinimap(const RuiDoom::FGameState* State = nullptr, int32 Ve
 		{
 			for (int32 Cx = 0; Cx < Mw; ++Cx)
 			{
-				const RuiDoom::FCell& Cell = State->Map.Cells[Cy * Mw + Cx];
+				const RuitkDoom::FCell& Cell = State->Map.Cells[Cy * Mw + Cx];
 				FLinearColor Col;
-				if (Cell.Kind == RuiDoom::ECellKind::Wall) { Col = WallClr; }
-				else if (Cell.Kind == RuiDoom::ECellKind::Exit) { Col = ExitClr; }
-				else if (Cell.Kind == RuiDoom::ECellKind::DoorBlue) { Col = DoorBlueClr; }
-				else if (Cell.Kind == RuiDoom::ECellKind::DoorYellow) { Col = DoorYellowClr; }
-				else if (Cell.Kind == RuiDoom::ECellKind::DoorRed) { Col = DoorRedClr; }
-				else if (Cell.Kind == RuiDoom::ECellKind::Door) { Col = DoorClr; }
+				if (Cell.Kind == RuitkDoom::ECellKind::Wall) { Col = WallClr; }
+				else if (Cell.Kind == RuitkDoom::ECellKind::Exit) { Col = ExitClr; }
+				else if (Cell.Kind == RuitkDoom::ECellKind::DoorBlue) { Col = DoorBlueClr; }
+				else if (Cell.Kind == RuitkDoom::ECellKind::DoorYellow) { Col = DoorYellowClr; }
+				else if (Cell.Kind == RuitkDoom::ECellKind::DoorRed) { Col = DoorRedClr; }
+				else if (Cell.Kind == RuitkDoom::ECellKind::Door) { Col = DoorClr; }
 				else { continue; }
 				FQuad Q;
 				Q.X = Cx * Scale;
@@ -71,44 +71,44 @@ export FRuiNode DoomMinimap(const RuiDoom::FGameState* State = nullptr, int32 Ve
 		Dots.Reserve(State->Mobjs.Num());
 		for (int32 i = 0; i < State->Mobjs.Num(); ++i)
 		{
-			const RuiDoom::FMobj& M = State->Mobjs[i];
-			if (M.Collected || M.State == RuiDoom::EAIState::Dead)
+			const RuitkDoom::FMobj& M = State->Mobjs[i];
+			if (M.Collected || M.State == RuitkDoom::EAIState::Dead)
 			{
 				continue;
 			}
 			FLinearColor Dc;
 			switch (M.Kind)
 			{
-			case RuiDoom::EMobjKind::Imp:
-			case RuiDoom::EMobjKind::Demon:
-			case RuiDoom::EMobjKind::Baron:
-			case RuiDoom::EMobjKind::Cacodemon:
-			case RuiDoom::EMobjKind::LostSoul:
-			case RuiDoom::EMobjKind::Zombieman:
-			case RuiDoom::EMobjKind::Shotgunner:
+			case RuitkDoom::EMobjKind::Imp:
+			case RuitkDoom::EMobjKind::Demon:
+			case RuitkDoom::EMobjKind::Baron:
+			case RuitkDoom::EMobjKind::Cacodemon:
+			case RuitkDoom::EMobjKind::LostSoul:
+			case RuitkDoom::EMobjKind::Zombieman:
+			case RuitkDoom::EMobjKind::Shotgunner:
 				Dc = EnemyClr;
 				break;
-			case RuiDoom::EMobjKind::KeyBlue:
+			case RuitkDoom::EMobjKind::KeyBlue:
 				Dc = DoorBlueClr;
 				break;
-			case RuiDoom::EMobjKind::KeyYellow:
+			case RuitkDoom::EMobjKind::KeyYellow:
 				Dc = DoorYellowClr;
 				break;
-			case RuiDoom::EMobjKind::KeyRed:
+			case RuitkDoom::EMobjKind::KeyRed:
 				Dc = DoorRedClr;
 				break;
-			case RuiDoom::EMobjKind::PickupHealth:
-			case RuiDoom::EMobjKind::PickupArmor:
-			case RuiDoom::EMobjKind::PickupArmorBlue:
-			case RuiDoom::EMobjKind::PickupBullets:
-			case RuiDoom::EMobjKind::PickupShells:
-			case RuiDoom::EMobjKind::PickupRockets:
-			case RuiDoom::EMobjKind::PickupCells:
-			case RuiDoom::EMobjKind::PickupShotgun:
-			case RuiDoom::EMobjKind::PickupChaingun:
-			case RuiDoom::EMobjKind::PickupRocketLauncher:
-			case RuiDoom::EMobjKind::PickupPlasma:
-			case RuiDoom::EMobjKind::PickupBFG:
+			case RuitkDoom::EMobjKind::PickupHealth:
+			case RuitkDoom::EMobjKind::PickupArmor:
+			case RuitkDoom::EMobjKind::PickupArmorBlue:
+			case RuitkDoom::EMobjKind::PickupBullets:
+			case RuitkDoom::EMobjKind::PickupShells:
+			case RuitkDoom::EMobjKind::PickupRockets:
+			case RuitkDoom::EMobjKind::PickupCells:
+			case RuitkDoom::EMobjKind::PickupShotgun:
+			case RuitkDoom::EMobjKind::PickupChaingun:
+			case RuitkDoom::EMobjKind::PickupRocketLauncher:
+			case RuitkDoom::EMobjKind::PickupPlasma:
+			case RuitkDoom::EMobjKind::PickupBFG:
 				Dc = PickupClr;
 				break;
 			default:

@@ -4,20 +4,20 @@ import { DoomGameScreen } from "./DoomGameScreen"
 // The Doom demo's root: a plain @if screen switch (menu ↔ game) — deliberately NOT the
 // router, matching both siblings (plan §0). The game screen is keyed by a play counter so
 // every START is a clean remount (hook state, mouse capture, session — all fresh).
-export FRuiNode DoomGame() {
+export FRuitkNode DoomGame() {
 	auto [bInGame, SetInGame] = UseState<bool>(false);
 	auto [Level, SetLevel] = UseState<int32>(1);
 	auto [Diff, SetDiff] = UseState<int32>(1);
 	auto [PlayCount, SetPlayCount] = UseState<int32>(0);
 
-	FRuiCallback OnLevelChange = UseStableAction([SetLevel](const FRuiValue& Value) { SetLevel(static_cast<int32>(Value.IntValue)); });
-	FRuiCallback OnDiffChange = UseStableAction([SetDiff](const FRuiValue& Value) { SetDiff(static_cast<int32>(Value.IntValue)); });
-	FRuiCallback OnStart = UseStableAction([SetInGame, SetPlayCount](const FRuiValue&) {
+	FRuitkCallback OnLevelChange = UseStableAction([SetLevel](const FRuitkValue& Value) { SetLevel(static_cast<int32>(Value.IntValue)); });
+	FRuitkCallback OnDiffChange = UseStableAction([SetDiff](const FRuitkValue& Value) { SetDiff(static_cast<int32>(Value.IntValue)); });
+	FRuitkCallback OnStart = UseStableAction([SetInGame, SetPlayCount](const FRuitkValue&) {
 		SetPlayCount([](const int32& N) { return N + 1; });
 		SetInGame(true);
 	});
 
-	FRuiCallback OnBackToMenu = UseStableAction([SetInGame](const FRuiValue&) { SetInGame(false); });
+	FRuitkCallback OnBackToMenu = UseStableAction([SetInGame](const FRuitkValue&) { SetInGame(false); });
 
 	return (
 		<Box>

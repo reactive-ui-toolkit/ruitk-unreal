@@ -25,21 +25,21 @@ export Accent = FLinearColor(0.9f, 0.2f, 0.2f, 1.0f);             // inference: 
 FLinearColor RowTint = FLinearColor(1, 1, 1, 1);                   // no export = file-private
 export FString FormatScore(int32 S) { ... }        // util function
 export int32 UseThing(int32 A) { ... }             // Use-prefix = a hook (Ctx auto-injected)
-export FRuiNode StatusChip(FString Label) {        // FRuiNode return = a component
+export FRuitkNode StatusChip(FString Label) {        // FRuitkNode return = a component
 	return ( <Border> ... </Border> );
 }
 export { RowTint };                                // deferred export list
 export default StatusChip;                         // default export (one per file)`
 
 const AUTO_INCLUDED = [
-  'CoreMinimal.h', 'RuiContext.h', 'RuiCoreElements.h', 'RuiSignal.h', 'RuiSlateElements.h',
-  'RuiStyle.h', 'RuiRouter.h', 'RuiAssetBrush.h', 'RuiFieldHooks.h', 'RuiUmgElement.h',
-  'RuiSignalViewModel.h', 'RuiHostWidget.h', 'RuiWorldSubsystem.h', 'RuiActivation.h',
-  'RuiActivatableScreen.h', 'RuiMvvmViewModel.h', 'UObject/StrongObjectPtr.h', 'Engine/World.h',
+  'CoreMinimal.h', 'RuitkContext.h', 'RuitkCoreElements.h', 'RuitkSignal.h', 'RuitkSlateElements.h',
+  'RuitkStyle.h', 'RuitkRouter.h', 'RuitkAssetBrush.h', 'RuitkFieldHooks.h', 'RuitkUmgElement.h',
+  'RuitkSignalViewModel.h', 'RuitkHostWidget.h', 'RuitkWorldSubsystem.h', 'RuitkActivation.h',
+  'RuitkActivatableScreen.h', 'RuitkMvvmViewModel.h', 'UObject/StrongObjectPtr.h', 'Engine/World.h',
 ]
 
-const MIGRATE = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUIMigrateEsModules
-<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RUICompile -check`
+const MIGRATE = `<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkMigrateEsModules
+<Engine>\\UnrealEditor-Cmd.exe <proj>.uproject -run=RuitkCompile -check`
 
 const DIAGS: Array<[string, string, string]> = [
   ['UETKX2329', 'err', "`X` case-folds onto an export from another declaration — FName runtime identities are case-insensitive; rename one"],
@@ -54,8 +54,8 @@ const DIAGS: Array<[string, string, string]> = [
   ['UETKX2308', 'err', 'import crosses a module/root boundary (imports are module-scoped in v1)'],
   ['UETKX2309', 'err', 'import must appear in the preamble, before the first declaration'],
   ['UETKX2317', 'hint', '`X.h` is auto-included by the generated prelude — this line is redundant'],
-  ['UETKX2320', 'warn', '`component`/`hook`/`module` wrapper syntax is deprecated — run -run=RUIMigrateEsModules (removed in the next minor)'],
-  ['UETKX2321', 'err', '`UseX` is Use-prefixed but returns FRuiNode — did you mean a component?'],
+  ['UETKX2320', 'warn', '`component`/`hook`/`module` wrapper syntax is deprecated — run -run=RuitkMigrateEsModules (removed in the next minor)'],
+  ['UETKX2321', 'err', '`UseX` is Use-prefixed but returns FRuitkNode — did you mean a component?'],
   ['UETKX2322', 'err', 'cannot infer the type of `X` — the initializer must name the type (T(...) / T{...}), or declare it'],
   ['UETKX2323', 'err', '`export` names `X`, which is not declared in this file'],
   ['UETKX2324', 'err', 'duplicate export of `X` (already exported inline or in a previous export list)'],
@@ -74,7 +74,7 @@ export const ImportsPage: FC = () => (
       surface, and it references other files&apos; declarations through <strong>static
       imports</strong> — strict from day one, a cross-file name that is not imported is a compile
       error. Declarations are plain C++-typed signatures; the kind is read from the signature
-      alone: an <code>FRuiNode</code>-returning function is a <strong>component</strong>{' '}
+      alone: an <code>FRuitkNode</code>-returning function is a <strong>component</strong>{' '}
       (PascalCase enforced), a <code>Use</code>-prefixed function is a <strong>hook</strong>, a
       name followed by <code>=</code> is a <strong>value export</strong>, anything else callable
       is a <strong>util function</strong>.
@@ -85,7 +85,7 @@ export const ImportsPage: FC = () => (
     <Alert severity="info" sx={{ mb: 2 }}>
       The old <code>component</code>/<code>hook</code>/<code>module</code> wrapper keywords still
       parse for one minor version (each warns <code>UETKX2320</code>);{' '}
-      <code>-run=RUIMigrateEsModules</code> rewrites a whole tree in one idempotent pass. See the
+      <code>-run=RuitkMigrateEsModules</code> rewrites a whole tree in one idempotent pass. See the
       migration section below.
     </Alert>
 
@@ -154,10 +154,10 @@ export const ImportsPage: FC = () => (
       Migrating to the ES-modules grammar
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>-run=RUIMigrateEsModules</code> is idempotent and re-runnable, and never regexes over
+      <code>-run=RuitkMigrateEsModules</code> is idempotent and re-runnable, and never regexes over
       raw text (it rewrites from the parsed records): it tidies preambles, exports everything
       existing, flips wrapper declarations to the plain grammar (<code>component X(P: T)</code>{' '}
-      → <code>FRuiNode X(T P)</code>; <code>hook UseX(...) -&gt; R</code> → <code>R UseX(...)</code>
+      → <code>FRuitkNode X(T P)</code>; <code>hook UseX(...) -&gt; R</code> → <code>R UseX(...)</code>
       ), hoists <code>module</code> members to value/util exports (importers&apos;{' '}
       <code>{'{ M }'}</code> imports flip to <code>import * as M</code> so their{' '}
       <code>M::x</code> references keep compiling with zero body edits), inserts any missing

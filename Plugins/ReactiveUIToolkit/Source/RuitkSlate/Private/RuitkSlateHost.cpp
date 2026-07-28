@@ -1,13 +1,13 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 
-#include "RuiSlateHost.h"
+#include "RuitkSlateHost.h"
 
 #include "Framework/Application/SlateApplication.h"
 #include "GenericPlatform/GenericApplication.h"
-#include "RuiCoreElements.h"
-#include "RuiCoreMisc.h"
-#include "RuiSlateLog.h"
-#include "RuiStyle.h"
+#include "RuitkCoreElements.h"
+#include "RuitkCoreMisc.h"
+#include "RuitkSlateLog.h"
+#include "RuitkStyle.h"
 #include "Widgets/SNullWidget.h"
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -17,49 +17,49 @@
 namespace
 {
 	FCriticalSection GAdapterLock;
-	TMap<FRuiElementTypeId, TUniquePtr<IRuiElementAdapter>> GAdapters;
+	TMap<FRuitkElementTypeId, TUniquePtr<IRuitkElementAdapter>> GAdapters;
 } // namespace
 
-namespace RUI::Slate
+namespace Ruitk::Slate
 {
-	void RegisterAdapter(FRuiElementTypeId Type, TUniquePtr<IRuiElementAdapter> Adapter)
+	void RegisterAdapter(FRuitkElementTypeId Type, TUniquePtr<IRuitkElementAdapter> Adapter)
 	{
 		checkf(Type.IsValid(), TEXT("ReactiveUI: cannot register an adapter for the invalid element type"));
 		FScopeLock Lock(&GAdapterLock);
 		GAdapters.Add(Type, MoveTemp(Adapter)); // replace on re-registration (Live Coding)
 	}
 
-	FRuiElementTypeId RegisterAdapter(FName TagName, TUniquePtr<IRuiElementAdapter> Adapter)
+	FRuitkElementTypeId RegisterAdapter(FName TagName, TUniquePtr<IRuitkElementAdapter> Adapter)
 	{
-		const FRuiElementTypeId Type = RUI::InternElementType(TagName);
+		const FRuitkElementTypeId Type = Ruitk::InternElementType(TagName);
 		RegisterAdapter(Type, MoveTemp(Adapter));
 		return Type;
 	}
 
-	IRuiElementAdapter* FindAdapter(FRuiElementTypeId Type)
+	IRuitkElementAdapter* FindAdapter(FRuitkElementTypeId Type)
 	{
 		FScopeLock Lock(&GAdapterLock);
-		const TUniquePtr<IRuiElementAdapter>* Found = GAdapters.Find(Type);
+		const TUniquePtr<IRuitkElementAdapter>* Found = GAdapters.Find(Type);
 		return Found ? Found->Get() : nullptr;
 	}
 
-	void ForEachAdapter(const TFunctionRef<void(FRuiElementTypeId, IRuiElementAdapter&)> Visit)
+	void ForEachAdapter(const TFunctionRef<void(FRuitkElementTypeId, IRuitkElementAdapter&)> Visit)
 	{
 		FScopeLock Lock(&GAdapterLock);
-		for (const TPair<FRuiElementTypeId, TUniquePtr<IRuiElementAdapter>>& Pair : GAdapters)
+		for (const TPair<FRuitkElementTypeId, TUniquePtr<IRuitkElementAdapter>>& Pair : GAdapters)
 		{
 			Visit(Pair.Key, *Pair.Value);
 		}
 	}
-} // namespace RUI::Slate
+} // namespace Ruitk::Slate
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
-// FRuiSlateHost
+// FRuitkSlateHost
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
-FRuiSlateHost::FRuiSlateHost() = default;
+FRuitkSlateHost::FRuitkSlateHost() = default;
 
-FRuiSlateHost::~FRuiSlateHost()
+FRuitkSlateHost::~FRuitkSlateHost()
 {
 	if (bPreTickRegistered && FSlateApplication::IsInitialized())
 	{
@@ -70,38 +70,38 @@ FRuiSlateHost::~FRuiSlateHost()
 	FrameQueue.Reset();
 }
 
-FRuiHostHandle FRuiSlateHost::WrapExternalPanel(const TSharedRef<SWidget>& Panel, FRuiElementTypeId PanelType)
+FRuitkHostHandle FRuitkSlateHost::WrapExternalPanel(const TSharedRef<SWidget>& Panel, FRuitkElementTypeId PanelType)
 {
-	IRuiElementAdapter* Adapter = RUI::Slate::FindAdapter(PanelType);
+	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(PanelType);
 	checkf(Adapter != nullptr, TEXT("ReactiveUI: no adapter registered for the mount panel type"));
-	TSharedRef<FRuiSlateNode> Node = MakeShared<FRuiSlateNode>();
+	TSharedRef<FRuitkSlateNode> Node = MakeShared<FRuitkSlateNode>();
 	Node->Widget = Panel;
 	Node->Adapter = Adapter;
 	Node->Type = PanelType;
 	return Node;
 }
 
-FRuiHostHandle FRuiSlateHost::CreateInstance(FRuiElementTypeId Type, const FRuiPropsBase& Props)
+FRuitkHostHandle FRuitkSlateHost::CreateInstance(FRuitkElementTypeId Type, const FRuitkPropsBase& Props)
 {
-	IRuiElementAdapter* Adapter = RUI::Slate::FindAdapter(Type);
+	IRuitkElementAdapter* Adapter = Ruitk::Slate::FindAdapter(Type);
 	if (Adapter == nullptr)
 	{
 		UE_LOG(LogRuiSlate, Error, TEXT("[ReactiveUI] no adapter registered for element '%s' — rendering a null slot"),
-			   *RUI::GetElementTypeName(Type).ToString());
-		TSharedRef<FRuiSlateNode> Null = MakeShared<FRuiSlateNode>();
+			   *Ruitk::GetElementTypeName(Type).ToString());
+		TSharedRef<FRuitkSlateNode> Null = MakeShared<FRuitkSlateNode>();
 		Null->Widget = SNullWidget::NullWidget;
 		Null->Type = Type;
 		return Null;
 	}
 
-	TSharedRef<FRuiSlateNode> Node = MakeShared<FRuiSlateNode>();
+	TSharedRef<FRuitkSlateNode> Node = MakeShared<FRuitkSlateNode>();
 	Node->Adapter = Adapter;
 	Node->Type = Type;
 
 	// GO-05 pool hit: reuse the detached widget, diff against its stashed last props.
-	const FRuiPropsBase* DiffBase = nullptr;
-	TSharedPtr<const FRuiPropsBase> StashedProps; // keeps DiffBase alive through ApplyDiff
-	TSharedPtr<FRuiStyleDict> StashedStyle;
+	const FRuitkPropsBase* DiffBase = nullptr;
+	TSharedPtr<const FRuitkPropsBase> StashedProps; // keeps DiffBase alive through ApplyDiff
+	TSharedPtr<FRuitkStyleDict> StashedStyle;
 	if (TArray<FPoolEntry>* Bucket = Pool.Find(Type); Bucket != nullptr && !Bucket->IsEmpty())
 	{
 		FPoolEntry Entry = Bucket->Pop(EAllowShrinking::No);
@@ -114,7 +114,7 @@ FRuiHostHandle FRuiSlateHost::CreateInstance(FRuiElementTypeId Type, const FRuiP
 	{
 		if (Adapter->HasEvents())
 		{
-			Node->Proxy = MakeShared<FRuiEventProxy>(); // before CreateWidget: SLATE_EVENT args bind there
+			Node->Proxy = MakeShared<FRuitkEventProxy>(); // before CreateWidget: SLATE_EVENT args bind there
 		}
 		Node->Widget = Adapter->CreateWidget(Props, Node->Proxy);
 	}
@@ -124,23 +124,23 @@ FRuiHostHandle FRuiSlateHost::CreateInstance(FRuiElementTypeId Type, const FRuiP
 	{
 		Adapter->SyncEventHandlers(*Node->Proxy, Props);
 	}
-	TSharedPtr<FRuiStyleDict> Effective = RUI::Slate::BuildEffectiveStyle(Props.Classes, Props.Style);
+	TSharedPtr<FRuitkStyleDict> Effective = Ruitk::Slate::BuildEffectiveStyle(Props.Classes, Props.Style);
 	if (Effective.IsValid() || StashedStyle.IsValid())
 	{
-		RUI::Slate::ApplyStyleDiff(*Node->Widget, Adapter, StashedStyle.Get(), Effective.Get());
+		Ruitk::Slate::ApplyStyleDiff(*Node->Widget, Adapter, StashedStyle.Get(), Effective.Get());
 	}
 	Node->AppliedStyle = Effective;
 	if (Props.SlotProps.IsValid())
 	{
-		Node->SlotProps = MakeShared<FRuiStyleDict>(*Props.SlotProps);
+		Node->SlotProps = MakeShared<FRuitkStyleDict>(*Props.SlotProps);
 	}
 	return Node;
 }
 
-void FRuiSlateHost::CommitUpdate(const FRuiHostHandle& Handle, FRuiElementTypeId Type, const FRuiPropsBase* OldProps,
-								 const FRuiPropsBase& NewProps)
+void FRuitkSlateHost::CommitUpdate(const FRuitkHostHandle& Handle, FRuitkElementTypeId Type, const FRuitkPropsBase* OldProps,
+								 const FRuitkPropsBase& NewProps)
 {
-	FRuiSlateNode* Node = Resolve(Handle);
+	FRuitkSlateNode* Node = Resolve(Handle);
 	if (Node == nullptr || !Node->Widget.IsValid() || Node->Adapter == nullptr)
 	{
 		return;
@@ -169,13 +169,13 @@ void FRuiSlateHost::CommitUpdate(const FRuiHostHandle& Handle, FRuiElementTypeId
 
 	// Style layer (D-13): diff the EFFECTIVE dict against what this node last applied —
 	// removed keys reset, and a style-only tweak never touches the widget's structure.
-	TSharedPtr<FRuiStyleDict> Effective = RUI::Slate::BuildEffectiveStyle(NewProps.Classes, NewProps.Style);
+	TSharedPtr<FRuitkStyleDict> Effective = Ruitk::Slate::BuildEffectiveStyle(NewProps.Classes, NewProps.Style);
 	const bool bStyleSame = (!Effective.IsValid() && !Node->AppliedStyle.IsValid()) ||
 							(Effective.IsValid() && Node->AppliedStyle.IsValid() &&
 							 Effective->OrderIndependentCompareEqual(*Node->AppliedStyle));
 	if (!bStyleSame)
 	{
-		RUI::Slate::ApplyStyleDiff(*Node->Widget, Node->Adapter, Node->AppliedStyle.Get(), Effective.Get());
+		Ruitk::Slate::ApplyStyleDiff(*Node->Widget, Node->Adapter, Node->AppliedStyle.Get(), Effective.Get());
 		Node->AppliedStyle = Effective;
 	}
 
@@ -188,8 +188,8 @@ void FRuiSlateHost::CommitUpdate(const FRuiHostHandle& Handle, FRuiElementTypeId
 	if (bSlotChanged)
 	{
 		Node->SlotProps =
-			bNewHasSlot ? TSharedPtr<FRuiStyleDict>(MakeShared<FRuiStyleDict>(*NewProps.SlotProps)) : nullptr;
-		if (TSharedPtr<FRuiSlateNode> Parent = Node->ParentNode.Pin())
+			bNewHasSlot ? TSharedPtr<FRuitkStyleDict>(MakeShared<FRuitkStyleDict>(*NewProps.SlotProps)) : nullptr;
+		if (TSharedPtr<FRuitkSlateNode> Parent = Node->ParentNode.Pin())
 		{
 			if (Parent->Widget.IsValid() && Parent->Adapter != nullptr)
 			{
@@ -200,17 +200,17 @@ void FRuiSlateHost::CommitUpdate(const FRuiHostHandle& Handle, FRuiElementTypeId
 	}
 }
 
-void FRuiSlateHost::ReleaseInstance(const FRuiHostHandle& Handle, FRuiElementTypeId Type,
-									const TSharedPtr<const FRuiPropsBase>& LastProps, bool bWasChildless)
+void FRuitkSlateHost::ReleaseInstance(const FRuitkHostHandle& Handle, FRuitkElementTypeId Type,
+									const TSharedPtr<const FRuitkPropsBase>& LastProps, bool bWasChildless)
 {
-	FRuiSlateNode* Node = Resolve(Handle);
+	FRuitkSlateNode* Node = Resolve(Handle);
 	if (Node == nullptr)
 	{
 		return;
 	}
 	// Detach if the reconciler's deletion path didn't already (defensive — Release promises
 	// the node is done).
-	if (TSharedPtr<FRuiSlateNode> Parent = Node->ParentNode.Pin())
+	if (TSharedPtr<FRuitkSlateNode> Parent = Node->ParentNode.Pin())
 	{
 		if (Parent->Widget.IsValid() && Parent->Adapter != nullptr && Node->Widget.IsValid())
 		{
@@ -224,7 +224,7 @@ void FRuiSlateHost::ReleaseInstance(const FRuiHostHandle& Handle, FRuiElementTyp
 	}
 
 	// GO-05: stash detached event-less childless leaves for diff-on-reuse.
-	if (FRuiConfig::IsHostNodePoolEnabled() && bWasChildless && Node->Widget.IsValid() && Node->Adapter != nullptr &&
+	if (FRuitkConfig::IsHostNodePoolEnabled() && bWasChildless && Node->Widget.IsValid() && Node->Adapter != nullptr &&
 		Node->Adapter->IsPoolable())
 	{
 		TArray<FPoolEntry>& Bucket = Pool.FindOrAdd(Type);
@@ -239,7 +239,7 @@ void FRuiSlateHost::ReleaseInstance(const FRuiHostHandle& Handle, FRuiElementTyp
 	Node->Widget.Reset();
 }
 
-void FRuiSlateHost::OnBeforeCommit()
+void FRuitkSlateHost::OnBeforeCommit()
 {
 	FocusedBeforeCommit.Reset();
 	if (FSlateApplication::IsInitialized())
@@ -250,7 +250,7 @@ void FRuiSlateHost::OnBeforeCommit()
 	}
 }
 
-void FRuiSlateHost::OnAfterCommit()
+void FRuitkSlateHost::OnAfterCommit()
 {
 	TSharedPtr<SWidget> Focused = FocusedBeforeCommit.Pin();
 	FocusedBeforeCommit.Reset();
@@ -265,16 +265,16 @@ void FRuiSlateHost::OnAfterCommit()
 	}
 }
 
-int32 FRuiSlateHost::NumPooled(FRuiElementTypeId Type) const
+int32 FRuitkSlateHost::NumPooled(FRuitkElementTypeId Type) const
 {
 	const TArray<FPoolEntry>* Bucket = Pool.Find(Type);
 	return Bucket != nullptr ? Bucket->Num() : 0;
 }
 
-void FRuiSlateHost::InsertChild(const FRuiHostHandle& ParentHandle, const FRuiHostHandle& ChildHandle, int32 Index)
+void FRuitkSlateHost::InsertChild(const FRuitkHostHandle& ParentHandle, const FRuitkHostHandle& ChildHandle, int32 Index)
 {
-	FRuiSlateNode* Parent = Resolve(ParentHandle);
-	FRuiSlateNode* Child = Resolve(ChildHandle);
+	FRuitkSlateNode* Parent = Resolve(ParentHandle);
+	FRuitkSlateNode* Child = Resolve(ChildHandle);
 	if (Parent == nullptr || Child == nullptr || !Parent->Widget.IsValid() || !Child->Widget.IsValid() ||
 		Parent->Adapter == nullptr)
 	{
@@ -283,10 +283,10 @@ void FRuiSlateHost::InsertChild(const FRuiHostHandle& ParentHandle, const FRuiHo
 	const TSharedRef<SWidget> ChildWidget = Child->Widget.ToSharedRef();
 	switch (Parent->Adapter->GetChildKind())
 	{
-	case ERuiChildKind::MultiSlot:
+	case ERuitkChildKind::MultiSlot:
 		Parent->Adapter->InsertChild(*Parent->Widget, ChildWidget, Index, Child->SlotProps.Get());
 		break;
-	case ERuiChildKind::SingleContent:
+	case ERuitkChildKind::SingleContent:
 	{
 		TSharedPtr<SWidget> Existing = Parent->ContentChild.Pin();
 		if (Existing.IsValid() && Existing != Child->Widget && !Parent->bWarnedCapacity)
@@ -294,35 +294,35 @@ void FRuiSlateHost::InsertChild(const FRuiHostHandle& ParentHandle, const FRuiHo
 			Parent->bWarnedCapacity = true;
 			UE_LOG(LogRuiSlate, Warning,
 				   TEXT("[ReactiveUI] '%s' takes ONE child — extra children replace the content (last wins)"),
-				   *RUI::GetElementTypeName(Parent->Type).ToString());
+				   *Ruitk::GetElementTypeName(Parent->Type).ToString());
 		}
 		Parent->Adapter->SetContent(*Parent->Widget, Child->Widget);
 		Parent->ContentChild = Child->Widget;
 		break;
 	}
-	case ERuiChildKind::Leaf:
+	case ERuitkChildKind::Leaf:
 		UE_LOG(LogRuiSlate, Warning, TEXT("[ReactiveUI] '%s' is a leaf — child '%s' dropped"),
-			   *RUI::GetElementTypeName(Parent->Type).ToString(), *RUI::GetElementTypeName(Child->Type).ToString());
+			   *Ruitk::GetElementTypeName(Parent->Type).ToString(), *Ruitk::GetElementTypeName(Child->Type).ToString());
 		return;
 	}
-	Child->ParentNode = StaticCastSharedPtr<FRuiSlateNode>(ParentHandle);
+	Child->ParentNode = StaticCastSharedPtr<FRuitkSlateNode>(ParentHandle);
 
 	// TD-011 bookkeeping: mirror the MultiSlot child order so a construct-only REPLACEMENT can
 	// re-parent children (with slot props) into the rebuilt widget. Dedupe (a re-insert moves it).
-	if (Parent->Adapter->GetChildKind() == ERuiChildKind::MultiSlot)
+	if (Parent->Adapter->GetChildKind() == ERuitkChildKind::MultiSlot)
 	{
-		TSharedPtr<FRuiSlateNode> ChildShared = StaticCastSharedPtr<FRuiSlateNode>(ChildHandle);
-		Parent->ChildNodes.RemoveAll([&ChildShared](const TWeakPtr<FRuiSlateNode>& W)
+		TSharedPtr<FRuitkSlateNode> ChildShared = StaticCastSharedPtr<FRuitkSlateNode>(ChildHandle);
+		Parent->ChildNodes.RemoveAll([&ChildShared](const TWeakPtr<FRuitkSlateNode>& W)
 									 { return !W.IsValid() || W.Pin() == ChildShared; });
 		const int32 At = (Index < 0 || Index > Parent->ChildNodes.Num()) ? Parent->ChildNodes.Num() : Index;
 		Parent->ChildNodes.Insert(ChildShared, At);
 	}
 }
 
-void FRuiSlateHost::RemoveChild(const FRuiHostHandle& ParentHandle, const FRuiHostHandle& ChildHandle)
+void FRuitkSlateHost::RemoveChild(const FRuitkHostHandle& ParentHandle, const FRuitkHostHandle& ChildHandle)
 {
-	FRuiSlateNode* Parent = Resolve(ParentHandle);
-	FRuiSlateNode* Child = Resolve(ChildHandle);
+	FRuitkSlateNode* Parent = Resolve(ParentHandle);
+	FRuitkSlateNode* Child = Resolve(ChildHandle);
 	if (Parent == nullptr || Child == nullptr || !Parent->Widget.IsValid() || !Child->Widget.IsValid() ||
 		Parent->Adapter == nullptr)
 	{
@@ -331,28 +331,28 @@ void FRuiSlateHost::RemoveChild(const FRuiHostHandle& ParentHandle, const FRuiHo
 	RemoveChildFromParent(*Parent, Child->Widget.ToSharedRef());
 	Child->ParentNode.Reset();
 	Parent->ChildNodes.RemoveAll(
-		[Child](const TWeakPtr<FRuiSlateNode>& W)
+		[Child](const TWeakPtr<FRuitkSlateNode>& W)
 		{
-			TSharedPtr<FRuiSlateNode> P = W.Pin();
+			TSharedPtr<FRuitkSlateNode> P = W.Pin();
 			return !P.IsValid() || P.Get() == Child;
 		});
 }
 
-void FRuiSlateHost::ReorderChildren(const FRuiHostHandle& ParentHandle, const TArray<FRuiHostHandle>& Ordered)
+void FRuitkSlateHost::ReorderChildren(const FRuitkHostHandle& ParentHandle, const TArray<FRuitkHostHandle>& Ordered)
 {
-	FRuiSlateNode* Parent = Resolve(ParentHandle);
+	FRuitkSlateNode* Parent = Resolve(ParentHandle);
 	if (Parent == nullptr || !Parent->Widget.IsValid() || Parent->Adapter == nullptr ||
-		Parent->Adapter->GetChildKind() != ERuiChildKind::MultiSlot)
+		Parent->Adapter->GetChildKind() != ERuitkChildKind::MultiSlot)
 	{
 		return;
 	}
 	TArray<TSharedRef<SWidget>> Widgets;
 	Widgets.Reserve(Ordered.Num());
-	TMap<SWidget*, const FRuiStyleDict*> SlotPropsByWidget;
+	TMap<SWidget*, const FRuitkStyleDict*> SlotPropsByWidget;
 	SlotPropsByWidget.Reserve(Ordered.Num());
-	for (const FRuiHostHandle& H : Ordered)
+	for (const FRuitkHostHandle& H : Ordered)
 	{
-		if (FRuiSlateNode* N = Resolve(H); N != nullptr && N->Widget.IsValid())
+		if (FRuitkSlateNode* N = Resolve(H); N != nullptr && N->Widget.IsValid())
 		{
 			TSharedRef<SWidget> W = N->Widget.ToSharedRef();
 			Widgets.Add(W);
@@ -360,32 +360,32 @@ void FRuiSlateHost::ReorderChildren(const FRuiHostHandle& ParentHandle, const TA
 		}
 	}
 	Parent->Adapter->ReorderChildren(*Parent->Widget, Widgets,
-									 [&SlotPropsByWidget](const TSharedRef<SWidget>& W) -> const FRuiStyleDict*
+									 [&SlotPropsByWidget](const TSharedRef<SWidget>& W) -> const FRuitkStyleDict*
 									 { return SlotPropsByWidget.FindRef(&W.Get()); });
 
 	// TD-011 bookkeeping: adopt the exact new order.
 	Parent->ChildNodes.Reset(Ordered.Num());
-	for (const FRuiHostHandle& H : Ordered)
+	for (const FRuitkHostHandle& H : Ordered)
 	{
-		if (TSharedPtr<FRuiSlateNode> N = StaticCastSharedPtr<FRuiSlateNode>(H); N.IsValid())
+		if (TSharedPtr<FRuitkSlateNode> N = StaticCastSharedPtr<FRuitkSlateNode>(H); N.IsValid())
 		{
 			Parent->ChildNodes.Add(N);
 		}
 	}
 }
 
-FRuiElementTypeId FRuiSlateHost::GetTextElementType() const
+FRuitkElementTypeId FRuitkSlateHost::GetTextElementType() const
 {
-	return RUI::TextBlockElementType();
+	return Ruitk::TextBlockElementType();
 }
 
-void FRuiSlateHost::RequestFrame(TFunction<void()> Callback)
+void FRuitkSlateHost::RequestFrame(TFunction<void()> Callback)
 {
 	FrameQueue.Add(MoveTemp(Callback));
 	EnsurePreTickRegistered();
 }
 
-void FRuiSlateHost::GetSafeArea(float& OutLeft, float& OutTop, float& OutRight, float& OutBottom) const
+void FRuitkSlateHost::GetSafeArea(float& OutLeft, float& OutTop, float& OutRight, float& OutBottom) const
 {
 	OutLeft = OutTop = OutRight = OutBottom = 0.0f;
 	if (FSlateApplication::IsInitialized())
@@ -399,7 +399,7 @@ void FRuiSlateHost::GetSafeArea(float& OutLeft, float& OutTop, float& OutRight, 
 	}
 }
 
-void FRuiSlateHost::PumpFrameQueue()
+void FRuitkSlateHost::PumpFrameQueue()
 {
 	TArray<TFunction<void()>> Batch = MoveTemp(FrameQueue);
 	FrameQueue.Reset();
@@ -409,7 +409,7 @@ void FRuiSlateHost::PumpFrameQueue()
 	}
 }
 
-void FRuiSlateHost::OnSlatePreTick(float)
+void FRuitkSlateHost::OnSlatePreTick(float)
 {
 	if (!FrameQueue.IsEmpty())
 	{
@@ -417,7 +417,7 @@ void FRuiSlateHost::OnSlatePreTick(float)
 	}
 }
 
-void FRuiSlateHost::EnsurePreTickRegistered()
+void FRuitkSlateHost::EnsurePreTickRegistered()
 {
 	if (bPreTickRegistered)
 	{
@@ -433,32 +433,32 @@ void FRuiSlateHost::EnsurePreTickRegistered()
 		}
 		return;
 	}
-	PreTickHandle = FSlateApplication::Get().OnPreTick().AddRaw(this, &FRuiSlateHost::OnSlatePreTick);
+	PreTickHandle = FSlateApplication::Get().OnPreTick().AddRaw(this, &FRuitkSlateHost::OnSlatePreTick);
 	bPreTickRegistered = true;
 }
 
-void FRuiSlateHost::RemoveChildFromParent(FRuiSlateNode& Parent, const TSharedRef<SWidget>& ChildWidget)
+void FRuitkSlateHost::RemoveChildFromParent(FRuitkSlateNode& Parent, const TSharedRef<SWidget>& ChildWidget)
 {
 	switch (Parent.Adapter->GetChildKind())
 	{
-	case ERuiChildKind::MultiSlot:
+	case ERuitkChildKind::MultiSlot:
 		Parent.Adapter->RemoveChild(*Parent.Widget, ChildWidget);
 		break;
-	case ERuiChildKind::SingleContent:
+	case ERuitkChildKind::SingleContent:
 		if (Parent.ContentChild.Pin() == ChildWidget)
 		{
 			Parent.Adapter->SetContent(*Parent.Widget, nullptr);
 			Parent.ContentChild.Reset();
 		}
 		break;
-	case ERuiChildKind::Leaf:
+	case ERuitkChildKind::Leaf:
 		break;
 	}
 }
 
-void FRuiSlateHost::ReplaceWidget(FRuiSlateNode& Node, const FRuiPropsBase* OldProps, const FRuiPropsBase& NewProps)
+void FRuitkSlateHost::ReplaceWidget(FRuitkSlateNode& Node, const FRuitkPropsBase* OldProps, const FRuitkPropsBase& NewProps)
 {
-	TSharedPtr<FRuiSlateNode> Parent = Node.ParentNode.Pin();
+	TSharedPtr<FRuitkSlateNode> Parent = Node.ParentNode.Pin();
 	if (!Parent.IsValid() || !Parent->Widget.IsValid() || Parent->Adapter == nullptr)
 	{
 		// A host node always has a host parent (the wrapped mount panel or another widget). If it
@@ -466,11 +466,11 @@ void FRuiSlateHost::ReplaceWidget(FRuiSlateNode& Node, const FRuiPropsBase* OldP
 		UE_LOG(LogRuiSlate, Warning,
 			   TEXT("[ReactiveUI] construct-only change on '%s' could not replace the widget (no host parent) — "
 					"runtime props applied, construct-only props stale"),
-			   *RUI::GetElementTypeName(Node.Type).ToString());
+			   *Ruitk::GetElementTypeName(Node.Type).ToString());
 		Node.Adapter->ApplyDiff(*Node.Widget, nullptr, NewProps);
 		return;
 	}
-	IRuiElementAdapter* Adapter = Node.Adapter;
+	IRuitkElementAdapter* Adapter = Node.Adapter;
 	const TSharedRef<SWidget> OldWidget = Node.Widget.ToSharedRef();
 
 	// 1. Build the replacement, REUSING the event proxy so bound delegates keep firing
@@ -498,23 +498,23 @@ void FRuiSlateHost::ReplaceWidget(FRuiSlateNode& Node, const FRuiPropsBase* OldP
 	// 2. Re-parent the children into the new widget WITH their slot props, order preserved.
 	switch (Adapter->GetChildKind())
 	{
-	case ERuiChildKind::MultiSlot:
-		for (const TWeakPtr<FRuiSlateNode>& ChildWeak : Node.ChildNodes)
+	case ERuitkChildKind::MultiSlot:
+		for (const TWeakPtr<FRuitkSlateNode>& ChildWeak : Node.ChildNodes)
 		{
-			if (TSharedPtr<FRuiSlateNode> ChildNode = ChildWeak.Pin();
+			if (TSharedPtr<FRuitkSlateNode> ChildNode = ChildWeak.Pin();
 				ChildNode.IsValid() && ChildNode->Widget.IsValid())
 			{
 				Adapter->InsertChild(*NewWidget, ChildNode->Widget.ToSharedRef(), -1, ChildNode->SlotProps.Get());
 			}
 		}
 		break;
-	case ERuiChildKind::SingleContent:
+	case ERuitkChildKind::SingleContent:
 		if (TSharedPtr<SWidget> Content = Node.ContentChild.Pin())
 		{
 			Adapter->SetContent(*NewWidget, Content);
 		}
 		break;
-	case ERuiChildKind::Leaf:
+	case ERuitkChildKind::Leaf:
 		break;
 	}
 
@@ -522,25 +522,25 @@ void FRuiSlateHost::ReplaceWidget(FRuiSlateNode& Node, const FRuiPropsBase* OldP
 	//    swap the new widget into the parent's slot at the SAME index.
 	if (NewProps.SlotProps.IsValid())
 	{
-		Node.SlotProps = MakeShared<FRuiStyleDict>(*NewProps.SlotProps);
+		Node.SlotProps = MakeShared<FRuitkStyleDict>(*NewProps.SlotProps);
 	}
 	else
 	{
 		Node.SlotProps.Reset();
 	}
-	const int32 Index = Parent->ChildNodes.IndexOfByPredicate([&Node](const TWeakPtr<FRuiSlateNode>& W)
+	const int32 Index = Parent->ChildNodes.IndexOfByPredicate([&Node](const TWeakPtr<FRuitkSlateNode>& W)
 															  { return W.Pin().Get() == &Node; });
 	RemoveChildFromParent(*Parent, OldWidget);
 	switch (Parent->Adapter->GetChildKind())
 	{
-	case ERuiChildKind::MultiSlot:
+	case ERuitkChildKind::MultiSlot:
 		Parent->Adapter->InsertChild(*Parent->Widget, NewWidget, Index, Node.SlotProps.Get());
 		break;
-	case ERuiChildKind::SingleContent:
+	case ERuitkChildKind::SingleContent:
 		Parent->Adapter->SetContent(*Parent->Widget, NewWidget);
 		Parent->ContentChild = NewWidget;
 		break;
-	case ERuiChildKind::Leaf:
+	case ERuitkChildKind::Leaf:
 		break;
 	}
 
@@ -548,10 +548,10 @@ void FRuiSlateHost::ReplaceWidget(FRuiSlateNode& Node, const FRuiPropsBase* OldP
 	//    the discarded widget). The node identity, ChildNodes, and parent link are all unchanged.
 	Node.Widget = NewWidget;
 	Node.AppliedStyle.Reset();
-	TSharedPtr<FRuiStyleDict> Effective = RUI::Slate::BuildEffectiveStyle(NewProps.Classes, NewProps.Style);
+	TSharedPtr<FRuitkStyleDict> Effective = Ruitk::Slate::BuildEffectiveStyle(NewProps.Classes, NewProps.Style);
 	if (Effective.IsValid())
 	{
-		RUI::Slate::ApplyStyleDiff(*NewWidget, Adapter, nullptr, Effective.Get());
+		Ruitk::Slate::ApplyStyleDiff(*NewWidget, Adapter, nullptr, Effective.Get());
 	}
 	Node.AppliedStyle = Effective;
 }
