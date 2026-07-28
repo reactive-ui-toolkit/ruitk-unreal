@@ -50,7 +50,7 @@ Editor support for **`.uetkx`**, the JSX-like markup of [Reactive UI Toolkit for
 - Watched-files revalidation: the client watches **/*.uetkx, so deleting or renaming a file ON DISK re-flags open importers immediately — previously nothing updated until a keystroke in the importer.
 - Live component-TAG policing: an unimported tag errors as-you-type (2305 with the add-import quick-fix, importer-nearest exporter) and an unknown tag gets 2307 — previously tags were only checked via the hash-gated compiler sidecar, so the squiggle flickered with every edit.
 - Import-specifier DX: single-quoted specifiers color and get full tooling in both quote styles (the formatter still canonicalizes to double quotes on save); specifier completions order nearest-first; accepting a suggestion REPLACES the typed prefix instead of appending.
-- Embedded-C++ scaffold returns FRuitkNode: clangd no longer flags every early return — element or fragment — with "void function should not return a value"; `return null;` neutralizes typed. The fragment delimiters <> and </> now color as tag punctuation like element brackets.
+- Embedded-C++ scaffold returns FRuiNode: clangd no longer flags every early return — element or fragment — with "void function should not return a value"; `return null;` neutralizes typed. The fragment delimiters <> and </> now color as tag punctuation like element brackets.
 - `return null;` is first-class in the editor: both bare and parenthesized forms scan clean as render-nothing returns (early guards and null-only components), satisfy the component-return requirement, terminate unreachable-code dimming, and format canonically to the bare form.
 
 ### [0.7.0] - 2026-07-18
@@ -77,7 +77,7 @@ Editor support for **`.uetkx`**, the JSX-like markup of [Reactive UI Toolkit for
 - clangd 22.1.6 ships INSIDE the artifacts: the VS Code extension publishes a win32-x64 flavor with clangd bundled (embedded C++ intelligence with zero machine setup) plus a universal flavor that falls back to discovery; the VS2022 VSIX bundles clangd.exe directly. The bundled binary wins over machine discovery; an explicit uetkx.clangd.path still overrides. LLVM license ships beside the binary.
 
 ### [0.4.2] - 2026-07-16
-- Embedded-C++ intelligence now sees the full auto-included prelude: the virtual document's header list gains `CoreMinimal.h`, `RuitkSignal.h`, `RuitkSlateElements.h`, and `RuitkStyle.h`, matching the compiler's 18-header list exactly — clangd-backed completion/hover inside setup bodies now resolves Slate element factories, signals, and style types.
+- Embedded-C++ intelligence now sees the full auto-included prelude: the virtual document's header list gains `CoreMinimal.h`, `RuiSignal.h`, `RuiSlateElements.h`, and `RuiStyle.h`, matching the compiler's 18-header list exactly — clangd-backed completion/hover inside setup bodies now resolves Slate element factories, signals, and style types.
 
 ### [0.4.1] - 2026-07-16
 - The marketplace description now credits the family Discord (discord.gg/Knedqu4Wyv) and the GitHub repo, kept under 280 characters for both listings.
