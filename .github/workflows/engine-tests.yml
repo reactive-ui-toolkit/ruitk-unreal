@@ -82,4 +82,9 @@ jobs:
             -ExecCmds="Automation RunTests Ruitk; Quit" \
             -unattended -nopause -nosplash -nullrhi -stdout -FullStdOutLogOutput \
             -ReportExportPath="$GITHUB_WORKSPACE/test-report"
-          node -e "const r=require('./test-report/index.json'); const fails=(r.tests||[]).filter(t=>t.state&&t.state!=='Success').length; const n=typeof r.failed==='number'?Math.max(r.failed,fails):fails; if(n>0){console.error(n+' automation test(s) failed');process.exit(1)} console.log('automation suites passed')"
+          # Parse with the ENGINE's bundled python3 — the dev-slim containers ship no node, so the
+          # old `node -e` parse died with exit 127 AFTER a fully green suite (round-4 scar). Same
+          # arithmetic as before: max(report.failed, count of non-Success states), nonzero fails.
+          PY="$ENGINE_ROOT/Engine/Binaries/ThirdParty/Python3/Linux/bin/python3"
+          [ -x "$PY" ] || PY=python3
+          "$PY" -c "import json,sys; r=json.load(open('test-report/index.json', encoding='utf-8-sig')); t=r.get('tests') or []; f=[x for x in t if x.get('state') and x['state']!='Success']; n=max(r['failed'],len(f)) if isinstance(r.get('failed'),int) else len(f); sys.exit('%d automation test(s) failed'%n if n else print('automation suites passed'))"

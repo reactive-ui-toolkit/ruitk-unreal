@@ -12,7 +12,10 @@ public class RuitkUnrealDemoServerTarget : TargetRules
 	public RuitkUnrealDemoServerTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Server;
-		DefaultBuildSettings = BuildSettingsVersion.V5;
+		// Latest, matching the Game/Editor targets: a V5 pin makes 5.7+'s UBT reject the target
+		// ("modifies UndefinedIdentifierWarningLevel: Off != Error" — shared build environment;
+		// Unique is illegal on installed engines). On 5.6, Latest == V5, so nothing changes there.
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 		ExtraModuleNames.Add("RuitkDemo");
 	}
