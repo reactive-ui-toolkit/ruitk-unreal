@@ -4,7 +4,9 @@
 
 #include "Editor.h"
 #include "Framework/Notifications/NotificationManager.h"
-#include "ILiveCodingModule.h"
+#if WITH_LIVE_CODING
+#include "ILiveCodingModule.h" // win64-only module — the Build.cs dependency is platform-gated
+#endif
 #include "Modules/ModuleManager.h"
 #include "RuitkUetkxEditorSettings.h"
 #include "RuitkReconciler.h"
@@ -21,10 +23,12 @@ DEFINE_LOG_CATEGORY_STATIC(LogUetkxHmr, Log, All);
 
 namespace
 {
+#if WITH_LIVE_CODING
 	ILiveCodingModule* LiveCoding()
 	{
 		return FModuleManager::GetModulePtr<ILiveCodingModule>(TEXT("LiveCoding"));
 	}
+#endif
 
 #if PLATFORM_WINDOWS
 	// Epic's Live Coding console is a separate process; its window title is "<Project> - Live Coding".
@@ -64,8 +68,12 @@ FUetkxHmrController& FUetkxHmrController::Get()
 
 bool FUetkxHmrController::IsCompiling() const
 {
+#if WITH_LIVE_CODING
 	ILiveCodingModule* LC = LiveCoding();
 	return LC != nullptr && LC->IsCompiling();
+#else
+	return false;
+#endif
 }
 
 bool FUetkxHmrController::Start(FString& OutError)
@@ -74,6 +82,11 @@ bool FUetkxHmrController::Start(FString& OutError)
 	{
 		return true;
 	}
+#if !WITH_LIVE_CODING
+	// Non-win64: the LiveCoding module does not exist — same outcome as a null module lookup.
+	OutError = TEXT("Live Coding module is not available in this editor build.");
+	return false;
+#else
 	ILiveCodingModule* LC = LiveCoding();
 	if (LC == nullptr)
 	{
@@ -103,6 +116,7 @@ bool FUetkxHmrController::Start(FString& OutError)
 	UE_LOG(LogUetkxHmr, Display, TEXT("[RUI HMR] started (Live Coding mode ON — external builds pause while active)"));
 	OnStatusChanged.Broadcast();
 	return true;
+#endif // WITH_LIVE_CODING
 }
 
 void FUetkxHmrController::Stop()
@@ -118,6 +132,7 @@ void FUetkxHmrController::StopInternal(bool bForceDisableSession)
 		return;
 	}
 	bDisableSessionOnStop = bForceDisableSession;
+#if WITH_LIVE_CODING
 	if (ILiveCodingModule* LC = LiveCoding())
 	{
 		if (PatchCompleteHandle.IsValid())
@@ -129,6 +144,7 @@ void FUetkxHmrController::StopInternal(bool bForceDisableSession)
 			LC->EnableForSession(false); // restore normal external builds
 		}
 	}
+#endif
 	PatchCompleteHandle.Reset();
 	StopConsoleHider();
 	bActive = false;
@@ -339,6 +355,7 @@ void FUetkxHmrController::NotifyCodegen(int32 NumChanged, int32 NumErrors, const
 
 void FUetkxHmrController::TriggerCompile()
 {
+#if WITH_LIVE_CODING
 	ILiveCodingModule* LC = LiveCoding();
 	if (LC == nullptr || !LC->IsEnabledForSession())
 	{
@@ -348,6 +365,7 @@ void FUetkxHmrController::TriggerCompile()
 	bDirtyAgain = false;
 	LC->Compile(ELiveCodingCompileFlags::None, nullptr); // async — the patch-complete delegate lands the result
 	OnStatusChanged.Broadcast();
+#endif // WITH_LIVE_CODING — off Windows the session can never be active (Start() refuses)
 }
 
 void FUetkxHmrController::OnPatchComplete()

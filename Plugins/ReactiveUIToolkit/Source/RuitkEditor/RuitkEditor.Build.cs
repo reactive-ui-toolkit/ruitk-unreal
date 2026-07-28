@@ -38,7 +38,15 @@ public class RuitkEditor : ModuleRules
 			"Slate",			 // window-activation trigger
 			"SlateCore",
 			"MessageLog",  // the "Ruitk" dock listing
-			"LiveCoding",  // FUetkxHmrController drives the Live Coding session (HMR v2, D-HMR-8)
 		});
+
+		// Live Coding is win64-only: Linux/Mac installed engines ship no UnrealEditor-LiveCoding
+		// library, so an unconditional dependency dies at link (`-lUnrealEditor-LiveCoding` not
+		// found). The consumer (FUetkxHmrController) guards every use with WITH_LIVE_CODING and
+		// degrades to its "Live Coding module is not available" path off Windows.
+		if (Target.Platform == UnrealTargetPlatform.Win64)
+		{
+			PrivateDependencyModuleNames.Add("LiveCoding"); // FUetkxHmrController drives the Live Coding session (HMR v2, D-HMR-8)
+		}
 	}
 }
