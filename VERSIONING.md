@@ -1,6 +1,6 @@
 # Versioning & Deprecation Policy
 
-> Applies to the ReactiveUI plugin (Unreal), the `.uetkx` language, and the IDE
+> Applies to the Reactive UI Toolkit plugin (Unreal), the `.uetkx` language, and the IDE
 > extensions. The Unreal sibling of ReactiveUIToolKit's policy — same rules,
 > retargeted.
 
@@ -105,8 +105,8 @@ Supporting a new engine version is a process, not a hope — see
 
 | Channel | What | Pricing |
 |---------|------|---------|
-| GitHub (this repo) | ReactiveUI plugin, source | Free under US $250k/yr (ReactiveUI Community License 1.0); commercial license above |
-| Fab | ReactiveUI plugin, per-engine-version listing | Free (Fab EULA applies) |
+| GitHub (this repo) | Reactive UI Toolkit plugin, source | Free under US $250k/yr (Reactive UI Toolkit Community License 1.1); commercial license above |
+| Fab | Reactive UI Toolkit plugin, per-engine-version listing | Free (Fab EULA applies) |
 | VS Code Marketplace | UETKX VS Code extension | Free |
 | Open VSX | UETKX VS Code extension | Free |
 | Visual Studio Marketplace | UETKX VS2022 extension | Free |

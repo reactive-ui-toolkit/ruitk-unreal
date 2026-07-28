@@ -34,7 +34,7 @@ export const InteropOverviewPage: FC = () => (
         We are the layer that decides which Slate widgets exist each frame — everything of
         Epic&apos;s stays in place, either feeding us data or hosting our output.
       </strong>{' '}
-      ReactiveUI replaces nothing: it emits the widgets Epic&apos;s stack already governs, so
+      Reactive UI Toolkit replaces nothing: it emits the widgets Epic&apos;s stack already governs, so
       adopting it is incremental — a leaf panel first, a whole screen later, never a rewrite.
     </Typography>
 

@@ -111,7 +111,7 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 ### Identity & naming
 
 - **D-01 — Names & headers.** Plugin folder `Plugins/ReactiveUI/`, descriptor `ReactiveUI.uplugin`,
-  FriendlyName "ReactiveUI for Unreal" (final store name is owner's call — §7 Q1, .NET-ReactiveUI
+  FriendlyName "Reactive UI Toolkit for Unreal" (final store name is owner's call — §7 Q1, .NET-ReactiveUI
   collision noted). Type prefixes: `FRui*` structs/classes, `SRui*` Slate widgets, `URui*`
   UObjects, `IRui*` interfaces, `TRui*` templates. Free-function factories live in namespace
   `RUI::` (`RUI::VBox()`, `RUI::Button()`, `RUI::FC(&Counter, {...})`). Markup extension is
@@ -1378,7 +1378,7 @@ Risks (mitigations in parentheses):
 Kept as the decision record; new questions get appended below as they arise.
 
 1. **Naming — ANSWERED: "ReactiveUI-Unreal" stays** (repo name already is; plugin FriendlyName
-   "ReactiveUI for Unreal"). The family has shipped twice under this name (Unity, Godot) without
+   "Reactive UI Toolkit for Unreal"). The family has shipped twice under this name (Unity, Godot) without
    incident. Residual caution: Fab review screens trademark-adjacent LISTING titles — Phase 8
    drafts 2–3 title variants for the owner to pick at listing time.
 2. **CI budget & Epic org — ANSWERED: no engine CI for now.** Local-first (the plan's unarmed

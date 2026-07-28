@@ -15,7 +15,7 @@ export const DebuggingPage: FC = () => (
       Debugging Guide
     </Typography>
     <Typography variant="body1" paragraph>
-      When a component misbehaves, ReactiveUI gives you three vantage points: the generated C++, the
+      When a component misbehaves, Reactive UI Toolkit gives you three vantage points: the generated C++, the
       compiler&apos;s diagnostics, and the runtime CVars. Because the markup compiles to ordinary
       committed C++, everything you already use to debug Unreal — breakpoints, the log, Live Coding —
       works unchanged.
@@ -36,7 +36,7 @@ export const DebuggingPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       Every problem carries a <code>UETKX</code> code (see <strong>Diagnostics</strong>), written to
-      a gitignored <code>*.uetkx.diags.json</code> sidecar and surfaced in the ReactiveUI message
+      a gitignored <code>*.uetkx.diags.json</code> sidecar and surfaced in the Reactive UI Toolkit message
       log. The editor extensions show the same diagnostics inline as you type — restart the language
       server (<code>UETKX: Restart Language Server</code>) if they ever look stale.
     </Typography>

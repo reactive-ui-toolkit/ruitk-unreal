@@ -50,7 +50,7 @@ export const CommonUiGuidePage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       CommonUI keeps owning what it already owns: menu stacks, input routing, back-handling, and
-      the console-cert-hardened behavior teams rely on. ReactiveUI never installs its own input
+      the console-cert-hardened behavior teams rely on. Reactive UI Toolkit never installs its own input
       preprocessor and never rebuilds a stack — our screens live <em>inside</em> activatables and{' '}
       <em>read</em> the state CommonUI publishes.
     </Typography>

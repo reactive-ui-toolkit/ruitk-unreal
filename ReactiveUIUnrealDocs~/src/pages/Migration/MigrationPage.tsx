@@ -14,7 +14,7 @@ Stack->AddWidgetInstance(*CreateWidget<URuiActivatableScreen>(OwningPlayer, Scre
 // Or overlay screens with no UMG wrapper at all (Blueprint-callable):
 World->GetSubsystem<URuiWorldSubsystem>()->MountNamed(TEXT("PauseMenu"), /*ZOrder*/ 10);`
 
-const INVERT = `// Stage 3 — inversion: ReactiveUI owns the tree; what remains of the old UI
+const INVERT = `// Stage 3 — inversion: Reactive UI Toolkit owns the tree; what remains of the old UI
 // lives INSIDE it, and your viewmodels keep feeding data unchanged.
 { RUI::Umg::UserWidget(ULegacyMinimapWidget::StaticClass(), World) }
 const float Health = RUI::Umg::UseField<float>(Ctx, Vm, FName(TEXT("Health")), 100.0f);`
@@ -45,7 +45,7 @@ export const MigrationPage: FC = () => (
       Migration &amp; Adoption
     </Typography>
     <Typography variant="body1" paragraph>
-      Nobody rewrites a shipping UI. ReactiveUI is adopted <strong>incrementally</strong> — it
+      Nobody rewrites a shipping UI. Reactive UI Toolkit is adopted <strong>incrementally</strong> — it
       emits the widgets Epic&apos;s stack already governs, so every stage below ships on its own
       and nothing forces the next one.
     </Typography>
@@ -74,7 +74,7 @@ export const MigrationPage: FC = () => (
       Stage 3 — inversion (ours hosting theirs)
     </Typography>
     <Typography variant="body1" paragraph>
-      Eventually the tree flips: ReactiveUI owns the screen, surviving UMG widgets embed via{' '}
+      Eventually the tree flips: Reactive UI Toolkit owns the screen, surviving UMG widgets embed via{' '}
       <code>RUI::Umg::UserWidget</code>, and your FieldNotify viewmodels keep feeding data through{' '}
       <code>UseField</code> — they own values, we own structure. No stage ever requires deleting
       working UI.

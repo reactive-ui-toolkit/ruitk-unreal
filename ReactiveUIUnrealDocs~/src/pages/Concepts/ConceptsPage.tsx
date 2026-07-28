@@ -28,7 +28,7 @@ export const ConceptsPage: FC = () => (
       Concepts &amp; Environment
     </Typography>
     <Typography variant="body1" paragraph>
-      ReactiveUI is a React-style model over Slate. You write <strong>function components</strong>{' '}
+      Reactive UI Toolkit is a React-style model over Slate. You write <strong>function components</strong>{' '}
       that return a description of the UI; a <strong>fiber reconciler</strong> diffs this frame&apos;s
       description against the last and patches only the real Slate widgets that changed. Everything
       is pure C++ — there is no JavaScript engine and no UObject in the core runtime.

@@ -38,7 +38,7 @@ export const DiagnosticsPage: FC = () => (
       Every problem the compiler or language server reports carries a stable <code>UETKX</code> code.
       The same catalog powers both the C++ compiler (at build time) and the editor extensions (as you
       type), so a code means the same thing everywhere. Machine-readable diagnostics are written to a
-      gitignored <code>*.uetkx.diags.json</code> sidecar and surfaced in the ReactiveUI message log.
+      gitignored <code>*.uetkx.diags.json</code> sidecar and surfaced in the Reactive UI Toolkit message log.
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>

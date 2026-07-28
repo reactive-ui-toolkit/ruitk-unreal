@@ -16,7 +16,7 @@ export FRuiNode HelloWorld() {
 	auto [Count, SetCount] = UseState<int32>(0);
 	return (
 		<VerticalBox>
-			<TextBlock Text={ RUI::Fmt(TEXT("Hello, ReactiveUI — {}"), Count) } />
+			<TextBlock Text={ RUI::Fmt(TEXT("Hello, Reactive UI Toolkit — {}"), Count) } />
 			<Button OnClicked={ SetCount(Count + 1) }>+1</Button>
 		</VerticalBox>
 	);
@@ -43,7 +43,7 @@ export const GettingStartedPage: FC = () => (
       Getting Started
     </Typography>
     <Typography variant="body1" paragraph>
-      ReactiveUI for Unreal is a normal engine plugin — pure C++, no external runtime, no VM. You
+      Reactive UI Toolkit for Unreal is a normal engine plugin — pure C++, no external runtime, no VM. You
       enable the plugin, depend on two modules, write a <code>.uetkx</code> component, and mount it
       onto a <code>UWorld</code>. It targets <strong>Unreal Engine 5.6+</strong>.
     </Typography>
@@ -53,7 +53,7 @@ export const GettingStartedPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       Drop <code>Plugins/ReactiveUI/</code> into your project (or install it from Fab) and enable{' '}
-      <strong>ReactiveUI</strong> under <em>Edit ▸ Plugins</em>. Then add the runtime modules your
+      <strong>Reactive UI Toolkit for Unreal</strong> under <em>Edit ▸ Plugins</em>. Then add the runtime modules your
       game module builds against:
     </Typography>
     <CodeBlock code={BUILD_CS} language="uetkx" />

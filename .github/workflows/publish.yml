@@ -139,7 +139,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$TAG"
           git push origin "$TAG"
-          gh release create "$TAG" --title "ReactiveUI for Unreal ${{ steps.ver.outputs.version }}" \
+          gh release create "$TAG" --title "Reactive UI Toolkit for Unreal ${{ steps.ver.outputs.version }}" \
             --notes-file /tmp/release-body.md \
             dist/ReactiveUI-*.zip
 

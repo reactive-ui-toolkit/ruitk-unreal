@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material'
 
 const QA: Array<[string, ReactNode]> = [
   [
-    'What is ReactiveUI for Unreal?',
+    'What is Reactive UI Toolkit for Unreal?',
     <>A React-style UI library for Unreal Engine 5.6+, in pure C++. You write function components with
       hooks; a fiber reconciler patches real Slate widgets. Its markup, <code>.uetkx</code>, compiles
       to committed C++.</>,

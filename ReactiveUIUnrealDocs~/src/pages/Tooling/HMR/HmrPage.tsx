@@ -8,7 +8,7 @@ export const HmrPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       In development you edit a <code>.uetkx</code> file, save, and the running UI updates in under a
-      second with component state preserved — no manual rebuild, no restart. ReactiveUI does not ship
+      second with component state preserved — no manual rebuild, no restart. Reactive UI Toolkit does not ship
       its own hot-reload engine; it rides <strong>Unreal Live Coding</strong>, so the same mechanism
       that patches your C++ patches your markup.
     </Typography>
@@ -17,7 +17,7 @@ export const HmrPage: FC = () => (
       How it works
     </Typography>
     <Typography variant="body1" paragraph>
-      A save triggers the editor&apos;s ReactiveUI controller (<code>FUetkxHmrController</code>): it
+      A save triggers the editor&apos;s Reactive UI Toolkit controller (<code>FUetkxHmrController</code>): it
       recompiles the changed <code>.uetkx</code> to its committed C++, then asks Live Coding to
       rebuild. Live Coding is <strong>whole-project</strong> — it patches the loaded modules in place
       — and the reconciler re-renders from the new component functions. Because hook state is stored
@@ -56,7 +56,7 @@ export const HmrPage: FC = () => (
 
     <Alert severity="warning" sx={{ mt: 2 }}>
       A <code>.uetkx</code> that fails to compile is skipped — the last good build keeps running and
-      the error surfaces in the ReactiveUI message log. Fix and save again to resume.
+      the error surfaces in the Reactive UI Toolkit message log. Fix and save again to resume.
     </Alert>
   </Box>
 )

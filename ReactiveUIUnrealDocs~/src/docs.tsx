@@ -105,7 +105,7 @@ export const sections: DocSection[] = [
         path: '/getting-started',
         keywords: ['install', 'setup', 'plugin', 'build.cs', 'mount', 'FRuiRoot', 'RUICompile'],
         searchContent:
-          'getting started install setup enable ReactiveUI plugin edit plugins Build.cs PublicDependencyModuleNames ReactiveUICore ReactiveUISlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock RUI::Fmt Button OnClicked SetCount mount FRuiRoot CreateInViewport RUI::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuiRoot.h compile RUICompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
+          'getting started install setup enable Reactive UI Toolkit plugin edit plugins Build.cs PublicDependencyModuleNames ReactiveUICore ReactiveUISlate Slate SlateCore write a .uetkx component one component per file file name matches component HelloWorld UseState VerticalBox TextBlock RUI::Fmt Button OnClicked SetCount mount FRuiRoot CreateInViewport RUI::FC ZOrder TSharedPtr UWorld GameMode PlayerController GameInstance HUD BeginPlay RuiRoot.h compile RUICompile commandlet -check drift gate committed uetkx.inl Uetkx.gen.cpp reflection-free diags.json sidecar gitignored unreal engine 5.6',
         element: () => <GettingStartedPage />,
       },
     ],
@@ -409,7 +409,7 @@ export const sections: DocSection[] = [
         path: '/reference/diagnostics',
         keywords: ['diagnostics', 'UETKX', 'errors', 'warnings', 'codes'],
         searchContent:
-          'diagnostics UETKX code stable catalog compiler build time language server editor as you type same meaning everywhere machine-readable uetkx.diags.json sidecar gitignored ReactiveUI message log bands UETKX01xx structural 0103 name file mismatch 0105 unknown element 0108 multiple roots UETKX03xx syntax 0300 0301 0302 0303 0304 0305 UETKX21xx declarations 2100 pascalcase 2101 no declaration 2106 retired file-scoped exports 2329 case-fold UETKX22xx hooks modules 2200 2201 2202 2203 2204 2205 UETKX23xx imports 2300 2309 UETKX25xx directives 2506 2508 UETKX30xx codegen 3006 template hook',
+          'diagnostics UETKX code stable catalog compiler build time language server editor as you type same meaning everywhere machine-readable uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log bands UETKX01xx structural 0103 name file mismatch 0105 unknown element 0108 multiple roots UETKX03xx syntax 0300 0301 0302 0303 0304 0305 UETKX21xx declarations 2100 pascalcase 2101 no declaration 2106 retired file-scoped exports 2329 case-fold UETKX22xx hooks modules 2200 2201 2202 2203 2204 2205 UETKX23xx imports 2300 2309 UETKX25xx directives 2506 2508 UETKX30xx codegen 3006 template hook',
         element: () => <DiagnosticsPage />,
       },
       {
@@ -429,7 +429,7 @@ export const sections: DocSection[] = [
         path: '/reference/debugging',
         keywords: ['debugging', 'generated code', 'diags.json', 'message log', 'cvars', 'breakpoints'],
         searchContent:
-          'debugging guide generated code committed uetkx.inl readable c++ RUI::FC RUI::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored ReactiveUI message log editor extensions inline restart language server runtime cvars rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
+          'debugging guide generated code committed uetkx.inl readable c++ RUI::FC RUI::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars rui.StrictMode rui.HookValidation rui.StrictDiagnostics rui.TimeSlicing rui.FrameBudgetMs rui.HostNodePool stat ReactiveUI counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
         element: () => <DebuggingPage />,
       },
     ],

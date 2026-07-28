@@ -35,7 +35,7 @@ const QA: Array<[string, ReactNode]> = [
   [
     "We can't afford $2,000 but we're just over the threshold / we're a nonprofit / weird case?",
     <>Email us — <a href="mailto:yanivkalfa@gmail.com">yanivkalfa@gmail.com</a>. We&apos;d rather
-      you ship with ReactiveUI than not.</>,
+      you ship with Reactive UI Toolkit than not.</>,
   ],
 ]
 
@@ -46,10 +46,10 @@ export const LicensingPage: FC = () => (
     </Typography>
 
     <Typography variant="body1" sx={{ mb: 2 }}>
-      <strong>ReactiveUI is free for almost everyone.</strong> If you&apos;re a student, a
+      <strong>Reactive UI Toolkit is free for almost everyone.</strong> If you&apos;re a student, a
       hobbyist, a jam team, or an indie studio earning under <strong>$250,000 a year</strong> —
       everything on this page reduces to: <em>use it, ship your game, credit &quot;Made with
-      ReactiveUI&quot;, pay nothing.</em>
+      Reactive UI Toolkit&quot;, pay nothing.</em>
     </Typography>
 
     <Typography variant="h6" component="h2" gutterBottom>
@@ -121,7 +121,7 @@ export const LicensingPage: FC = () => (
         target="_blank"
         rel="noreferrer"
       >
-        ReactiveUI Community License
+        Reactive UI Toolkit Community License
       </a>{' '}
       and{' '}
       <a
@@ -138,12 +138,12 @@ export const LicensingPage: FC = () => (
       The two asks we make of everyone
     </Typography>
     <Typography variant="body1" sx={{ mb: 1 }}>
-      1. <strong>Credits.</strong> Put &quot;Made with ReactiveUI&quot; in your game&apos;s
+      1. <strong>Credits.</strong> Put &quot;Made with Reactive UI Toolkit&quot; in your game&apos;s
       credits, wherever you credit other middleware. That line is how the project grows.
     </Typography>
     <Typography variant="body1" sx={{ mb: 2.5 }}>
       2. <strong>Don&apos;t resell the library.</strong> You can ship anything you build{' '}
-      <em>with</em> ReactiveUI; you can&apos;t repackage ReactiveUI itself as a competing UI
+      <em>with</em> Reactive UI Toolkit; you can&apos;t repackage Reactive UI Toolkit itself as a competing UI
       framework. (Your game is never a &quot;competing product&quot; — this clause exists purely
       so nobody takes the source and sells it out from under the project.)
     </Typography>
@@ -161,7 +161,7 @@ export const LicensingPage: FC = () => (
     ))}
 
     <Typography variant="body2" sx={{ mt: 2, fontStyle: 'italic' }}>
-      The legally binding texts are the ReactiveUI Community License (the repo&apos;s{' '}
+      The legally binding texts are the Reactive UI Toolkit Community License (the repo&apos;s{' '}
       <code>LICENSE</code>) and the Commercial License Agreement (<code>LICENSE-COMMERCIAL.md</code>).
       This page summarizes them; where they differ, the texts win.
     </Typography>

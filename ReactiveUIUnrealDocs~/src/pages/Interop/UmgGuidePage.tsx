@@ -43,7 +43,7 @@ export const UmgGuidePage: FC = () => (
       UMG Interop — a door in both directions
     </Typography>
     <Typography variant="body1" paragraph>
-      UMG and ReactiveUI host each other. Designers embed reactive panels inside existing
+      UMG and Reactive UI Toolkit host each other. Designers embed reactive panels inside existing
       UserWidgets without leaving the Designer; reactive trees embed existing UMG widgets without
       rewriting them. Neither side is a second-class citizen.
     </Typography>

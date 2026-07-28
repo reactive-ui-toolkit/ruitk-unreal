@@ -3,7 +3,7 @@
   <Metadata>
     <Identity Id="UetkxVsix.ReactiveUITK" Version="0.8.0" Language="en-US" Publisher="Yaniv Kalfa" />
     <DisplayName>UETKX (Unreal - VS2022)</DisplayName>
-    <Description xml:space="preserve">Syntax highlighting and language intelligence for .uetkx markup (ReactiveUI for Unreal) — completions, hover, diagnostics, formatting from the compiler schema. Fully offline. Discord: discord.gg/Knedqu4Wyv | github.com/reactive-ui-toolkit/ruitk-unreal</Description>
+    <Description xml:space="preserve">Syntax highlighting and language intelligence for .uetkx markup (Reactive UI Toolkit for Unreal) — completions, hover, diagnostics, formatting from the compiler schema. Fully offline. Discord: discord.gg/Knedqu4Wyv | github.com/reactive-ui-toolkit/ruitk-unreal</Description>
     <License>LICENSE.txt</License>
     <Icon>icon.png</Icon>
     <Tags>unreal;slate;uetkx;reactiveui;jsx</Tags>

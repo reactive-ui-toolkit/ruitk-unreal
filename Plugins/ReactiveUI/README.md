@@ -1,4 +1,4 @@
-# ReactiveUI for Unreal
+# Reactive UI Toolkit for Unreal
 
 React-style reactive UI for Unreal Engine 5.6+, in pure C++. Function components return a
 virtual tree; a fiber reconciler patches only what changed on real **Slate** widgets; state
@@ -6,8 +6,8 @@ lives in hooks. `.uetkx` markup (grammar-compatible with the family's `.guitkx`/
 compiles to native C++ for shipping builds and hot-reloads live in PIE during development —
 no script VM in your shipped game.
 
-The Unreal sibling of [ReactiveUIToolKit](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit)
-(Unity) and [ReactiveUI-Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot).
+The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit)
+(Unity) and [Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot).
 
 > **Status: beta — built end to end.** 23 core hooks, 65+ wrapped Slate widgets (including
 > virtualized `ListView`/`TileView`), the `.uetkx` compiler with committed codegen and a CI
@@ -37,9 +37,9 @@ Discord: <https://discord.gg/Knedqu4Wyv> (`#unreal`)
 
 ## License
 
-ReactiveUI Community License 1.0 (see `LICENSE`) — free to use, modify, and ship inside your
+Reactive UI Toolkit Community License 1.1 (see `LICENSE`) — free to use, modify, and ship inside your
 games and projects (commercial included) if your company earned under US $250k in the last
 12 months; above that, shipping needs a commercial license ($2,000/title or
-$2,500/studio/year — see the repo's `LICENSE-COMMERCIAL.md`). Credit "Made with ReactiveUI";
+$2,500/studio/year — see the repo's `LICENSE-COMMERCIAL.md`). Credit "Made with Reactive UI Toolkit";
 not to be redistributed or sold as a competing product. Code generated from **your** `.uetkx`
 files belongs to **your** project.

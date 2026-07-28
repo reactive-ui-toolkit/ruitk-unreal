@@ -18,7 +18,7 @@ export FRuiNode HealthBar(UObject* Vm) {
 
 const REVERSE = `// The reverse direction: OUR state as a viewmodel THEIR views bind.
 // URuiSignalViewModel implements INotifyFieldValueChanged with no
-// MVVM-plugin dependency — write it from ReactiveUI, bind it from UMG.
+// MVVM-plugin dependency — write it from Reactive UI Toolkit, bind it from UMG.
 URuiSignalViewModel* Vm = NewObject<URuiSignalViewModel>();
 Vm->SetInt(Score);            // broadcasts on change, skips on equal
 
@@ -39,10 +39,10 @@ export const MvvmGuidePage: FC = () => (
       MVVM Interop — they own values, we own structure
     </Typography>
     <Typography variant="body1" paragraph>
-      ReactiveUI targets the engine-level <strong>FieldNotification</strong> module directly — no
+      Reactive UI Toolkit targets the engine-level <strong>FieldNotification</strong> module directly — no
       dependency on the ModelViewViewModel plugin — so any FieldNotify source is a data source:
       Epic-MVVM viewmodels, custom <code>UMVVMViewModelBase</code> subclasses, or stock widgets.
-      The viewmodels keep owning the values; ReactiveUI decides what UI exists because of them.
+      The viewmodels keep owning the values; Reactive UI Toolkit decides what UI exists because of them.
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
@@ -58,7 +58,7 @@ export const MvvmGuidePage: FC = () => (
       Our state feeding them — two bridges
     </Typography>
     <Typography variant="body1" paragraph>
-      <code>URuiSignalViewModel</code> (plugin-free) turns ReactiveUI state into a FieldNotify
+      <code>URuiSignalViewModel</code> (plugin-free) turns Reactive UI Toolkit state into a FieldNotify
       source UMG bindings consume. <code>URuiMvvmViewModel</code> +{' '}
       <code>RUI::Mvvm::RegisterGlobalViewModel</code> (in the optional{' '}
       <code>ReactiveUIMVVMBridge</code> module) additionally registers into the MVVM plugin&apos;s{' '}

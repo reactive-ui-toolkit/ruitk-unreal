@@ -1,10 +1,10 @@
 Questions, feedback, showcase → **[Discord](https://discord.gg/Knedqu4Wyv)** (family server — `#unreal`)
 
-# ReactiveUI for Unreal
+# Reactive UI Toolkit for Unreal
 
 A **React-style reactive UI library for Unreal Engine 5.6+, in pure C++** — the Unreal sibling
-of [ReactiveUIToolKit](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit) (Unity/C#) and
-[ReactiveUI-Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot/GDScript).
+of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ReactiveUIToolKit) (Unity/C#) and
+[Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ReactiveUI-Godot) (Godot/GDScript).
 
 Function components return a virtual tree; a fiber reconciler diffs each render and patches only
 what changed on real **Slate** widgets. State lives in hooks. On top sits `.uetkx` — a JSX-like
@@ -96,8 +96,8 @@ a docs site, with every performance claim measured before it's printed.
 
 ## License
 
-**Free for almost everyone.** ReactiveUI for Unreal ships under the
-[ReactiveUI Community License 1.0](LICENSE): use it, modify it, and ship commercial games
+**Free for almost everyone.** Reactive UI Toolkit for Unreal ships under the
+[Reactive UI Toolkit Community License 1.1](LICENSE): use it, modify it, and ship commercial games
 with it at no cost if your company (plus parents/subsidiaries) earned under
 **US $250,000** in the last 12 months. Development, evaluation, and education are free at
 any company size — the threshold only applies when you *ship*.
@@ -105,12 +105,12 @@ any company size — the threshold only applies when you *ship*.
 Above the threshold, shipping a product takes a commercial license — **$2,000 per title**
 (one-time, perpetual) or **$2,500 per studio per year**, your pick; see
 [LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md). The same terms and prices exist for each
-library in the ReactiveUI family (Godot, Unity, Unreal).
+library in the Reactive UI Toolkit family (Godot, Unity, Unreal).
 
-Two asks of everyone: put **"Made with ReactiveUI"** in your credits alongside your other
+Two asks of everyone: put **"Made with Reactive UI Toolkit"** in your credits alongside your other
 middleware, and don't resell the library itself as a competing product (your game is never
 a competing product). Every previously released version keeps the license it shipped with.
 Contributions require the one-time [CLA](CLA.md). Fab downloads (when the listing exists)
 are additionally governed by the Fab EULA. Code generated from **your** `.uetkx` files
 belongs to **your** project. Weird case (nonprofit, just-over-the-line, contractor)? Email
-<yanivkalfa@gmail.com> — we'd rather you ship with ReactiveUI than not.
+<yanivkalfa@gmail.com> — we'd rather you ship with Reactive UI Toolkit than not.

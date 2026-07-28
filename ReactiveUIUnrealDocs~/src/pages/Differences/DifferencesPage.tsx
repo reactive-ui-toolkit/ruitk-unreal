@@ -34,7 +34,7 @@ export const DifferencesPage: FC = () => (
         <TableHead>
           <TableRow>
             <TableCell>Area</TableCell>
-            <TableCell>How ReactiveUI differs</TableCell>
+            <TableCell>How Reactive UI Toolkit differs</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -64,7 +64,7 @@ export const DifferencesPage: FC = () => (
       Removed props don&apos;t reset
     </Typography>
     <Typography variant="body1" paragraph>
-      When a plain prop disappears from one render to the next, ReactiveUI leaves the widget&apos;s
+      When a plain prop disappears from one render to the next, Reactive UI Toolkit leaves the widget&apos;s
       current value in place rather than snapping it back to a default — Slate setters have no
       universal &quot;unset.&quot; Style, events, refs and custom draw <em>do</em> reset. This is a
       deliberate semantic, not a gap.

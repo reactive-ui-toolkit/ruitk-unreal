@@ -117,7 +117,7 @@ static FRuiNodeArray GalleryShellComp(FRuiContext& Ctx, const FRuiEmptyProps&, c
 
 	return {RUI::Slate::Box(
 		FRuiBoxProps(), {RUI::Slate::VerticalBox(FRuiVerticalBoxProps(),
-												 {StyledText(TEXT("ReactiveUI for Unreal — example gallery"), 20.0f),
+												 {StyledText(TEXT("Reactive UI Toolkit for Unreal — example gallery"), 20.0f),
 												  Gap(4.0f), MoveTemp(BodyRow)})})};
 }
 RUI_COMPONENT(GalleryShellComp)
