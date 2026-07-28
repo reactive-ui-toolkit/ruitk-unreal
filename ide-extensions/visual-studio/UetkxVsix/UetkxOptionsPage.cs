@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace UetkxVsix
 {
-    // Tools > Options > ReactiveUI > UETKX. Persists the extension's editor-polish settings; the
+    // Tools > Options > Reactive UI Toolkit > UETKX. Persists the extension's editor-polish settings; the
     // package reads FormatOnSave in its Running-Document-Table save hook.
     public sealed class UetkxOptionsPage : DialogPage
     {

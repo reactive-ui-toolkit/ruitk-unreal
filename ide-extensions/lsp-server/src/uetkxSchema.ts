@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
-// The markup vocabulary: SHIPPED default (src/uetkx-schema.json — the committed RUIExportSchema
-// output) overridden by the workspace's live export at <workspace>/Saved/ReactiveUI/schema.json
-// when present (regenerate with `UnrealEditor-Cmd <proj>.uproject -run=RUIExportSchema`).
+// The markup vocabulary: SHIPPED default (src/uetkx-schema.json — the committed RuitkExportSchema
+// output) overridden by the workspace's live export at <workspace>/Saved/ReactiveUIToolkit/schema.json
+// when present (regenerate with `UnrealEditor-Cmd <proj>.uproject -run=RuitkExportSchema`).
 
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -14,7 +14,7 @@ export interface UetkxSchema {
   slotKeys: string[];
   hooks: string[];
   /** TD-016: event attr name -> payload kind (text|bool|float|int|name|color|vector2|void) — the
-   *  FRuiValue field an event handler's `Value` carries. Absent in older shipped schemas. */
+   *  FRuitkValue field an event handler's `Value` carries. Absent in older shipped schemas. */
   eventPayloads?: Record<string, string>;
   /** R10: attr/style/slot key -> the CLOSED set of accepted string values, exported from the
    *  runtime's own parse tables (ParseHAlign et al) — those parses fall back SILENTLY, so a
@@ -49,14 +49,14 @@ export function shippedSchema(): UetkxSchema {
   return shipped;
 }
 
-/** Walk up from fileDir looking for Saved/ReactiveUI/schema.json next to a .uproject. */
+/** Walk up from fileDir looking for Saved/ReactiveUIToolkit/schema.json next to a .uproject. */
 export function schemaForFile(fileDir: string): UetkxSchema {
   let dir = fileDir;
   for (let depth = 0; depth < 32; depth++) {
     try {
       const entries = fs.readdirSync(dir);
       if (entries.some((e) => e.endsWith(".uproject"))) {
-        const live = path.join(dir, "Saved", "ReactiveUI", "schema.json");
+        const live = path.join(dir, "Saved", "ReactiveUIToolkit", "schema.json");
         if (fs.existsSync(live)) {
           try {
             return JSON.parse(fs.readFileSync(live, "utf8")) as UetkxSchema;
@@ -79,7 +79,7 @@ export function schemaForFile(fileDir: string): UetkxSchema {
 /** R12: the project's engine version from the nearest .uproject's EngineAssociation, as
  *  [major, minor] — null when absent or not a plain "X.Y" (custom-engine GUIDs, source builds).
  *  Drives the sinceUE check: a too-new element renders a NULL SLOT at runtime (the adapter is
- *  compiled out; the tag/factory still compile — LogRuiSlate error at mount is the only
+ *  compiled out; the tag/factory still compile — LogRuitkSlate error at mount is the only
  *  runtime signal). */
 export function engineVersionForFile(fileDir: string): [number, number] | null {
   let dir = fileDir;

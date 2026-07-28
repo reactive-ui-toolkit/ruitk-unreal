@@ -1,6 +1,6 @@
 ---
 name: test-run
-description: The exact incantations to build and run this repo's test suites headlessly — UE's CLI is arcane and these commands are load-bearing, in this order. Use whenever building or running ReactiveUI.* automation suites, benches, or the markup drift gate.
+description: The exact incantations to build and run this repo's test suites headlessly — UE's CLI is arcane and these commands are load-bearing, in this order. Use whenever building or running Ruitk.* automation suites, benches, or the markup drift gate.
 ---
 
 # Test run — the canonical commands, in order
@@ -13,26 +13,26 @@ redirect engine output to a file — piping block-buffers and hides everything (
 
 ```bat
 :: 0. Build (compile step — Development Editor)
-<Engine>\Engine\Build\BatchFiles\Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>\ReactiveUIUnrealDemo.uproject -WaitMutex
+<Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (Phase 3+; skip while no .uetkx exist)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RuitkCompile -check
 
 :: 2. Suites (headless, no GPU)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject ^
-  -ExecCmds="Automation RunTests ReactiveUI; Quit" ^
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject ^
+  -ExecCmds="Automation RunTests Ruitk; Quit" ^
   -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput ^
   -ReportExportPath=<scratch>\report > <scratch>\run.log 2>&1
 ```
 
 - **Pass/fail comes from `<scratch>\report\index.json`** (`succeeded`/`failed` counts) — the
   exit code alone is unreliable.
-- **Filters are prefix-matched**: `Automation RunTests ReactiveUI.Core` runs that suite;
-  `ReactiveUI.Widgets.Button` a single widget's tests. Suite map: `Boot` (module startup + root
+- **Filters are prefix-matched**: `Automation RunTests Ruitk.Core` runs that suite;
+  `Ruitk.Widgets.Button` a single widget's tests. Suite map: `Boot` (module startup + root
   mount — the gate ladder's boot check, NEVER optional), `Core`, `Update`, `Style`, `Widgets.*`,
   `Demos` (mounts every demo — the real "generated code runs" check), `Uetkx`, `Contract`,
   `Hmr`, `Umg`, `Mvvm`, `CommonUI`.
-- **`ReactiveUI.Bench` is NOT pass/fail** — numbers go to `plans/BENCH_BASELINES.md` WITH the
+- **`Ruitk.Bench` is NOT pass/fail** — numbers go to `plans/BENCH_BASELINES.md` WITH the
   machine/config context that file demands; cross-machine comparisons are invalid.
 - Engine-free gates (run these anywhere, before any engine work):
   `node ide-extensions/scripts/changelog.mjs verify && node scripts/verify-mirror.mjs && node scripts/check-headers.mjs && node scripts/lint-skills.mjs && node scripts/docs-drift.mjs`
@@ -45,7 +45,7 @@ redirect engine output to a file — piping block-buffers and hides everything (
   more than once; `> run.log 2>&1` is not optional style, it's how you SEE failures.
 - **index.json over exit codes**: UnrealEditor-Cmd has returned 0 with failed tests in the
   report; the JSON is the truth.
-- **The RUICompile pre-step mirrors `tests/guitkx_build.gd`** — suites consuming stale generated
+- **The RuitkCompile pre-step mirrors `tests/guitkx_build.gd`** — suites consuming stale generated
   code produce phantom passes/failures; compile first, always, in this order.
 - **Per-section markers**: a hanging suite with no markers cost an hour of bisection in the
   sibling repo; with markers, the hang names its culprit in one read.

@@ -1,0 +1,126 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+//
+// IRuitkElementAdapter + the adapter registry (D-11) — one adapter per wrapped Slate widget
+// type, keyed by the interned element type id. The Unity ITypedElementAdapter shape: the
+// host stays generic; everything widget-specific (SNew args, setter rows, event tables,
+// child mechanics, slot props) lives in the adapter.
+//
+// Contract (templates/widget_wrapper.template.cpp is the normative fill-in shape):
+// - CreateWidget consumes construct-only args; the HOST then calls ApplyDiff(W, null, Props)
+//   so full-apply and diff-apply are one code path.
+// - ApplyDiff is memberwise compare-and-set (no hashing, no reflection). Attributes receive
+//   CONSTANT values via engine setters, never delegate TAttributes (D-12). Self-notifying
+//   setters skip when equal (D-16).
+// - GetReconstructMask: construct-only prop bits — a diff touching them requires widget
+//   replacement. Hot-path style keys must never appear here (D-13).
+// - Events bind ONCE at construction to the node's FRuitkEventProxy; SyncEventHandlers swaps
+//   the proxy's inner callbacks every commit (bind-once-swap-inner).
+// - Child ops run on the PARENT's adapter (panel APIs differ per widget).
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "RuitkElementRegistry.h"
+#include "RuitkPropsBase.h"
+#include "RuitkTypes.h"
+#include "Widgets/SWidget.h"
+
+class FRuitkEventProxy;
+
+enum class ERuitkChildKind : uint8
+{
+	Leaf,		   // no children (warn if the tree declares any)
+	SingleContent, // one content slot (SetContent; warn_capacity — extra children warn, last wins)
+	MultiSlot,	   // a panel (Insert/Remove/Reorder + slot.* props)
+};
+
+class RUITKSLATE_API IRuitkElementAdapter
+{
+public:
+	virtual ~IRuitkElementAdapter() = default;
+
+	virtual ERuitkChildKind GetChildKind() const = 0;
+
+	/** SNew with construct-only args, and bind every event delegate ONCE — to the proxy via
+	 *  CreateSP + slot-index payload (many Slate events are construct-time SLATE_EVENT args,
+	 *  which is why the proxy arrives here; it is non-null iff HasEvents()). The host follows
+	 *  with ApplyDiff(W, nullptr, Props). */
+	virtual TSharedRef<SWidget> CreateWidget(const FRuitkPropsBase& Props,
+											 const TSharedPtr<FRuitkEventProxy>& Proxy) = 0;
+
+	/** Memberwise compare-and-set. Old == nullptr means "apply everything set" (fresh widget
+	 *  or pool reuse without stashed props). */
+	virtual void ApplyDiff(SWidget& Widget, const FRuitkPropsBase* Old, const FRuitkPropsBase& New) = 0;
+
+	/** Construct-only prop bits (see class comment). Default: none. */
+	virtual uint64 GetReconstructMask() const { return 0; }
+
+	/** PRECISE replacement trigger (TD-011): true iff a construct-only prop's VALUE actually
+	 *  changed old→new. The mask alone is coarse — a mask bit set on both sides with an UNCHANGED
+	 *  value must NOT force a rebuild just because some other prop changed. Any adapter that
+	 *  returns a non-zero GetReconstructMask MUST override this to compare its construct-only
+	 *  fields; the default (true) preserves the old coarse behavior for un-migrated adapters. */
+	virtual bool ConstructOnlyChanged(const FRuitkPropsBase& Old, const FRuitkPropsBase& New) const { return true; }
+
+	/** True when the adapter binds any events — the host mints a proxy only when needed. */
+	virtual bool HasEvents() const { return false; }
+
+	/** Swap the proxy's inner callbacks from the new props (every commit; cheap). */
+	virtual void SyncEventHandlers(FRuitkEventProxy& Proxy, const FRuitkPropsBase& New) {}
+
+	/** Widget-specific style keys (D-13; e.g. Text "color"/"fontSize"). Value == nullptr
+	 *  means RESET to the widget default. Return true when the key was handled. */
+	virtual bool ApplyStyleKey(SWidget& Widget, FName Key, const FRuitkValue* Value) { return false; }
+
+	/** Pool eligibility (GO-05): default = event-less leaves only (bound delegates can't
+	 *  re-target a new node's proxy, and panels carry structure). A widget with construct-only props
+	 *  (a non-zero GetReconstructMask, e.g. SSeparator's Thickness/Orientation) is EXCLUDED: those
+	 *  props bake at construction and ApplyDiff cannot re-apply them, so a pooled instance would carry
+	 *  the prior node's baked state into the reused node (bughunt POOL-1). */
+	virtual bool IsPoolable() const
+	{
+		return GetChildKind() == ERuitkChildKind::Leaf && !HasEvents() && GetReconstructMask() == 0;
+	}
+
+	// ── children (MultiSlot) ──────────────────────────────────────────────────────────────
+
+	/** Insert Child at Index (Index < 0 = append), applying the child's slot.* props. */
+	virtual void InsertChild(SWidget& Parent, const TSharedRef<SWidget>& Child, int32 Index,
+							 const FRuitkStyleDict* SlotProps)
+	{
+	}
+
+	virtual void RemoveChild(SWidget& Parent, const TSharedRef<SWidget>& Child) {}
+
+	/** Enforce the exact child order (structural frames only). Minimal-move preferred. */
+	virtual void ReorderChildren(SWidget& Parent, const TArray<TSharedRef<SWidget>>& Ordered,
+								 TFunctionRef<const FRuitkStyleDict*(const TSharedRef<SWidget>&)> SlotPropsOf)
+	{
+	}
+
+	/** Re-apply a child's slot.* props after they changed (v1 may remove+reinsert). */
+	virtual void UpdateChildSlotProps(SWidget& Parent, const TSharedRef<SWidget>& Child,
+									  const FRuitkStyleDict* SlotProps)
+	{
+	}
+
+	// ── children (SingleContent) ──────────────────────────────────────────────────────────
+
+	/** Set/replace the single content (null clears to SNullWidget). */
+	virtual void SetContent(SWidget& Parent, const TSharedPtr<SWidget>& Child) {}
+};
+
+namespace Ruitk::Slate
+{
+	/** Register an adapter for an element type. Re-registration replaces (Live Coding). */
+	RUITKSLATE_API void RegisterAdapter(FRuitkElementTypeId Type, TUniquePtr<IRuitkElementAdapter> Adapter);
+
+	/** Convenience: intern the tag name and register in one call; returns the id. */
+	RUITKSLATE_API FRuitkElementTypeId RegisterAdapter(FName TagName, TUniquePtr<IRuitkElementAdapter> Adapter);
+
+	RUITKSLATE_API IRuitkElementAdapter* FindAdapter(FRuitkElementTypeId Type);
+
+	/** Visit every registered adapter (TD-011 meta-gates; diagnostics). Holds the registry
+	 *  lock for the duration — visitors must not register/find adapters. */
+	RUITKSLATE_API void ForEachAdapter(const TFunctionRef<void(FRuitkElementTypeId, IRuitkElementAdapter&)> Visit);
+} // namespace Ruitk::Slate

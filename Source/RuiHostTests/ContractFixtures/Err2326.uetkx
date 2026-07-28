@@ -1,7 +1,0 @@
-import Home from "./StatusChip"
-
-export FRuiNode Err2326() {
-	return (
-		<Home />
-	);
-}

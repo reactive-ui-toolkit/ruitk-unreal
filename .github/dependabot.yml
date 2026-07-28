@@ -4,7 +4,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/ReactiveUIUnrealDocs~"
+    directory: "/RuitkUnrealDocs~"
     schedule:
       interval: weekly
     groups:
@@ -12,7 +12,7 @@ updates:
         patterns: ["*"]
     ignore:
       # Majors are DELIBERATELY deferred: the docs site is a clone of the family shell
-      # (ReactiveUI-Godot docs) and staying on the same majors keeps cross-repo shell syncs
+      # (Reactive UI Toolkit for Godot docs) and staying on the same majors keeps cross-repo shell syncs
       # cheap. Major migrations (MUI, eslint, TypeScript, ...) happen family-wide, on purpose,
       # not via weekly bot PRs. Minor/patch keep flowing.
       - dependency-name: "*"

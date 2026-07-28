@@ -1,0 +1,156 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+//
+// Kind-aware readers for `Slot.*` values. The toolchain emits every LITERAL slot attribute as a String
+// (`FRuitkValue(TEXT("1"))`), while the expression form emits a typed Int/Float — so a reader that only
+// consults IntValue/FloatValue silently reads a zero for the (common) literal form (bughunt SLOT-1 /
+// SLOT-2, same class as UMG B13). Every slot reader routes through here so String, Name, Int and Float
+// forms all resolve identically, everywhere.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Layout/Margin.h"
+#include "RuitkTypes.h"
+
+namespace Ruitk::Slate::SlotValue
+{
+	/** Read a slot value as a float, parsing the String/Name literal forms. */
+	inline float AsFloat(const FRuitkValue& V, float Def = 0.0f)
+	{
+		switch (V.Kind)
+		{
+		case FRuitkValue::EKind::Int:
+			return static_cast<float>(V.IntValue);
+		case FRuitkValue::EKind::Float:
+			return static_cast<float>(V.FloatValue);
+		case FRuitkValue::EKind::String:
+			return V.StringValue.IsEmpty() ? Def : static_cast<float>(FCString::Atof(*V.StringValue));
+		case FRuitkValue::EKind::Name:
+			return static_cast<float>(FCString::Atof(*V.NameValue.ToString()));
+		default:
+			return Def;
+		}
+	}
+
+	/** Read a slot value as an int32, parsing the String/Name literal forms. */
+	inline int32 AsInt(const FRuitkValue& V, int32 Def = 0)
+	{
+		switch (V.Kind)
+		{
+		case FRuitkValue::EKind::Int:
+			return static_cast<int32>(V.IntValue);
+		case FRuitkValue::EKind::Float:
+			return static_cast<int32>(V.FloatValue);
+		case FRuitkValue::EKind::String:
+			return V.StringValue.IsEmpty() ? Def : FCString::Atoi(*V.StringValue);
+		case FRuitkValue::EKind::Name:
+			return FCString::Atoi(*V.NameValue.ToString());
+		default:
+			return Def;
+		}
+	}
+
+	/** Read a slot value as a bool, parsing the String/Name literal forms ("true"/"false",
+	 *  case-insensitive — FName semantics, like every enum-string parse). R11: the last two
+	 *  union-field bool reads (Slot.AutoSize, Slot.Resizable) and the style-side bools
+	 *  (Enabled, AutoWrapText) silently read FALSE for the literal form — SLOT-1's class. */
+	inline bool AsBool(const FRuitkValue& V, bool Def = false)
+	{
+		switch (V.Kind)
+		{
+		case FRuitkValue::EKind::Bool:
+			return V.BoolValue;
+		case FRuitkValue::EKind::Int:
+			return V.IntValue != 0;
+		case FRuitkValue::EKind::String:
+		case FRuitkValue::EKind::Name:
+		{
+			const FString S = V.Kind == FRuitkValue::EKind::Name ? V.NameValue.ToString() : V.StringValue;
+			if (S.Equals(TEXT("true"), ESearchCase::IgnoreCase))
+			{
+				return true;
+			}
+			if (S.Equals(TEXT("false"), ESearchCase::IgnoreCase))
+			{
+				return false;
+			}
+			return Def;
+		}
+		default:
+			return Def;
+		}
+	}
+
+	/** Read a slot value as an FVector2D: Vector2 kind, uniform Int/Float, or the String/Name
+	 *  `"x,y"` / `"u"` comma forms (same literal rules as every other slot reader — SLOT-1). */
+	inline FVector2D AsVector2(const FRuitkValue& V, FVector2D Def = FVector2D::ZeroVector)
+	{
+		switch (V.Kind)
+		{
+		case FRuitkValue::EKind::Vector2:
+			return V.Vector2Value;
+		case FRuitkValue::EKind::Int:
+			return FVector2D(static_cast<double>(V.IntValue));
+		case FRuitkValue::EKind::Float:
+			return FVector2D(V.FloatValue);
+		case FRuitkValue::EKind::String:
+		case FRuitkValue::EKind::Name:
+		{
+			const FString S = V.Kind == FRuitkValue::EKind::Name ? V.NameValue.ToString() : V.StringValue;
+			TArray<FString> Parts;
+			S.ParseIntoArray(Parts, TEXT(","), true);
+			if (Parts.Num() == 2)
+			{
+				return FVector2D(FCString::Atod(*Parts[0]), FCString::Atod(*Parts[1]));
+			}
+			if (Parts.Num() == 1 && !Parts[0].TrimStartAndEnd().IsEmpty())
+			{
+				return FVector2D(FCString::Atod(*Parts[0]));
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		return Def;
+	}
+
+	/** Read a slot value as an FMargin: uniform (Int/Float), Vector2 (h,v), or the String/Name comma
+	 *  forms `"u"` / `"h,v"` / `"l,t,r,b"`. Mirrors ParsePadding so every panel honors slot.padding. */
+	inline FMargin AsMargin(const FRuitkValue& V)
+	{
+		switch (V.Kind)
+		{
+		case FRuitkValue::EKind::Int:
+			return FMargin(static_cast<float>(V.IntValue));
+		case FRuitkValue::EKind::Float:
+			return FMargin(static_cast<float>(V.FloatValue));
+		case FRuitkValue::EKind::Vector2:
+			return FMargin(static_cast<float>(V.Vector2Value.X), static_cast<float>(V.Vector2Value.Y));
+		case FRuitkValue::EKind::String:
+		case FRuitkValue::EKind::Name:
+		{
+			const FString S = V.Kind == FRuitkValue::EKind::Name ? V.NameValue.ToString() : V.StringValue;
+			TArray<FString> Parts;
+			S.ParseIntoArray(Parts, TEXT(","), true);
+			if (Parts.Num() == 4)
+			{
+				return FMargin(FCString::Atof(*Parts[0]), FCString::Atof(*Parts[1]), FCString::Atof(*Parts[2]),
+							   FCString::Atof(*Parts[3]));
+			}
+			if (Parts.Num() == 2)
+			{
+				return FMargin(FCString::Atof(*Parts[0]), FCString::Atof(*Parts[1]));
+			}
+			if (Parts.Num() == 1)
+			{
+				return FMargin(FCString::Atof(*Parts[0]));
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		return FMargin(0.0f);
+	}
+} // namespace Ruitk::Slate::SlotValue

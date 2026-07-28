@@ -1,6 +1,6 @@
 # Reactive UI - Unreal Engine - VS Code (UETKX)
 
-Editor support for **`.uetkx`**, the JSX-like markup of [ReactiveUI for Unreal](https://github.com/yanivkalfa/ReactiveUI-Unreal) — a React-style reactive UI library for Unreal Engine 5.6+, in pure C++.
+Editor support for **`.uetkx`**, the JSX-like markup of [Reactive UI Toolkit for Unreal](https://github.com/reactive-ui-toolkit/ruitk-unreal) — a React-style reactive UI library for Unreal Engine 5.6+, in pure C++.
 
 ## Features
 
@@ -31,6 +31,12 @@ Editor support for **`.uetkx`**, the JSX-like markup of [ReactiveUI for Unreal](
      ```
 
 ## Changelog
+
+### [0.9.0] - 2026-07-28
+- Family rebrand to Reactive UI Toolkit (repo ruitk-unreal): every embedded-C++ and scaffold identifier follows the plugin's 0.15.0 renames — FRuitk*/URuitk* types, the Ruitk:: namespace, RUITK_* macros, Ruitk* modules — across the grammar, completions, hovers, diagnostics, quick-fixes, and the synthetic virtual document. Pair with plugin 0.15.0 (see MIGRATION-0.15.md and -run=RuitkMigrateBrand).
+- Quick-fix and documentation texts now reference the renamed commandlets (-run=RuitkCompile / RuitkExportSchema).
+- Marketplace identity and display names are unchanged; the umbrella-name search keywords (reactive ui toolkit, ruitk) are added alongside the existing ones.
+- License reference updated to LicenseRef-Reactive-UI-Toolkit-Community-1.1 — the retitled Reactive UI Toolkit Community License 1.1 (terms unchanged).
 
 ### [0.8.0] - 2026-07-25
 - Live attribute-VALUE validation (UETKX2311): enum vocabularies (incl. style/slot keys), float/int/bool formats, and margin arity check as-you-type, with enum value completion inside the quotes; expr-only string forms surface live.

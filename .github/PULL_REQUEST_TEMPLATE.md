@@ -8,6 +8,6 @@
      before/after numbers against the committed bench harness (plans/BENCH_BASELINES.md). -->
 
 - [ ] Engine-free gates green (`changelog.mjs verify`, `verify-mirror`, `check-headers`, `lint-skills`)
-- [ ] Affected `ReactiveUI.*` suites green (incl. `ReactiveUI.Boot` — unit suites don't run `StartupModule`)
+- [ ] Affected `Ruitk.*` suites green (incl. `Ruitk.Boot` — unit suites don't run `StartupModule`)
 - [ ] Changelog entry in every touched artifact + version bump staged (release-process skill)
 - [ ] Docs updated if behavior/UX changed (`docs-sync` skill)

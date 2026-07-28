@@ -6,7 +6,7 @@
  * manifests with lockstep rules enforced only by skill prose; here it's a script).
  *
  * Usage:
- *   node scripts/bump.mjs plugin 0.2.0       # ReactiveUI.uplugin VersionName + integer Version
+ *   node scripts/bump.mjs plugin 0.2.0       # ReactiveUIToolkit.uplugin VersionName + integer Version
  *   node scripts/bump.mjs vscode 0.1.1       # vscode-uetkx/package.json + LOCKSTEP lsp-server/package.json
  *   node scripts/bump.mjs vs2022 0.1.1       # visual-studio vsixmanifest Identity/@Version
  *
@@ -27,7 +27,7 @@ function readText(p) { return readFileSync(p, 'utf8'); }
 function writeText(p, t) { writeFileSync(p, t, 'utf8'); }
 
 function bumpPlugin(v) {
-  const p = resolve(REPO_ROOT, 'Plugins/ReactiveUI/ReactiveUI.uplugin');
+  const p = resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/ReactiveUIToolkit.uplugin');
   const json = JSON.parse(readText(p));
   const old = json.VersionName;
   json.VersionName = v;
@@ -37,7 +37,7 @@ function bumpPlugin(v) {
   console.error(`✓ plugin: ${old} → ${v} (integer Version → ${json.Version})`);
   console.error('\nFollow-ups (Lane A — release-process skill §changelogs):');
   console.error(`  1. Write the ## [${v}] section at the top of root CHANGELOG.md`);
-  console.error('  2. cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md   (byte-identical mirror)');
+  console.error('  2. cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md   (byte-identical mirror)');
   console.error('  3. node scripts/verify-mirror.mjs');
 }
 

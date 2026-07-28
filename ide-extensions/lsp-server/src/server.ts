@@ -176,7 +176,7 @@ const CLANGD_TYPE_MAP: Record<string, number> = {
  *  is one), so we hover each distinct variable name once per doc version and re-type the ones
  *  whose type spells callable. */
 const callableVarCache = new Map<string, { version: number; callable: Set<string>; checked: Set<string> }>();
-const CALLABLE_TYPE_RE = /TRuiSetter<|TFunction<|FRuiCallback|TDelegate<|TUniqueFunction<|\(lambda\)/;
+const CALLABLE_TYPE_RE = /TRuitkSetter<|TFunction<|FRuitkCallback|TDelegate<|TUniqueFunction<|\(lambda\)/;
 
 connection.languages.semanticTokens.on(async (params) => {
   const doc = documents.get(params.textDocument.uri);
@@ -231,7 +231,7 @@ connection.languages.semanticTokens.on(async (params) => {
           }
           // R7 — COMPILER-truth callables via inlay hints (the owner's dig-deeper call): the
           // AST types structured bindings fine; hover just can't show them. Two exact signals:
-          //   TYPE hints (`: TRuiSetter<bool>`) anchor right after a declared name — match the
+          //   TYPE hints (`: TRuitkSetter<bool>`) anchor right after a declared name — match the
           //   framework's callable vocabulary (family setter/callback/delegate/lambda types);
           //   PARAMETER hints (`NewValue:`) only appear inside calls the compiler RESOLVED —
           //   the callee is callable by proof, whatever its type spells.
@@ -643,8 +643,8 @@ function validate(doc: TextDocument): void {
       return found;
     };
     // R12 — event payload misuse: a handler reads `Value.<Field>` but the event's payload is
-    // a DIFFERENT kind (or void — OnClicked passes a default-constructed FRuiValue), so the
-    // read compiles fine (FRuiValue exposes every field) and is silently empty/0/false at
+    // a DIFFERENT kind (or void — OnClicked passes a default-constructed FRuitkValue), so the
+    // read compiles fine (FRuitkValue exposes every field) and is silently empty/0/false at
     // runtime forever. eventPayloads types each event; PAYLOAD_FIELDS names the members.
     const eventPayloads = schema.eventPayloads ?? {};
     const checkEventExpr = (a: SweptAttr & { exprAt?: number; exprEnd?: number }, bodyCp: readonly number[], baseAt: number): void => {
@@ -656,7 +656,7 @@ function validate(doc: TextDocument): void {
       for (let ci = a.exprAt; ci < a.exprEnd; ci++) expr += String.fromCodePoint(bodyCp[ci]);
       const re = /\bValue\.([A-Za-z_]\w*)/g;
       for (let m = re.exec(expr); m !== null; m = re.exec(expr)) {
-        // StringValue is a real FRuiValue member but NO event payload kind maps to it —
+        // StringValue is a real FRuitkValue member but NO event payload kind maps to it —
         // reading it in any handler is always-empty, same as a mismatched field (R12).
         const pf = m[1] === "StringValue" ? { field: "StringValue" } : PAYLOAD_FIELDS.find((f) => f.field === m[1]);
         if (!pf || (want && pf.field === want.field)) continue;
@@ -1286,7 +1286,7 @@ connection.onCompletion(async (params): Promise<CompletionItem[] | CompletionLis
   const text = doc.getText();
 
   // TD-016 typed event payload FIRST — `Value.<field>` inside an event expression completes the
-  // FRuiValue field with the enclosing event's payload field on top. This is MARKUP-domain
+  // FRuitkValue field with the enclosing event's payload field on top. This is MARKUP-domain
   // knowledge and must beat the embedded-C++ forward: the event expr is a lifted clangd region,
   // and clangd's generic member list (or, headerless, its identifier fallback) would otherwise
   // preempt the payload-first ordering (pre-existing smoke flake, fixed in ES-modules M6).
@@ -1673,7 +1673,7 @@ connection.onHover(async (params) => {
     const entries = Object.entries(el.attrs);
     const events = entries.filter(([, t]) => t === "event").map(([a]) => a);
     const props = entries.filter(([, t]) => t !== "event");
-    const slate = el.factory.startsWith("RUI::Slate::") ? ` — \`S${word}\`` : "";
+    const slate = el.factory.startsWith("Ruitk::Slate::") ? ` — \`S${word}\`` : "";
     const lines = [
       `**\`<${word}>\`**${slate} · ${el.children ? "container" : "leaf"}${el.sinceUE ? ` · **requires UE ${el.sinceUE}+**` : ""}`,
       "",
@@ -1711,7 +1711,7 @@ connection.onHover(async (params) => {
 
   if (schema.hooks.includes(word)) {
     return md(
-      `**\`${word}\`** — ReactiveUI hook (a member of \`FRuiContext\`; markup calls it bare and the compiler prefixes \`Ctx.\`). Hook rules apply: unconditional call order, setup-only.`,
+      `**\`${word}\`** — Reactive UI Toolkit hook (a member of \`FRuitkContext\`; markup calls it bare and the compiler prefixes \`Ctx.\`). Hook rules apply: unconditional call order, setup-only.`,
     );
   }
   if (schema.styleKeys.includes(word)) {
@@ -1726,7 +1726,7 @@ connection.onHover(async (params) => {
   }
   if (word === "classes") {
     return md(
-      "**`classes`** — style-class list resolved through the registered style registry (`RUI::Slate::RegisterStyleClass`); later classes win on conflicts.",
+      "**`classes`** — style-class list resolved through the registered style registry (`Ruitk::Slate::RegisterStyleClass`); later classes win on conflicts.",
     );
   }
   if (word === "Ref") {
@@ -1734,7 +1734,7 @@ connection.onHover(async (params) => {
       contents: {
         kind: "markdown" as const,
         value:
-          "**Ref** — universal reserved prop: `Ref={ expr }` captures the mounted widget's host handle (React ref lifecycle — called on attach, cleared on detach). Pass a `TFunction<void(const FRuiHostHandle&)>` or a `RUI::Slate::UseFocus` handle's `.Ref`.",
+          "**Ref** — universal reserved prop: `Ref={ expr }` captures the mounted widget's host handle (React ref lifecycle — called on attach, cleared on detach). Pass a `TFunction<void(const FRuitkHostHandle&)>` or a `Ruitk::Slate::UseFocus` handle's `.Ref`.",
       },
     };
   }

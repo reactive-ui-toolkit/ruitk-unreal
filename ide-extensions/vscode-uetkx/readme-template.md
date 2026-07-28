@@ -1,6 +1,6 @@
 # Reactive UI - Unreal Engine - VS Code (UETKX)
 
-Editor support for **`.uetkx`**, the JSX-like markup of [ReactiveUI for Unreal](https://github.com/yanivkalfa/ReactiveUI-Unreal) — a React-style reactive UI library for Unreal Engine 5.6+, in pure C++.
+Editor support for **`.uetkx`**, the JSX-like markup of [Reactive UI Toolkit for Unreal](https://github.com/reactive-ui-toolkit/ruitk-unreal) — a React-style reactive UI library for Unreal Engine 5.6+, in pure C++.
 
 ## Features
 

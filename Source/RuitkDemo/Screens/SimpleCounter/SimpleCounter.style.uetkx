@@ -1,0 +1,18 @@
+// SimpleCounter.style.uetkx — the screen's shared style values (value-export companion,
+// FILE_SCOPED_EXPORTS living proof: `PanelBackground` is ALSO exported by ContextDemo.style
+// — same-name exports across files are legal ES-module scoping (each file is its own module).
+// same pattern as ContextDemo.style.uetkx). Element-attr margins are real FMargin values;
+// Slot.* paddings stay strings (FRuitkValue has no FMargin kind — the slot dict parses the
+// "l,t,r,b" literal at apply time).
+
+export FLinearColor PanelBackground = { 0.02f, 0.02f, 0.03f, 0.85f };
+
+export FMargin PanelPadding = { 12.0f };
+
+export FMargin ButtonPadding = { 12.0f, 4.0f };
+
+export FVector2D RowGap = { 1.0f, 6.0f };
+
+export FString PanelSlotPadding = TEXT("0,10,0,0");
+
+export FString ButtonSlotPadding = TEXT("0,0,6,0");

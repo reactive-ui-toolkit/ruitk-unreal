@@ -1,0 +1,10 @@
+FRuitkNode Row() {
+	return ( <Spacer /> );
+}
+export FRuitkNode PrivPairA() {
+	return (
+		<VerticalBox>
+			<Row />
+		</VerticalBox>
+	);
+}

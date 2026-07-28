@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "date": "2026-07-28",
+      "versions": {
+        "vscode": "0.9.0",
+        "vs2022": "0.9.0"
+      },
+      "shared": [
+        "Family rebrand to Reactive UI Toolkit (repo ruitk-unreal): every embedded-C++ and scaffold identifier follows the plugin's 0.15.0 renames — FRuitk*/URuitk* types, the Ruitk:: namespace, RUITK_* macros, Ruitk* modules — across the grammar, completions, hovers, diagnostics, quick-fixes, and the synthetic virtual document. Pair with plugin 0.15.0 (see MIGRATION-0.15.md and -run=RuitkMigrateBrand).",
+        "Quick-fix and documentation texts now reference the renamed commandlets (-run=RuitkCompile / RuitkExportSchema).",
+        "Marketplace identity and display names are unchanged; the umbrella-name search keywords (reactive ui toolkit, ruitk) are added alongside the existing ones.",
+        "License reference updated to LicenseRef-Reactive-UI-Toolkit-Community-1.1 — the retitled Reactive UI Toolkit Community License 1.1 (terms unchanged)."
+      ]
+    },
+    {
       "date": "2026-07-25",
       "versions": {
         "vscode": "0.8.0",

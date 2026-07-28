@@ -32,13 +32,13 @@ export interface PositionResponder {
 
 /** The virtual URI the proxy sees for a .uetkx document's synthesized C++ translation unit. */
 export function virtualUriOf(sourceUri: string): string {
-  return `${sourceUri}.__rui_embedded__.cpp`;
+  return `${sourceUri}.__ruitk_embedded__.cpp`;
 }
 
 /** Inverse of virtualUriOf — the real .uetkx uri behind a virtual one, or null for a uri that
  *  is not ours (TB-10: routes clangd's publishDiagnostics back to the right document). */
 export function realUriOfVirtual(virtualUri: string): string | null {
-  const suffix = ".__rui_embedded__.cpp";
+  const suffix = ".__ruitk_embedded__.cpp";
   return virtualUri.endsWith(suffix) ? virtualUri.slice(0, -suffix.length) : null;
 }
 

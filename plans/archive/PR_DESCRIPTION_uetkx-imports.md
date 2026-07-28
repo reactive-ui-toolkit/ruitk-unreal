@@ -1,7 +1,7 @@
 # feat: `.uetkx` compiler + imports, IDE/LSP, Epic interop, HMR v2 — the full authoring stack
 
 > Paste into the GitHub compare page. **Base:** `dev` (clean ancestor — 97 commits ahead, 0 behind).
-> Compare: https://github.com/yanivkalfa/ReactiveUI-Unreal/pull/new/feat/uetkx-imports
+> Compare: https://github.com/reactive-ui-toolkit/ruitk-unreal/pull/new/feat/uetkx-imports
 > Delete this file after merge.
 
 ## What this is

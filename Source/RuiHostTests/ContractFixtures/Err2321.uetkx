@@ -1,5 +1,0 @@
-export FRuiNode UseBadShape() {
-	return (
-		<Spacer />
-	);
-}

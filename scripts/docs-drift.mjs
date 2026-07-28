@@ -38,11 +38,11 @@ function readUetkxSchema() {
   return JSON.parse(raw);
 }
 
-/** Core hooks = the Ctx member hooks in RuiContext.h (Use* + ProvideContext, minus *Impl)
- *  + UseSignal/UseSignalKey (RuiSignal.h) + UsePresence (RuiPresence.h) — the audited 23. */
+/** Core hooks = the Ctx member hooks in RuitkContext.h (Use* + ProvideContext, minus *Impl)
+ *  + UseSignal/UseSignalKey (RuitkSignal.h) + UsePresence (RuitkPresence.h) — the audited 23. */
 function countCoreHooks() {
   const ctx = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUICore/Public/RuiContext.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkContext.h'),
     'utf8',
   );
   const names = new Set();
@@ -52,35 +52,35 @@ function countCoreHooks() {
   return names.size + 2 /* UseSignal, UseSignalKey */ + 1 /* UsePresence */;
 }
 
-/** Wrapped Slate widgets = the public FRuiNode factories in ReactiveUISlate + core TextBlock. */
+/** Wrapped Slate widgets = the public FRuitkNode factories in RuitkSlate + core TextBlock. */
 function countWidgetFactories() {
-  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUISlate/Public');
+  const dir = resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkSlate/Public');
   const names = new Set();
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.h')) continue;
     const text = readFileSync(resolve(dir, f), 'utf8');
-    for (const m of text.matchAll(/REACTIVEUISLATE_API FRuiNode ([A-Z]\w+)\s*\(/g)) {
+    for (const m of text.matchAll(/RUITKSLATE_API FRuitkNode ([A-Z]\w+)\s*\(/g)) {
       names.add(m[1]);
     }
   }
-  return names.size + 1; // + RUI::TextBlock (core)
+  return names.size + 1; // + Ruitk::TextBlock (core)
 }
 
-/** Gallery screens = the screen directories under Source/RuiDemo/Screens. */
+/** Gallery screens = the screen directories under Source/RuitkDemo/Screens. */
 function countGalleryScreens() {
-  return readdirSync(resolve(REPO_ROOT, 'Source/RuiDemo/Screens'), { withFileTypes: true }).filter(
+  return readdirSync(resolve(REPO_ROOT, 'Source/RuitkDemo/Screens'), { withFileTypes: true }).filter(
     (e) => e.isDirectory(),
   ).length;
 }
 
-/** Router hooks = the REACTIVEUICORE_API Use* free functions in RuiRouter.h. */
+/** Router hooks = the RUITKCORE_API Use* free functions in RuitkRouter.h. */
 function countRouterHooks() {
   const text = readFileSync(
-    resolve(REPO_ROOT, 'Plugins/ReactiveUI/Source/ReactiveUICore/Public/RuiRouter.h'),
+    resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkRouter.h'),
     'utf8',
   );
   const names = new Set();
-  for (const m of text.matchAll(/REACTIVEUICORE_API [\w<>,&:\s]+?\b(Use[A-Z]\w+)\s*\(/g)) {
+  for (const m of text.matchAll(/RUITKCORE_API [\w<>,&:\s]+?\b(Use[A-Z]\w+)\s*\(/g)) {
     names.add(m[1]);
   }
   return names.size;
@@ -89,13 +89,13 @@ function countRouterHooks() {
 /** Hook catalog entries by category — the generated per-hook docs pages read this file.
  *  The trailing comma distinguishes data entries from the interface's union-type line. */
 function countHooksCatalog(category) {
-  const text = readFileSync(resolve(REPO_ROOT, 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts'), 'utf8');
+  const text = readFileSync(resolve(REPO_ROOT, 'RuitkUnrealDocs~/src/hooksCatalog.ts'), 'utf8');
   return (text.match(new RegExp(`category: '${category}',`, 'g')) ?? []).length;
 }
 
 /** Automation tests = IMPLEMENT_*_AUTOMATION_TEST macros in the test module. */
 function countAutomationTests() {
-  const dir = resolve(REPO_ROOT, 'Source/RuiHostTests/Private');
+  const dir = resolve(REPO_ROOT, 'Source/RuitkHostTests/Private');
   let count = 0;
   for (const f of readdirSync(dir)) {
     if (!f.endsWith('.cpp')) continue;
@@ -114,7 +114,7 @@ const CHECKS = [
   },
   {
     // Docs intro: "UseState, UseEffect, and 21 more" (= the 23 total, 2 named + N more).
-    file: 'ReactiveUIUnrealDocs~/src/pages/Introduction/IntroductionPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/Introduction/IntroductionPage.tsx',
     pattern: /and (\d+) more/,
     source: () => countCoreHooks() - 2,
   },
@@ -144,7 +144,7 @@ const CHECKS = [
   },
   {
     // Components Overview prose: "Markup tags (29 of them)" — must equal the schema exactly.
-    file: 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
     pattern: /\((\d+) of them\)/,
     source: () => Object.keys(readUetkxSchema().elements ?? {}).length,
   },
@@ -152,11 +152,11 @@ const CHECKS = [
     // Components Overview TAG_GROUPS chips: hand-listed, so gate MEMBERSHIP against the schema —
     // every schema tag in exactly one group's `tags:` array (the chips drifted silently once:
     // stuck at the 29-tag era while the schema hit 63). Mismatch returns -1 to fail loud.
-    file: 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
+    file: 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx',
     pattern: /TAG_GROUPS chips: (\d+) tags/,
     source: () => {
       const src = readFileSync(
-        resolve(REPO_ROOT, 'ReactiveUIUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx'),
+        resolve(REPO_ROOT, 'RuitkUnrealDocs~/src/pages/ComponentsOverview/ComponentsOverviewPage.tsx'),
         'utf8',
       );
       const chips = new Set();
@@ -171,7 +171,7 @@ const CHECKS = [
   {
     // The generated per-hook docs pages: the catalog's CORE entries must cover every core hook.
     // (The claim line lives in the catalog header so the check self-anchors to the data file.)
-    file: 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts',
+    file: 'RuitkUnrealDocs~/src/hooksCatalog.ts',
     pattern: /(\d+) core hook entries/,
     source: () => {
       const registry = countCoreHooks();
@@ -180,8 +180,8 @@ const CHECKS = [
     },
   },
   {
-    // ...and the ROUTER entries must cover every RuiRouter.h hook.
-    file: 'ReactiveUIUnrealDocs~/src/hooksCatalog.ts',
+    // ...and the ROUTER entries must cover every RuitkRouter.h hook.
+    file: 'RuitkUnrealDocs~/src/hooksCatalog.ts',
     pattern: /(\d+) router hook entries/,
     source: () => {
       const registry = countRouterHooks();

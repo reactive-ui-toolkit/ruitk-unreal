@@ -35,27 +35,27 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
 | Bucket | Goes to |
 |---|---|
 | New Slate widget worth wrapping | `plans/WIDGET_INVENTORY.md` row (BATCH-3 or next batch) → the `component-pipeline` skill, one run per widget, with `sinceUE` noted |
-| New argument/attribute/event on an ALREADY-WRAPPED widget | the widget's adapter + typed props struct + the schema (then `-run=RUIExportSchema` refreshes `uetkx-schema.json` → LSP + generated docs pages pick it up) |
+| New argument/attribute/event on an ALREADY-WRAPPED widget | the widget's adapter + typed props struct + the schema (then `-run=RuitkExportSchema` refreshes `uetkx-schema.json` → LSP + generated docs pages pick it up) |
 | Removed/renamed API we consume | fix the adapter; if OUR public surface must change, follow `VERSIONING.md` deprecation policy |
 | New widget NOT worth wrapping (editor-only, niche) | `WIDGET_INVENTORY.md` row with status + reason — "a widget with no row is a sweep bug, not a scope decision" |
 | Behavior change (no API change — from the release notes) | test it; document in the docs page of the affected subsystem + Known Issues if user-visible |
 
 ## 3. Implementation checklist (in order; each row names its gate)
 
-1. **Plugin manifest**: the dev repo's `ReactiveUI.uplugin` carries **NO `EngineVersion`
+1. **Plugin manifest**: the dev repo's `ReactiveUIToolkit.uplugin` carries **NO `EngineVersion`
    pin** — that field is a hard per-version compatibility gate, not a floor declaration
-   (a 5.6.0 pin made 5.7 show "'ReactiveUI' is Incompatible… Attempt to load anyway?",
+   (a 5.6.0 pin made 5.7 show "'ReactiveUIToolkit' is Incompatible… Attempt to load anyway?",
    which headless/-unattended auto-answers NO → the plugin silently never loads and every
    adapter lookup dies). The floor lives in VERSIONING.md/README; per-engine zips stamp
    `EngineVersion` at packaging (release-process).
 2. **Adapters/widgets**: per the classification — `component-pipeline` runs for new
-   widgets; adapter edits for changed ones. Gate: the widget's suite + `ReactiveUI.Boot`.
-3. **Schema**: `-run=RUIExportSchema`, commit the refreshed
+   widgets; adapter edits for changed ones. Gate: the widget's suite + `Ruitk.Boot`.
+3. **Schema**: `-run=RuitkExportSchema`, commit the refreshed
    `ide-extensions/lsp-server/src/uetkx-schema.json` — the LSP completions AND the
-   generated docs Components pages both read it. Gate: `ReactiveUI.Uetkx.Schema` +
+   generated docs Components pages both read it. Gate: `Ruitk.Uetkx.Schema` +
    `docs-drift` (the 29-tags check will catch a count change — update the Components
    Overview prose in the same PR).
-4. **Docs version manifest**: `ReactiveUIUnrealDocs~/src/versionManifest.ts` —
+4. **Docs version manifest**: `RuitkUnrealDocs~/src/versionManifest.ts` —
    add the version to `SUPPORTED_VERSIONS`; add `ELEMENT_VERSIONS` entries for new
    widgets (`sinceUE`), `PAGE_VERSIONS` for new pages. The version dropdown, sidebar
    filtering, and the generated pages' `VersionBadge` all key off this file. Gate:
@@ -65,8 +65,8 @@ classes**. It is a header scan (UE 5.4+ exports per-function, so widget classes 
    loop in `release-plugin` (Route B, 2026-07-25); both carry KEEP-IN-SYNC comments. Also
    the `test-run`/CLAUDE.md environment facts if the owner's local default engine moves.
    Gate: armed engine legs green (or the local battery per engine when CI is unarmed).
-6. **Full battery on the NEW engine**: build + `RUICompile -check` + the full
-   `ReactiveUI` suite against the new version (the `test-run` skill's ladder, pointing
+6. **Full battery on the NEW engine**: build + `RuitkCompile -check` + the full
+   `Reactive UI Toolkit` suite against the new version (the `test-run` skill's ladder, pointing
    `<Engine>` at the new install). Bench re-run per `plans/BENCH_BASELINES.md` rules if
    perf claims are printed per-engine.
 7. **Packaging/release**: per-engine zip via the `release-process` skill; the Fab
@@ -109,4 +109,4 @@ every row above names green gates in the PR description.
   output in `Intermediate/` doesn't compile on 5.6 (`ETypeConstructPhase`,
   `UE_WITH_CONSTINIT_UOBJECT`) and UBT does not always invalidate it — a switch-back build
   exploding with hundreds of errors in `*.generated.h` means stale UHT, not broken code:
-  `rm -rf Intermediate/Build Plugins/ReactiveUI/Intermediate Binaries Plugins/ReactiveUI/Binaries`.
+  `rm -rf Intermediate/Build Plugins/ReactiveUIToolkit/Intermediate Binaries Plugins/ReactiveUIToolkit/Binaries`.

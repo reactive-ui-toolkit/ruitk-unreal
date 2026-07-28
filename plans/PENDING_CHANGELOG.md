@@ -40,3 +40,10 @@ around.
      owner-PASS 2026-07-25; UE 5.7 battery 132/132 same day (matrix pending); 5.8 pending
      engine repair. -->
 (empty — drained 2026-07-25)
+
+<!-- Drained 2026-07-28 for the rebrand release (plugin 0.15.0, extensions 0.9.0): nothing was
+     staged here (the ledger was empty since 2026-07-25); the rebrand campaign wrote its lanes
+     directly — Lane A (CHANGELOG.md [0.15.0] BREAKING section + mirror), Lane B
+     (changelog.json 2026-07-28 entry, 4 shared bullets — vscode+vs2022 0.9.0), Lane C
+     (DISCORD_CHANGELOG [0.15.0]). -->
+(empty — drained 2026-07-28)

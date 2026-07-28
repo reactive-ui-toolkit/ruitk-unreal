@@ -1,6 +1,6 @@
 {
 	// Explorer hygiene: a .uetkx screen's generated sidecars stay out of sight — the markup is
-	// the thing you edit; the committed .inl regenerates via RUICompile/the watcher, and the
+	// the thing you edit; the committed .inl regenerates via RuitkCompile/the watcher, and the
 	// .diags.json sidecars are machine-local (gitignored). Search stays clean too.
 	// NOTE: the files still exist and are committed (the .inl MUST ship) — this only hides
 	// them from the Explorer tree; disable any line here to see them again.

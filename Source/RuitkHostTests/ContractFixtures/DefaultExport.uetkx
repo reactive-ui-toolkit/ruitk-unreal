@@ -1,0 +1,6 @@
+export FRuitkNode DefaultExport() {
+	return (
+		<Spacer />
+	);
+}
+export default DefaultExport;

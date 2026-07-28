@@ -6,13 +6,13 @@ IntelliSense passes) against the demo tree, with root causes from tokenizer-harn
 the extension side (grammar + language config + formatter); every grammar edit syncs the VS2022
 copy byte-identically, every formatter edit keeps C++ ↔ LSP parity via
 `ide-extensions/lsp-server/test-fixtures/uetkx-formatter-cases.json` (shared by the C++
-`ReactiveUI.Uetkx.Formatter` suite and the LSP replay test — NOT family-core-hashed, so cases
+`Ruitk.Uetkx.Formatter` suite and the LSP replay test — NOT family-core-hashed, so cases
 may be updated freely).
 
 ## TB-1 — Angle brackets: red "unmatched" brackets + generics parsed as markup tags
 
 **Repro:** `AcceptanceLab.uetkx` (brackets "off" everywhere), `CustomDraw.uetkx`
-(`UseMemo<TSharedPtr<FRuiDrawFn>>` — `<>` wrong), `DoomGameScreen.uetkx` /
+(`UseMemo<TSharedPtr<FRuitkDrawFn>>` — `<>` wrong), `DoomGameScreen.uetkx` /
 `DoomGame.uetkx` / `DoomHUD` usage (cascading red `>` / `/>`).
 
 **Two independent root causes:**
@@ -21,9 +21,9 @@ may be updated freely).
   generic closers, painting "unmatched" ones red. JSX/TSX deliberately omit angle brackets
   from `brackets` for exactly this reason.
 - (b) The grammar's `tag-open` rule fires on ANY `<Identifier` inside code —
-  scope-dump proof: in `TSharedPtr<FRuiDrawFn>&`, `<FRuiDrawFn>` tokenizes as
-  `meta.tag.open` with `FRuiDrawFn` as `support.class.component`; in
-  `UseMemo<TSharedPtr<`, `TSharedPtr` becomes a tag and `FRuiDrawFn` an
+  scope-dump proof: in `TSharedPtr<FRuitkDrawFn>&`, `<FRuitkDrawFn>` tokenizes as
+  `meta.tag.open` with `FRuitkDrawFn` as `support.class.component`; in
+  `UseMemo<TSharedPtr<`, `TSharedPtr` becomes a tag and `FRuitkDrawFn` an
   `entity.other.attribute-name`.
 
 **Fix:** (a) drop `<`,`>` from `brackets` + `surroundingPairs`; (b) guard the tag begin:
@@ -118,7 +118,7 @@ through, and line/col derive from the scanner's code-point offset. **Status: FIX
 
 ## TB-9 — Host includes: wrong header name gives no squiggle, no go-to-definition
 
-**Repro:** `CommonUiDemo.uetkx` — `import "@RuiDemoSupport.h"` / `import "@DemoInteropWidgets.h"`:
+**Repro:** `CommonUiDemo.uetkx` — `import "@RuitkDemoSupport.h"` / `import "@DemoInteropWidgets.h"`:
 misspell the name → no diagnostic; click → no definition.
 
 **Root cause:** host includes are nameless BY DESIGN (the C++ compiler owns the symbols), so
@@ -181,7 +181,7 @@ markup-as-value support recorded as **TD-032** (family RFC — same lane as TD-0
 **RESOLVED by the markup-everywhere campaign (2026-07-17,
 `plans/MARKUP_EVERYWHERE_PLAN.md` §4):** markup-as-value is now FIRST-CLASS — it lowers in
 place at every family boundary position (assignment, call argument, ternary, short-circuit),
-the LSP lifts it (typed `__rui_rn` placeholder + mapped inner expressions), AcceptanceLab §10
+the LSP lifts it (typed `__ruitk_rn` placeholder + mapped inner expressions), AcceptanceLab §10
 demos it, and the corrected owner repro (`auto X = (<VerticalBox>…); … { X }`) compiles and
 renders. `UETKX0114` NARROWED to the one still-illegal spelling: a paren-less statement-level
 markup return (`return <Tag/>;`). Rules-of-hooks landed alongside (UETKX0013-0016 — hooks are
@@ -201,7 +201,7 @@ enforces structurally. Owner reviewed and accepted the `@if` form; no grammar ch
 *Verification per fix: tokenizer harness scope dumps (before/after) on SimpleCounter,
 AcceptanceLab, CustomDraw, DoomGameScreen, RouterUser; formatter corpus replay green in BOTH
 implementations; format sweep idempotent over all 56 committed `.uetkx`; battery unaffected
-(formatting is `.inl`-insensitive — proven by `RUICompile -check` = 0 drift after the first
+(formatting is `.inl`-insensitive — proven by `RuitkCompile -check` = 0 drift after the first
 save-format wave).*
 
 ## TB-13 — **CRITICAL**: HMR v2 lost the family reset-on-hook-shape-change rule (silent state corruption)
@@ -213,14 +213,14 @@ siblings reset when hook order changes?") — before hitting it live.
 edit that CHANGES THE HOOK LIST (add/remove/reorder a `UseState`/`UseMemo`/… call). After
 the Live Coding patch, cells are read positionally by the NEW hook order: hooks silently
 inherit a NEIGHBOR'S value (plausible-looking wrong state), or read type-punned cells. Only
-signal: `[Hooks][order]` log lines, and only when `rui.HookValidation` is on.
+signal: `[Hooks][order]` log lines, and only when `ruitk.HookValidation` is on.
 
 **Root cause:** the family rule — "state preserved on stable hook shape, RESET on a real
 shape change" — is stated in `plans/archive/HMR_V2_PLAN.md` (line ~122) and was implemented
 in HMR v1 by the INTERPRETER: it computed an AST hook signature and drove
-`SetComponentOverride(bResetState)` → `FRuiComponentState::HmrResetHooks()`. HMR v2 deleted
+`SetComponentOverride(bResetState)` → `FRuitkComponentState::HmrResetHooks()`. HMR v2 deleted
 the interpreter and nothing inherited the job: `RegisterHookSignature`/`FindHookSignature`
-(RuiNode.h) have no production callers left (one driver unit test simulates them), and the
+(RuitkNode.h) have no production callers left (one driver unit test simulates them), and the
 v2 patch path (`HmrRefreshAll`) only dirties fibers — no signature compare, no reset. A
 regression by omission, violating the v2 plan's own text; the worst failure class (silently
 wrong values that look plausible).
@@ -234,20 +234,20 @@ re-render after a patch, mismatch → `HmrResetHooks()` (exists, orphaned) + a M
 matrix item replacing the "re-enter the screen after hook edits" guidance.
 
 **Status:** FIXED (code complete 2026-07-21, engine build + suite run pending editor close):
-runtime detection — the HMR controller arms `RUI::SetHmrHookTracking` for the session and
-bumps `RUI::BumpHmrGeneration()` on every patch-complete; the reconciler records the
+runtime detection — the HMR controller arms `Ruitk::SetHmrHookTracking` for the session and
+bumps `Ruitk::BumpHmrGeneration()` on every patch-complete; the reconciler records the
 flattened hook sequence per render and, when it differs ACROSS a generation boundary,
 runs `HmrResetHooks()` (effect cleanups included) + re-renders clean, logging
-`[ReactiveUI][HMR] <Comp>: hook shape changed by the edit (N -> M hooks) — state reset`.
+`[Reactive UI Toolkit][HMR] <Comp>: hook shape changed by the edit (N -> M hooks) — state reset`.
 A shape change without a generation bump stays the rules-of-hooks user error. Pinned by
-`ReactiveUI.Hooks.HmrShapeReset` (preserve-on-stable / reset-on-change / no-reset-without-
+`Ruitk.Hooks.HmrShapeReset` (preserve-on-stable / reset-on-change / no-reset-without-
 boundary). v2 amendment (2026-07-24): the misaligned render is now MEMORY-SAFE — per-cell TypeHash +
 tail truncation at every accessor (the v1 render-then-detect design crashed the editor:
 a State cell destructed as a Memo cell). See F5_FIELD_TEST_BUGS round 16 for the full
 design; the pre-render (codegen-signature) variant remains the post-v1 refinement. Field note
 (2026-07-24): applying THIS fix via Ctrl+Alt+F11 into a live editor crashed it —
-FRuiComponentState gained a field, and Live-Coded code read the new layout on old-layout
-objects (plus LNK2019 on the new cross-module RUI:: exports). The fix itself is sound;
+FRuitkComponentState gained a field, and Live-Coded code read the new layout on old-layout
+objects (plus LNK2019 on the new cross-module Ruitk:: exports). The fix itself is sound;
 it simply requires the full rebuild, like any layout/API change.
 
 ## TB-14 — 2106 invisible live + the standing-error toast storm (the style-extraction session)
@@ -307,7 +307,7 @@ Value exports now lower as `inline <T> Name() { return <Init>; }`; every referen
 rewritten to a call by the PrefixHookCalls walker (new ValueCalls branch — same-file
 values any visibility + imported names resolving to VALUE decls incl. default and
 namespace-star, shadowed locals suppressed, existing call forms untouched, private names
-compose with RuiPriv_:: qualification). The LSP virtual doc is deliberately UNCHANGED —
+compose with RuitkPriv_:: qualification). The LSP virtual doc is deliberately UNCHANGED —
 it mirrors SOURCE semantics (values are values to the author; lifted exprs are verbatim
 source). Owned consequences: `&Name` no longer compiles (values are prvalues now);
 legacy `module` bodies (verbatim C++, deprecated 2320) do not get the rewrite. Codegen
@@ -347,7 +347,7 @@ file at Error, repeats at Verbose, re-arms on recovery.
 ## TB-17 — memo caches serve PRE-PATCH values after an HMR refresh (stale derivations)
 
 **Found:** 2026-07-24, owner matrix item 8: editing the STRING inside a
-`UseMemo<FString>(factory, RUI::Deps())` produced a successful patch + refresh and NO
+`UseMemo<FString>(factory, Ruitk::Deps())` produced a successful patch + refresh and NO
 visual change — the memo cell returned the value cached at mount; empty deps never
 recompute. Not an on/off-cycle bug (reproduces in plain HMR too); React's Fast Refresh
 shares the gotcha, but the family rule should be COHERENT: **preserve state, recompute
@@ -355,14 +355,14 @@ derivations** — a patch changed the code that derives the value, so derived ca
 follow it (the TB-15 lesson at the hook level).
 
 **Fix direction:** on the HMR refresh path (generation bump), MEMO-family cells
-(`TRuiMemoCell`, `TRuiDeferredCell` deps) invalidate their cached deps (unset → DepsChanged
+(`TRuitkMemoCell`, `TRuitkDeferredCell` deps) invalidate their cached deps (unset → DepsChanged
 → factory re-runs on the refresh render). `UseState`/`UseRef`/reducer cells stay untouched
 (user data). Headless-testable (same harness as HmrShapeReset).
 
-**Status:** FIXED (2026-07-24): `IRuiHookCell::HmrInvalidateDerived` — at the first
+**Status:** FIXED (2026-07-24): `IRuitkHookCell::HmrInvalidateDerived` — at the first
 render after a patch (generation boundary), memo-family cells (Memo/Deferred) unset their
 remembered deps so the freshly patched factory re-runs; State/Ref/Reducer untouched.
-"Preserve state, recompute derivations." Pinned by `ReactiveUI.Hooks.HmrMemoInvalidate`
+"Preserve state, recompute derivations." Pinned by `Ruitk.Hooks.HmrMemoInvalidate`
 (cache holds without a boundary — plain React semantics; recomputes across one; state
 survives the same refresh).
 
@@ -427,7 +427,7 @@ different files are NORMAL; importers disambiguate (and `as` aliasing exists for
 that wants both).
 
 **What the code actually does:** the ES-modules campaign gave PRIVATE decls per-file scoping
-(`RuiPriv_<Basename>` namespace, file-qualified runtime identity — TD-026). EXPORTS were left
+(`RuitkPriv_<Basename>` namespace, file-qualified runtime identity — TD-026). EXPORTS were left
 as global-scope C++ symbols: each module's `.inl`s compile into one aggregated TU (C2084 on
 same-name), and same-name across modules is an ODR hazard (global-scope inline definitions),
 hence the driver's project-wide NameToFile ledger. UETKX2106 is the guardrail that surfaces
@@ -438,11 +438,11 @@ into HMR identity.
 
 **Proper fix (campaign-sized):** per-file namespaces for EXPORTS too — emit every file's
 exports inside a file-derived namespace (derived from the project-relative path, not the bare
-basename: `RuiPriv_<Basename>` already carries a latent same-basename-two-dirs collision);
+basename: `RuitkPriv_<Basename>` already carries a latent same-basename-two-dirs collision);
 importers lower to using-declarations/alias rewrites per their import lists (the alias plane
 exists); runtime registry keys become file-qualified for exports as they already are for
 privates. Ripples: CodegenVersion bump, 32 contract goldens, HMR identity (G-09),
-RegisterNamedFactory/`RUI::Named` consumers, 2106 retired or reduced to real collisions, LSP
+RegisterNamedFactory/`Ruitk::Named` consumers, 2106 retired or reduced to real collisions, LSP
 mirror, docs, migration codemod.
 
 **Status: PLANNED (2026-07-24)** — owner directive: "exactly like react, es modules … scale
@@ -455,7 +455,7 @@ diagnostic. The earlier a/b/c question dissolved: the family answer (React + Uni
 file-qualified identity everywhere with short-name convenience only at human edges.
 
 > **TB-20 EXECUTED (2026-07-24):** the FILE_SCOPED_EXPORTS campaign shipped on this branch —
-> per-file flat namespaces for every decl (`RuiUetkx_<path>_<stem>`), FQN runtime identity with
+> per-file flat namespaces for every decl (`RuitkUetkx_<path>_<stem>`), FQN runtime identity with
 > short-name suffix resolution at the designer edges, UETKX2106 retired (UETKX2329 case-fold
 > check is the one survivor), UETKX2303 re-keyed to local bindings, CodegenVersion 4. Evidence:
 > full battery 132/0, LSP 91/91 + smoke, `-check` 0 drift, the demo tree carries the owner's
@@ -472,9 +472,9 @@ changes (the strict-includes experiment's `-DisableUnity -NoPCH` run left UBT ac
 made the in-editor compile rebuild Core).
 
 **Root cause (product-level, latent since D-05):** every runtime registry was a FUNCTION-LOCAL
-static (`static FRuiComponentRegistry Instance;`). A Live-Coding patch that recompiles the
+static (`static FRuitkComponentRegistry Instance;`). A Live-Coding patch that recompiles the
 holder gets its OWN fresh copy (guard + storage are function-internal), so patched lookups read
-an EMPTY registry while the base one holds every registration → `RUI::Named` returned the empty
+an EMPTY registry while the base one holds every registration → `Ruitk::Named` returned the empty
 Fragment (null Props) → `WithSlot`'s `ToSharedRef()` assert. The PIE-stop AV is the same
 Frankenstein session (base + patched Core tearing down a mixed-generation tree). Users WILL
 live-code Core themselves — this was a real product landmine, not just tooling fallout.
@@ -523,7 +523,7 @@ importer flags 2300/2302; recreate → clears.
 patching, the post-patch refresh AV'd tearing down the old tree — twice, reproducibly, both
 stacks dying in `TFunction_OwnedObject<…SimpleCounter_UetkxImpl…lambda_3/4>` destructors that
 live in EARLIER patch DLLs (`patch_12`, `patch_4`), called from
-`OnPatchComplete → HmrRefreshAll → ReconcileFiber → ~FRuiButtonProps`.
+`OnPatchComplete → HmrRefreshAll → ReconcileFiber → ~FRuitkButtonProps`.
 
 **Root cause (the last layer of the TB-13 class):** anonymous lambdas mangle by ORDINAL under
 their enclosing function (`…SimpleCounter_UetkxImpl…<lambda_3>`), and Live Coding redirects
@@ -614,18 +614,18 @@ crisp toast updating its text.
 ## TB-27 — clangd "void function should not return a value" on EVERY early return
 
 **Found:** 2026-07-25, owner: `return (<></>);` before the main return in SimpleCounter showed
-"Void function '__rui_setup_SimpleCounter' should not return a value". Investigation: NOT a
-fragment bug — the vdoc lifted setup into a `void __rui_setup_<Name>` scaffold while early-
-return windows keep their real `return ( … )` glue with the markup neutralized to `__rui_rn`,
+"Void function '__ruitk_setup_SimpleCounter' should not return a value". Investigation: NOT a
+fragment bug — the vdoc lifted setup into a `void __ruitk_setup_<Name>` scaffold while early-
+return windows keep their real `return ( … )` glue with the markup neutralized to `__ruitk_rn`,
 so EVERY early return (element, fragment, and the excludeSpans directive fallback) was illegal
 C++ inside it. The compiler pipeline was proven clean (the same shape lowers to
-`RUI::Fragment` via codegen); the second message the owner saw (0114 "must be parenthesized")
+`Ruitk::Fragment` via codegen); the second message the owner saw (0114 "must be parenthesized")
 was transient keystroke state, not reproducible from the committed scanners.
 
-**Fix (vdoc):** the scaffold returns `FRuiNode` (the prelude's `__rui_rn` type) and closes
-with a synthetic `return __rui_rn;` tail so the no-early-return shape has no C4715. Early
+**Fix (vdoc):** the scaffold returns `FRuitkNode` (the prelude's `__ruitk_rn` type) and closes
+with a synthetic `return __ruitk_rn;` tail so the no-early-return shape has no C4715. Early
 returns are now legal in place. Pinned: embeddedCpp tests (fragment early return + tail;
-no `void __rui_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
+no `void __ruitk_setup_` anywhere) + smoke (owner's exact shape publishes zero errors).
 
 **Status:** FIXED (LSP 94/94 + smoke; bundle rebuilt — reload the dev host).
 
@@ -645,8 +645,8 @@ so a mid-edit `null…` identifier prefix stays plain code; `null` is not a C++ 
 there are no false positives). They satisfy 2101, anchor the setup split, terminate 0107
 reachability, and codegen lowers them to `return {};` — an empty node array, the exact state
 the error-boundary path already feeds the reconciler. Formatters canonicalize the final form
-to bare `return null;`; the vdoc neutralizes the token to `__rui_rn` (typed by the TB-27
-FRuiNode scaffold). NOT implemented (follow-up if the corpus ever exercises it): Unity's
+to bare `return null;`; the vdoc neutralizes the token to `__ruitk_rn` (typed by the TB-27
+FRuitkNode scaffold). NOT implemented (follow-up if the corpus ever exercises it): Unity's
 `return null` → `continue` rewrite INSIDE @for directive bodies — our directive bodies are
 real C++ loops where authors write `continue;` directly.
 
@@ -659,10 +659,10 @@ with the next engine run), vdoc unit + smoke pins.
 ## TB-29 — 5.7 link failure: SearchableComboBox's ToolWidgets dependency was never declared
 
 **Found:** 2026-07-25, first 5.7 build of the field-test campaign (also the FIRST 5.7 build
-since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of ReactiveUISlate.
+since the widget shipped): `LNK2019 SSearchableComboBox::*` ×6 out of RuitkSlate.
 
 **Root cause:** `SSearchableComboBox` lives in `Developer/ToolWidgets` (verified identical in
-5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but ReactiveUISlate.Build.cs
+5.6 and 5.7 — same location, same 7 `TOOLWIDGETS_API` exports), but RuitkSlate.Build.cs
 never listed the module. It "worked" everywhere until now because the adapter is
 version-gated `#if !UE_VERSION_OLDER_THAN(5, 7, 0)` — on 5.6 (every build since the widget
 shipped 2026-07-16) the adapter compiled out, and the last 5.7 battery (2026-07-14) predates
@@ -688,16 +688,16 @@ skill's "engine installs can be partial" scar, live again).
 
 **Found:** 2026-07-25, first `-StrictIncludes` (`-DisableUnity -NoPCH`) packaging run on 5.7
 (the exact marketplace build mode): `C2027 use of undefined type 'FStrProperty'` in
-RuiMarshal.cpp — UE 5.7's header diet leaves FStrProperty forward-declared via UnrealType.h;
+RuitkMarshal.cpp — UE 5.7's header diet leaves FStrProperty forward-declared via UnrealType.h;
 5.6 (and every unity build) provided the definition transitively.
 
-**Fix:** direct `#include "UObject/StrProperty.h"` in the two users (RuiMarshal.cpp +
-RuiFieldHooks.h — the header sweep found the second before it could fail a user's build).
+**Fix:** direct `#include "UObject/StrProperty.h"` in the two users (RuitkMarshal.cpp +
+RuitkFieldHooks.h — the header sweep found the second before it could fail a user's build).
 The header exists identically on 5.6; no version gate needed.
 
 **Also closed here — TB-29's open verification:** the same packaging run compiles the
 Win64 SHIPPING game config, and 5.7 Shipping built green with the SearchableComboBox
 adapter (ToolWidgets) compiled in — no Developer-module restriction fired on the installed
-engine. Both per-engine zips exist: `dist/ReactiveUI-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
+engine. Both per-engine zips exist: `dist/Reactive UI Toolkit-0.14.0-UE5.6.zip` + `-UE5.7.zip`.
 
 **Status:** FIXED; 5.6 zip rebuilt from the fixed source (identical source in both zips).

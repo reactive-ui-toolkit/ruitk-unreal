@@ -1,6 +1,0 @@
-export FRuiNode Err2323() {
-	return (
-		<Spacer />
-	);
-}
-export { Ghost2323 };

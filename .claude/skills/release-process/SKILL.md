@@ -1,12 +1,12 @@
 ---
 name: release-process
-description: The ReactiveUI-Unreal release runbook — draining the pending changelog, version bumps, the two-lane changelog system, packaging per engine version, the merge→fast-forward→Publish flow, and the manual Fab checklist with its compliance items. Use when preparing, staging, or publishing a release of any artifact.
+description: The ruitk-unreal release runbook — draining the pending changelog, version bumps, the two-lane changelog system, packaging per engine version, the merge→fast-forward→Publish flow, and the manual Fab checklist with its compliance items. Use when preparing, staging, or publishing a release of any artifact.
 ---
 
-# Release process (ReactiveUI-Unreal)
+# Release process (ruitk-unreal)
 
 Everything a release needs, in order. Deliverables version independently — check what actually
-changed with `git diff origin/master --stat` against `Plugins/ReactiveUI/` and `ide-extensions/`
+changed with `git diff origin/master --stat` against `Plugins/ReactiveUIToolkit/` and `ide-extensions/`
 before deciding what bumps.
 
 ## 0. Drain the pending ledger
@@ -31,7 +31,7 @@ and prints the exact follow-up commands. Post-1.0 deprecations follow D-30: `UE_
 1. Write the `## [X.Y.Z] — YYYY-MM-DD` section at the top of **root `CHANGELOG.md`**
    (keep-a-changelog: intro line, then `### Added/Changed/Fixed` with bold-lead bullets naming
    root causes).
-2. Mirror: `cp CHANGELOG.md Plugins/ReactiveUI/CHANGELOG.md` — then `node scripts/verify-mirror.mjs`.
+2. Mirror: `cp CHANGELOG.md Plugins/ReactiveUIToolkit/CHANGELOG.md` — then `node scripts/verify-mirror.mjs`.
 3. Entries cover the plugin surface only, never the demo host project.
 
 ### Lane B — the IDE extensions (generated from one json)
@@ -79,11 +79,11 @@ procedure); a drift is a release blocker until reconciled or `.pending`-pinned.
 
 - `node ide-extensions/scripts/changelog.mjs verify` + `node scripts/verify-mirror.mjs`
 - `node scripts/check-headers.mjs` + `node scripts/lint-skills.mjs` + `node scripts/docs-drift.mjs`
-- The affected suites per dev-process's gate ladder (incl. `ReactiveUI.Boot`)
+- The affected suites per dev-process's gate ladder (incl. `Ruitk.Boot`)
 - Packaging sanity when shipping the plugin: `scripts/package-plugin.ps1` per supported engine
   version (`-StrictIncludes` is what Fab's toolchain effectively does), then the
   **packaged-fidelity test**: unzip into a FRESH project, enable the plugin, expect the
-  `ReactiveUI <ver> loaded` banner + the demo renders (see `field-test-editor`).
+  `Reactive UI Toolkit <ver> loaded` banner + the demo renders (see `field-test-editor`).
 
 ## 5. Commit, merge, fast-forward
 

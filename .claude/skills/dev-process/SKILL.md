@@ -1,9 +1,9 @@
 ---
 name: dev-process
-description: The house development methodology for ReactiveUI-Unreal — the research→develop→test→bughunt→fix→commit loop, the UE gate ladder (compile → suites → boot check → demo), branch/PR model, changelog/version tables, and the laws that never bend. Use for any code change in this repo.
+description: The house development methodology for ruitk-unreal — the research→develop→test→bughunt→fix→commit loop, the UE gate ladder (compile → suites → boot check → demo), branch/PR model, changelog/version tables, and the laws that never bend. Use for any code change in this repo.
 ---
 
-# Development process & methodology (ReactiveUI-Unreal)
+# Development process & methodology (ruitk-unreal)
 
 ## The loop
 
@@ -26,12 +26,12 @@ description: The house development methodology for ReactiveUI-Unreal — the res
 
 1. **Compiles**: `Development Editor` builds clean (and the packaged target when packaging is in
    scope). Commands in `CLAUDE.md` / the `test-run` skill.
-2. **Markup drift gate** (Phase 3+): `-run=RUICompile -check` exits 0.
-3. **Suites green**: the affected `ReactiveUI.*` filters headless (NullRHI).
-4. **Boot check — never optional**: `Automation RunTests ReactiveUI.Boot`. Unit suites do NOT run
+2. **Markup drift gate** (Phase 3+): `-run=RuitkCompile -check` exits 0.
+3. **Suites green**: the affected `Ruitk.*` filters headless (NullRHI).
+4. **Boot check — never optional**: `Automation RunTests Ruitk.Boot`. Unit suites do NOT run
    `StartupModule()`/Slate registration — the exact analogue of the Godot rule "suites don't run
    `_enter_tree`".
-5. **A demo renders** when the change touches anything user-visible (`ReactiveUI.Demos` headless;
+5. **A demo renders** when the change touches anything user-visible (`Ruitk.Demos` headless;
    owner playtest for what headless can't see — the phase's Verify says which).
 6. A change isn't done until the checks that would catch its regression exist (new test
    demonstrably red→green once).
@@ -47,7 +47,7 @@ commits/pushes beyond what the task established, never auto-commit.
 
 | Artifact | Changelog | How |
 |---|---|---|
-| ReactiveUI plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUI/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
+| Reactive UI Toolkit plugin | root `CHANGELOG.md` | Hand-write; **byte-identical mirror** into `Plugins/ReactiveUIToolkit/CHANGELOG.md` (`cp`, never re-type; `scripts/verify-mirror.mjs` enforces) |
 | VS Code + VS2022 extensions | `ide-extensions/changelog.json` | `changelog.mjs add --message-file …` → `extract` each target → commit together; `verify` gates CI |
 | Community | `plans/DISCORD_CHANGELOG.md` | Notable releases; ≤2000 chars/entry; owner pastes |
 | Pending (between releases) | `plans/PENDING_CHANGELOG.md` | `plan-progress` stages bullets; `release-process` drains |

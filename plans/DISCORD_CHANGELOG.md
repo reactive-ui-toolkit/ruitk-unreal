@@ -39,12 +39,32 @@ export FRuiNode Counter() {
 }
 ```
 
-:package: **GitHub (free, source):** https://github.com/yanivkalfa/ReactiveUI-Unreal
-:book: **Docs & guides:** https://yanivkalfa.github.io/ReactiveUI-Unreal/
+:package: **GitHub (free, source):** https://github.com/reactive-ui-toolkit/ruitk-unreal
+:book: **Docs & guides:** https://reactive-ui-toolkit.github.io/ruitk-unreal/
 
 Happy to answer any questions about the approach or architecture. Fab listing and demo video are on the way as we work toward v1.0!
 
 Our discord channel - https://discord.gg/Knedqu4Wyv - currently under construction.
+
+---
+
+## [0.15.0] - 2026-07-28
+
+### One family, one name: Reactive UI Toolkit
+
+**We are now Reactive UI Toolkit** — the Unity, Godot, and Unreal siblings ship under one umbrella (org `reactive-ui-toolkit`; this repo is now `ruitk-unreal`). 0.15.0 is 0.14.0 with new names — zero behavior changes — but it IS a breaking release: every public identifier moves to one abbreviation system.
+
+**What renamed:**
+- Plugin: `Plugins/ReactiveUIToolkit/` (`ReactiveUIToolkit.uplugin`); the 8 modules `ReactiveUI*` → `Ruitk*`; export macros `RUITK*_API`
+- Types: `FRuiNode` → `FRuitkNode` and all seven prefixes (`F/U/S/T/I/E/A`); namespace `RUI::` → `Ruitk::`; public macros `RUI_*` → `RUITK_*`
+- Automation suite `ReactiveUI.*` → `Ruitk.*`; commandlets `-run=RUI*` → `-run=Ruitk*`; release zips `ReactiveUIToolkit-<ver>.zip`
+- License retitled **Reactive UI Toolkit Community License 1.1** — same terms, same US $250k free tier; the credit line is now "Made with Reactive UI Toolkit" (1.0 licensees keep 1.0)
+
+**Migrating is mechanical** (minutes, not hours): install the new plugin, run the shipped idempotent codemod `-run=RuitkMigrateBrand`, paste the CoreRedirects block from `MIGRATION-0.15.md`, resave Blueprints that referenced `URui*` types, and `-run=RuitkCompile -check` exiting 0 proves you're done.
+
+**New home:** https://github.com/reactive-ui-toolkit/ruitk-unreal · docs: https://reactive-ui-toolkit.github.io/ruitk-unreal/ (old GitHub links redirect; re-bookmark the docs — Pages URLs don't).
+
+**Tooling:** UETKX 0.9.0 (VS Code + VS 2022) — same marketplace listings and install ids, content converted, umbrella search keywords added. The 132-entry automation suite runs under the new `Ruitk` filter.
 
 ---
 
@@ -382,8 +402,8 @@ component Counter {
 ```
 
 :clapper: **Demo video:** __VIDEO_URL__ <!-- the Doom demo recording — owner records -->
-:book: **Docs & guides:** https://yanivkalfa.github.io/ReactiveUI-Unreal/
-:package: **GitHub:** https://github.com/yanivkalfa/ReactiveUI-Unreal
+:book: **Docs & guides:** https://reactive-ui-toolkit.github.io/ruitk-unreal/
+:package: **GitHub:** https://github.com/reactive-ui-toolkit/ruitk-unreal
 
 Happy to answer any questions about the approach or architecture. More updates to come as we
 work toward v1.0!

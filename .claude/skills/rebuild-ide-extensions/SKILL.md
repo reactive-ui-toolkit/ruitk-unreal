@@ -5,7 +5,7 @@ description: Rebuild the VS Code and/or VS2022 .uetkx extensions locally for F5 
 
 # Rebuild IDE extensions for F5
 
-Repo root (Windows): `C:\Yanivs\GameDev\ReactiveUI\ReactiveUI-Unreal`. Both IDE clients load
+Repo root (Windows): `C:\Yanivs\GameDev\ReactiveUI\ruitk-unreal`. Both IDE clients load
 the **same bundled Node language server** (`lsp-server/out` + runtime deps copied to a
 `server/` dir); there is no native/.NET piece, so one `.vsix` serves every platform.
 
@@ -24,7 +24,7 @@ cmd /d /c "cd /d ide-extensions\vscode-uetkx && npm ci"
 - `ide-extensions/vscode-uetkx/syntaxes/**` or `language-configuration.json` → no compile;
   reload the dev host (VS2022: repackage — it carries its own copies under `UetkxVsix\`).
 - Codegen vocabulary changed (`UetkxCodegen.cpp`) → the shipped schema must be re-synced from
-  `-run=RUIExportSchema` output and `ReactiveUI.Uetkx.Acceptance` re-run; that's a runtime
+  `-run=RuitkExportSchema` output and `Ruitk.Uetkx.Acceptance` re-run; that's a runtime
   change, not an IDE rebuild — see the test-run skill.
 
 ## VS Code — the F5 flow (canonical)
@@ -33,7 +33,7 @@ Open **the repo root** in VS Code and press **F5** ("Run UETKX Extension"). The
 `preLaunchTask` chain in `.vscode/tasks.json` builds the server, then the client —
 `vscode-uetkx`'s build runs `tsc` **and** `scripts/bundle-server.mjs`, which copies
 `lsp-server/out` + its runtime deps into `vscode-uetkx/server/`. An Extension Development
-Host then opens on this repo; poke any `Source/RuiDemo/Screens/*.uetkx` for colors,
+Host then opens on this repo; poke any `Source/RuitkDemo/Screens/*.uetkx` for colors,
 completion, hover, diagnostics, formatting.
 
 - **Client breakpoints** (`src/extension.ts`) bind directly in the F5 session.

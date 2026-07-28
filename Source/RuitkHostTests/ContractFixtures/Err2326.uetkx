@@ -1,0 +1,7 @@
+import Home from "./StatusChip"
+
+export FRuitkNode Err2326() {
+	return (
+		<Home />
+	);
+}

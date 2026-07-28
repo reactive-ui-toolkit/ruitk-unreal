@@ -1,0 +1,9 @@
+FRuitkNode ChildrenForward() {
+	return (
+		<VerticalBox>
+			<TextBlock Text="header" />
+			{ children }
+			<TextBlock Text="footer" />
+		</VerticalBox>
+	);
+}

@@ -19,7 +19,7 @@ function rangesOf(src: string) {
 
 test("jsxScan: boundary positions detect markup; operators do not", () => {
   // simple `=` value
-  assert.deepStrictEqual(rangesOf("FRuiNode N = <Spacer />;"), [{ text: "<Spacer />", op: "", unbalanced: false }]);
+  assert.deepStrictEqual(rangesOf("FRuitkNode N = <Spacer />;"), [{ text: "<Spacer />", op: "", unbalanced: false }]);
   // parenthesized value
   assert.deepStrictEqual(rangesOf("auto X = (<VerticalBox><Spacer /></VerticalBox>);"), [
     { text: "<VerticalBox><Spacer /></VerticalBox>", op: "", unbalanced: false },

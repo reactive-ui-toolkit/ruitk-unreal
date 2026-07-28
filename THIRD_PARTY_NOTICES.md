@@ -21,6 +21,6 @@ One section per item:
 
 ## Items
 
-_None yet. Anything added to `Content/` or `Plugins/ReactiveUI/Content/` that was not
+_None yet. Anything added to `Content/` or `Plugins/ReactiveUIToolkit/Content/` that was not
 authored for this project MUST land with a section here in the same PR (the release-process
 skill re-verifies at Phase 9)._

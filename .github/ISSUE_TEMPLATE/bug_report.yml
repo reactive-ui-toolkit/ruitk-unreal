@@ -7,7 +7,7 @@ body:
     attributes:
       label: Versions
       description: Plugin version, Unreal Engine version, and (if relevant) extension version
-      placeholder: "ReactiveUI 0.1.0 · UE 5.6.1 · VS Code ext 0.1.0"
+      placeholder: "Reactive UI Toolkit 0.1.0 · UE 5.6.1 · VS Code ext 0.1.0"
     validations:
       required: true
   - type: textarea
@@ -30,5 +30,5 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: "Relevant lines from Saved/Logs/<Project>.log, the Message Log (\"ReactiveUI\" page), or UETKX#### diagnostics"
+      description: "Relevant lines from Saved/Logs/<Project>.log, the Message Log (\"Reactive UI Toolkit\" page), or UETKX#### diagnostics"
       render: text

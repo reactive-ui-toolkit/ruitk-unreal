@@ -1,0 +1,77 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+//
+// FUetkxCodegen — the single codegen authority (D-18): compiles .uetkx source into the
+// committed sibling `Foo.uetkx.inl` — reflection-free C++ (no UCLASS/UPROPERTY, D-19.2):
+// a typed props struct, the component function (setup spliced VERBATIM with hooks
+// auto-prefixed to Ctx.*), the markup lowered to the D-33 builder vocabulary, the baked
+// __RUITK_HOOK_SIG constant (state-reset detection, Phase 4), Ruitk::RegisterComponentId, and
+// an inline wrapper `FRuitkNode <Name>(Props, Children, Key)` for cross-component references.
+// FText string literals emit as NSLOCTEXT (self-namespaced per file — D-32).
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UetkxFileScan.h"
+
+class IUetkxImportResolver; // UetkxResolve.h (M4) — resolution runs inside CompileSource when set
+
+struct RUITKTOOLCHAIN_API FUetkxCompileOutput
+{
+	bool bOk = false;
+	FString Inl; // the generated .uetkx.inl text ("" on failure)
+	TArray<FUetkxDiag> Diags;
+	TArray<FString> ComponentNames;	 // ALL decl bindings (component/hook/module names) -> this file; refs
+	TArray<FString> ExportedNames;	 // EXPORTED decl names only — feeds the UETKX2329 case-fold ledger + tests
+	TArray<FString> Uses;			 // component names REFERENCED by markup (aggregator topo order)
+	bool bSupportFile = false;		 // no markup (only hooks/modules) — HMR rebuild, not interp swap
+	uint32 HookSig = 0;				 // first component's hook signature (interp swap key)
+	uint32 ExportHash = 0;			 // FNV over this file's exported decl shapes — reverse staleness (M8)
+	TMap<FString, uint32> DepHashes; // resolved import label -> its export_hash (staleness graph, M8)
+	FString DefaultExportName;		 // ES-modules (U-08): `export default <Name>` target ("" = none)
+};
+
+class RUITKTOOLCHAIN_API FUetkxCodegen
+{
+public:
+	/** Compile one .uetkx source into its sibling .inl. Basename = file stem (binding + NSLOCTEXT
+	 *  namespace). ProjectRelPath = the source path relative to the project (forward slashes) for
+	 *  `#line` mapping (M7); "" = the fixtures/tests default (Basename + ".uetkx"). Resolver, when
+	 *  non-null (driver/fixture harness), runs import resolution + strict diagnostics AFTER scan
+	 *  and BEFORE emit (M4); null = resolution skipped (syntax-only). Declarations lower in SOURCE
+	 *  order (mixed-decl v1): hook -> inline free function, module -> namespace, component ->
+	 *  struct + impl + wrapper. */
+	static FUetkxCompileOutput CompileSource(const FString& Source, const FString& Basename,
+											 const FString& ProjectRelPath = FString(),
+											 const IUetkxImportResolver* Resolver = nullptr,
+											 TOptional<bool> bSellerRepoOverride = TOptional<bool>());
+
+	/** D-32(a) context-aware generated-code header. TRUE only inside Reactive UI Toolkit's OWN repo (the seller's
+	 *  monorepo, marked by a `.ruitk-seller-repo` sentinel at the project root that never ships in the Fab
+	 *  package) — there generated code carries the seller copyright. In a CUSTOMER project the sentinel
+	 *  is absent, so generated code carries the neutral "belongs to your project" banner. */
+	static bool IsSellerRepo();
+
+	/** The generated-file copyright/attribution header line for `Basename` (seller vs neutral per
+	 *  IsSellerRepo / the explicit override). Includes the trailing newline. */
+	static FString GeneratedCopyrightLine(const FString& Basename,
+										  TOptional<bool> bSellerRepoOverride = TOptional<bool>());
+
+	/** FILE_SCOPED_EXPORTS (FS-01): the C++ namespace one .uetkx file's declarations emit into,
+	 *  derived from the SAME machine-stable relative path the `#line` mapping uses (driver:
+	 *  project-relative; fixtures/tests: `<Basename>.uetkx` when ProjectRelPath is empty).
+	 *  `RuitkUetkx::<sanitized path segments>::<sanitized stem>` — the single source of truth for
+	 *  codegen, the driver, the editor preview, and the tests; the LSP mirrors the rule. The
+	 *  runtime identity of every component is `<this>::<Name>` (FS-04). */
+	static FString FileNamespaceFor(const FString& ProjectRelPath, const FString& Basename);
+
+	/** The markup vocabulary as JSON — elements/attrs (typed), style keys, slot keys, hooks.
+	 *  RuitkExportSchema writes this to Saved/ReactiveUIToolkit/schema.json for the LSP (Phase 5). */
+	static FString ExportSchemaJson();
+
+	/** R13 — engine-environment brush names (the FCoreStyle set). The toolchain deliberately
+	 *  has no Slate dependency, so the EDITOR module enumerates the style set at startup and
+	 *  injects it here; brush-name attrs (BorderImage) then validate at compile (UETKX0106)
+	 *  and the set exports to the schema as `brushNames` for the LSP. Empty (never injected —
+	 *  bare unit contexts) disarms the check and omits the export. */
+	static void SetEnvironmentBrushNames(TArray<FString> InNames);
+};

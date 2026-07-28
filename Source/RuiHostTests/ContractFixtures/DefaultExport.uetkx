@@ -1,6 +1,0 @@
-export FRuiNode DefaultExport() {
-	return (
-		<Spacer />
-	);
-}
-export default DefaultExport;

@@ -7,7 +7,7 @@
 .DESCRIPTION
     C++ has no assembly reflection, so this scans the engines' PUBLIC headers —
     Runtime/SlateCore, Runtime/Slate, and Runtime/UMG — and diffs the surface
-    ReactiveUI wraps:
+    Reactive UI Toolkit wraps:
       - Slate widget classes (an S-class deriving from another S-class; UE 5.4+
         exports per-FUNCTION, so widget classes carry no *_API macro)
       - Per-widget FArguments surface: SLATE_ARGUMENT / SLATE_ATTRIBUTE / SLATE_EVENT,

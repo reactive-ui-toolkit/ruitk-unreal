@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Build, package, and publish the UETKX VS Code extension (VS Marketplace + Open VSX).
-    LOCAL mirror of publish.yml's vscode leg — ported from the ReactiveUI-Godot repo's
+    LOCAL mirror of publish.yml's vscode leg — ported from the Godot sibling's
     publish-extension.ps1; unusable until Phase 5 creates ide-extensions/vscode-uetkx/.
 
 .DESCRIPTION
