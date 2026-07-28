@@ -40,7 +40,7 @@ public:
 	 *  the whole token and return the index just past it; else return `i` unchanged. */
 	static int32 SkipNoncode(const TArray<int32>& Src, int32 Index);
 
-	/** Markup-lexis skip: `//`, `/* *​/`, `<!-- -->`, quoted strings; `#` is literal. */
+	/** Markup-lexis skip: `//`, `/​* *​/`, `<!-- -->`, quoted strings; `#` is literal. */
 	static int32 SkipNoncodeMarkup(const TArray<int32>& Src, int32 Index);
 
 	/** Matching close delimiter for the ()/{}/[] at OpenIndex, C++ lexis. -1 if unbalanced. */

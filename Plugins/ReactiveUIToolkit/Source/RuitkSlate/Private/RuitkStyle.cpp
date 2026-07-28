@@ -439,7 +439,7 @@ namespace Ruitk::Slate
 		return FRuitkValue(FName(*S));
 	}
 
-	/** Strip `/* ... *​/` and `//` comments, QUOTE-AWARE: a `//` or `/*` inside a `"..."` value is a
+	/** Strip `/​* ... *​/` and `//` comments, QUOTE-AWARE: a `//` or `/​*` inside a `"..."` value is a
 	 *  literal, not a comment (bughunt B5 — the old global Find-based strip truncated any value
 	 *  containing `//`, e.g. `"img://cdn/x.png"`, silently eating the rest of the block). Newlines are
 	 *  preserved so line structure survives. */
