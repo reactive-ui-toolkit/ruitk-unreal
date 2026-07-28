@@ -1,6 +1,6 @@
 # Versioning & Deprecation Policy
 
-> Applies to the ReactiveUI plugin (Unreal), the `.uetkx` language, and the IDE
+> Applies to the Reactive UI Toolkit plugin (Unreal), the `.uetkx` language, and the IDE
 > extensions. The Unreal sibling of ReactiveUIToolKit's policy — same rules,
 > retargeted.
 
@@ -15,8 +15,8 @@ All releases follow [Semantic Versioning 2.0.0](https://semver.org/).
 A major bump signals breaking changes. Users may need to update code or markup.
 
 Examples of breaking changes:
-- Removing or renaming a public C++ API (`RUI::` factories, `FRuiRoot` surfaces,
-  hook signatures, the interop classes `URuiHostWidget`/`URuiActivatableScreen`)
+- Removing or renaming a public C++ API (`Ruitk::` factories, `FRuitkRoot` surfaces,
+  hook signatures, the interop classes `URuitkHostWidget`/`URuitkActivatableScreen`)
 - Removing or changing `.uetkx` syntax semantics (removing a directive, changing
   control-flow behavior, changing what a prop/style key means)
 - Dropping support for an Unreal Engine version
@@ -29,7 +29,7 @@ Examples of minor changes:
 - New hooks, new host elements (tags), new directives
 - New diagnostic codes (may produce new warnings, but don't break builds)
 - New extension features (completions, hover, formatting improvements)
-- New configuration options (`uetkx.config.json` keys, `rui.*` CVars, editor settings)
+- New configuration options (`uetkx.config.json` keys, `ruitk.*` CVars, editor settings)
 - Supporting a NEW Unreal Engine version (additive — see the `engine-catchup` skill)
 
 ### Patch (X.Y.Z)
@@ -105,8 +105,8 @@ Supporting a new engine version is a process, not a hope — see
 
 | Channel | What | Pricing |
 |---------|------|---------|
-| GitHub (this repo) | ReactiveUI plugin, source | Free under US $250k/yr (ReactiveUI Community License 1.0); commercial license above |
-| Fab | ReactiveUI plugin, per-engine-version listing | Free (Fab EULA applies) |
+| GitHub (this repo) | Reactive UI Toolkit plugin, source | Free under US $250k/yr (Reactive UI Toolkit Community License 1.1); commercial license above |
+| Fab | Reactive UI Toolkit plugin, per-engine-version listing | Free (Fab EULA applies) |
 | VS Code Marketplace | UETKX VS Code extension | Free |
 | Open VSX | UETKX VS Code extension | Free |
 | Visual Studio Marketplace | UETKX VS2022 extension | Free |

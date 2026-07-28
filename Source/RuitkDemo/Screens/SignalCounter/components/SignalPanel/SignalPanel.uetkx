@@ -1,0 +1,8 @@
+import "@RuitkDemoSupport.h"
+
+export FRuitkNode SignalPanel() {
+	const int32 Count = Ruitk::UseSignalKey<int32>(Ctx, RuitkDemo::GDemoCounterSignal, 0);
+	return (
+		<TextBlock Text={ Ruitk::Fmt(TEXT("Count: {}"), Count) } />
+	);
+}

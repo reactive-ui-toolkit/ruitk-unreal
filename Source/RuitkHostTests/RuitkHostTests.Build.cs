@@ -1,0 +1,47 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+
+using UnrealBuildTool;
+
+// ALL automation tests live here (the Ruitk.* suite hierarchy — MASTER_PLAN §4), in the
+// host project rather than the plugin, so the shipped plugin stays lean. Editor-type module:
+// suites run via `UnrealEditor-Cmd -ExecCmds="Automation RunTests Ruitk; Quit"` headless.
+public class RuitkHostTests : ModuleRules
+{
+	public RuitkHostTests(ReadOnlyTargetRules Target) : base(Target)
+	{
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		IWYUSupport = IWYUSupport.Full;
+
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core",
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			// Keep deps exactly as narrow as the tests that exist (later phases add the
+			// modules they test: RuitkSlate, RuitkUMG, ...).
+			"CoreUObject",
+			"Engine",
+			"Projects",         // IPluginManager (the Boot suite)
+			"RuitkCore",   // the mock-host core suites
+			"RuitkSlate",  // the Slate host suites + reorder spike
+			"RuitkDemo",          // the Demos suite mounts the gallery
+			"RuitkInterp", // the .uetkx scanner/parser suites + VM/Hmr
+			"RuitkToolchain", // the codegen suites
+			"RuitkEditor", // the TD-006 .uetkx preview suite (FUetkxPreview)
+			"RuitkUMG",    // the Phase-6 interop suites (Umg/Mvvm)
+			"RuitkCommonUI", // the TD-021 CommonUI activatable suite
+			"CommonUI",         // UCommonActivatableWidget + ActivateWidget in the suite
+			"CommonInput",      // UCommonInputSubsystem (B12 input-method regression)
+			"RuitkMVVMBridge", // the TD-021 MVVM global-collection suite
+			"ModelViewViewModel",   // UMVVMViewModelBase + the global collection in the suite
+			"UMG",
+			"FieldNotification",
+			"Json",             // contract-corpus loading
+			"SlateCore",
+			"Slate",
+			"InputCore",        // EKeys / FKeyEvent for the shortcut suite
+		});
+	}
+}

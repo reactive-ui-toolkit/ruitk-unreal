@@ -17,8 +17,8 @@ markup hot-reloads mid-PIE in under a second during development and compiles to 
 shipping.
 
 - Native Slate output — Widget Reflector, styling, and accessibility see ordinary widgets
-- UMG both ways: host inside UserWidgets (`URuiHostWidget`), embed UMG widgets (`RUI::Umg`)
-- CommonUI-native screens (`URuiActivatableScreen`) — your input routing stays untouched
+- UMG both ways: host inside UserWidgets (`URuitkHostWidget`), embed UMG widgets (`Ruitk::Umg`)
+- CommonUI-native screens (`URuitkActivatableScreen`) — your input routing stays untouched
 - MVVM/FieldNotify viewmodels feed components via `UseField`
 - __WIDGET_COUNT__ wrapped widgets + a virtualized list; localization-ready (`NSLOCTEXT` gather)
 - VS Code + VS2022 extensions: completion, diagnostics, formatting for `.uetkx`
@@ -28,10 +28,10 @@ shipping.
 **Supported:** UE __ENGINE_VERSIONS__ · Win64 + Linux (tested), Mac (best-effort), consoles &
 mobile compile from source (untested — pure C++/AOT, no JIT requirements).
 
-**Source & license:** ReactiveUI Community License 1.0 on GitHub — __GITHUB_URL__ (free to
+**Source & license:** Reactive UI Toolkit Community License 1.0 on GitHub — __GITHUB_URL__ (free to
 use and ship in your games and projects if your company earned under US $250k in the last
 12 months; above that, shipping needs a commercial license — $2,000/title or
-$2,500/studio/year, see LICENSE-COMMERCIAL.md in the repo; credit "Made with ReactiveUI";
+$2,500/studio/year, see LICENSE-COMMERCIAL.md in the repo; credit "Made with Reactive UI Toolkit";
 not to be redistributed or sold as a competing product; Fab downloads additionally governed
 by the Fab EULA). Code generated from your `.uetkx` files belongs to your project.
 

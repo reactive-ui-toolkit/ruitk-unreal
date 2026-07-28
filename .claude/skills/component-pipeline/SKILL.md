@@ -1,12 +1,12 @@
 ---
 name: component-pipeline
-description: The production line for wrapping one Slate widget end-to-end — research the real header, fill the adapter from the template, style keys, contract case, test, docs. The repetitive lesser-model workload; one run = one widget. Use when adding any RUI::* widget wrapper (Phase 2 batch 1, Phase 7 batch 2, and beyond).
+description: The production line for wrapping one Slate widget end-to-end — research the real header, fill the adapter from the template, style keys, contract case, test, docs. The repetitive lesser-model workload; one run = one widget. Use when adding any Ruitk::* widget wrapper (Phase 2 batch 1, Phase 7 batch 2, and beyond).
 ---
 
 # Component pipeline — one Slate widget, six stations
 
-Exit gate for a run: build green + `Automation RunTests ReactiveUI.Widgets.<Name>` green +
-`ReactiveUI.Contract` green + docs-sync done. Model tiers (MASTER_PLAN §8): station 1 is
+Exit gate for a run: build green + `Automation RunTests Ruitk.Widgets.<Name>` green +
+`Ruitk.Contract` green + docs-sync done. Model tiers (MASTER_PLAN §8): station 1 is
 sonnet-class (judgment about the widget's API); stations 2–6 are haiku-class once the prop-map
 entry exists. Anything requiring a NEW host-config *mechanism* (a new slot model, an item-view
 adapter) is NOT this pipeline — STOP and escalate to an opus-class session.
@@ -21,7 +21,7 @@ adapter) is NOT this pipeline — STOP and escalate to an opus-class session.
    entry in the prop-map schema (`templates/prop-map.schema.json` documents the shape) — the
    single source the adapter, the LSP vocabulary, and the docs all consume.
 2. **Wrapper.** Instantiate `templates/widget_wrapper.template.cpp`: props struct
-   (`RUI_PROP` rows), builder methods, adapter (Create with construct-only args → ApplyFull;
+   (`RUITK_PROP` rows), builder methods, adapter (Create with construct-only args → ApplyFull;
    ApplyDiff setter rows; Equals; child-container kind; reconstruct-on mask; event table rows).
 3. **Style keys.** Add each styleable property to the central style-key registry with type,
    default, setter, and reset behavior. Hot-path keys (colors/opacity/font/padding) must NOT be
@@ -30,7 +30,7 @@ adapter) is NOT this pipeline — STOP and escalate to an opus-class session.
    applied → widget state asserted; style prop removed → default restored; plain prop removed →
    NOT reset (the family semantic).
 5. **Test.** Instantiate `templates/widget_test.template.cpp` →
-   `IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRui<Name>Test, "ReactiveUI.Widgets.<Name>", …)`.
+   `IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitk<Name>Test, "Ruitk.Widgets.<Name>", …)`.
    Demonstrate it red→green once (break the adapter, watch it fail, restore).
 6. **Docs.** Run the `docs-sync` skill (new-widget row).
 

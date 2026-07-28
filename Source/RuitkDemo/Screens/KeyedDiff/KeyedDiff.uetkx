@@ -1,0 +1,114 @@
+export FRuitkNode KeyedDiff() {
+	static const TCHAR* Seed[] = {TEXT("Alpha"), TEXT("Bravo"), TEXT("Charlie"), TEXT("Delta"),
+									TEXT("Echo"), TEXT("Foxtrot"), TEXT("Golf")};
+	auto SeedItems = []() {
+		TArray<FString> Out;
+		for (const TCHAR* S : Seed)
+		{
+			Out.Add(S);
+		}
+		return Out;
+	};
+
+	auto [Items, SetItems] = UseState<TArray<FString>>(SeedItems());
+	auto [Ops, SetOps] = UseState<int32>(0);
+	auto [NextId, SetNextId] = UseState<int32>(1);
+
+	auto Apply = [SetItems, SetOps, Ops](TArray<FString> Next) {
+		SetItems(MoveTemp(Next));
+		SetOps(Ops + 1);
+	};
+	auto DoReset = [SetItems, SetOps, SeedItems]() {
+		SetItems(SeedItems());
+		SetOps(0);
+	};
+	auto DoReverse = [Apply, Items]() {
+		TArray<FString> Next = Items;
+		Algo::Reverse(Next);
+		Apply(MoveTemp(Next));
+	};
+	auto DoRotate = [Apply, Items]() {
+		if (!Items.IsEmpty())
+		{
+			TArray<FString> Next;
+			Next.Add(Items.Last());
+			for (int32 i = 0; i < Items.Num() - 1; ++i)
+			{
+				Next.Add(Items[i]);
+			}
+			Apply(MoveTemp(Next));
+		}
+	};
+	auto DoShuffle = [Apply, Items, Ops]() {
+		TArray<FString> Next = Items;
+		FRandomStream Rng(Ops * 7919 + Next.Num());
+		for (int32 i = Next.Num() - 1; i > 0; --i)
+		{
+			Next.Swap(i, Rng.RandRange(0, i));
+		}
+		Apply(MoveTemp(Next));
+	};
+	auto DoInsert = [Apply, Items, NextId, SetNextId]() {
+		TArray<FString> Next = Items;
+		FRandomStream Rng(NextId * 31 + Next.Num());
+		Next.Insert(FString::Printf(TEXT("New-%d"), NextId), Next.IsEmpty() ? 0 : Rng.RandRange(0, Next.Num() - 1));
+		SetNextId(NextId + 1);
+		Apply(MoveTemp(Next));
+	};
+	auto DoRemove = [Apply, Items]() {
+		if (!Items.IsEmpty())
+		{
+			TArray<FString> Next = Items;
+			Next.RemoveAt(Next.Num() / 2);
+			Apply(MoveTemp(Next));
+		}
+	};
+
+	return (
+		<Border
+			Padding="12"
+			BorderImage="WhiteBrush"
+			BorderBackgroundColor={ FLinearColor(0.02f, 0.02f, 0.03f, 0.85f) }
+			Slot.Padding="0,10,0,0"
+		>
+			<VerticalBox>
+				<TextBlock
+					Text="Keyed diff / LIS test"
+					Font.Size={ 16.0f }
+					ColorAndOpacity={ FLinearColor(1.0f, 0.8f, 0.4f) } />
+				<TextBlock Text="Reorder, insert, and remove keyed rows -- rows stay mounted while order changes." />
+				<TextBlock Text={ Ruitk::Fmt(TEXT("Operations performed: {}"), Ops) } />
+				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+				<HorizontalBox>
+					<Button OnClicked={ DoReset() } ContentPadding="12,4" Slot.Padding="0,0,6,0">Reset</Button>
+					<Button OnClicked={ DoReverse() } ContentPadding="12,4" Slot.Padding="0,0,6,0">Reverse</Button>
+					<Button OnClicked={ DoRotate() } ContentPadding="12,4" Slot.Padding="0,0,6,0">
+						Rotate tail to head
+					</Button>
+				</HorizontalBox>
+				<HorizontalBox>
+					<Button OnClicked={ DoShuffle() } ContentPadding="12,4" Slot.Padding="0,0,6,0">Shuffle</Button>
+					<Button OnClicked={ DoInsert() } ContentPadding="12,4" Slot.Padding="0,0,6,0">
+						Insert new key
+					</Button>
+					<Button OnClicked={ DoRemove() } ContentPadding="12,4" Slot.Padding="0,0,6,0">
+						Remove middle
+					</Button>
+				</HorizontalBox>
+				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+				@for (int32 i = 0; i < Items.Num(); ++i) {
+					return (
+						<HorizontalBox key={ FName(*Items[i]) }>
+							<TextBlock Text={ Ruitk::Fmt(TEXT("Key: {}"), Items[i]) } />
+							<TextBlock
+								Text={ Ruitk::Fmt(TEXT("   Index {}"), i) }
+								Font.Size={ 9.0f }
+								ColorAndOpacity={ FLinearColor(0.3f, 0.9f, 0.9f) }
+								Slot.Padding="10,0,0,0" />
+						</HorizontalBox>
+					);
+				}
+			</VerticalBox>
+		</Border>
+	);
+}

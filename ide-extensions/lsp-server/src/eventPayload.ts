@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 // TD-016: typed event-payload intelligence. An event handler body sees the widget's payload as an
-// `FRuiValue Value`; the schema's `eventPayloads` map types each event (text/bool/float/…), so the
+// `FRuitkValue Value`; the schema's `eventPayloads` map types each event (text/bool/float/…), so the
 // LSP can complete `Value.<Field>` with the RIGHT field first and hover an event attr with its
-// payload. Payload kind -> the FRuiValue member + its C++ type.
+// payload. Payload kind -> the FRuitkValue member + its C++ type.
 
 export interface PayloadField {
   field: string;
@@ -10,7 +10,7 @@ export interface PayloadField {
   kind: string;
 }
 
-/** Every FRuiValue payload member, in a stable order. `kind` matches the schema's payload kinds. */
+/** Every FRuitkValue payload member, in a stable order. `kind` matches the schema's payload kinds. */
 export const PAYLOAD_FIELDS: PayloadField[] = [
   { field: "TextValue", type: "FText", kind: "text" },
   { field: "BoolValue", type: "bool", kind: "bool" },
@@ -21,7 +21,7 @@ export const PAYLOAD_FIELDS: PayloadField[] = [
   { field: "Vector2Value", type: "FVector2D", kind: "vector2" },
 ];
 
-/** The FRuiValue field for a payload kind, or null for `void`/unknown. */
+/** The FRuitkValue field for a payload kind, or null for `void`/unknown. */
 export function fieldForKind(kind: string | undefined): PayloadField | null {
   if (!kind || kind === "void") return null;
   return PAYLOAD_FIELDS.find((f) => f.kind === kind) ?? null;

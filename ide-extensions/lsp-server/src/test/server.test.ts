@@ -320,7 +320,7 @@ test("semantic tokens: imported bindings color by the KIND of the export they bi
   fs.writeFileSync(
     path.join(root, "B2.uetkx"),
     [
-      "export FRuiNode Badge() {",
+      "export FRuitkNode Badge() {",
       "\treturn ( <Spacer /> );",
       "}",
       "export int32 UseThing() {",
@@ -338,7 +338,7 @@ test("semantic tokens: imported bindings color by the KIND of the export they bi
   const src = [
     'import Home, { Badge, UseThing, Cool as Warm, Fmt } from "./B2"',
     'import * as P from "./B2"',
-    "export FRuiNode App() {",
+    "export FRuitkNode App() {",
     "\treturn ( <Badge /> );",
     "}",
     "",
@@ -359,7 +359,7 @@ test("semantic tokens: imported bindings color by the KIND of the export they bi
   assert.strictEqual(typeAt(src.indexOf("Home")), "class", "default alias follows the default export's kind");
   assert.strictEqual(typeAt(src.indexOf("P from")), "namespace", "star alias colors as a namespace (spelled X::M)");
   // An unresolvable target degrades silently — no tokens, no throw.
-  const broken = 'import { Nope } from "./Missing"\nexport FRuiNode T() {\n\treturn ( <Spacer /> );\n}\n';
+  const broken = 'import { Nope } from "./Missing"\nexport FRuitkNode T() {\n\treturn ( <Spacer /> );\n}\n';
   assert.deepStrictEqual(importBindingTokens(scanFile(broken, "T", true), importer), []);
   fs.rmSync(root, { recursive: true, force: true });
 });
@@ -367,7 +367,7 @@ test("semantic tokens: imported bindings color by the KIND of the export they bi
 test("2303 keys on LOCAL bindings (FILE_SCOPED_EXPORTS parity with RecordNamedImportDups)", () => {
   // Same-named exports from two files, disambiguated with `as` — LEGAL ES, no 2303.
   const legal = scanFile(
-    'import { Accent } from "./A"\nimport { Accent as AccentB } from "./B"\nexport FRuiNode P() {\n\treturn ( <Spacer /> );\n}\n',
+    'import { Accent } from "./A"\nimport { Accent as AccentB } from "./B"\nexport FRuitkNode P() {\n\treturn ( <Spacer /> );\n}\n',
     "P",
   );
   assert.ok(!legal.diags.some((d) => d.code === "UETKX2303"), "distinct local bindings of same-named exports are legal");

@@ -1,0 +1,31 @@
+export FRuitkNode MultiReturnProof(int32 Mode = 0) {
+	if (Mode == 1) {
+		return ( <TextBlock Text="early-one" /> );
+	}
+	if (Mode == 2) {
+		return (
+			<VerticalBox>
+				<TextBlock Text="early-two" />
+			</VerticalBox>
+		);
+	}
+	return (
+		<VerticalBox>
+			<TextBlock Text="main" />
+			{ Mode > 10 && <TextBlock Text="big-mode" /> }
+			{ Mode > 10 || <TextBlock Text="small-mode" /> }
+		</VerticalBox>
+	);
+}
+
+export FRuitkNode MultiReturnProofEarly() {
+	return (
+		<MultiReturnProof Mode={ 1 } />
+	);
+}
+
+export FRuitkNode MultiReturnProofBig() {
+	return (
+		<MultiReturnProof Mode={ 20 } />
+	);
+}

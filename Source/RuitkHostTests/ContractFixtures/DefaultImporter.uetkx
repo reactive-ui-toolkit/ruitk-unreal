@@ -1,0 +1,9 @@
+import Home from "./DefaultExport"
+
+export FRuitkNode DefaultImporter() {
+	return (
+		<Border>
+			<Home />
+		</Border>
+	);
+}

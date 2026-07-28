@@ -1,0 +1,74 @@
+{
+	"FileVersion": 3,
+	"Version": 16,
+	"VersionName": "0.15.0",
+	"FriendlyName": "Reactive UI Toolkit for Unreal",
+	"Description": "React-style reactive UI in pure C++: function components, 23 hooks, and a fiber reconciler that decides which Slate widgets exist each frame. .uetkx markup compiles to native C++ for shipping builds and hot-reloads live in PIE during development. UMG, CommonUI, and MVVM stay in place — feeding data in or hosting our output.",
+	"Category": "User Interface",
+	"CreatedBy": "Yaniv Kalfa",
+	"CreatedByURL": "https://github.com/reactive-ui-toolkit",
+	"DocsURL": "https://reactive-ui-toolkit.github.io/ruitk-unreal/",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/reactive-ui-toolkit/ruitk-unreal/issues",
+	"EnabledByDefault": false,
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "RuitkCore",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkSlate",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkUMG",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkCommonUI",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkMVVMBridge",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkInterp",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"TargetConfigurationDenyList": [
+				"Shipping"
+			]
+		},
+		{
+			"Name": "RuitkToolchain",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "RuitkEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "CommonUI",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
+			"Name": "ModelViewViewModel",
+			"Enabled": true,
+			"Optional": true
+		}
+	]
+}

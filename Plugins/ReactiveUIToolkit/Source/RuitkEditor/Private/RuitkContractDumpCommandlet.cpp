@@ -1,0 +1,29 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+
+#include "RuitkContractDumpCommandlet.h"
+
+#include "UetkxContract.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkContract, Log, All);
+
+int32 URuitkContractDumpCommandlet::Main(const FString& Params)
+{
+	TArray<FString> Tokens, Switches;
+	ParseCommandLine(*Params, Tokens, Switches);
+	const bool bCheck =
+		Switches.ContainsByPredicate([](const FString& S) { return S.Equals(TEXT("check"), ESearchCase::IgnoreCase); });
+	const FUetkxContractResult Result = FUetkxContract::Run(FUetkxContract::DefaultFixtureDir(), /*bWrite*/ !bCheck);
+	for (const FString& Message : Result.Messages)
+	{
+		UE_LOG(LogRuitkContract, Error, TEXT("%s"), *Message);
+	}
+	if (bCheck)
+	{
+		UE_LOG(LogRuitkContract, Display, TEXT("RuitkContractDump -check: %d fixture(s), %d mismatched"), Result.Total,
+			   Result.Mismatched);
+		return Result.Passed() ? 0 : 1;
+	}
+	UE_LOG(LogRuitkContract, Display, TEXT("RuitkContractDump: %d golden(s) written for %d fixture(s)"), Result.Written,
+		   Result.Total);
+	return 0;
+}

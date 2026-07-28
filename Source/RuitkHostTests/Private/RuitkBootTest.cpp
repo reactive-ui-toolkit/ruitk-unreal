@@ -1,0 +1,55 @@
+// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
+//
+// The boot check — the gate ladder's never-optional rung (dev-process skill): proves the
+// plugin's modules actually LOADED (unit suites don't run StartupModule) and that a root
+// mounts end-to-end on the host seam.
+
+#include "Misc/AutomationTest.h"
+#include "Modules/ModuleManager.h"
+#include "Interfaces/IPluginManager.h"
+#include "RuitkMockHost.h"
+#include "RuitkContext.h"
+#include "RuitkCoreElements.h"
+
+#if WITH_DEV_AUTOMATION_TESTS
+
+static FRuitkNodeArray BootComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
+{
+	auto [V, SetV] = Ctx.UseState<int32>(42);
+	return {Ruitk::TextBlock(FString::Printf(TEXT("boot %d"), V))};
+}
+RUITK_COMPONENT(BootComp)
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkBootTest, "Ruitk.Boot",
+								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+bool FRuitkBootTest::RunTest(const FString&)
+{
+	AddInfo(TEXT("[boot] 1/3 plugin + modules loaded"));
+	TSharedPtr<IPlugin> Plugin = IPluginManager::Get().FindPlugin(TEXT("ReactiveUIToolkit"));
+	if (!TestTrue(TEXT("ReactiveUIToolkit plugin found + enabled"), Plugin.IsValid() && Plugin->IsEnabled()))
+	{
+		return false;
+	}
+	TestTrue(TEXT("RuitkCore module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("RuitkCore")));
+	TestTrue(TEXT("RuitkSlate module loaded"), FModuleManager::Get().IsModuleLoaded(TEXT("RuitkSlate")));
+	TestTrue(TEXT("RuitkInterp module loaded (non-Shipping)"),
+			 FModuleManager::Get().IsModuleLoaded(TEXT("RuitkInterp")));
+
+	AddInfo(TEXT("[boot] 2/3 a root mounts on the host seam"));
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&BootComp));
+	FMockNode* Node = H.ChildAt(0);
+	if (!TestNotNull(TEXT("root mounted a node"), Node))
+	{
+		return false;
+	}
+	TestEqual(TEXT("hooks ran"), Node->TextOf(), FString(TEXT("boot 42")));
+
+	AddInfo(TEXT("[boot] 3/3 clean unmount"));
+	H.Reconciler->Unmount();
+	TestEqual(TEXT("tree emptied"), H.RootNode()->Children.Num(), 0);
+	TestEqual(TEXT("zero live fibers after unmount"), H.Reconciler->NumLiveFibers(), 0);
+	return true;
+}
+
+#endif // WITH_DEV_AUTOMATION_TESTS

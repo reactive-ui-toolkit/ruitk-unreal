@@ -1,9 +1,0 @@
-import { StatusChip as Chip } from "./StatusChip"
-
-export FRuiNode RenameImport() {
-	return (
-		<VerticalBox>
-			<Chip Label="renamed" />
-		</VerticalBox>
-	);
-}

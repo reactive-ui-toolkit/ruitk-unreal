@@ -1,0 +1,96 @@
+import type { FC } from 'react'
+import { Box, Typography } from '@mui/material'
+import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
+
+const OURS_IN_THEIRS = `// 1) Register a component (compiled .uetkx components self-register under a file-qualified id; short names resolve when unambiguous).
+RUITK_COMPONENT(InventoryPanel);   // or: Ruitk::RegisterNamedFactory(TEXT("InventoryPanel"), ...);
+
+// 2) In the UMG Designer: drop a "Reactive UI Toolkit Host" (URuitkHostWidget) into any
+//    UserWidget layout and set its ComponentName to "InventoryPanel".
+//    Design time shows a placeholder — live component code never runs in the Designer.
+//    At runtime RebuildWidget() mounts the tree; ReleaseSlateResources unmounts it
+//    (cleanups run first). Remount() re-resolves after changing ComponentName.
+
+// World-scoped alternative (Blueprint-callable, no UMG wrapper needed):
+URuitkWorldSubsystem* Ruitk = World->GetSubsystem<URuitkWorldSubsystem>();
+int32 Handle = Ruitk->MountNamed(TEXT("InventoryPanel"), /*ZOrder*/ 10);
+// Roots tear down automatically when the world dies (PIE-end safe).`
+
+const HOST_PROPS = `// Inside the hosted component — read what the Designer/Blueprint set on the host:
+const FString Title = Ruitk::Umg::UseHostProp(FName(TEXT("Title")), TEXT("Inventory"));
+UObject* Vm = Ruitk::Umg::UseHostViewModel();                  // the host's ViewModel property
+const int32 Gold = Ruitk::Umg::UseField<int32>(Ctx, Vm, "Gold", 0); // subscribes; re-renders on change
+
+// On the UMG side (Designer details panel or Blueprint):
+//   Host->InitialProps.Add("Title", "War Chest");
+//   Host->ViewModel = MyGoldViewModel;   // any INotifyFieldValueChanged
+//   Host->SynchronizeProperties();       // runtime edits forward live (the Designer calls it for you)`
+
+const THEIRS_IN_OURS = `// A UUserWidget as a child of our tree — from the InteropShowcase demo.
+// The widget is created for the owning world and its SObjectWidget slots in
+// like any other child; it stays GC-alive while mounted, released on unmount.
+{ Ruitk::Umg::UserWidget(UDemoUmgWidget::StaticClass(), World) }
+
+// With a declarative prop map — name -> value, applied to the widget's
+// matching UPROPERTYs by reflection each commit (unknown names are skipped):
+FRuitkStyleDict WidgetProps;
+WidgetProps.Add(FName(TEXT("Score")), FRuitkValue(42));
+{ Ruitk::Umg::UserWidget(UScoreCard::StaticClass(), World, MoveTemp(WidgetProps)) }`
+
+export const UmgGuidePage: FC = () => (
+  <Box>
+    <Typography variant="h4" component="h1" gutterBottom>
+      UMG Interop — a door in both directions
+    </Typography>
+    <Typography variant="body1" paragraph>
+      UMG and Reactive UI Toolkit host each other. Designers embed reactive panels inside existing
+      UserWidgets without leaving the Designer; reactive trees embed existing UMG widgets without
+      rewriting them. Neither side is a second-class citizen.
+    </Typography>
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Our UI inside theirs — <code>URuitkHostWidget</code>
+    </Typography>
+    <Typography variant="body1" paragraph>
+      <code>URuitkHostWidget</code> is a designer-placeable <code>UWidget</code> (&quot;Reactive UI Toolkit
+      Host&quot; in the palette). Point it at a registered component name; it mounts the tree when
+      the widget builds and unmounts — running effect cleanups — when Slate resources release. For
+      HUD-style overlays with no UMG wrapper at all, <code>URuitkWorldSubsystem::MountNamed</code>{' '}
+      mounts straight into the viewport, Blueprint-callable, with automatic teardown on world death.
+    </Typography>
+    <CodeBlock code={OURS_IN_THEIRS} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Passing props &amp; a viewmodel from the Designer
+    </Typography>
+    <Typography variant="body1" paragraph>
+      The host widget carries two designer/Blueprint-editable channels beside{' '}
+      <code>ComponentName</code>: <code>InitialProps</code> (a name → string map) and{' '}
+      <code>ViewModel</code> (any FieldNotify object). Both publish into the hosted tree as
+      context — no remount, and edits forward live through <code>SynchronizeProperties</code>.
+      For bigger data, a <strong>Signal</strong> or a shared viewmodel (see the MVVM guide)
+      remains the idiomatic channel.
+    </Typography>
+    <CodeBlock code={HOST_PROPS} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Their widgets inside ours — <code>Ruitk::Umg::UserWidget</code>
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Any <code>UUserWidget</code> class drops into the tree as an expression child. The host
+      creates it for the owning world, wraps its Slate face, keeps it GC-alive while mounted
+      (strong-pointer semantics), and releases it in the deletion commit. Initial properties apply
+      through the reflection prop-map — the same diffing rules as native elements.
+    </Typography>
+    <CodeBlock code={THEIRS_IN_OURS} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Textures &amp; materials
+    </Typography>
+    <Typography variant="body1" paragraph>
+      To show a <code>UTexture2D</code>/material in a Slate <code>Image</code> or{' '}
+      <code>Border</code>, wrap it with <code>Ruitk::Umg::MakeAssetBrush</code> — the brush is
+      GC-rooted for its lifetime, no manual rooting. See <strong>Assets</strong>.
+    </Typography>
+  </Box>
+)

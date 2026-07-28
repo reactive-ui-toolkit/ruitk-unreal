@@ -1,9 +1,9 @@
 ---
 name: new-component
-description: Author a .uetkx component for ReactiveUI-Unreal — file placement, declaration kinds and companion-file layout, props/hooks/events/directives/styling syntax, what the compiler generates, and the done-checklist. Use when writing or reviewing .uetkx markup. (Toolchain lands in Phase 3 — until then this is the authoring contract.)
+description: Author a .uetkx component for ruitk-unreal — file placement, declaration kinds and companion-file layout, props/hooks/events/directives/styling syntax, what the compiler generates, and the done-checklist. Use when writing or reviewing .uetkx markup. (Toolchain lands in Phase 3 — until then this is the authoring contract.)
 ---
 
-# Writing a ReactiveUI-Unreal component (.uetkx)
+# Writing a ruitk-unreal component (.uetkx)
 
 The grammar is **byte-compatible with the family's** `.guitkx` (Godot) / `.uitkx` (Unity) —
 pinned by the shared contract corpus (`grammar-contract` skill). Only the embedded language is
@@ -12,7 +12,7 @@ C++ here.
 ## Where files go (D-19)
 
 - `.uetkx` files live under a C++ **module's Source dir** (house convention: `Private/`,
-  e.g. `Source/RuiDemo/Private/UI/ScoreCard.uetkx`) — never under `Content/` (nothing compiles
+  e.g. `Source/RuitkDemo/Private/UI/ScoreCard.uetkx`) — never under `Content/` (nothing compiles
   there; the watcher warns).
 - Saving compiles a **sibling committed `Foo.uetkx.inl`** (reflection-free C++ builder calls) —
   never write or edit it; the module's `<Module>.Uetkx.gen.cpp` aggregator includes it. The
@@ -22,7 +22,7 @@ C++ here.
   exports in `.style.uetkx` companions (the family's companion-file layout — D-03). A file MAY
   hold a free sequence of declarations of any kind (ES-modules: a file IS a module).
 - **Declarations are plain C++-typed signatures** (ES-modules G-03) — the kind is read from the
-  signature: `export FRuiNode Name(T P = D, ...) { ... }` = component (PascalCase enforced),
+  signature: `export FRuitkNode Name(T P = D, ...) { ... }` = component (PascalCase enforced),
   `export <T> UseName(...) { ... }` = hook, `export <T> Name = init;` = value (`export Name =
   T(...);` inference sugar), any other callable = util. `export { a, b };` defers export marks;
   `export default X;` (one per file) enables `import X from "./x"`. The old `component`/`hook`/
@@ -34,7 +34,7 @@ C++ here.
   (UETKX2305 otherwise). A non-exported declaration is file-private (tree-shaken; file-qualified
   runtime identity — renaming a file remounts its privates).
 - **You almost never write an `#include`.** Every generated file already carries the library's
-  own headers (`RuiContext.h`, `RuiCoreElements.h`, `RuiRouter.h`, the UMG/CommonUI/MVVM interop
+  own headers (`RuitkContext.h`, `RuitkCoreElements.h`, `RuitkRouter.h`, the UMG/CommonUI/MVVM interop
   headers when that plugin is linked, `UObject/StrongObjectPtr.h`, `Engine/World.h`, …) via the
   aggregator's auto-included prelude — see `FUetkxFileScan::AutoIncludedHeaders()`
   (`UetkxFileScan.cpp`) for the exact list. For **your own** project header, use the host-include
@@ -42,16 +42,16 @@ C++ here.
   design — the C++ compiler resolves the header's symbols, so there is nothing for the toolchain
   to name-check. A raw `#include "MyTypes.h"` line still works (legacy spelling, never removed),
   but naming an auto-included header either way is redundant (UETKX2317 hint).
-- Migrating an existing tree? `<Engine>\UnrealEditor-Cmd <proj>.uproject -run=RUIMigrateEsModules`
+- Migrating an existing tree? `<Engine>\UnrealEditor-Cmd <proj>.uproject -run=RuitkMigrateEsModules`
   runs the whole pipeline idempotently (tidy → export-everything → wrappers→plain declarations →
   module hoists + `* as` import flips → missing imports → a zero-diagnostics gate incl. zero
-  2320); then `-run=RUICompile -check` must be clean. (`-run=RUIMigrateImports [-tidy]` remains
+  2320); then `-run=RuitkCompile -check` must be clean. (`-run=RuitkMigrateImports [-tidy]` remains
   the older exports/imports-only step.)
 
 ## Anatomy (family grammar, C++ embedded)
 
 ```
-export FRuiNode ScoreCard(FText Title, int32 MaxScore = 100) {
+export FRuitkNode ScoreCard(FText Title, int32 MaxScore = 100) {
 	auto [Score, SetScore] = UseState(0);
 	return (
 		<VerticalBox>
@@ -74,31 +74,31 @@ Rules that matter:
 - **Events**: the Unreal delegate name VERBATIM (`OnClicked`, `OnTextChanged`,
   `OnCheckStateChanged` — D-33 in MASTER_PLAN; no React aliases). Same rule as every other
   name: element tags = Slate class minus `S`, props = the setter/property name minus `Set`.
-  Handlers are inline `{ expr }` bodies; the payload parameter is `Value` (an `FRuiValue` —
+  Handlers are inline `{ expr }` bodies; the payload parameter is `Value` (an `FRuitkValue` —
   `Value.TextValue`/`Value.BoolValue`/`Value.FloatValue` per event). Handler BODIES are compiled
   C++ — they ride the same Live-Coding patch as the markup (HMR v2). ~~`logic={UClass}` named
   handlers~~ — NOT implemented (audit 2026-07-14); do not author or document it.
 - **Directives**: `@if/@elif/@else`, `@for` (the header is **verbatim C++** — classic or ranged
   for; + `key` on loop children), `@while`, `@match/@case/@default`. A directive block is a
   statement block — markup exits via `return ( … );` (corpus-pinned). There are NO `@uss`/`@theme`
-  markup directives — themes/stylesheets are the C++ `RUI::Slate::LoadStylesheet`/`RegisterTheme`
+  markup directives — themes/stylesheets are the C++ `Ruitk::Slate::LoadStylesheet`/`RegisterTheme`
   layer (audit 2026-07-14).
 - **Styling**: element attrs + generic style keys use the exact Unreal names (`Padding="12"`,
   `Font.Size={ 16.0f }`, `ColorAndOpacity={ … }` — PascalCase, never snake_case); `classes` for
   the registered-class merge layer (cascade: theme < classes < inline). Style/event/ref props
   reset when removed; plain props don't (family semantic).
-- **Structural primitives** (Portal/Suspense/ErrorBoundary/Memo) are `RUI::` calls inside
+- **Structural primitives** (Portal/Suspense/ErrorBoundary/Memo) are `Ruitk::` calls inside
   `{expr}`, NOT tags (family convention).
 - Formatter default: tabs (`uetkx.config.json` walk-up overrides; C++ doesn't require tabs —
   it's a style default).
 
 ## Done-checklist
 
-1. Saved → sibling `.inl` regenerated, no `UETKX####` diagnostics (Message Log "ReactiveUI" clean).
+1. Saved → sibling `.inl` regenerated, no `UETKX####` diagnostics (Message Log "Reactive UI Toolkit" clean).
 2. Renders where used (demo mount or another component).
 3. Reusable API surface → doc comment on the component, sensible prop defaults.
 4. Keyed lists have stable `key`s; formatting passes.
-5. The `.inl` is committed WITH the `.uetkx` (CI's `RUICompile -check` fails on drift).
+5. The `.inl` is committed WITH the `.uetkx` (CI's `RuitkCompile -check` fails on drift).
 
 ## Scar tissue (why these steps exist)
 

@@ -33,10 +33,10 @@ by definition a bug in the change).
 - Formatter goldens: `uetkx-formatter-cases.json` — pins the formatter byte-identical on both
   sides; invariants: verbatim-on-parse-error, idempotent, `fellBack` distinguishable.
 - Full-file fixtures + goldens (Phase 3+): fixtures under
-  `Source/RuiHostTests/ContractFixtures/` (EXCLUDED from the RUICompile sweep and UBT);
-  goldens dumped by `-run=RUIContractDump`; `--check` is the CI drift mode; the TS side replays
+  `Source/RuitkHostTests/ContractFixtures/` (EXCLUDED from the RuitkCompile sweep and UBT);
+  goldens dumped by `-run=RuitkContractDump`; `--check` is the CI drift mode; the TS side replays
   every golden.
-- Both sides run in CI: the C++ side via `ReactiveUI.Contract`, the TS side via
+- Both sides run in CI: the C++ side via `Ruitk.Contract`, the TS side via
   `node --test` in lsp-server.
 
 ## The `.pending` protocol (known divergences)
@@ -55,7 +55,7 @@ owner decision.
 - **Inbound** (a sibling released a grammar change — they demonstrably still do): import their
   new cases, run both in-repo implementations, reconcile or `.pending`-pin.
 - **Release-time drift check** (`release-process` §3): hash-compare the shared corpus sections
-  against `ReactiveUI-Gadot/ide-extensions/lsp-server/test-fixtures/scanner-cases.json` (and the
+  against `Reactive UI Toolkit-Gadot/ide-extensions/lsp-server/test-fixtures/scanner-cases.json` (and the
   Unity repo's corpus). Host-lexis-specific sections are exempt; structural sections must match.
 - The **vendored lsp-server's family-shared files** (`markup.ts`, `sourceMap.ts`, formatter,
   corpora) sync by the same procedure (D-30): diff against the sibling's copy, port deliberately,

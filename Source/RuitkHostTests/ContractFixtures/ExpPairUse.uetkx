@@ -1,0 +1,15 @@
+import { Widget, Accent } from "./ExpPairA"
+import { Widget as WidgetB, Accent as AccentB } from "./ExpPairB"
+
+export FRuitkNode ExpPairUse() {
+	const FLinearColor Mix = FLinearColor(Accent.R, AccentB.B, 0.0f, 1.0f);
+	return (
+		<VerticalBox>
+			<Widget />
+			<WidgetB />
+			<Border BorderBackgroundColor={ Mix }>
+				<Spacer />
+			</Border>
+		</VerticalBox>
+	);
+}

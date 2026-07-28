@@ -2,7 +2,7 @@
 // TD-033 N3 (LSP_COMPLETION_PLAN): the PURE halves of the code-action fixes — testable without
 // an LSP connection. server.ts converts the cp spans these return into TextEdits. The 2320
 // wrapper→plain rewrite MUST stay byte-identical to the codemod's per-decl forms
-// (RUIMigrateImportsCommandlet pass 3) — pinned by actions.test.ts.
+// (RuitkMigrateImportsCommandlet pass 3) — pinned by actions.test.ts.
 
 import { scanFile } from "./uetkxFileScan";
 /** The first declaration's true start (export prefix included) — the import-insertion point. */
@@ -119,7 +119,7 @@ export function unusedImportRemoval(scan: ReturnType<typeof scanFile>, text: str
 }
 
 /** The codemod's per-declaration wrapper→plain rewrite for the decl containing `cp` —
- *  components and hooks only (modules hoist with cross-file ripple; `-run=RUIMigrateEsModules`
+ *  components and hooks only (modules hoist with cross-file ripple; `-run=RuitkMigrateEsModules`
  *  owns those). The output shape MUST stay identical to the codemod's (test-pinned). */
 export function wrapperRewriteAt(scan: ReturnType<typeof scanFile>, cp: number): { start: number; end: number; text: string } | null {
   for (const d of scan.components) {
@@ -131,7 +131,7 @@ export function wrapperRewriteAt(scan: ReturnType<typeof scanFile>, cp: number):
       if (p.default) part += ` = ${p.default}`;
       return part;
     });
-    return { start, end: d.bodyAt - 1, text: `FRuiNode ${d.name}(${parts.join(", ")}) ` };
+    return { start, end: d.bodyAt - 1, text: `FRuitkNode ${d.name}(${parts.join(", ")}) ` };
   }
   for (const d of scan.hooks) {
     if (!d.legacySyntax) continue;

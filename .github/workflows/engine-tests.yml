@@ -27,10 +27,25 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.EPIC_GHCR_PAT }}
+      # Runner-temp EACCES (broken since 2026-07-27, runner-side): the runner mounts /__w/_temp
+      # with root-only file-command files, and the image's default non-root user (ue4) cannot
+      # write them — actions/checkout and every post-step die with EACCES before any code runs.
+      # Fix: the CONTAINER runs as root so the runner glue works; every ENGINE invocation below
+      # drops back to ue4 via setpriv, because the prebuilt Linux editor refuses euid 0 outright
+      # (UnixPlatformMemory.cpp, UE4_DO_ROOT_PRIVILEGE_CHECK — compile-time, no runtime bypass).
+      options: --user root
     env:
       ENGINE_ROOT: /home/ue4/UnrealEngine
+      # setpriv (util-linux) demotes to the image's engine user without resetting the
+      # environment; HOME is pinned so editor config/cache lands in ue4's home, not /root.
+      AS_UE4: setpriv --reuid=ue4 --regid=ue4 --init-groups env HOME=/home/ue4
     steps:
       - uses: actions/checkout@v7
+
+      # The checkout above ran as root, so hand the workspace to the engine user before any
+      # engine step writes into it (Intermediate/, Saved/, test-report/).
+      - name: Hand the workspace to the engine user
+        run: chown -R ue4:ue4 "$GITHUB_WORKSPACE"
 
       # 1. The empty-plugin/editor compile IS Phase 0's engine gate. Development Editor first.
       #    -DisableUnity -NoPCH (2026-07-25, TB-30): the marketplace/Fab build mode. Unity builds
@@ -39,32 +54,37 @@ jobs:
       #    class here on clang exactly as MSVC -StrictIncludes does at packaging time.
       - name: Build Development Editor (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoEditor Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
+          $AS_UE4 "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoEditor Linux Development \
+            -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
       # 2. Dedicated-server compile leg — D-27's server policy is CI-verified, not assumed
       #    (modules stay present on Server targets; behavior is gated at runtime instead).
       - name: Build DedicatedServer (Linux, strict includes)
         run: |
-          "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" ReactiveUIUnrealDemoServer Linux Development \
-            -Project="$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" -DisableUnity -NoPCH
+          $AS_UE4 "$ENGINE_ROOT/Engine/Build/BatchFiles/Linux/Build.sh" RuitkUnrealDemoServer Linux Development \
+            -Project="$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" -DisableUnity -NoPCH
 
-      # 3. Markup drift gate — the RUICompile commandlet + committed *.uetkx.inl / aggregators exist
-      #    (Phase 3+), so this is the SOLE guard that the 25 committed generated files match a fresh
+      # 3. Markup drift gate — the RuitkCompile commandlet + committed *.uetkx.inl / aggregators exist
+      #    (Phase 3+), so this is the SOLE guard that the 47 committed generated files match a fresh
       #    compile. Was left commented past its activation point, leaving generated code ungated even
       #    when armed (bughunt BUILD-2).
       - name: Markup drift gate
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" \
-            -run=RUICompile -check -unattended -nopause -nullrhi
+          $AS_UE4 "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
+            -run=RuitkCompile -check -unattended -nopause -nullrhi
 
-      # 4. Automation suites (headless) — the ReactiveUI.* specs exist (Phase 1+). Pass/fail parses
+      # 4. Automation suites (headless) — the Ruitk.* specs exist (Phase 1+). Pass/fail parses
       #    report/index.json, NOT the exit code (test-run skill scar). Was commented past its
       #    activation point, so an armed run reported green having run ZERO tests (bughunt BUILD-2).
       - name: Automation suites (headless)
         run: |
-          "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/ReactiveUIUnrealDemo.uproject" \
-            -ExecCmds="Automation RunTests ReactiveUI; Quit" \
+          $AS_UE4 "$ENGINE_ROOT/Engine/Binaries/Linux/UnrealEditor-Cmd" "$GITHUB_WORKSPACE/RuitkUnrealDemo.uproject" \
+            -ExecCmds="Automation RunTests Ruitk; Quit" \
             -unattended -nopause -nosplash -nullrhi -stdout -FullStdOutLogOutput \
             -ReportExportPath="$GITHUB_WORKSPACE/test-report"
-          node -e "const r=require('./test-report/index.json'); const fails=(r.tests||[]).filter(t=>t.state&&t.state!=='Success').length; const n=typeof r.failed==='number'?Math.max(r.failed,fails):fails; if(n>0){console.error(n+' automation test(s) failed');process.exit(1)} console.log('automation suites passed')"
+          # Parse with the ENGINE's bundled python3 — the dev-slim containers ship no node, so the
+          # old `node -e` parse died with exit 127 AFTER a fully green suite (round-4 scar). Same
+          # arithmetic as before: max(report.failed, count of non-Success states), nonzero fails.
+          PY="$ENGINE_ROOT/Engine/Binaries/ThirdParty/Python3/Linux/bin/python3"
+          [ -x "$PY" ] || PY=python3
+          "$PY" -c "import json,sys; r=json.load(open('test-report/index.json', encoding='utf-8-sig')); t=r.get('tests') or []; f=[x for x in t if x.get('state') and x['state']!='Success']; n=max(r['failed'],len(f)) if isinstance(r.get('failed'),int) else len(f); sys.exit('%d automation test(s) failed'%n if n else print('automation suites passed'))"

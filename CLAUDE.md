@@ -6,7 +6,7 @@ repository.
 ## What this repo is
 
 A **React-style reactive UI library for Unreal Engine 5.6+, in pure C++** — the third sibling of
-ReactiveUIToolKit (Unity/C#) and ReactiveUI-Godot (GDScript). Function components return a
+ReactiveUIToolKit (Unity/C#) and Reactive UI Toolkit for Godot (GDScript). Function components return a
 virtual tree; a fiber reconciler patches real **Slate** widgets. `.uetkx` markup (grammar
 byte-compatible with the family's `.guitkx`/`.uitkx`) compiles to C++ for shipping and
 hot-reloads live in dev via **Unreal Live Coding** (whole-project, state preserved; HMR v2 —
@@ -16,11 +16,11 @@ the old dev-loop interpreter was deleted).
 import surface — `import { A, B as C } from "./x"` / `import * as X` / default imports /
 `~/root-alias`, extensionless, preamble-only — plus `export` on plain C++-typed declarations,
 deferred `export { a, b };` lists, and one `export default X;` per file. Declaration kind is read
-from the SIGNATURE alone: `FRuiNode Name(...)` = component, `Use`-prefixed = hook, `Name = ...` =
+from the SIGNATURE alone: `FRuitkNode Name(...)` = component, `Use`-prefixed = hook, `Name = ...` =
 value export, other callables = utils (non-exported = private, tree-shaken, file-qualified
 runtime identity). The legacy `component`/`hook`/`module` wrappers still parse for one minor
-(UETKX2320 warns); `-run=RUIMigrateEsModules` is the idempotent codemod that migrates a whole
-tree (`-run=RUIMigrateImports` remains for the older exports/imports step; `RUICompile -check`
+(UETKX2320 warns); `-run=RuitkMigrateEsModules` is the idempotent codemod that migrates a whole
+tree (`-run=RuitkMigrateImports` remains for the older exports/imports step; `RuitkCompile -check`
 enforces resolution).
 
 **The plans are the source of truth**: [plans/ROADMAP.md](plans/ROADMAP.md) (living status
@@ -36,13 +36,13 @@ rounds + audit ledgers).
 
 | Deliverable | Location | Version source | Tag |
 |---|---|---|---|
-| Runtime plugin | `Plugins/ReactiveUI/` | `ReactiveUI.uplugin` → `VersionName` (+ integer `Version`) | `v*` (one tag; per-engine zips as assets) |
+| Runtime plugin | `Plugins/ReactiveUIToolkit/` | `ReactiveUIToolkit.uplugin` → `VersionName` (+ integer `Version`) | `v*` (one tag; per-engine zips as assets) |
 | VS Code extension (Phase 5) | `ide-extensions/vscode-uetkx/` | `package.json` | `vscode-v*` |
 | VS2022 extension (Phase 5) | `ide-extensions/visual-studio/` | `source.extension.vsixmanifest` | `vs2022-v*` |
 | lsp-server (Phase 5) | `ide-extensions/lsp-server/` | vendored; version-locked to vscode-uetkx (no own tag) | — |
-| Docs site | `ReactiveUIUnrealDocs~/` | not version-gated | — |
+| Docs site | `RuitkUnrealDocs~/` | not version-gated | — |
 
-The demo host project (`ReactiveUIUnrealDemo.uproject` at repo root, modules under `Source/`)
+The demo host project (`RuitkUnrealDemo.uproject` at repo root, modules under `Source/`)
 is **not shipped** — it hosts the automation tests, the demo gallery, and the per-engine example
 projects Fab requires.
 
@@ -65,55 +65,55 @@ Engine commands (require UE 5.6+ installed; paths per the `test-run` skill's env
 
 ```bat
 :: 0. Build (there IS a compile step — unlike Godot)
-<Engine>\Engine\Build\BatchFiles\Build.bat ReactiveUIUnrealDemoEditor Win64 Development -Project=<abs>\ReactiveUIUnrealDemo.uproject -WaitMutex
+<Engine>\Engine\Build\BatchFiles\Build.bat RuitkUnrealDemoEditor Win64 Development -Project=<abs>\RuitkUnrealDemo.uproject -WaitMutex
 
 :: 1. Markup compile sweep + drift gate (Phase 3+)
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -run=RUICompile -check
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -run=RuitkCompile -check
 
 :: 2. Suites — headless; ALWAYS redirect output to a file; parse report\index.json, not the exit code
-<Engine>\UnrealEditor-Cmd.exe <abs>\ReactiveUIUnrealDemo.uproject -ExecCmds="Automation RunTests ReactiveUI; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
+<Engine>\UnrealEditor-Cmd.exe <abs>\RuitkUnrealDemo.uproject -ExecCmds="Automation RunTests Ruitk; Quit" -unattended -nopause -nosplash -nullrhi -log -stdout -FullStdOutLogOutput -ReportExportPath=<scratch>\report
 ```
 
-Suite filters are prefix-matched: `ReactiveUI.Boot` (the boot check — unit suites do NOT run
+Suite filters are prefix-matched: `Ruitk.Boot` (the boot check — unit suites do NOT run
 `StartupModule`, so it is never optional), `.Core`, `.Update`, `.Style`, `.Widgets.*`, `.Demos`,
 `.Uetkx`, `.Contract`, `.Umg`, `.Mvvm`, `.CommonUI`, `.Loc` (plus `.Slate`, `.Router`, `.Hooks`,
-`.Bugfix*`, `.Acceptance`, `.Editor` — there is no `.Hmr` suite); `ReactiveUI.Bench` is NOT
+`.Bugfix*`, `.Acceptance`, `.Editor` — there is no `.Hmr` suite); `Ruitk.Bench` is NOT
 pass/fail (numbers go to `plans/BENCH_BASELINES.md` with machine/config context).
 
-Docs site: `cd "ReactiveUIUnrealDocs~" && npm ci && npm run dev` (or `npm run build && npm run lint`).
+Docs site: `cd "RuitkUnrealDocs~" && npm ci && npm run dev` (or `npm run build && npm run lint`).
 
 ## Architecture (one paragraph + pointers)
 
-`ReactiveUICore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
-talks to engines only through `IRuiHostConfig`. `ReactiveUISlate` implements the host with
+`RuitkCore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
+talks to engines only through `IRuitkHostConfig`. `RuitkSlate` implements the host with
 per-widget adapters (typed props structs + set-bitmask, setter tables, reconstruct masks, event
-proxies). `ReactiveUIUMG`/`ReactiveUICommonUI`/`ReactiveUIMVVMBridge` are the Epic-interop
-modules. `ReactiveUIInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) owns the
+proxies). `RuitkUMG`/`RuitkCommonUI`/`RuitkMVVMBridge` are the Epic-interop
+modules. `RuitkInterp` (Runtime, `TargetConfigurationDenyList: ["Shipping"]`) owns the
 markup lexer/parser (parser-only since HMR v2 — the dev-loop interpreter was deleted);
-`ReactiveUIToolchain` (UncookedOnly) consumes the parser for codegen; `ReactiveUIEditor` (Editor)
+`RuitkToolchain` (UncookedOnly) consumes the parser for codegen; `RuitkEditor` (Editor)
 hosts the watcher/commandlets + the Live-Coding HMR controller (`FUetkxHmrController`) and the
-`ReactiveUetkx` menu/window. Full reasoning:
+`RuitkUetkx` menu/window. Full reasoning:
 MASTER_PLAN §1; module table: D-27.
 
 ## Conventions (enforce; don't re-litigate)
 
-- **Naming:** `FRui*`/`SRui*`/`URui*`/`IRui*`/`TRui*`; factories in namespace `RUI::`
-  (`RUI::Slate::VerticalBox()`, `RUI::FC`, `RUI::Umg`). Markup extension `.uetkx`.
+- **Naming:** `FRuitk*`/`SRuitk*`/`URuitk*`/`IRuitk*`/`TRuitk*`; factories in namespace `Ruitk::`
+  (`Ruitk::Slate::VerticalBox()`, `Ruitk::FC`, `Ruitk::Umg`). Markup extension `.uetkx`.
 - **Element/prop/style/event naming is 1:1 loyal to Unreal (D-33, MASTER_PLAN):** tag = Slate
   class minus `S` (`VerticalBox`, `TextBlock`, `Slider`); props/style keys/events = the Unreal
   setter/property/delegate name (`WidthOverride`, `RenderOpacity`, `OnCheckStateChanged`); our
-  custom widgets carry the `Rui` mark (`RuiCanvas`). No shorthands, no React aliases.
+  custom widgets carry the `Ruitk` mark (`RuitkCanvas`). No shorthands, no React aliases.
 - **Copyright header (Fab requirement, CI-linted):** first line of every `.h/.cpp/.inl/.cs/.mjs`
   under `Source/`, `Plugins/`, `templates/`, `scripts/`, `ide-extensions/` (own code, not
   node_modules):
   `// Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.` (`#` form for `.ps1`).
   Codegen emits it only for THIS repo's files; user-project output gets the neutral
   "belongs to your project" banner (D-32).
-- **Logs:** per-module categories `LogRuiCore`/`LogRuiSlate`/`LogRuiUmg`/`LogRuiInterp`/
-  `LogRuiEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `rui.TimeSlicing`,
-  `rui.FrameBudgetMs`, `rui.HostNodePool`, `rui.HookValidation`, `rui.StrictDiagnostics`,
-  `rui.StrictMode` (runtime stats via `stat ReactiveUI`, not a CVar). **MessageLog page:**
-  `"ReactiveUI"`.
+- **Logs:** per-module categories `LogRuitkCore`/`LogRuitkSlate`/`LogRuitkUmg`/`LogRuitkInterp`/
+  `LogRuitkEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `ruitk.TimeSlicing`,
+  `ruitk.FrameBudgetMs`, `ruitk.HostNodePool`, `ruitk.HookValidation`, `ruitk.StrictDiagnostics`,
+  `ruitk.StrictMode` (runtime stats via `stat Ruitk`, not a CVar). **MessageLog page:**
+  `"Ruitk"`.
 - **Line endings:** LF everywhere (`.gitattributes` pins it; two CI gates byte-compare files).
 - **Generated code is COMMITTED** (`*.uetkx.inl`, `<Module>.Uetkx.gen.cpp`) and reflection-free;
   sidecars (`*.uetkx.diags.json`) are machine-local and gitignored.
@@ -140,7 +140,7 @@ MASTER_PLAN §1; module table: D-27.
 
 | Name | Kind | Consumed by | Local mirror key (`publisher-secrets.json`) |
 |---|---|---|---|
-| `RUI_CI_ENGINE_ARMED` | repo variable | test.yml/publish.yml engine legs (gate) | — |
+| `RUITK_CI_ENGINE_ARMED` | repo variable | test.yml/publish.yml engine legs (gate) | — |
 | `EPIC_GHCR_PAT` | secret | engine-container pulls (Linux CI legs) | — |
 | `VSCE_PAT` | secret | publish.yml vscode leg (Phase 5+) | `vscePatToken` |
 | `OVSX_TOKEN` | secret | publish.yml vscode leg, Open VSX (Phase 5+) | `ovsxToken` |
@@ -152,7 +152,7 @@ MASTER_PLAN §1; module table: D-27.
   green on 5.6, 5.7, and 5.8 (2026-07-14). The `engine-catchup` skill is the per-version
   runbook, `scripts/engine-api-diff.ps1` the discovery tool. When switching engines on one
   working copy, a stale-UHT clean may be needed (`rm -rf Intermediate/Build
-  Plugins/ReactiveUI/Intermediate Binaries Plugins/ReactiveUI/Binaries`) — a newer engine's
+  Plugins/ReactiveUIToolkit/Intermediate Binaries Plugins/ReactiveUIToolkit/Binaries`) — a newer engine's
   UHT output does not compile on an older one. The SAME clean is MANDATORY after any
   `-DisableUnity`/`-NoPCH` build experiment: mixed unity/non-unity intermediates make
   in-editor Live Coding recompile untouched modules on every fresh boot (TB-21 amendment —

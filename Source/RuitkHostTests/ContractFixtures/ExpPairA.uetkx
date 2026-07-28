@@ -1,0 +1,11 @@
+import "@CoreMinimal.h"
+
+export FLinearColor Accent = { 0.9f, 0.2f, 0.2f, 1.0f };
+
+export FRuitkNode Widget() {
+	return (
+		<Border BorderBackgroundColor={ Accent }>
+			<Spacer />
+		</Border>
+	);
+}

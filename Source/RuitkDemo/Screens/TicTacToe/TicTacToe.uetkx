@@ -1,0 +1,127 @@
+export FRuitkNode TicTacToe() {
+	auto EmptyGrid = []() {
+		TArray<FString> G;
+		G.SetNum(9);
+		return G;
+	};
+	auto [bStarted, SetStarted] = UseState<bool>(false);
+	auto [Turn, SetTurn] = UseState<FString>(FString(TEXT("X")));
+	auto [Grid, SetGrid] = UseState<TArray<FString>>(EmptyGrid());
+	auto [Winner, SetWinner] = UseState<FString>(FString());
+
+	auto Restart = [SetStarted, SetTurn, SetGrid, SetWinner, EmptyGrid]() {
+		SetStarted(true);
+		SetTurn(FString(TEXT("X")));
+		SetWinner(FString());
+		SetGrid(EmptyGrid());
+	};
+
+	auto CheckWinner = [](const TArray<FString>& G) -> FString {
+		static const int32 Lines[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6},
+											{1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+		for (const int32* L : Lines)
+		{
+			if (!G[L[0]].IsEmpty() && G[L[0]] == G[L[1]] && G[L[0]] == G[L[2]])
+			{
+				return G[L[0]];
+			}
+		}
+		return FString();
+	};
+
+	int32 MovesLeft = 0;
+	for (const FString& Cell : Grid)
+	{
+		if (Cell.IsEmpty())
+		{
+			++MovesLeft;
+		}
+	}
+
+	auto PlayCell = [SetGrid, SetTurn, SetWinner, CheckWinner, Grid, Turn, Winner](int32 Index) {
+		if (!Winner.IsEmpty() || !Grid[Index].IsEmpty())
+		{
+			return;
+		}
+		TArray<FString> Next = Grid;
+		Next[Index] = Turn;
+		SetGrid(Next);
+		const FString Win = CheckWinner(Next);
+		if (!Win.IsEmpty())
+		{
+			SetWinner(Win);
+		}
+		else
+		{
+			SetTurn(Turn == TEXT("X") ? FString(TEXT("O")) : FString(TEXT("X")));
+		}
+	};
+
+	return (
+		<Border
+			Padding="12"
+			BorderImage="WhiteBrush"
+			BorderBackgroundColor={ FLinearColor(0.02f, 0.02f, 0.03f, 0.85f) }
+			Slot.Padding="0,10,0,0"
+		>
+			<VerticalBox>
+				<TextBlock
+					Text="Welcome to Tic Tac Toe!"
+					Font.Size={ 16.0f }
+					ColorAndOpacity={ FLinearColor(0.4f, 0.8f, 1.0f) } />
+				<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+				<HorizontalBox>
+					<Button OnClicked={ Restart() } ContentPadding="12,4" Slot.Padding="0,0,6,0">
+						<TextBlock Text={ FText::FromString(bStarted ? TEXT("Restart Game") : TEXT("Start Game")) } />
+					</Button>
+				</HorizontalBox>
+				@if (bStarted) {
+					return (
+						<VerticalBox>
+							<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+							@if (!Winner.IsEmpty()) {
+								return (
+									<TextBlock
+										Text={ Ruitk::Fmt(TEXT("Player {} is the winner"), Winner) }
+										Font.Size={ 14.0f }
+										ColorAndOpacity={ FLinearColor(0.6f, 1.0f, 0.6f) } />
+								);
+							} @elif (MovesLeft == 0) {
+								return (
+									<TextBlock
+										Text="Draw!"
+										Font.Size={ 14.0f }
+										ColorAndOpacity={ FLinearColor(1.0f, 0.8f, 0.4f) } />
+								);
+							} @else {
+								return (
+									<TextBlock Text={ Ruitk::Fmt(TEXT("Player turn: {}   (moves left: {})"), Turn, MovesLeft) } />
+								);
+							}
+							<Spacer Size={ FVector2D(1.0f, 6.0f) } />
+							@for (int32 R = 0; R < 3; ++R) {
+								return (
+									<HorizontalBox key={ 100 + R }>
+										@for (int32 C = 0; C < 3; ++C) {
+											const int32 Index = R * 3 + C;
+											return (
+												<Box key={ Index } WidthOverride={ 44.0f } HeightOverride={ 44.0f }>
+													<Button OnClicked={ PlayCell(Index) } ContentPadding="0">
+														<TextBlock
+															Text={ FText::FromString(Grid[Index].IsEmpty() ? FString(TEXT(" ")) : Grid[Index]) }
+															Font.Size={ 16.0f }
+															ColorAndOpacity={ FLinearColor(1.0f, 0.85f, 0.4f) } />
+													</Button>
+												</Box>
+											);
+										}
+									</HorizontalBox>
+								);
+							}
+						</VerticalBox>
+					);
+				}
+			</VerticalBox>
+		</Border>
+	);
+}

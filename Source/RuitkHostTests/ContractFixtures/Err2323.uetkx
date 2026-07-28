@@ -1,0 +1,6 @@
+export FRuitkNode Err2323() {
+	return (
+		<Spacer />
+	);
+}
+export { Ghost2323 };

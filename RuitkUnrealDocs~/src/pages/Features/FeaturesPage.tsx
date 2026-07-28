@@ -1,0 +1,180 @@
+import type { FC } from 'react'
+import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
+
+const ROUTER = `#include "RuitkRouter.h"
+
+// A router owns an in-memory history; Routes renders the best match for the current location.
+FRuitkNode App(FRuitkContext& Ctx) {
+	return Ruitk::Router({
+		Ruitk::Routes({
+			Ruitk::FRuitkRoute{ TEXT("/"),          Ruitk::FC(&HomeScreen) },
+			Ruitk::FRuitkRoute{ TEXT("/users/:id"), Ruitk::FC(&UserScreen) },
+		}),
+	}, TEXT("/"));
+}
+
+// Inside a route component: the family's 17 router hooks (global free functions, not RUI-scoped).
+const FRuitkLocation&           Loc    = UseLocation(Ctx);
+const TMap<FString, FString>& Params = UseParams(Ctx);      // { "id": "42" }
+auto                          Nav    = UseNavigate(Ctx);    // Nav(TEXT("/users/7"), false)
+auto                          Search = UseSearchParams(Ctx);`
+
+const STYLESHEET = `// theme.uss — @theme tokens + $token refs; the cascade is theme < classes < inline.
+// DECLARE tokens BARE; REFERENCE them with a leading $ (a ref strips the $ and matches the bare name).
+@theme dark {
+	bg: #10131a;
+	accent: #4f8cff;
+}
+.panel { RenderOpacity: 1; BorderBackgroundColor: $accent; }   // $accent -> #4f8cff under theme "dark"
+
+// C++: register + activate, then reference tokens from style dicts.
+Ruitk::Slate::LoadStylesheet(Source);
+Ruitk::Slate::SetActiveTheme("dark");`
+
+const LISTVIEW = `#include "RuitkListView.h"
+
+// Virtualized: only visible rows have widgets. Each generated row is its own
+// FRuitkRoot sub-root rendering RenderItem(item, index).
+FRuitkListViewProps P;
+P.SetItems(Items);                                  // stable TSharedPtr<FRuitkValue> array
+P.SetRenderItem(Ruitk::Slate::MakeItemRenderer(
+	[](const FRuitkValue& V, int32) { return Ruitk::TextBlock(V.StringValue); }));
+P.SetSelectionMode(FName(TEXT("single")));          // none | single | singleToggle | multi
+return Ruitk::Slate::ListView(MoveTemp(P));            // or TileView(...)`
+
+const DND = `#include "RuitkDragDrop.h"
+
+// A draggable carrying a typed payload; a drop zone filtering by type.
+Ruitk::Slate::DragSource(SourceProps /* DragType, Payload */, { Card });
+Ruitk::Slate::DropTarget(TargetProps /* AcceptTypes, OnDrop */, { Slot });`
+
+const PRESENCE = `#include "RuitkPresence.h"
+
+// Children removed from the tree stay mounted until they signal done (or time out).
+Ruitk::Presence({ /* keyed children */ });
+FRuitkPresenceState S = UsePresence(Ctx);              // global hook: { bPresent, NotifyDone }`
+
+const COMMONUI = `#include "RuitkActivatableScreen.h"   // our tree as a CommonUI screen
+
+// Inside the hosted component: react to activation + input method.
+bool             bActive = Ruitk::CommonUI::UseIsActive(Ctx);
+ERuitkInputMethod  Method  = Ruitk::CommonUI::UseInputMethod(Ctx);
+
+// MVVM: register a viewmodel globally; UMG views bind it by context name.
+Ruitk::Mvvm::RegisterGlobalViewModel(GameInstance, "PlayerStats", ViewModel);`
+
+const WIDGETS: Array<[string, string]> = [
+  ['WidgetSwitcher, ScaleBox, Throbber, WrapBox', 'the batch-2 everyday set'],
+  ['MultiLineEditableTextBox, SearchBox', 'multi-line + search text inputs'],
+  ['SafeZone, DPIScaler, Separator', 'layout + platform helpers'],
+  ['SpinBox, UniformWrapPanel, RichTextBlock', 'numeric drag input, uniform wrap, rich text'],
+  ['GridPanel, UniformGridPanel', 'slot.column / slot.row placement'],
+  ['ExpandableArea', 'a two-named-slot (header / body) collapsible section'],
+  ['SegmentedControl', 'a labelled tab-bar selector'],
+  ['NumericEntryBox', 'a controlled numeric field'],
+  ['ComboBox', 'a dropdown reusing the ListView render-prop'],
+  ['SuggestionTextBox', 'autocomplete with a substring suggestion filter'],
+  ['ListView, TileView', 'virtualized item-model views (per-row sub-roots)'],
+]
+
+export const FeaturesPage: FC = () => (
+  <Box>
+    <Typography variant="h4" component="h1" gutterBottom>
+      Subsystems in depth
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Beyond the core reconciler + Slate host, the library <strong>ships</strong> the family&apos;s
+      full subsystem surface today: a router, stylesheets, exit animations, drag-and-drop,
+      virtualized lists, first-class CommonUI/MVVM citizenship, and ~20 additional widgets.
+      Everything below is C++-level API (the <code>.uetkx</code> markup covers the declarative
+      subset); each subsystem is covered by the headless automation battery. This page is the
+      C++-first tour — the Guides cover each area from the markup side.
+    </Typography>
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Router
+    </Typography>
+    <Typography variant="body1" paragraph>
+      An engine-blind port of the family router: <code>Router</code> / <code>Routes</code> /{' '}
+      <code>Link</code> / <code>Outlet</code> over an in-memory history, plus the 17 router hooks
+      (<code>UseLocation</code>, <code>UseNavigate</code>, <code>UseParams</code>,{' '}
+      <code>UseSearchParams</code>, <code>UseMatch</code>, <code>UseBlocker</code>, …). Consumers
+      re-render on location change only.
+    </Typography>
+    <CodeBlock code={ROUTER} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Stylesheets (<code>@theme</code> / <code>@uss</code>)
+    </Typography>
+    <Typography variant="body1" paragraph>
+      A third style layer on top of inline <code>style</code> + <code>classes</code>:{' '}
+      <code>@theme</code> tokens and <code>$token</code> references, loaded from a{' '}
+      <code>@uss</code> stylesheet. The cascade is <strong>theme &lt; classes &lt; inline</strong>.
+    </Typography>
+    <CodeBlock code={STYLESHEET} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Virtualized lists (<code>ListView</code> / <code>TileView</code>)
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Only the rows in view have widgets, so a 100k-item list stays cheap. The API is a render
+      prop: a stable item array + a <code>RenderItem</code> closure. Each generated row is its own
+      reconciler sub-root; re-handing a fresh closure re-renders live rows in place with no churn.
+    </Typography>
+    <CodeBlock code={LISTVIEW} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Drag-and-drop &amp; exit animations
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Typed DnD over Slate&apos;s <code>FDragDropOperation</code> — a <code>DragSource</code>{' '}
+      carries an <code>FRuitkValue</code> payload + type tag, a <code>DropTarget</code> filters by
+      accepted types. Exit animations use a <code>&lt;Presence&gt;</code> boundary: a removed child
+      stays mounted until it signals done (or a timeout fires).
+    </Typography>
+    <CodeBlock code={DND} language="uetkx" />
+    <CodeBlock code={PRESENCE} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      CommonUI &amp; MVVM citizenship
+    </Typography>
+    <Typography variant="body1" paragraph>
+      <code>URuitkActivatableScreen</code> pushes our tree onto a CommonUI activatable stack; the
+      hosted component reacts with <code>UseActivation</code> / <code>UseInputMethod</code>. On the
+      MVVM side, a viewmodel can be registered in the plugin&apos;s global collection, and a hosted{' '}
+      <code>UUserWidget</code> receives Ruitk props declaratively through the reflection prop-map.
+    </Typography>
+    <CodeBlock code={COMMONUI} language="uetkx" />
+
+    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+      Widgets added
+    </Typography>
+    <TableContainer sx={{ mb: 2 }}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>Widgets</TableCell>
+            <TableCell>Notes</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {WIDGETS.map(([names, note]) => (
+            <TableRow key={names}>
+              <TableCell>
+                <code>{names}</code>
+              </TableCell>
+              <TableCell>{note}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+    <Alert severity="info">
+      The per-widget catalog (one page per host tag) is generated from the compiler-exported
+      schema — see the <strong>Components</strong> section in the sidebar; this page covers the
+      C++-level subsystems the schema doesn&apos;t describe.
+    </Alert>
+  </Box>
+)

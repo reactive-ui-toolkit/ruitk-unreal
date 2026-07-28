@@ -45,7 +45,7 @@ Body structure (BOTH templates, in this exact order):
 # <H1 from the table>
 
 <1-2 paragraph description: editor support for `.uetkx`, the JSX-like markup of
-[ReactiveUI for Unreal](https://github.com/yanivkalfa/ReactiveUI-Unreal) — a React-style
+[ReactiveUI for Unreal](https://github.com/reactive-ui-toolkit/ruitk-unreal) — a React-style
 reactive UI library for Unreal Engine 5.6+, in pure C++.>
 
 ## Features

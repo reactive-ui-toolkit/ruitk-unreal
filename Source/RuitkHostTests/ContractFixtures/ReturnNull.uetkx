@@ -1,0 +1,13 @@
+export FRuitkNode ReturnNull(bool bHidden = false) {
+	if (bHidden) {
+		return null;
+	}
+	if (!bHidden) {
+		return ( null );
+	}
+	return ( <Spacer /> );
+}
+
+export FRuitkNode ReturnNullOnly() {
+	return null;
+}

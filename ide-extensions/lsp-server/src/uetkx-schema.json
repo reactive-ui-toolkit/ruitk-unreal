@@ -4,7 +4,7 @@
 	{
 		"BackgroundBlur":
 		{
-			"factory": "RUI::Slate::BackgroundBlur",
+			"factory": "Ruitk::Slate::BackgroundBlur",
 			"children": true,
 			"attrs":
 			{
@@ -16,7 +16,7 @@
 		},
 		"Border":
 		{
-			"factory": "RUI::Slate::Border",
+			"factory": "Ruitk::Slate::Border",
 			"children": true,
 			"attrs":
 			{
@@ -29,7 +29,7 @@
 		},
 		"Box":
 		{
-			"factory": "RUI::Slate::Box",
+			"factory": "Ruitk::Slate::Box",
 			"children": true,
 			"attrs":
 			{
@@ -45,7 +45,7 @@
 		},
 		"BreadcrumbTrail":
 		{
-			"factory": "RUI::Slate::BreadcrumbTrail",
+			"factory": "Ruitk::Slate::BreadcrumbTrail",
 			"children": false,
 			"attrs":
 			{
@@ -56,7 +56,7 @@
 		},
 		"Button":
 		{
-			"factory": "RUI::Slate::Button",
+			"factory": "Ruitk::Slate::Button",
 			"children": true,
 			"attrs":
 			{
@@ -68,7 +68,7 @@
 		},
 		"Canvas":
 		{
-			"factory": "RUI::Slate::Canvas",
+			"factory": "Ruitk::Slate::Canvas",
 			"children": true,
 			"attrs":
 			{
@@ -76,7 +76,7 @@
 		},
 		"CheckBox":
 		{
-			"factory": "RUI::Slate::CheckBox",
+			"factory": "Ruitk::Slate::CheckBox",
 			"children": true,
 			"attrs":
 			{
@@ -86,7 +86,7 @@
 		},
 		"ColorBlock":
 		{
-			"factory": "RUI::Slate::ColorBlock",
+			"factory": "Ruitk::Slate::ColorBlock",
 			"children": false,
 			"attrs":
 			{
@@ -100,7 +100,7 @@
 		},
 		"ColorGradingWheel":
 		{
-			"factory": "RUI::Slate::ColorGradingWheel",
+			"factory": "Ruitk::Slate::ColorGradingWheel",
 			"children": false,
 			"attrs":
 			{
@@ -114,7 +114,7 @@
 		},
 		"ColorSpectrum":
 		{
-			"factory": "RUI::Slate::ColorSpectrum",
+			"factory": "Ruitk::Slate::ColorSpectrum",
 			"children": false,
 			"attrs":
 			{
@@ -126,7 +126,7 @@
 		},
 		"ColorWheel":
 		{
-			"factory": "RUI::Slate::ColorWheel",
+			"factory": "Ruitk::Slate::ColorWheel",
 			"children": false,
 			"attrs":
 			{
@@ -138,7 +138,7 @@
 		},
 		"ComplexGradient":
 		{
-			"factory": "RUI::Slate::ComplexGradient",
+			"factory": "Ruitk::Slate::ComplexGradient",
 			"children": false,
 			"attrs":
 			{
@@ -150,7 +150,7 @@
 		},
 		"ConstraintCanvas":
 		{
-			"factory": "RUI::Slate::ConstraintCanvas",
+			"factory": "Ruitk::Slate::ConstraintCanvas",
 			"children": true,
 			"attrs":
 			{
@@ -158,7 +158,7 @@
 		},
 		"DPIScaler":
 		{
-			"factory": "RUI::Slate::DPIScaler",
+			"factory": "Ruitk::Slate::DPIScaler",
 			"children": true,
 			"attrs":
 			{
@@ -167,7 +167,7 @@
 		},
 		"EditableText":
 		{
-			"factory": "RUI::Slate::EditableText",
+			"factory": "Ruitk::Slate::EditableText",
 			"children": false,
 			"attrs":
 			{
@@ -182,7 +182,7 @@
 		},
 		"EditableTextBox":
 		{
-			"factory": "RUI::Slate::EditableTextBox",
+			"factory": "Ruitk::Slate::EditableTextBox",
 			"children": false,
 			"attrs":
 			{
@@ -195,7 +195,7 @@
 		},
 		"EnableBox":
 		{
-			"factory": "RUI::Slate::EnableBox",
+			"factory": "Ruitk::Slate::EnableBox",
 			"children": true,
 			"attrs":
 			{
@@ -203,7 +203,7 @@
 		},
 		"ExpandableButton":
 		{
-			"factory": "RUI::Slate::ExpandableButton",
+			"factory": "Ruitk::Slate::ExpandableButton",
 			"children": true,
 			"attrs":
 			{
@@ -216,7 +216,7 @@
 		},
 		"GridPanel":
 		{
-			"factory": "RUI::Slate::GridPanel",
+			"factory": "Ruitk::Slate::GridPanel",
 			"children": true,
 			"attrs":
 			{
@@ -224,7 +224,7 @@
 		},
 		"HorizontalBox":
 		{
-			"factory": "RUI::Slate::HorizontalBox",
+			"factory": "Ruitk::Slate::HorizontalBox",
 			"children": true,
 			"attrs":
 			{
@@ -232,7 +232,7 @@
 		},
 		"Hyperlink":
 		{
-			"factory": "RUI::Slate::Hyperlink",
+			"factory": "Ruitk::Slate::Hyperlink",
 			"children": false,
 			"attrs":
 			{
@@ -243,7 +243,7 @@
 		},
 		"Image":
 		{
-			"factory": "RUI::Slate::Image",
+			"factory": "Ruitk::Slate::Image",
 			"children": false,
 			"attrs":
 			{
@@ -254,7 +254,7 @@
 		},
 		"InlineEditableTextBlock":
 		{
-			"factory": "RUI::Slate::InlineEditableTextBlock",
+			"factory": "Ruitk::Slate::InlineEditableTextBlock",
 			"children": false,
 			"attrs":
 			{
@@ -268,7 +268,7 @@
 		},
 		"InputKeySelector":
 		{
-			"factory": "RUI::Slate::InputKeySelector",
+			"factory": "Ruitk::Slate::InputKeySelector",
 			"children": false,
 			"attrs":
 			{
@@ -284,7 +284,7 @@
 		},
 		"InvalidationPanel":
 		{
-			"factory": "RUI::Slate::InvalidationPanel",
+			"factory": "Ruitk::Slate::InvalidationPanel",
 			"children": true,
 			"attrs":
 			{
@@ -293,7 +293,7 @@
 		},
 		"LayeredImage":
 		{
-			"factory": "RUI::Slate::LayeredImage",
+			"factory": "Ruitk::Slate::LayeredImage",
 			"children": false,
 			"attrs":
 			{
@@ -305,7 +305,7 @@
 		},
 		"LinkedBox":
 		{
-			"factory": "RUI::Slate::LinkedBox",
+			"factory": "Ruitk::Slate::LinkedBox",
 			"children": true,
 			"attrs":
 			{
@@ -314,7 +314,7 @@
 		},
 		"MenuAnchor":
 		{
-			"factory": "RUI::Slate::MenuAnchor",
+			"factory": "Ruitk::Slate::MenuAnchor",
 			"children": true,
 			"attrs":
 			{
@@ -326,7 +326,7 @@
 		},
 		"MultiLineEditableTextBox":
 		{
-			"factory": "RUI::Slate::MultiLineEditableTextBox",
+			"factory": "Ruitk::Slate::MultiLineEditableTextBox",
 			"children": false,
 			"attrs":
 			{
@@ -339,7 +339,7 @@
 		},
 		"NotificationList":
 		{
-			"factory": "RUI::Slate::NotificationList",
+			"factory": "Ruitk::Slate::NotificationList",
 			"children": false,
 			"attrs":
 			{
@@ -347,7 +347,7 @@
 		},
 		"NumericDropDown":
 		{
-			"factory": "RUI::Slate::NumericDropDown",
+			"factory": "Ruitk::Slate::NumericDropDown",
 			"children": false,
 			"attrs":
 			{
@@ -360,7 +360,7 @@
 		},
 		"Overlay":
 		{
-			"factory": "RUI::Slate::Overlay",
+			"factory": "Ruitk::Slate::Overlay",
 			"children": true,
 			"attrs":
 			{
@@ -368,7 +368,7 @@
 		},
 		"ProgressBar":
 		{
-			"factory": "RUI::Slate::ProgressBar",
+			"factory": "Ruitk::Slate::ProgressBar",
 			"children": false,
 			"attrs":
 			{
@@ -378,7 +378,7 @@
 		},
 		"RadialBox":
 		{
-			"factory": "RUI::Slate::RadialBox",
+			"factory": "Ruitk::Slate::RadialBox",
 			"children": true,
 			"attrs":
 			{
@@ -392,7 +392,7 @@
 		},
 		"RichTextBlock":
 		{
-			"factory": "RUI::Slate::RichTextBlock",
+			"factory": "Ruitk::Slate::RichTextBlock",
 			"children": false,
 			"attrs":
 			{
@@ -402,7 +402,7 @@
 		},
 		"RotatorInputBox":
 		{
-			"factory": "RUI::Slate::RotatorInputBox",
+			"factory": "Ruitk::Slate::RotatorInputBox",
 			"children": false,
 			"attrs":
 			{
@@ -415,9 +415,9 @@
 				"Yaw": "float"
 			}
 		},
-		"RuiCanvas":
+		"RuitkCanvas":
 		{
-			"factory": "RUI::Slate::RuiCanvas",
+			"factory": "Ruitk::Slate::RuitkCanvas",
 			"children": false,
 			"attrs":
 			{
@@ -428,7 +428,7 @@
 		},
 		"SafeZone":
 		{
-			"factory": "RUI::Slate::SafeZone",
+			"factory": "Ruitk::Slate::SafeZone",
 			"children": true,
 			"attrs":
 			{
@@ -441,7 +441,7 @@
 		},
 		"ScaleBox":
 		{
-			"factory": "RUI::Slate::ScaleBox",
+			"factory": "Ruitk::Slate::ScaleBox",
 			"children": true,
 			"attrs":
 			{
@@ -453,7 +453,7 @@
 		},
 		"ScissorRectBox":
 		{
-			"factory": "RUI::Slate::ScissorRectBox",
+			"factory": "Ruitk::Slate::ScissorRectBox",
 			"children": true,
 			"attrs":
 			{
@@ -461,7 +461,7 @@
 		},
 		"ScrollBox":
 		{
-			"factory": "RUI::Slate::ScrollBox",
+			"factory": "Ruitk::Slate::ScrollBox",
 			"children": true,
 			"attrs":
 			{
@@ -473,7 +473,7 @@
 		},
 		"SearchableComboBox":
 		{
-			"factory": "RUI::Slate::SearchableComboBox",
+			"factory": "Ruitk::Slate::SearchableComboBox",
 			"children": false,
 			"sinceUE": "5.7",
 			"attrs":
@@ -485,7 +485,7 @@
 		},
 		"SearchBox":
 		{
-			"factory": "RUI::Slate::SearchBox",
+			"factory": "Ruitk::Slate::SearchBox",
 			"children": false,
 			"attrs":
 			{
@@ -497,7 +497,7 @@
 		},
 		"Separator":
 		{
-			"factory": "RUI::Slate::Separator",
+			"factory": "Ruitk::Slate::Separator",
 			"children": false,
 			"attrs":
 			{
@@ -508,7 +508,7 @@
 		},
 		"SimpleGradient":
 		{
-			"factory": "RUI::Slate::SimpleGradient",
+			"factory": "Ruitk::Slate::SimpleGradient",
 			"children": false,
 			"attrs":
 			{
@@ -520,7 +520,7 @@
 		},
 		"Slider":
 		{
-			"factory": "RUI::Slate::Slider",
+			"factory": "Ruitk::Slate::Slider",
 			"children": false,
 			"attrs":
 			{
@@ -538,7 +538,7 @@
 		},
 		"Spacer":
 		{
-			"factory": "RUI::Slate::Spacer",
+			"factory": "Ruitk::Slate::Spacer",
 			"children": false,
 			"attrs":
 			{
@@ -547,7 +547,7 @@
 		},
 		"SpinBox":
 		{
-			"factory": "RUI::Slate::SpinBox",
+			"factory": "Ruitk::Slate::SpinBox",
 			"children": false,
 			"attrs":
 			{
@@ -560,7 +560,7 @@
 		},
 		"Splitter":
 		{
-			"factory": "RUI::Slate::Splitter",
+			"factory": "Ruitk::Slate::Splitter",
 			"children": true,
 			"attrs":
 			{
@@ -571,7 +571,7 @@
 		},
 		"Splitter2x2":
 		{
-			"factory": "RUI::Slate::Splitter2x2",
+			"factory": "Ruitk::Slate::Splitter2x2",
 			"children": true,
 			"attrs":
 			{
@@ -580,7 +580,7 @@
 		},
 		"TextBlock":
 		{
-			"factory": "RUI::TextBlock",
+			"factory": "Ruitk::TextBlock",
 			"children": false,
 			"attrs":
 			{
@@ -589,7 +589,7 @@
 		},
 		"TextScroller":
 		{
-			"factory": "RUI::Slate::TextScroller",
+			"factory": "Ruitk::Slate::TextScroller",
 			"children": true,
 			"attrs":
 			{
@@ -601,7 +601,7 @@
 		},
 		"Throbber":
 		{
-			"factory": "RUI::Slate::Throbber",
+			"factory": "Ruitk::Slate::Throbber",
 			"children": false,
 			"attrs":
 			{
@@ -611,7 +611,7 @@
 		},
 		"UniformGridPanel":
 		{
-			"factory": "RUI::Slate::UniformGridPanel",
+			"factory": "Ruitk::Slate::UniformGridPanel",
 			"children": true,
 			"attrs":
 			{
@@ -622,7 +622,7 @@
 		},
 		"UniformWrapPanel":
 		{
-			"factory": "RUI::Slate::UniformWrapPanel",
+			"factory": "Ruitk::Slate::UniformWrapPanel",
 			"children": true,
 			"attrs":
 			{
@@ -632,7 +632,7 @@
 		},
 		"VectorInputBox":
 		{
-			"factory": "RUI::Slate::VectorInputBox",
+			"factory": "Ruitk::Slate::VectorInputBox",
 			"children": false,
 			"attrs":
 			{
@@ -647,7 +647,7 @@
 		},
 		"VerticalBox":
 		{
-			"factory": "RUI::Slate::VerticalBox",
+			"factory": "Ruitk::Slate::VerticalBox",
 			"children": true,
 			"attrs":
 			{
@@ -655,7 +655,7 @@
 		},
 		"VirtualJoystick":
 		{
-			"factory": "RUI::Slate::VirtualJoystick",
+			"factory": "Ruitk::Slate::VirtualJoystick",
 			"children": false,
 			"attrs":
 			{
@@ -663,7 +663,7 @@
 		},
 		"VirtualKeyboardEntry":
 		{
-			"factory": "RUI::Slate::VirtualKeyboardEntry",
+			"factory": "Ruitk::Slate::VirtualKeyboardEntry",
 			"children": false,
 			"attrs":
 			{
@@ -677,7 +677,7 @@
 		},
 		"VolumeControl":
 		{
-			"factory": "RUI::Slate::VolumeControl",
+			"factory": "Ruitk::Slate::VolumeControl",
 			"children": false,
 			"attrs":
 			{
@@ -689,7 +689,7 @@
 		},
 		"WidgetSwitcher":
 		{
-			"factory": "RUI::Slate::WidgetSwitcher",
+			"factory": "Ruitk::Slate::WidgetSwitcher",
 			"children": true,
 			"attrs":
 			{
@@ -698,7 +698,7 @@
 		},
 		"WindowTitleBarArea":
 		{
-			"factory": "RUI::Slate::WindowTitleBarArea",
+			"factory": "Ruitk::Slate::WindowTitleBarArea",
 			"children": true,
 			"attrs":
 			{
@@ -710,7 +710,7 @@
 		},
 		"WrapBox":
 		{
-			"factory": "RUI::Slate::WrapBox",
+			"factory": "Ruitk::Slate::WrapBox",
 			"children": true,
 			"attrs":
 			{

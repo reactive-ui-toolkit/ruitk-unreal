@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 /**
  * Centralized changelog management for the UETKX tooling family: the VS Code and VS2022
- * extensions (Lane B of MASTER_PLAN D-31). The ReactiveUI runtime plugin deliberately stays
+ * extensions (Lane B of MASTER_PLAN D-31). The Reactive UI Toolkit runtime plugin deliberately stays
  * OUT of this system — its changelog is hand-written keep-a-changelog (root CHANGELOG.md,
- * byte-identically mirrored into Plugins/ReactiveUI/; scripts/verify-mirror.mjs enforces the
+ * byte-identically mirrored into Plugins/ReactiveUIToolkit/; scripts/verify-mirror.mjs enforces the
  * mirror in CI).
  *
  * Source of truth: ide-extensions/changelog.json.
@@ -13,7 +13,7 @@
  * moment a committed file drifts from the json, so the flow is always:
  * `add` → `extract` each target → commit all of it together.
  *
- * Ported from ReactiveUI-Godot's ide-extensions/scripts/changelog.mjs, minus that repo's
+ * Ported from the Godot sibling's ide-extensions/scripts/changelog.mjs, minus that repo's
  * legacy-cutover machinery (LEGACY_MARKER / legacyTailHashes): this repo generates every
  * changelog from json from day zero, so there are no frozen tails to pin (godot-ecosystem
  * "IMPROVE FOR UNREAL" #2). If a hand-written changelog ever needs to JOIN this system later,
@@ -429,9 +429,9 @@ switch (command) {
     console.log(
 `Usage: node ide-extensions/scripts/changelog.mjs <command> [options]
 
-Targets: vscode, vs2022. The ReactiveUI runtime plugin is NOT managed here — its
+Targets: vscode, vs2022. The Reactive UI Toolkit runtime plugin is NOT managed here — its
 changelog is hand-written (root CHANGELOG.md, mirrored byte-identically into
-Plugins/ReactiveUI/; scripts/verify-mirror.mjs enforces the mirror).
+Plugins/ReactiveUIToolkit/; scripts/verify-mirror.mjs enforces the mirror).
 
 Commands:
   add              Add a changelog entry

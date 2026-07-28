@@ -1,6 +1,6 @@
 # Benchmark baselines
 
-The single committed home for all `ReactiveUI.Bench` numbers (benches are NOT pass/fail).
+The single committed home for all `Ruitk.Bench` numbers (benches are NOT pass/fail).
 Perf work cites before/after rows from here in its PR; Phase 8's public/marketing numbers come
 ONLY from packaged **Test**-configuration builds recorded here.
 
@@ -22,7 +22,7 @@ ONLY from packaged **Test**-configuration builds recorded here.
 
 **Shared context for the rows below** — `M1`: i9-12900K / 128GB / Win11 Home 10.0.26200 ·
 UE 5.6.1 · Development editor (`-nullrhi`, headless Automation) · globalInv n/a (mock host —
-these are reconciler-only benches, no Slate). Run: `Automation RunTests ReactiveUI.Bench`.
+these are reconciler-only benches, no Slate). Run: `Automation RunTests Ruitk.Bench`.
 Values are min/med of n=5 in-process reps (µs).
 
 ## Bench.Core / mount_1000_leaves (cold mount: render + fibers + host nodes; 1 container + 1000 unkeyed leaf boxes)
@@ -73,7 +73,7 @@ wrap variant was not measured: the two strategies don't disagree badly enough to
 The family's marquee stress test: every quad is a keyed widget. `doom_reconcile_frame` is the
 headline — one WHOLE game frame (sim tick + geometry build + reconcile + Slate apply of the
 full framebuffer, ~168 quads churning). Context M1 (see above) · UE 5.6.1 · Dev editor,
-`-nullrhi` · run `Automation RunTests ReactiveUI.Bench`.
+`-nullrhi` · run `Automation RunTests Ruitk.Bench`.
 
 | date | sha | machine | config | workload | min µs | med µs | max µs | notes |
 |---|---|---|---|---|---|---|---|---|

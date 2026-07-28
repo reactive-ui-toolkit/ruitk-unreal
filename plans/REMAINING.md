@@ -21,8 +21,8 @@
 ## 1. The HMR field test — UE 5.6 COMPLETE; 5.7 + 5.8 legs remain (block the release runway)
 
 *(Protocol history in `archive/HMR_FIELD_TEST.md`. HMR v2 is a Start/Stop MODE:
-Window ▸ ReactiveUetkx Hot Reload, or `ReactiveUetkx.HMR.Start`/`.Stop`; status in
-MessageLog ▸ "ReactiveUI". Owner-only — Live Coding needs a running editor. A failure gets
+Window ▸ RuitkUetkx Hot Reload, or `RuitkUetkx.HMR.Start`/`.Stop`; status in
+MessageLog ▸ "Reactive UI Toolkit". Owner-only — Live Coding needs a running editor. A failure gets
 ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 
 - [x] **UE 5.6 — the full matrix PASSED** (owner declaration 2026-07-25, after the rounds
@@ -33,7 +33,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       are ledgered as TB-19..TB-28 (all FIXED, pinned, built).
 - [ ] **UE 5.7 — walk the matrix** (owner deferred 2026-07-25; publish proceeds without it).
       Engine reinstalled + verified same day: TB-29 fixed on first build, then
-      `RUICompile -check` 45/0/0 + battery 132/132 on 5.7. Working copy is association-
+      `RuitkCompile -check` 45/0/0 + battery 132/132 on 5.7. Working copy is association-
       switched (machine-local GUID in the .uproject — NEVER commit that line). Recreate the
       transient test vehicles per the items.
       ⚠ Lesson from the 5.6 wrap-up: after reverting/editing `.inl` files, REBUILD before
@@ -75,7 +75,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 - [ ] **Visual spot-checks** (v2 §D, optional but reassuring): string slot values, dynamic
       `Slot.Column` move, WrapBox no-reorder on slot change, NumericEntryBox clamp, `@theme`
       token restyle-not-rebuild, Separator pooling.
-- [ ] **Interop smoke** (v1 checklist §F): ReactiveUI Host in a Blueprint UserWidget renders;
+- [ ] **Interop smoke** (v1 checklist §F): Reactive UI Toolkit Host in a Blueprint UserWidget renders;
       PIE end leaves no lingering-root warnings; `UseField` re-renders on a FieldNotify VM.
 - [ ] **VS2022 extension hands-on** (v1 §E — never formally verified): `build-local.ps1`,
       F5 → experimental instance, colors/completions/diagnostics on a `.uetkx`.
@@ -83,7 +83,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       comments, embedded intel with non-ASCII in strings.
 - [ ] **Fresh-clone sanity** (v1 §G): clone → generate → build → battery on a second machine
       (or clean checkout).
-- [x] **CI engine arming** — ✅ ARMED by owner 2026-07-25 (`RUI_CI_ENGINE_ARMED=true` +
+- [x] **CI engine arming** — ✅ ARMED by owner 2026-07-25 (`RUITK_CI_ENGINE_ARMED=true` +
       `EPIC_GHCR_PAT` set after GitHub↔Epic account link). Remaining: watch the FIRST armed
       run go green (PR #41 re-run or the first publish) — image pulls are slow (tens of GB),
       and a "denied" pull means the EpicGames org invite wasn't accepted.
@@ -101,7 +101,7 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 - **TD-009 / TD-018**: the standing cross-repo corpus-mirroring PRs (process items).
 - **Demo-scope decisions** (audit §9-Q5): which of todo / 5k-virtualized-inventory /
   world-space are v1-blocking vs v1.x gallery additions.
-- **Q3 (owner call)**: `URuiWorldSubsystem : UWorldSubsystem` vs locked D-17's
+- **Q3 (owner call)**: `URuitkWorldSubsystem : UWorldSubsystem` vs locked D-17's
   `UGameInstanceSubsystem` — bless the as-built design (banner it) or treat as a defect.
 
 ## 5. Post-v1 by locked decision (tracked, not forgotten — full entries in TECH_DEBT)
@@ -110,11 +110,11 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
 - **TD-007** on-device remote reload (TCP).
 - **TD-008** scripting adapters (UnrealSharp/AngelScript).
 - **TD-HMR-XPLAT** live HMR is Windows-only (Live Coding); Hot Reload as the potential
-  cross-platform path. **TD-HMR-DEMOS** the `ReactiveUetkx ▸ Demos` launcher submenu.
+  cross-platform path. **TD-HMR-DEMOS** the `RuitkUetkx ▸ Demos` launcher submenu.
 - **VS2022 `.uetkx` file icon** (VSSDK image-manifest; cosmetic).
 - **TD-013 tail** typed authoring API follow-ons; **TD-015** deliberate v1 grammar cuts;
   **TD-016** event payload single-`Value` surface; **TD-019** hook-state value migration
   (superseded in practice by HMR v2); **TD-026** accepted interp-era divergences (record).
-- **Combined imports vs the LEGACY hoist codemod**: `RUIMigrateImports`'s hoisted-module pass
+- **Combined imports vs the LEGACY hoist codemod**: `RuitkMigrateImports`'s hoisted-module pass
   deliberately skips a COMBINED import's named part; the codemod's zero-diagnostics gate
   catches it. Revisit only on a field report.

@@ -13,7 +13,7 @@ finish with the tripwire. Haiku-class-executable: table lookup + templated edits
 | Change | Update ALL of |
 |---|---|
 | New hook | docs hooks reference page (from `templates/hook_doc.template.tsx`) · README hook-count line (if claimed) · docs-site hooks table · `new-component` skill's hook list |
-| New widget wrapper (`RUI::*`) | prop-map schema entry (single source — the LSP + docs both read it) · docs elements page regenerates · README widget-count line (if claimed) |
+| New widget wrapper (`Ruitk::*`) | prop-map schema entry (single source — the LSP + docs both read it) · docs elements page regenerates · README widget-count line (if claimed) |
 | New style key | style-keys docs section · the widget's prop-map entry |
 | Grammar / directive change | `.uetkx` syntax docs page · `new-component` skill · LSP schema/vocabulary note · **cross-repo byte-compat: corpus case landed per `grammar-contract` (and siblings notified)** |
 | Behavior change | README "Notes & limitations" · docs page of the affected subsystem · store-listing template if user-facing (`templates/fab-listing.template.md`) |

@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // TD-013 drift gate: every style key + slot key the markup compiler exports (schema.json,
-// the same vocabulary the LSP serves) must have a typed fluent method on RUI::Style() /
-// RUI::Slot() in RuiStyle.h — a key that exists in markup but not in the C++ authoring
+// the same vocabulary the LSP serves) must have a typed fluent method on Ruitk::Style() /
+// Ruitk::Slot() in RuitkStyle.h — a key that exists in markup but not in the C++ authoring
 // builders is exactly how `Clipping` shipped builder-less in 0.4.0. The methods stay
 // hand-written (each needs a human-chosen C++ parameter type); THIS gate makes forgetting
 // one a CI failure instead of a doc footnote.
@@ -15,7 +15,7 @@ const schema = JSON.parse(
   readFileSync(resolve(ROOT, 'ide-extensions/lsp-server/src/uetkx-schema.json'), 'utf8'),
 );
 const header = readFileSync(
-  resolve(ROOT, 'Plugins/ReactiveUI/Source/ReactiveUISlate/Public/RuiStyle.h'),
+  resolve(ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkSlate/Public/RuitkStyle.h'),
   'utf8',
 );
 
@@ -26,7 +26,7 @@ const headerLower = header.toLowerCase();
 const requireKey = (key, label) => {
   // A builder method registers its key via Set(FName(TEXT("<Key>")), ...).
   if (!headerLower.includes(`set(fname(text("${key}"`.toLowerCase())) {
-    console.error(`✗ ${label} key '${key}' has NO RUI::Style()/RUI::Slot() builder method in RuiStyle.h`);
+    console.error(`✗ ${label} key '${key}' has NO Ruitk::Style()/Ruitk::Slot() builder method in RuitkStyle.h`);
     failures++;
   }
 };

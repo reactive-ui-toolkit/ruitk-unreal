@@ -1,10 +1,10 @@
 Questions, feedback, showcase → **[Discord](https://discord.gg/Knedqu4Wyv)** (family server — `#unreal`)
 
-# ReactiveUI for Unreal
+# Reactive UI Toolkit for Unreal
 
 A **React-style reactive UI library for Unreal Engine 5.6+, in pure C++** — the Unreal sibling
-of [ReactiveUIToolKit](https://github.com/yanivkalfa/ReactiveUIToolKit) (Unity/C#) and
-[ReactiveUI-Godot](https://github.com/yanivkalfa/ReactiveUI-Godot) (Godot/GDScript).
+of [Reactive UI Toolkit for Unity](https://github.com/reactive-ui-toolkit/ruitk-unity) (Unity/C#) and
+[Reactive UI Toolkit for Godot](https://github.com/reactive-ui-toolkit/ruitk-godot) (Godot/GDScript).
 
 Function components return a virtual tree; a fiber reconciler diffs each render and patches only
 what changed on real **Slate** widgets. State lives in hooks. On top sits `.uetkx` — a JSX-like
@@ -16,7 +16,7 @@ the UI update in under a second, no C++ recompile, no script VM in your shipped 
 > stub-free), 65+ wrapped Slate widgets with setter styling (the core set + the batch-2 everyday
 > widgets + specials — ExpandableArea/SegmentedControl/NumericEntryBox/ComboBox/SuggestionTextBox)
 > plus **virtualized `ListView`/`TileView`**, the `.uetkx` compiler (committed codegen +
-> `RUICompile`/drift-gate/contract commandlets), live hot reload mid-session (Unreal Live Coding +
+> `RuitkCompile`/drift-gate/contract commandlets), live hot reload mid-session (Unreal Live Coding +
 > editor watcher, whole-project, state preserved — **Windows only**, since Live Coding is; the library
 > itself builds and runs on every UE platform), the full **router** subsystem (17 hooks), **`@theme`/`@uss`
 > stylesheets**, **exit animations** (`<Presence>`), **drag-and-drop** + keyboard shortcuts,
@@ -25,20 +25,20 @@ the UI update in under a second, no C++ recompile, no script VM in your shipped 
 > (with embedded-C++ clangd intelligence) are implemented and green under a **100+-test headless
 > automation battery**. The demo gallery's 19 screens all compile from `.uetkx`, and markup text
 > is **localizable through the stock Localization Dashboard** (with live culture switching). Open
-> `ReactiveUIUnrealDemo.uproject` (UE 5.6+; the battery is verified green on 5.6, 5.7, AND 5.8)
+> `RuitkUnrealDemo.uproject` (UE 5.6+; the battery is verified green on 5.6, 5.7, AND 5.8)
 > and press Play. Remaining before v1: the **docs-site content build-out** — tracked in
 > [plans/ROADMAP.md](plans/ROADMAP.md) and [plans/REMAINING.md](plans/REMAINING.md).
 
-**Quick taste** — `Source/RuiDemo/Screens/SimpleCounter/SimpleCounter.uetkx` (compiles to the
+**Quick taste** — `Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx` (compiles to the
 committed sibling `.inl`; edit it while the editor runs and the screen hot-swaps in place):
 
 ```jsx
-export FRuiNode SimpleCounter() {
+export FRuitkNode SimpleCounter() {
 	auto [Count, SetCount] = UseState<int32>(0);
 
 	return (
 		<VerticalBox>
-			<TextBlock Text={ RUI::Fmt(TEXT("Count: {}"), Count) } />
+			<TextBlock Text={ Ruitk::Fmt(TEXT("Count: {}"), Count) } />
 			<Button OnClicked={ SetCount(Count + 1) } ContentPadding="12,4">+</Button>
 		</VerticalBox>
 	);
@@ -61,9 +61,9 @@ demo** — a playable software-raycast FPS whose entire framebuffer is the widge
 - **Slate** is the render target: our output is ordinary `SWidget`s — Widget Reflector,
   styling, and the rest of the Slate toolchain see normal widgets.
 - **UMG** is a door in both directions: designers drop our UI inside their UserWidgets
-  (`URuiHostWidget`), and their widgets work inside our tree (`RUI::Umg`).
+  (`URuitkHostWidget`), and their widgets work inside our tree (`Ruitk::Umg`).
 - **CommonUI** keeps owning menus, input routing, gamepad focus, platform glyphs — our screens
-  are pushed onto *their* stacks (`URuiActivatableScreen`).
+  are pushed onto *their* stacks (`URuitkActivatableScreen`).
 - **MVVM / FieldNotify** viewmodels feed us data: `UseField(VM, "Health")` re-renders the
   component when the field changes. They own values; we own structure.
 
@@ -75,7 +75,7 @@ setter-based styling (a style tweak never rebuilds a widget) · the `.uetkx` com
 (compile-to-C++ for shipping, Live-Coding hot reload for dev) · **true ES modules** (a file IS a module: named / `as`-renamed / `* as` / default imports,
 value + util exports, `export { … };` lists + `export default`, privacy-by-default with
 file-qualified runtime identity, strict resolution enforced by the compiler, and a one-command
-`-run=RUIMigrateEsModules` codemod to upgrade an existing project) · VS Code + VS2022 extensions on
+`-run=RuitkMigrateEsModules` codemod to upgrade an existing project) · VS Code + VS2022 extensions on
 the shared family language server (the VS Code one also hides a `.uetkx` file's generated
 companions — `*.uetkx.inl`/`*.uetkx.diags.json`/`*.Uetkx.gen.cpp` — from the Explorer by
 default; flip the `files.exclude` entries to see them) · the UMG/CommonUI/MVVM interop above · localization, focus
@@ -86,18 +86,18 @@ a docs site, with every performance claim measured before it's printed.
 
 | Path | What it is |
 |---|---|
-| `Plugins/ReactiveUI/` | The plugin — the deliverable (self-contained: own README/CHANGELOG/LICENSE) |
-| `Source/`, `Content/` | The demo host project (`ReactiveUIUnrealDemo.uproject` at root) + automation tests |
+| `Plugins/ReactiveUIToolkit/` | The plugin — the deliverable (self-contained: own README/CHANGELOG/LICENSE) |
+| `Source/`, `Content/` | The demo host project (`RuitkUnrealDemo.uproject` at root) + automation tests |
 | `ide-extensions/` | `.uetkx` IDE tooling (shared family language server; VS Code + VS2022) |
-| `ReactiveUIUnrealDocs~/` | Docs site (React + Vite, the family shell) |
+| `RuitkUnrealDocs~/` | Docs site (React + Vite, the family shell) |
 | `plans/` | ROADMAP (status source of truth), MASTER_PLAN, ledgers |
 | `research/` | The two-round research corpus the plans rest on |
 | `.claude/skills/` | The house process, encoded (dev/release/testing/production-line runbooks) |
 
 ## License
 
-**Free for almost everyone.** ReactiveUI for Unreal ships under the
-[ReactiveUI Community License 1.0](LICENSE): use it, modify it, and ship commercial games
+**Free for almost everyone.** Reactive UI Toolkit for Unreal ships under the
+[Reactive UI Toolkit Community License 1.1](LICENSE): use it, modify it, and ship commercial games
 with it at no cost if your company (plus parents/subsidiaries) earned under
 **US $250,000** in the last 12 months. Development, evaluation, and education are free at
 any company size — the threshold only applies when you *ship*.
@@ -105,12 +105,12 @@ any company size — the threshold only applies when you *ship*.
 Above the threshold, shipping a product takes a commercial license — **$2,000 per title**
 (one-time, perpetual) or **$2,500 per studio per year**, your pick; see
 [LICENSE-COMMERCIAL.md](LICENSE-COMMERCIAL.md). The same terms and prices exist for each
-library in the ReactiveUI family (Godot, Unity, Unreal).
+library in the Reactive UI Toolkit family (Godot, Unity, Unreal).
 
-Two asks of everyone: put **"Made with ReactiveUI"** in your credits alongside your other
+Two asks of everyone: put **"Made with Reactive UI Toolkit"** in your credits alongside your other
 middleware, and don't resell the library itself as a competing product (your game is never
 a competing product). Every previously released version keeps the license it shipped with.
 Contributions require the one-time [CLA](CLA.md). Fab downloads (when the listing exists)
 are additionally governed by the Fab EULA. Code generated from **your** `.uetkx` files
 belongs to **your** project. Weird case (nonprofit, just-over-the-line, contractor)? Email
-<yanivkalfa@gmail.com> — we'd rather you ship with ReactiveUI than not.
+<yanivkalfa@gmail.com> — we'd rather you ship with Reactive UI Toolkit than not.

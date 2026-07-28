@@ -34,24 +34,24 @@ const guarded = (h: string): string => `#if __has_include("${h}")\n#include "${h
 const PRELUDE = [
   "// GENERATED virtual C++ for .uetkx embedded-code intelligence (TD-020). Do not edit.",
   '#include "CoreMinimal.h"',
-  '#include "RuiContext.h"',
-  '#include "RuiCoreElements.h"',
-  '#include "RuiSignal.h"',
-  '#include "RuiSlateElements.h"',
-  '#include "RuiStyle.h"',
-  '#include "RuiRouter.h"',
+  '#include "RuitkContext.h"',
+  '#include "RuitkCoreElements.h"',
+  '#include "RuitkSignal.h"',
+  '#include "RuitkSlateElements.h"',
+  '#include "RuitkStyle.h"',
+  '#include "RuitkRouter.h"',
   // Optional-module headers are __has_include-guarded EXACTLY like the aggregator prelude
   // (UetkxDriver.cpp): a workspace whose project doesn't link an interop module must not see
   // a file-not-found error in its virtual TU.
-  guarded("RuiAssetBrush.h"),
-  guarded("RuiFieldHooks.h"),
-  guarded("RuiUmgElement.h"),
-  guarded("RuiSignalViewModel.h"),
-  guarded("RuiHostWidget.h"),
-  guarded("RuiWorldSubsystem.h"),
-  guarded("RuiActivation.h"),
-  guarded("RuiActivatableScreen.h"),
-  guarded("RuiMvvmViewModel.h"),
+  guarded("RuitkAssetBrush.h"),
+  guarded("RuitkFieldHooks.h"),
+  guarded("RuitkUmgElement.h"),
+  guarded("RuitkSignalViewModel.h"),
+  guarded("RuitkHostWidget.h"),
+  guarded("RuitkWorldSubsystem.h"),
+  guarded("RuitkActivation.h"),
+  guarded("RuitkActivatableScreen.h"),
+  guarded("RuitkMvvmViewModel.h"),
   '#include "UObject/StrongObjectPtr.h"',
   guarded("Engine/Texture2D.h"),
   '#include "Engine/World.h"',
@@ -68,7 +68,7 @@ const PRELUDE = [
   "typedef unsigned char uint8; typedef unsigned short uint16; typedef unsigned int uint32; typedef unsigned long long uint64;",
   "typedef wchar_t TCHAR;",
   "#endif",
-  "using namespace RUI;",
+  "using namespace Ruitk;",
   "",
 ].join("\n");
 
@@ -77,11 +77,11 @@ function cppParamList(comp: UetkxComponentDecl): string {
   return params.length > 0 ? `, ${params}` : "";
 }
 
-/** The FRuiContext hook members that markup calls BARE (codegen prefixes `Ctx.` — the virtual
+/** The FRuitkContext hook members that markup calls BARE (codegen prefixes `Ctx.` — the virtual
  *  doc mirrors that with object-like #defines, so clangd resolves the REAL members and real
  *  types flow through auto). MUST be object-like (function-like would skip `UseState<int32>(…)`
  *  — the `<` blocks expansion) and MUST come after every #include (an include containing one of
- *  these identifiers would be mangled otherwise). Mirrors RuiContext.h's public hook surface. */
+ *  these identifiers would be mangled otherwise). Mirrors RuitkContext.h's public hook surface. */
 const CTX_MEMBER_HOOKS = [
   "ProvideContext", "UseAnimate", "UseCallback", "UseContext", "UseDeferredValue", "UseEffect",
   "UseImperativeHandle", "UseLayoutEffect", "UseMemo", "UseReducer", "UseRef", "UseSafeArea",
@@ -101,7 +101,7 @@ export type ImportSurfaceResolver = (specifier: string) => {
   defaultExportName?: string;
 } | null;
 
-/** Qualified real-header hook calls (`RuiDoom::UseDoomGame(A, B, C)`): codegen inserts `Ctx`
+/** Qualified real-header hook calls (`RuitkDoom::UseDoomGame(A, B, C)`): codegen inserts `Ctx`
  *  as the first argument, so the REAL declaration has one more parameter than the markup
  *  call. Collect every `Ns::…::UseX` chain (code-aware — comments/strings can't fake one)
  *  and emit a variadic adapter INSIDE the same namespace whose decltype return type derives
@@ -148,8 +148,8 @@ function scanQualifiedHookCalls(source: string): Array<{ namespaces: string[]; n
 }
 
 /** Every BARE `UseX(`/`UseX<` call name in the source (member/scope-prefixed excluded) — the
- *  hand-written-header hook shape (`UseNavigate()` against RuiRouter.h's
- *  `UseNavigate(FRuiContext&)`). Codegen injects Ctx into these at emit; the virtual doc
+ *  hand-written-header hook shape (`UseNavigate()` against RuitkRouter.h's
+ *  `UseNavigate(FRuitkContext&)`). Codegen injects Ctx into these at emit; the virtual doc
  *  mirrors it with the SAME variadic decltype adapter the qualified calls get (F5 field
  *  test: RouterHome's bare router hooks read as "no matching function" without one). The
  *  CALLER excludes built-ins, same-file hooks, and imported-hook shims. */
@@ -188,7 +188,7 @@ function scanBareHookCalls(source: string): string[] {
 }
 
 /** Per-file virtual-doc prefix (TB-10): the fixed PRELUDE, then the file's OWN host includes
- *  (`import "@X.h"` — without them `RuiDemo::…` symbols are undeclared in the virtual TU),
+ *  (`import "@X.h"` — without them `RuitkDemo::…` symbols are undeclared in the virtual TU),
  *  then REAL declarations for the file's cross-file imports (hook signatures + module
  *  namespaces — clangd types them instead of the server suppressing their errors), then the
  *  bare-hook #define shims and a global Ctx declaration (hook bodies reference Ctx; custom
@@ -203,11 +203,11 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
     }
   }
   // Ctx BEFORE the surfaces/adapters — the qualified-hook adapters' decltype references it.
-  lines.push("extern FRuiContext Ctx;");
+  lines.push("extern FRuitkContext Ctx;");
   // §4 markup-everywhere: the typed placeholder every neutralized markup range lowers to in the
-  // virtual TU (`auto X = (<VerticalBox>…);` reads `auto X = (__rui_rn);` — X types FRuiNode,
+  // virtual TU (`auto X = (<VerticalBox>…);` reads `auto X = (__ruitk_rn);` — X types FRuitkNode,
   // exactly what codegen produces). Unmapped glue: it can never squiggle user code.
-  lines.push("extern FRuiNode __rui_rn;");
+  lines.push("extern FRuitkNode __ruitk_rn;");
   const declaredHookShims = new Set<string>();
   if (resolveImport) {
     for (const imp of scan.imports) {
@@ -232,7 +232,7 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
           lines.push(`${u.retType.trim()} ${u.name}(${u.params.trim()});`);
         }
         for (const c of surface.components) {
-          lines.push(`FRuiNode ${c}();`);
+          lines.push(`FRuitkNode ${c}();`);
         }
         lines.push(`}`);
       }
@@ -251,9 +251,9 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
           } else if (util) {
             lines.push(`${util.retType.trim()} ${imp.defaultAlias}(${util.params.trim()});`);
           } else if (value) {
-            lines.push(value.type.trim() ? `extern const ${value.type.trim()} ${imp.defaultAlias};` : `extern const FRuiNode ${imp.defaultAlias};`);
+            lines.push(value.type.trim() ? `extern const ${value.type.trim()} ${imp.defaultAlias};` : `extern const FRuitkNode ${imp.defaultAlias};`);
           } else {
-            lines.push(`FRuiNode ${imp.defaultAlias}();`); // component default (the common case)
+            lines.push(`FRuitkNode ${imp.defaultAlias}();`); // component default (the common case)
           }
         }
       }
@@ -291,34 +291,34 @@ function buildPrefix(scan: ReturnType<typeof scanFile>, source: string, resolveI
       for (const c of surface.components) {
         const local = localOf.get(c);
         if (local) {
-          lines.push(`FRuiNode ${local}();`); // the generated wrapper is fully-defaulted
+          lines.push(`FRuitkNode ${local}();`); // the generated wrapper is fully-defaulted
         }
       }
     }
   }
-  lines.push("class FRuiContext;");
-  lines.push("template <typename T> struct __rui_strip { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<T&> { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<T&&> { using type = T; };");
-  lines.push("template <typename T> struct __rui_strip<const T> { using type = T; };");
-  lines.push("template <bool B> struct __rui_enable_if {};");
-  lines.push("template <> struct __rui_enable_if<true> { using type = void; };");
-  lines.push("template <typename... T> inline constexpr bool __rui_ctx_first = false;");
-  lines.push("template <typename T0, typename... T> inline constexpr bool __rui_ctx_first<T0, T...> = __is_same(typename __rui_strip<typename __rui_strip<T0>::type>::type, FRuiContext);");
+  lines.push("class FRuitkContext;");
+  lines.push("template <typename T> struct __ruitk_strip { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<T&> { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<T&&> { using type = T; };");
+  lines.push("template <typename T> struct __ruitk_strip<const T> { using type = T; };");
+  lines.push("template <bool B> struct __ruitk_enable_if {};");
+  lines.push("template <> struct __ruitk_enable_if<true> { using type = void; };");
+  lines.push("template <typename... T> inline constexpr bool __ruitk_ctx_first = false;");
+  lines.push("template <typename T0, typename... T> inline constexpr bool __ruitk_ctx_first<T0, T...> = __is_same(typename __ruitk_strip<typename __ruitk_strip<T0>::type>::type, FRuitkContext);");
   for (const q of scanQualifiedHookCalls(source)) {
     const open = q.namespaces.map((ns) => `namespace ${ns} { `).join("");
     const close = q.namespaces.map(() => "}").join(" ");
     lines.push(
-      `${open}template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
+      `${open}template <typename... TArgs, typename = typename __ruitk_enable_if<!__ruitk_ctx_first<TArgs...>>::type> auto ${q.name}(TArgs&&... Args) -> decltype(${q.name}(Ctx, static_cast<TArgs&&>(Args)...)); ${close}`,
     );
   }
-  // Bare hand-header hooks (RuiRouter.h et al: free functions taking Ctx first) — codegen
+  // Bare hand-header hooks (RuitkRouter.h et al: free functions taking Ctx first) — codegen
   // injects Ctx at emit; mirror with the same variadic decltype adapter the qualified calls
   // get. Built-ins (#define'd below), same-file hooks, and imported shims keep source arity.
   const bareExcluded = new Set<string>([...CTX_MEMBER_HOOKS, "UseSignal", "UseSignalKey", ...scan.hooks.map((h) => h.name), ...declaredHookShims]);
   for (const name of scanBareHookCalls(source)) {
     if (bareExcluded.has(name)) continue;
-    lines.push(`template <typename... TArgs, typename = typename __rui_enable_if<!__rui_ctx_first<TArgs...>>::type> auto ${name}(TArgs&&... Args) -> decltype(${name}(Ctx, static_cast<TArgs&&>(Args)...));`);
+    lines.push(`template <typename... TArgs, typename = typename __ruitk_enable_if<!__ruitk_ctx_first<TArgs...>>::type> auto ${name}(TArgs&&... Args) -> decltype(${name}(Ctx, static_cast<TArgs&&>(Args)...));`);
   }
   for (const hook of CTX_MEMBER_HOOKS) {
     lines.push(`#define ${hook} Ctx.${hook}`);
@@ -357,8 +357,8 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   };
 
   // ── §4 markup-everywhere: EVERY code emission is jsx-aware. Markup ranges nested in code
-  // (`auto X = (<VerticalBox>…);`, `cond && <Chip/>`) neutralize to the typed `__rui_rn`
-  // placeholder (short-circuit ops desugar `? __rui_rn : __rui_rn`, mirroring codegen's
+  // (`auto X = (<VerticalBox>…);`, `cond && <Chip/>`) neutralize to the typed `__ruitk_rn`
+  // placeholder (short-circuit ops desugar `? __ruitk_rn : __ruitk_rn`, mirroring codegen's
   // ternary), the code segments around them stay EXACT mapped substrings, and each range's
   // parsed tree is returned for the caller to lift at the nearest STATEMENT context (its attr
   // exprs get their own mapped regions there). `excludeSpans` marks early-return windows in
@@ -407,7 +407,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
       const upTo = r.op !== "" ? r.opPos : r.start;
       const seg = fromCodePoints(cp, cursor, upTo - cursor);
       if (seg.length > 0) emit(seg, srcAt + cursor, "", "");
-      raw(r.op !== "" ? " ? __rui_rn : __rui_rn" : "__rui_rn");
+      raw(r.op !== "" ? " ? __ruitk_rn : __ruitk_rn" : "__ruitk_rn");
       if (r.parse) {
         const parsed = parseMarkup(cp, r.start, r.end);
         if (!parsed.errorCode) {
@@ -431,7 +431,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   // directives mirror as REAL C++ control flow (`if`/`for`/`while` with their actual
   // condition/header text) so directive-local declarations scope correctly for the
   // expressions nested under them. Event handlers wrap in codegen's exact lambda shape
-  // (`[=](const FRuiValue& Value)`) so `Value.…` types for real. Every emitted region is an
+  // (`[=](const FRuitkValue& Value)`) so `Value.…` types for real. Every emitted region is an
   // EXACT source substring (the parser's trimmed-start offsets guarantee it) — the source
   // map's byte-identity contract is untouched.
   const liftBody = (bodyText: string, absAt: number): void => {
@@ -469,7 +469,7 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
           if (a.kind === "expr" || a.kind === "spread") {
             if (/^On[A-Z]/.test(a.name)) {
               // The event-handler shape codegen emits (verified: SimpleTextField.uetkx.inl).
-              flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)[=](const FRuiValue& Value) { (void)(\n", "\n); }; }\n"));
+              flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)[=](const FRuitkValue& Value) { (void)(\n", "\n); }; }\n"));
             } else {
               flushDeferred(emitCode(a.value, base + a.vat, "\n{ (void)(\n", "\n); }\n"));
             }
@@ -543,19 +543,19 @@ export function buildVirtualCpp(source: string, basename = "doc", resolveImport?
   for (const comp of scan.components) {
     // The function scaffold is raw'd (not emit-prefixed) so a return-only component with an
     // EMPTY setup still gets a scope for its lifted markup expressions (HelloWorld shape).
-    // Returns FRuiNode (TB-27): early-return windows keep their real `return ( … )` glue with
-    // the markup neutralized to __rui_rn — under a void signature every early return was a
+    // Returns FRuitkNode (TB-27): early-return windows keep their real `return ( … )` glue with
+    // the markup neutralized to __ruitk_rn — under a void signature every early return was a
     // clangd "void function should not return a value". The synthetic tail return keeps the
     // no-early-return shape free of C4715.
-    raw(`\nFRuiNode __rui_setup_${comp.name}(FRuiContext& Ctx${cppParamList(comp)}) {\n`);
-    // §4: setup is jsx-aware — value markup neutralizes to __rui_rn (its attr exprs lift as
+    raw(`\nFRuitkNode __ruitk_setup_${comp.name}(FRuitkContext& Ctx${cppParamList(comp)}) {\n`);
+    // §4: setup is jsx-aware — value markup neutralizes to __ruitk_rn (its attr exprs lift as
     // deferred statements below), early-return windows neutralize whole (their roots lift via
     // comp.returns — excludeSpans stops the double-lift).
     flushDeferred(emitCode(comp.setup, comp.setupAt, "", "\n", comp.returns ?? []));
     for (const span of comp.returns ?? []) {
       if (span.root) liftNode(span.root, comp.setupAt);
     }
-    raw("return __rui_rn;\n}\n");
+    raw("return __ruitk_rn;\n}\n");
   }
   for (const hook of scan.hooks as UetkxHookDecl[]) {
     const ret = hook.ret.trim().length > 0 ? hook.ret.trim() : "void";
