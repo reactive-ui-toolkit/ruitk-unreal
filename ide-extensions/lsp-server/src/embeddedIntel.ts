@@ -42,6 +42,61 @@ export function realUriOfVirtual(virtualUri: string): string | null {
   return virtualUri.endsWith(suffix) ? virtualUri.slice(0, -suffix.length) : null;
 }
 
+/** A minimal clangd diagnostic shape for the embedded-error filter (below). */
+export interface EmbeddedDiag {
+  severity?: number;
+  code?: string | number;
+  message: string;
+}
+
+/** TB-31: the embedded virtual TU is a BEST-EFFORT clang view, and for UE-interop `.uetkx`
+ *  files it produces ERROR false-positives on code the COMPILER accepts — because clang cannot
+ *  reliably parse the heaviest UE headers in a from-scratch TU. In the real MSVC build those
+ *  headers arrive PRE-COMPILED in the module SharedPCH; we deliberately strip the SharedPCH
+ *  force-include (it truncates core templates when clang re-parses it — clangdProxy §2), so
+ *  clang parses `Engine/World.h`, UMG widget headers, etc. from scratch and leaves `UWorld` /
+ *  `UUserWidget` / other `UCLASS`es INCOMPLETE. Every semantic query downstream of that broken
+ *  type environment is untrustworthy.
+ *
+ *  A diagnostic ROOTED in an #included file or a template instantiation (or clang hitting its
+ *  error ceiling) is the signature of that compromise. `Engine/World.h`'s
+ *  `TWeakObjectPtr<UWorld> = UWorld*` failing → "In included file: no viable overloaded '='";
+ *  the resulting cascade surfaces as bogus errors on the user's own lines. */
+export function isEmbeddedCascadeError(d: EmbeddedDiag): boolean {
+  if (d.code === "fatal_too_many_errors") return true;
+  return /^In included file:|^In template:|^In instantiation of/.test(d.message);
+}
+
+/** TB-31: does the embedded TU's error set indicate a COMPROMISED parse (a broken type
+ *  environment from unparseable UE headers)? If so, EVERY mapped error in the file is a cascade
+ *  and must be dropped — the compiler (RuitkCompile + the C++ build) is the authoritative error
+ *  source. Only ERROR-severity diagnostics count; a warning rooted in a header is benign. */
+export function embeddedParseCompromised(diags: ReadonlyArray<EmbeddedDiag>): boolean {
+  return diags.some((d) => (d.severity ?? 1) === 1 && isEmbeddedCascadeError(d));
+}
+
+/** TB-31: should this embedded clangd diagnostic be DROPPED rather than shown to the user?
+ *  Warnings/info/hints/tags always pass (they never assert an error). For errors:
+ *   - `compromised` parse → drop (cascade from a broken type environment, above);
+ *   - `ovl_no_viable_function_in_call` → drop: clang cannot reliably overload-resolve the
+ *     heavily-templated, Ctx-injected, cross-file Ruitk hook/API surface, so "no matching
+ *     function for call to …" false-positives on correct calls (Deps / UseField / UseCounter
+ *     all observed on a clean parse). The compiler validates call correctness authoritatively;
+ *   - an `undeclared identifier` naming a CROSS-FILE import is our aggregation gap, not a typo
+ *     (the virtual TU can't see other .uetkx files' exports; a real typo still gets UETKX2305).
+ *  A genuine LOCAL typo (`undeclared identifier 'Cout'`) and syntax errors still pass — those
+ *  are the categories clang IS reliable about, so the layer keeps its real value. */
+export function shouldDropEmbeddedDiagnostic(
+  d: EmbeddedDiag,
+  ctx: { compromised: boolean; importedNames: ReadonlySet<string> },
+): boolean {
+  if ((d.severity ?? 1) !== 1) return false;
+  if (ctx.compromised) return true;
+  if (d.code === "ovl_no_viable_function_in_call") return true;
+  const u = /undeclared identifier '([A-Za-z_][A-Za-z0-9_]*)'/.exec(d.message);
+  return !!u && ctx.importedNames.has(u[1]);
+}
+
 /**
  * A build-once view over a .uetkx source: the synthesized virtual C++ + bidirectional position
  * mapping. Rebuilding the virtual doc per request is cheap (a single scan), but callers that do
