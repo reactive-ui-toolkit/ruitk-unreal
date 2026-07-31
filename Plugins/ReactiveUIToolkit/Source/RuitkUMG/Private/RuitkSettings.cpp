@@ -11,7 +11,7 @@ URuitkSettings::URuitkSettings()
 {
 	// Per-build default parity with RuitkCoreMisc.cpp's CVar declarations — an untouched CDO must
 	// be a no-op push in EVERY configuration (the diff guard in PushSettingsToCVars relies on it).
-	bTimeSlicing = false;
+	bTimeSlicing = true; // family default ON since the M8 flip (quantum 2.0, scheduler budget 4.0)
 	TimeSliceMs = 2.0f;
 	FrameBudgetMs = 4.0f;
 	bHostNodePool = true;

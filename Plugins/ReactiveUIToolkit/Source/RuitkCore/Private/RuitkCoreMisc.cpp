@@ -13,7 +13,7 @@ DEFINE_STAT(STAT_RuitkDeletions);
 // ── CVars (ruitk.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 
 static TAutoConsoleVariable<bool>
-	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), false,
+	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), true, // family default ON since the M8 flip
 						 TEXT("Run Reactive UI Toolkit render passes as time-sliced actions on the frame scheduler "
 							  "(commit stays atomic). Off = scheduler bypass: fully synchronous single-pass renders."));
 

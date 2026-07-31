@@ -512,8 +512,19 @@ node scripts/corpus-hash.mjs --check
 cd RuitkUnrealDocs~ && npm ci && npm run build && npm run lint
 ```
 
-M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false` via
-`-ExecCmds="ruitk.TimeSlicing 0; Automation RunTests Ruitk; Quit"`).
+M8 additionally runs the battery TWICE (defaults, then a `ruitk.TimeSlicing=false` world).
+**Execution correction (2026-07-31, discovered at M8 — recorded per stop-ask 4's plan-conflict
+rule):** the incantation originally written here (`-ExecCmds="ruitk.TimeSlicing 0; Automation
+RunTests Ruitk; Quit"`) does NOT work — `-ExecCmds` is executed as ONE command (only the
+Automation handler tolerates a trailing `; Quit`), so the CVar parser consumed the whole line,
+no tests ran, and the editor idled forever. And ANY external ambient pin of the CVar
+(console rung, `-dpcvars`) collides post-flip with the `Ruitk.Umg.Settings` CDO↔accessor
+parity row by construction: CDO true, pinned CVar false, ProjectSetting-rung push correctly
+rejected below the pin's rung — observed 166/167 with exactly that row red and every
+behavioral suite green. The CORRECT bypass world is the product's own opt-out — a temporary
+`[/Script/RuitkUMG.RuitkSettings]` `bTimeSlicing=False` section in the demo's
+`Config/DefaultGame.ini` (CDO and CVar then move TOGETHER; revert the ini after the run):
+167/167 green.
 
 ## §8 — Already conforming — no-ops, with evidence (state, do not "improve")
 
@@ -570,7 +581,7 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
 - [x] M5 strict diagnostics: both warnings, deduped, `[Ruitk][strict]` prefix, tests — DONE 2026-07-31 (4 tests; battery 160/160; library-internal every-commit effects exempt via InternalUseEffect; strict-test CVar pins land at SetByProjectSetting so the settings push-test vehicle stays viable)
 - [x] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate — DONE 2026-07-31 (2 tests; battery 162/162; grep gate clean: in-plugin `GetEnvironment` = RuitkCoreMisc decl/impl + the RuitkContext accessor only; settings enum row pushes as int, the live-edit path is the engine's native FEnumProperty export)
 - [x] M7 trace ladder + `LogRuitkTrace` + diff-tracing OR-switch + tests; `stat Ruitk` untouched — DONE 2026-07-31 (5 tests incl. the family six-row gate matrix, exact per-kind counts both worlds; battery 167/167; `stat Ruitk`/FRuitkDiagnostics counters verified untouched by diff; transport = ONE category, all lines also FRuitkDiagnostics::Emit under capture; owner LogRuitkTrace spot-check listed in REMAINING.md §1)
-- [ ] M8 default flip + coupling sweep + bench before/after in BENCH_BASELINES.md (no regression)
+- [x] M8 default flip + coupling sweep + bench before/after in BENCH_BASELINES.md (no regression) — DONE 2026-07-31 (`ruitk.TimeSlicing` default true in CVar + ctor together; battery 167/167 under new defaults AND 167/167 in the bypass world via the ini opt-out row — see the §7 execution correction for why the original bypass incantation is void; coupling sweep found ZERO failures — M1's FlushSync + M3's both-worlds fixtures pre-paid it, and the FlushSync caller universe re-grepped intact; bench after-rows appended to BENCH_BASELINES.md with no regression on any scenario — the FlushSync-driven doom_reconcile_frame headline is flip-immune by design and measured faster than both before-rows, so stop-ask 2 never triggered; P-05 notice re-checked, unaffected by the flip)
 - [ ] M9 docs pages + PENDING_CHANGELOG bullets staged per milestone + version plan + TECH_DEBT entries
 - [ ] §7 full verify block green end-to-end
 - [ ] STOP-AND-ASK items resolved with the owner (below), none guessed
