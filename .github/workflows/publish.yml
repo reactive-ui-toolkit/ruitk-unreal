@@ -163,6 +163,33 @@ jobs:
     secrets:
       EPIC_GHCR_PAT: ${{ secrets.EPIC_GHCR_PAT }}
 
+  # Discord release note — posts the [<version>] entry from plans/DISCORD_CHANGELOG.md to the
+  # family Discord's Unreal channel, gated exactly like the plugin release itself (runs only when
+  # release-plugin tagged a NEW version this dispatch). Deliberately downstream-only: no release
+  # job depends on it, so a red discord job can never block artifact publication — and it is
+  # idempotent by design (the channel history is the ledger; the `[<version>]` header is the
+  # dedup key), so re-running just this job after a failure is always safe.
+  # INERT until armed: set the DISCORD_BOT_TOKEN repo secret (a bot with View Channel +
+  # Read Message History + Send Messages on the channel).
+  discord:
+    needs: release-plugin
+    if: needs.release-plugin.outputs.new_tag == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Post the release entry (skips if already posted; inert until the secret is set)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: |
+          if [ -z "$DISCORD_BOT_TOKEN" ]; then
+            echo "::notice title=Discord::DISCORD_BOT_TOKEN not set — Discord release note skipped (add the repo secret to arm this job)."
+            exit 0
+          fi
+          node scripts/discord-changelog.mjs post "${{ needs.release-plugin.outputs.version }}"
+
   # VS Code extension — cross-platform (the server is a self-contained JS bundle, no native deps), so
   # ONE .vsix and ONE `vscode-v<ver>` tag. Idempotent: skips if the tag exists; tags only on a
   # successful VS Marketplace publish (Open VSX is best-effort). Bump package.json to ship a new one.

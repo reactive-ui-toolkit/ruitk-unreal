@@ -1,9 +1,12 @@
 # Discord changelog
 
-Community-facing release notes, newest first, pasted MANUALLY by the owner into the family
-Discord server's `#unreal` channel after publishing — never posted by the AI.
+Community-facing release notes, newest first, for the family Discord server's `#unreal` channel.
+Posted by publish.yml's `discord` job (`node scripts/discord-changelog.mjs post <version>`) when a
+release tags — idempotent, the `## [<version>]` header doubles as the channel dedup key, and CI's
+`gates` job runs `discord-changelog.mjs verify` (2000-char cap, no masked links, unique headers).
+The AI never posts by hand.
 
-**Entry format** (the family pattern — mirror `ReactiveUIToolKit/Plans~/DISCORD_CHANGELOG.md`):
+**Entry format** (the family pattern — mirror `ruitk-unity/plans/DISCORD_CHANGELOG.md`):
 `## [X.Y.Z] - YYYY-MM-DD`, a `### <headline>` subtitle, **bold-lead** prose paragraphs and
 bullet groups distilled from that release's CHANGELOG section (real numbers, root causes named),
 an update-instruction line, a `**Tooling:** UETKX <ver> (VS Code + VS 2022)` trailer when
