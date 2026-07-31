@@ -17,6 +17,7 @@ namespace RuitkUetkxTabs
 {
 	const FName HmrWindow(TEXT("RuitkUetkxHmr"));
 	const FName Preview(TEXT("RuitkPreview"));
+	const FName Settings(TEXT("RuitkUetkxSettings"));
 } // namespace RuitkUetkxTabs
 
 namespace
@@ -48,6 +49,12 @@ namespace
 		Main.AddMenuEntry("Preview", LOCTEXT("Preview", "Preview"),
 						  LOCTEXT("PreviewTip", "Open the read-only .uetkx component preview."), FSlateIcon(),
 						  FUIAction(FExecuteAction::CreateStatic(&InvokeTab, RuitkUetkxTabs::Preview)));
+		// The one-settings-window design (family-wide): every plugin setting — runtime + editor —
+		// lives in this window; the Project Settings pages stay as mirrors of the same objects.
+		Main.AddMenuEntry("Settings", LOCTEXT("Settings", "Settings"),
+						  LOCTEXT("SettingsTip", "Open the Reactive UI Toolkit Settings window — every runtime "
+												 "and editor option of the plugin, in one place."),
+						  FSlateIcon(), FUIAction(FExecuteAction::CreateStatic(&InvokeTab, RuitkUetkxTabs::Settings)));
 		// §3 (MARKUP_EVERYWHERE_PLAN): one-click access to the compile-error page (TB-8's
 		// clickable rows live there) — the engine parks it under Window's LOG section header,
 		// which the owner scrolled straight past.

@@ -8,6 +8,7 @@
 #include "Modules/ModuleManager.h"
 #include "RuitkUetkxCommands.h"
 #include "RuitkUetkxMenu.h"
+#include "SRuitkSettingsPanel.h"
 #include "SRuitkUetkxHmrPanel.h"
 #include "SUetkxPreviewPanel.h"
 #include "Styling/AppStyle.h"
@@ -79,6 +80,7 @@ public:
 		RegisterHmrConsoleCommands();
 		RegisterPreviewTab();
 		RegisterHmrWindowTab();
+		RegisterSettingsTab();
 
 		// HMR v2 DX: let "Follow Play" drive the session from the PIE Play/Stop buttons. (Epic's Live
 		// Coding console is hidden only while HMR is active — see FUetkxHmrController's console hider —
@@ -97,7 +99,7 @@ public:
 		UToolMenus::RegisterStartupCallback(
 			FSimpleMulticastDelegate::FDelegate::CreateStatic(&FRuitkUetkxMenu::Register));
 		UE_LOG(LogRuitkEditor, Display,
-			   TEXT("RuitkEditor started — .uetkx watcher armed; RuitkUetkx menu + HMR window; "
+			   TEXT("RuitkEditor started — .uetkx watcher armed; RuitkUetkx menu + HMR window + Settings window; "
 					"console: RuitkUetkx.HMR.Start/Stop/Toggle"));
 	}
 
@@ -122,6 +124,7 @@ public:
 		{
 			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuitkPreviewTabId);
 			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(GRuitkHmrTabId);
+			FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(RuitkUetkxTabs::Settings);
 		}
 		if (FModuleManager::Get().IsModuleLoaded(TEXT("MessageLog")))
 		{
@@ -176,6 +179,33 @@ private:
 	TSharedRef<SDockTab> SpawnHmrTab(const FSpawnTabArgs&)
 	{
 		return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SRuitkUetkxHmrPanel)];
+	}
+
+	/** Register the one settings window as a nomad tab (family-wide design: every plugin setting —
+	 *  runtime + editor — in ONE window, opened from the plugin menu; the Project Settings pages
+	 *  stay registered as free mirrors of the same CDOs). Tab id shared with the menu entry via
+	 *  RuitkUetkxTabs::Settings. */
+	void RegisterSettingsTab()
+	{
+		if (!FSlateApplication::IsInitialized())
+		{
+			return; // headless (commandlet) — no tab UI
+		}
+		FGlobalTabmanager::Get()
+			->RegisterNomadTabSpawner(RuitkUetkxTabs::Settings,
+									  FOnSpawnTab::CreateRaw(this, &FRuitkEditorModule::SpawnSettingsTab))
+			.SetDisplayName(NSLOCTEXT("RuitkUetkx", "SettingsTabTitle", "Reactive UI Toolkit Settings"))
+			.SetTooltipText(NSLOCTEXT("RuitkUetkx", "SettingsTabTooltip",
+									  "All Reactive UI Toolkit settings — runtime (ruitk.* CVars) and editor "
+									  "Hot Reload — in one window"))
+			.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Settings"))
+			.SetGroup(WorkspaceMenu::GetMenuStructure().GetToolsCategory())
+			.SetMenuType(ETabSpawnerMenuType::Enabled);
+	}
+
+	TSharedRef<SDockTab> SpawnSettingsTab(const FSpawnTabArgs&)
+	{
+		return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SRuitkSettingsPanel)];
 	}
 
 	/** Start/Stop/Toggle the HMR mode from the console (the Phase-2 window + shortcuts drive the same
