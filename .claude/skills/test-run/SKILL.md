@@ -5,10 +5,12 @@ description: The exact incantations to build and run this repo's test suites hea
 
 # Test run — the canonical commands, in order
 
-Environment facts first (verify, don't assume): `<Engine>` =
-**`C:\Program Files\Epic Games\UE_5.6`** (the floor; `UE_5.7` also installed + battery-verified
-2026-07-14 — swap the path to run the ladder against it; MSVC 14.44 — UE warns
-"not preferred (14.38)" but accepts). `<abs>` below = this repo's absolute path. ALWAYS
+Environment facts first (verify, don't assume): `<Engine>` = the engine root, **resolved via the
+chain in CLAUDE.md's "Machine-local paths" section** (`$UE_ROOT` → `.ruitk-local.json` `engineRoot` →
+a Launcher install) — never hardcode it here or anywhere else tracked. **5.6 is the floor**; 5.7
+and 5.8 are battery-verified (2026-07-14), so point the chain at whichever you mean to test. MSVC
+14.44 — UE warns "not preferred (14.38)" but accepts. `<abs>` = this checkout
+(`git rev-parse --show-toplevel`), `<scratch>` = a temp dir outside it. ALWAYS
 redirect engine output to a file — piping block-buffers and hides everything (family scar).
 
 ```bat
@@ -34,8 +36,9 @@ redirect engine output to a file — piping block-buffers and hides everything (
   `Hmr`, `Umg`, `Mvvm`, `CommonUI`.
 - **`Ruitk.Bench` is NOT pass/fail** — numbers go to `plans/BENCH_BASELINES.md` WITH the
   machine/config context that file demands; cross-machine comparisons are invalid.
-- Engine-free gates (run these anywhere, before any engine work):
-  `node ide-extensions/scripts/changelog.mjs verify && node scripts/verify-mirror.mjs && node scripts/check-headers.mjs && node scripts/lint-skills.mjs && node scripts/docs-drift.mjs`
+- Engine-free gates (run these anywhere, before any engine work — the same set as test.yml's
+  `gates` job):
+  `node ide-extensions/scripts/changelog.mjs verify && node scripts/verify-mirror.mjs && node scripts/check-headers.mjs && node scripts/lint-skills.mjs && node scripts/docs-drift.mjs && node scripts/check-style-builders.mjs && node scripts/corpus-hash.mjs --check && node scripts/check-machine-paths.mjs`
 - Suites must print per-section markers so hangs name their culprit — keep that convention when
   writing new tests.
 

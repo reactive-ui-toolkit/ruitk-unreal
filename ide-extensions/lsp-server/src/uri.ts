@@ -5,7 +5,7 @@ export const URI = {
   toFsPath(uri: string): string {
     if (!uri.startsWith("file://")) return uri;
     let p = decodeURIComponent(uri.slice("file://".length));
-    // file:///C:/x -> /C:/x -> C:/x
+    // file:///C:/x -> /C:/x -> C:/x   (path-gate-allow: algorithm example, not a real location)
     if (/^\/[A-Za-z]:/.test(p)) p = p.slice(1);
     return p.replace(/\//g, require("node:path").sep);
   },
@@ -25,7 +25,8 @@ export const URI = {
     };
     return norm(a) === norm(b);
   },
-  /** fs path -> file URI (go-to-def target). `C:\x\y` -> `file:///C:/x/y`; each segment encoded. */
+  /** fs path -> file URI (go-to-def target); each segment encoded.
+   *  `C:\x\y` -> `file:///C:/x/y`   (path-gate-allow: algorithm example, not a real location) */
   fromFsPath(fsPath: string): string {
     let p = fsPath.replace(/\\/g, "/");
     const encoded = p

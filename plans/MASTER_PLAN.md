@@ -548,7 +548,8 @@ round are **baked in** here — see also §6's DO-NOT-CLAIM list.
 ## §2 — Repo layout (target state)
 
 ```
-ruitk-unreal/                          # repo root IS the demo host project (Godot-repo pattern)
+<repo>/                                # repo root IS the demo host project (Godot-repo pattern); the
+                                       #   checkout's folder name is load-bearing NOWHERE
   RuitkUnrealDemo.uproject             # host project; enables the plugin; demo maps
   Source/
     RuitkDemo/                                # demo game module (gallery screens, .uetkx demos)

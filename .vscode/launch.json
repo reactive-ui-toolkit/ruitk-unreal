@@ -24,7 +24,13 @@
 				// in the main window, and one folder can't restore UI state into two windows —
 				// the workspace file gives the dev host its OWN identity, so open editors
 				// persist across F5 runs (Unity-sibling parity).
-				"--file-uri=file:///C:/Yanivs/GameDev/ReactiveUI/ruitk-unreal/ide-extensions/vscode-uetkx/uetkx-dev.code-workspace"
+				// ${workspaceFolder}-relative, never a written-down absolute path: this line
+				// hardcoded one, the rebrand sweep rewrote the repo-folder segment inside it, and
+				// F5 broke for every clone whose folder name differs. A positional workspace path
+				// (not --file-uri=file:///…) also survives spaces in the checkout path with no
+				// percent-encoding. See CLAUDE.md "Machine-local paths"; the same config exists at
+				// ide-extensions/vscode-uetkx/.vscode/launch.json — keep both in step.
+				"${workspaceFolder}/ide-extensions/vscode-uetkx/uetkx-dev.code-workspace"
 			],
 			"outFiles": ["${workspaceFolder}/ide-extensions/vscode-uetkx/out/**/*.js"],
 			"preLaunchTask": "Build UETKX Extension"
