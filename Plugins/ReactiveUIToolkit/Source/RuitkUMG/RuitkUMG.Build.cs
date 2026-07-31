@@ -23,6 +23,11 @@ public class RuitkUMG : ModuleRules
 			"Slate",
 			"SlateCore",
 			"FieldNotification",
+			// DeveloperSettings: URuitkSettings (the ruitk.* Project Settings page). A Runtime
+			// module (Engine/Source/Runtime/DeveloperSettings — deps Core/CoreUObject/Projects
+			// only), so a Runtime module may depend on it in every target. Public because
+			// RuitkSettings.h includes Engine/DeveloperSettings.h.
+			"DeveloperSettings",
 			"RuitkCore",
 			"RuitkSlate",
 		});
