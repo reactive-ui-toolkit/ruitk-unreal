@@ -52,6 +52,13 @@ public:
 	 *  enqueues are deferred to the matching EndBatch (:54-58). Key must be non-null. */
 	void Enqueue(const void* Key, TFunction<void()> Fn, ERuitkLane Lane = ERuitkLane::Normal);
 
+	/** Remove Key's queued action from every lane (tracker included) and any batch-deferred
+	 *  enqueue carrying it. Engine-local teardown/preempt API with no reference analog: a
+	 *  GC'd C# delegate outliving its producer is harmless, a C++ action capturing a dead
+	 *  `this` is not (the host — and so the scheduler — outlives every reconciler). NOT the
+	 *  frame-start Low-cancel rule: nothing is counted. */
+	void Cancel(const void* Key);
+
 	/** Defer non-High enqueues until the matching EndBatch (nestable) (:88-114). */
 	void BeginBatch();
 	void EndBatch();
@@ -94,6 +101,14 @@ private:
 		TArray<FEntry> Queue;	   // FIFO; actions may append mid-drain (Slice re-enqueue)
 		TSet<const void*> Tracker; // P-02 dedup
 	};
+	/** A non-High enqueue captured during a batch — kept as data (not a closure) so
+	 *  Cancel(Key) can reach it (:88-114 + the Cancel note above). */
+	struct FDeferredEnqueue
+	{
+		const void* Key = nullptr;
+		ERuitkLane Lane = ERuitkLane::Normal;
+		TFunction<void()> Fn;
+	};
 
 	FLane& LaneOf(ERuitkLane Lane) { return Lanes[static_cast<int32>(Lane)]; }
 	const FLane& LaneOf(ERuitkLane Lane) const { return Lanes[static_cast<int32>(Lane)]; }
@@ -107,7 +122,7 @@ private:
 
 	FLane Lanes[4];
 	TArray<TFunction<void()>> BatchedEffects;
-	TArray<TFunction<void()>> DeferredBatchEnqueues;
+	TArray<FDeferredEnqueue> DeferredBatchEnqueues;
 	int32 BatchDepth = 0;
 	TFunction<double()> Clock;
 	FMetrics Metrics;

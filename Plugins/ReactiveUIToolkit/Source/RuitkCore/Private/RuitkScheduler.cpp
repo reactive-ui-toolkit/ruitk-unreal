@@ -23,8 +23,7 @@ void FRuitkScheduler::Enqueue(const void* Key, TFunction<void()> Fn, ERuitkLane 
 	// whole Enqueue (dedup included) replays then, so the dedup sees EndBatch-time state.
 	if (BatchDepth > 0 && Lane != ERuitkLane::High)
 	{
-		DeferredBatchEnqueues.Add([this, Key, Lane, DeferredFn = MoveTemp(Fn)]() mutable
-								  { Enqueue(Key, MoveTemp(DeferredFn), Lane); });
+		DeferredBatchEnqueues.Add(FDeferredEnqueue{Key, Lane, MoveTemp(Fn)});
 		return;
 	}
 	FLane& L = LaneOf(Lane);
@@ -52,12 +51,29 @@ void FRuitkScheduler::EndBatch()
 	{
 		return;
 	}
-	TArray<TFunction<void()>> Snapshot = MoveTemp(DeferredBatchEnqueues);
+	TArray<FDeferredEnqueue> Snapshot = MoveTemp(DeferredBatchEnqueues);
 	DeferredBatchEnqueues.Reset();
-	for (TFunction<void()>& Replay : Snapshot)
+	for (FDeferredEnqueue& Replay : Snapshot)
 	{
-		Replay();
+		// The whole Enqueue (dedup included) replays now, so dedup sees EndBatch-time state.
+		Enqueue(Replay.Key, MoveTemp(Replay.Fn), Replay.Lane);
 	}
+}
+
+void FRuitkScheduler::Cancel(const void* Key)
+{
+	if (Key == nullptr)
+	{
+		return;
+	}
+	for (FLane& Lane : Lanes)
+	{
+		if (Lane.Tracker.Remove(Key) > 0)
+		{
+			Lane.Queue.RemoveAll([Key](const FEntry& Entry) { return Entry.Key == Key; });
+		}
+	}
+	DeferredBatchEnqueues.RemoveAll([Key](const FDeferredEnqueue& Entry) { return Entry.Key == Key; });
 }
 
 void FRuitkScheduler::EnqueueBatchedEffect(TFunction<void()> Effect)

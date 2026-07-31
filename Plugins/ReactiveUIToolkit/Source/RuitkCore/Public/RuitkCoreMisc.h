@@ -29,6 +29,10 @@ struct RUITKCORE_API FRuitkConfig
 	 *  default — synchronous renders are simplest and fast for normal UIs. */
 	static bool IsTimeSlicing();
 	static float FrameBudgetMs();
+	/** Render-phase quantum (family knob time_slice_ms, default 2.0): a sliced pass runs
+	 *  units of work until the quantum elapses — checked AFTER each unit, no preemption
+	 *  (FiberReconciler.cs:31, :444-455) — then parks. Only read when IsTimeSlicing(). */
+	static float TimeSliceMs();
 
 	/** Host-node pooling opt-out (A/B measurement). */
 	static bool IsHostNodePoolEnabled();

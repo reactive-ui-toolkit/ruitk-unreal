@@ -16,8 +16,12 @@
 //
 // Child reconciliation: fast-leaf-list (+ GO-09 reuse_by_slot) -> keys-stable positional ->
 // full keyed mark-and-sweep with a persistent key map (GO-08). Updates coalesce to one
-// host RequestFrame; setState mid-render restarts from the root (25-restart guard);
-// setState mid-commit defers and replays. Double-buffered fibers from the slab (D-06).
+// host RequestFrame (sync) or one self-re-enqueueing Slice action on the scheduler's Normal
+// lane (time slicing, M3/P-04). setState mid-render, mid-park, or mid-commit DEFERS — never
+// restarts the pass — and replays post-commit as ONE coalesced follow-up (P-11,
+// FiberReconciler.cs:304-325 + :884-909); runaway render-phase cascades hit the
+// render-depth-25 guard (render-nothing for the pass, no crash). Double-buffered fibers
+// from the slab (D-06).
 
 #pragma once
 
@@ -50,7 +54,9 @@ public:
 	 *  "Unsliced" is enforced, not assumed (P-06): bForceSyncPass is raised for the duration,
 	 *  every slicing decision reads IsTimeSlicing() && !bForceSyncPass, and passes run to
 	 *  quiescence — a commit's deferred-update replay that schedules a follow-up pass is run
-	 *  too, so no parked WIP survives the call. */
+	 *  too, so no parked WIP survives the call. This reconciler's queued Slice action is
+	 *  cancelled and drained here (M3), and a prior sliced commit's frame-end passive flush
+	 *  is flushed first. */
 	void FlushSync();
 
 	/** HMR: mark EVERY function fiber dirty (defeats bailout caches — component definitions
@@ -80,6 +86,19 @@ private:
 	// --- scheduling ---
 	void EnsureTick();
 	void Tick();
+	/** Dispatch pending work: a Slice action on the scheduler's Normal lane when sliced
+	 *  (P-04), else a coalesced host-frame Tick. */
+	void EnsureWork();
+	bool ShouldUseScheduler();
+	void EnqueueSlice();
+	void RunSlice();
+	void CancelQueuedSlice();
+	/** The shared work loop: begin/resume the pass, run units (quantum-checked AFTER each
+	 *  unit when sliced), rebuild on an error-poisoned pass, commit or park. */
+	void DoWork(bool bViaScheduler);
+	/** The marking core of ScheduleUpdateOnFiber. bScheduleWork=false is the deferred-replay
+	 *  re-mark (CommitRoot's tail schedules ONCE after the drain — FiberReconciler.cs:884-909). */
+	void ScheduleUpdateInternal(FRuitkFiber* Fiber, bool bScheduleWork);
 
 	// --- render phase ---
 	void BeginRender();
@@ -127,8 +146,13 @@ private:
 
 	// --- tree lifecycle ---
 	void ReleaseFiberTree(FRuitkFiber* Fiber);
-	/** Reclaim the fresh WIP fibers of an abandoned pass (restart / aborted mount). */
+	/** Reclaim the fresh WIP fibers of an abandoned pass (error restart / preempted mount /
+	 *  Unmount-mid-park). */
 	void ReleaseAbandonedChildren(FRuitkFiber* Parent);
+	/** The release choke point: scrubs DeferredUpdates/PendingPassive of the dying fiber
+	 *  (redirecting deferred entries to a surviving twin) before returning it to the slab —
+	 *  C++ divergence from the GC'd reference, where stale FiberNode refs are harmless. */
+	void ReleaseFiber(FRuitkFiber* Fiber);
 
 	// --- helpers ---
 	static FRuitkFiber* OldFirst(FRuitkFiber* Fiber) { return Fiber ? Fiber->Child : nullptr; }
@@ -175,16 +199,43 @@ private:
 	TArray<FPendingEbActivation> PendingEbActivations;
 
 	bool bIsCommitting = false;
+	/** Updates captured mid-commit, mid-render, or mid-park (P-11(a)) — replayed from
+	 *  CommitRoot's tail as ONE coalesced follow-up. Raw fiber pointers: ReleaseFiber is
+	 *  the scrub point (slab memory recycles; the GC'd reference needs no scrub). */
 	TArray<FRuitkFiber*> DeferredUpdates;
+	/** CommitRoot is draining DeferredUpdates — replayed updates re-mark flags, never
+	 *  re-defer (the reference's _isReplayingDeferred, FiberReconciler.cs:23). */
+	bool bReplayingDeferred = false;
+	/** Some update deferred THIS pass arrived from inside a component render — feeds the
+	 *  RenderDepth ladder at commit (P-11(d)). */
+	bool bDeferredFromRender = false;
+	/** A render failure activated an error boundary: abandon the poisoned pass and rebuild
+	 *  from the root (the ERROR path only — setState never poisons a pass post-P-11). */
+	bool bPassPoisoned = false;
 	bool bWorkActive = false;
-	/** Raised only inside FlushSync (scoped): forces every slicing decision to false so the
-	 *  in-flight pass cannot park (P-06 — the ":unsliced" contract of FlushSync). */
+	/** Raised only inside Render/FlushSync (scoped): forces every slicing decision to false
+	 *  so the pass cannot park (P-06 — the ":unsliced" contract; mount is ALWAYS sync). */
 	bool bForceSyncPass = false;
-	bool bRestart = false;
 	bool bTickPending = false;
-	int32 RestartCount = 0;
+	/** Our Slice action is queued on the scheduler's Normal lane (key = this). Mirrors the
+	 *  scheduler's key dedup so FlushSync/Render/Unmount can claim or cancel it. */
+	bool bSliceQueued = false;
+	/** Consecutive follow-up passes caused by setState-during-render. The reference counts
+	 *  render-frame nesting (its sync replay recurses WorkLoop-from-CommitRoot); our replay
+	 *  is queue-scheduled, so cascade length is the same quantity with a flat stack. Past
+	 *  MaxRenderDepth, RenderComponent logs and renders nothing for the pass — breaking the
+	 *  cascade without a crash or a hang (FiberFunctionComponent.cs:16-18, :140-155). */
+	int32 RenderDepth = 0;
 
-	static constexpr int32 MaxRestarts = 25;
+	static constexpr int32 MaxRenderDepth = 25; // FiberFunctionComponent.cs:18
+	/** Error-boundary rebuilds per work cycle. Structurally each rebuild newly activates a
+	 *  boundary (active ones can't re-capture), so this cap only guards the pathological
+	 *  mount-path adopt-miss loop (nondeterministic ancestor keys). */
+	static constexpr int32 MaxErrorRestarts = 25;
+
+	/** Alive sentinel for actions parked on the HOST-owned scheduler, which outlives this
+	 *  reconciler (ctor contract) — Slice / batched-effect lambdas hold a weak copy. */
+	TSharedRef<int32> LifeToken = MakeShared<int32>(0);
 
 	/** Scratch for NormalizedChildren's empty case. */
 	static const TArray<FRuitkNode> EmptyChildren;

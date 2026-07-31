@@ -470,31 +470,37 @@ bool FRuitkCoreTimeSlicingTest::RunTest(const FString&)
 {
 	CoreTest2::Reset();
 	IConsoleVariable* Slicing = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSlicing"));
-	IConsoleVariable* Budget = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.FrameBudgetMs"));
+	IConsoleVariable* Quantum = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSliceMs"));
+	const bool bPrevSlicing = Slicing->GetBool();
+	const float PrevQuantum = Quantum->GetFloat();
 	Slicing->Set(true);
-	Budget->Set(0.0f);
+	Quantum->Set(0.0f); // quantum exhausts after every unit — maximum slicing (M3 two-axis model)
 
-	FRuitkTestHarness H;
-	H.Mount(Ruitk::FC(&SlicedComp)); // mount is always synchronous
-	FMockNode* List = H.ChildAt(0);
-	TestEqual(TEXT("sliced: initial 8 items"), List->Children.Num(), 8);
-	TestEqual(TEXT("sliced: initial label"), List->Children[0]->PropsAs<FTestBoxProps>()->Label,
-			  FString(TEXT("item 0-0")));
+	{
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&SlicedComp)); // mount is always synchronous
+		FMockNode* List = H.ChildAt(0);
+		TestEqual(TEXT("sliced: initial 8 items"), List->Children.Num(), 8);
+		TestEqual(TEXT("sliced: initial label"), List->Children[0]->PropsAs<FTestBoxProps>()->Label,
+				  FString(TEXT("item 0-0")));
 
-	CoreTest2::IntSetter(1);
-	TestTrue(TEXT("sliced update completes"), H.Host.PumpUntilIdle(200));
-	TestEqual(TEXT("first item updated"), List->Children[0]->PropsAs<FTestBoxProps>()->Label,
-			  FString(TEXT("item 0-1")));
-	TestEqual(TEXT("last item updated"), List->Children[7]->PropsAs<FTestBoxProps>()->Label, FString(TEXT("item 7-1")));
+		CoreTest2::IntSetter(1);
+		TestTrue(TEXT("sliced update completes"), H.Host.PumpUntilIdle(200));
+		TestEqual(TEXT("first item updated"), List->Children[0]->PropsAs<FTestBoxProps>()->Label,
+				  FString(TEXT("item 0-1")));
+		TestEqual(TEXT("last item updated"), List->Children[7]->PropsAs<FTestBoxProps>()->Label,
+				  FString(TEXT("item 7-1")));
+	}
 
-	Slicing->Set(false);
-	Budget->Set(8.0f);
+	Slicing->Set(bPrevSlicing);
+	Quantum->Set(PrevQuantum);
 	return true;
 }
 
 // -- FlushSync under slicing: "synchronously and unsliced" must be literal -- with slicing on
-//    and a zero budget a plain Tick MUST park, but ONE FlushSync call commits everything
-//    (P-06/M1; every mount surface + HMR + the item-model row roots depend on this)
+//    and a zero quantum the update parks as a queued/sliced Slice action, but ONE FlushSync
+//    call claims it and commits everything (P-06/M1, extended by M3 to drain the queued
+//    Slice; every mount surface + HMR + the item-model row roots depend on this)
 //    -------------
 
 static FRuitkNodeArray FlushSyncWideComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
@@ -519,9 +525,11 @@ bool FRuitkCoreFlushSyncUnderSlicingTest::RunTest(const FString&)
 	CoreTest2::Reset();
 	CoreTest2::SeenInt = -1; // effect writes 0 on mount -- must be distinguishable
 	IConsoleVariable* Slicing = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSlicing"));
-	IConsoleVariable* Budget = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.FrameBudgetMs"));
+	IConsoleVariable* Quantum = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSliceMs"));
+	const bool bPrevSlicing = Slicing->GetBool();
+	const float PrevQuantum = Quantum->GetFloat();
 	Slicing->Set(true);
-	Budget->Set(0.0f); // parks after every unit -- a plain Tick cannot finish this pass
+	Quantum->Set(0.0f); // parks after every unit -- a plain sliced pump cannot finish in one quantum
 
 	{
 		FRuitkTestHarness H;
@@ -532,8 +540,8 @@ bool FRuitkCoreFlushSyncUnderSlicingTest::RunTest(const FString&)
 			TestEqual(TEXT("32 leaves mounted"), Wide->Children.Num(), 32);
 			TestEqual(TEXT("mount effect flushed"), CoreTest2::SeenInt, 0);
 
-			CoreTest2::IntSetter(1);   // dirty -> queues a (sliced) tick
-			H.Reconciler->FlushSync(); // ONE call: must run to full commit, unsliced
+			CoreTest2::IntSetter(1);   // dirty -> queues a Slice action on the scheduler
+			H.Reconciler->FlushSync(); // ONE call: must claim the queued Slice and commit, unsliced
 
 			TestEqual(TEXT("first leaf committed by FlushSync"), Wide->Children[0]->PropsAs<FTestBoxProps>()->Label,
 					  FString(TEXT("w 0-1")));
@@ -550,8 +558,8 @@ bool FRuitkCoreFlushSyncUnderSlicingTest::RunTest(const FString&)
 		}
 	}
 
-	Slicing->Set(false);
-	Budget->Set(8.0f);
+	Slicing->Set(bPrevSlicing);
+	Quantum->Set(PrevQuantum);
 	return true;
 }
 

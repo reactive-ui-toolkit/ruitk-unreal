@@ -20,6 +20,12 @@ static TAutoConsoleVariable<float>
 	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 8.0f,
 						   TEXT("Render-phase work per frame before parking, when ruitk.TimeSlicing is on."));
 
+static TAutoConsoleVariable<float>
+	CVarRuitkTimeSliceMs(TEXT("ruitk.TimeSliceMs"), 2.0f,
+						 TEXT("Render-phase quantum in ms when ruitk.TimeSlicing is on: a pass runs units of "
+							  "work until the quantum elapses (checked after each unit), then parks — resuming "
+							  "the same frame if the scheduler budget allows, else next frame."));
+
 static TAutoConsoleVariable<bool>
 	CVarRuitkHostNodePool(TEXT("ruitk.HostNodePool"), true,
 						  TEXT("Recycle childless leaf widgets across keyed-list churn (GO-05). Off to A/B."));
@@ -54,6 +60,10 @@ bool FRuitkConfig::IsTimeSlicing()
 float FRuitkConfig::FrameBudgetMs()
 {
 	return CVarRuitkFrameBudgetMs.GetValueOnGameThread();
+}
+float FRuitkConfig::TimeSliceMs()
+{
+	return CVarRuitkTimeSliceMs.GetValueOnGameThread();
 }
 bool FRuitkConfig::IsHostNodePoolEnabled()
 {
