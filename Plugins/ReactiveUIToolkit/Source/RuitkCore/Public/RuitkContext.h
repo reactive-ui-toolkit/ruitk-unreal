@@ -108,6 +108,10 @@ public:
 				return;
 			}
 			C->Value = MoveTemp(Next);
+			if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08) — accepted writes only
+			{
+				Ruitk::TraceHookWrite(*S, i, TEXT("reducer"));
+			}
 			S->NotifyStateUpdated();
 		};
 		return MakeTuple(Cell->Value, MoveTemp(Dispatch));
@@ -225,6 +229,12 @@ public:
 										*Fiber.ComponentId.ToString());
 								});
 		}
+		if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08, the Hooks.cs:1241 precedent;
+		{						  // StrictMode's double invoke logs twice — truthful: two captures)
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][trace] Hook %s: effect captured slot=%d deps=%s"),
+											 *Fiber.ComponentId.ToString(), i,
+											 Deps.IsSet() ? *FString::FromInt(Deps->Num()) : TEXT("every-commit")));
+		}
 		if (i >= State.Effects.Num())
 		{
 			State.Effects.AddDefaulted();
@@ -249,6 +259,12 @@ public:
 											 "every render; pass deps (Ruitk::Deps() for run-once)"),
 										*Fiber.ComponentId.ToString());
 								});
+		}
+		if (Ruitk::TraceDetail()) // Verbose per-hook detail — the layout twin
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][trace] Hook %s: layout effect captured slot=%d deps=%s"),
+											 *Fiber.ComponentId.ToString(), i,
+											 Deps.IsSet() ? *FString::FromInt(Deps->Num()) : TEXT("every-commit")));
 		}
 		if (i >= State.LayoutEffects.Num())
 		{

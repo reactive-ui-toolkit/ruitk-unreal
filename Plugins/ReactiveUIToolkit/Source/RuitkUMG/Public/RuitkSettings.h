@@ -50,6 +50,20 @@ enum class ERuitkEnvironmentSetting : uint8
 	Production = 2,
 };
 
+/** The ruitk.TraceLevel values (int CVar: 0/1/2) — the family `trace_level` knob's Unreal
+ *  spelling. Content only: every trace line rides the dedicated LogRuitkTrace log category
+ *  (`log LogRuitkTrace off` silences the transport). */
+UENUM()
+enum class ERuitkTraceLevelSetting : uint8
+{
+	/** No trace output (the shipping default). */
+	None = 0,
+	/** Structural events: placements, updates, deletions, node replacements, commit summaries. */
+	Basic = 1,
+	/** Basic + per-element and per-hook detail; also implies Diff Tracing. */
+	Verbose = 2,
+};
+
 /**
  * Runtime configuration for the Reactive UI Toolkit reconciler — the ruitk.* console variables as
  * a persistable Project Settings page. Edits apply live in the editor and are written to your
@@ -123,6 +137,18 @@ public:
 	 *  (flushes impure renders and stale captures). Ignored in Shipping builds. */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.StrictMode"))
 	bool bStrictMode;
+
+	/** ruitk.TraceLevel — trace-content level on the LogRuitkTrace log category: Basic =
+	 *  structural events (placements, updates, deletions, node replacements, commit summaries),
+	 *  Verbose = Basic + per-element and per-hook detail (and implies Diff Tracing). */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.TraceLevel"))
+	ERuitkTraceLevelSetting TraceLevel;
+
+	/** ruitk.DiffTracing — reconciler diff-decision logs (bailout/subtree-skip verdicts,
+	 *  child-reconciliation tiers), independent of Trace Level: on when this is true OR the
+	 *  level is Verbose. */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.DiffTracing"))
+	bool bDiffTracing;
 
 	/** ruitk.Environment — the environment label surfaced READ-ONLY to components
 	 *  (Ctx.GetEnvironment()). Auto = development in any non-shipping build, production in

@@ -14,6 +14,7 @@
 #include "RuitkReconciler.h"
 #include "RuitkContext.h"
 #include "RuitkCoreElements.h"
+#include "RuitkElementRegistry.h" // GetElementTypeName — Verbose trace detail (M7)
 #include "RuitkScheduler.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkReconciler, Log, All);
@@ -26,6 +27,59 @@ namespace
 	{
 		static TArray<FRuitkReconciler*> Instances;
 		return Instances;
+	}
+
+	// ── Verbose structural-line detail (M7/P-08: element type / ComponentId / key) ────────
+	// Only ever called behind Ruitk::TraceDetail() — Basic keeps the bare per-kind line and
+	// pays no formatting.
+
+	FString TraceKeySuffix(const FRuitkKey& Key)
+	{
+		switch (Key.Kind)
+		{
+		case FRuitkKey::EKind::Int:
+			return FString::Printf(TEXT(" key=%lld"), Key.IntValue);
+		case FRuitkKey::EKind::Name:
+			return FString::Printf(TEXT(" key=%s"), *Key.NameValue.ToString());
+		default:
+			return FString();
+		}
+	}
+
+	FString TraceFiberLabel(const FRuitkFiber* Fiber)
+	{
+		switch (Fiber->Tag)
+		{
+		case ERuitkFiberTag::Host:
+			return Ruitk::GetElementTypeName(Fiber->ElementType).ToString();
+		case ERuitkFiberTag::Function:
+			return Fiber->ComponentId.ToString();
+		case ERuitkFiberTag::Fragment:
+			return FString(TEXT("Fragment"));
+		case ERuitkFiberTag::Portal:
+			return FString(TEXT("Portal"));
+		case ERuitkFiberTag::ErrorBoundary:
+			return FString(TEXT("ErrorBoundary"));
+		default:
+			return FString(TEXT("Root"));
+		}
+	}
+
+	FString TraceVNodeLabel(const FRuitkNode& VNode)
+	{
+		switch (VNode.Kind)
+		{
+		case ERuitkNodeKind::Host:
+			return Ruitk::GetElementTypeName(VNode.ElementType).ToString();
+		case ERuitkNodeKind::Function:
+			return VNode.ComponentId.ToString();
+		case ERuitkNodeKind::Portal:
+			return FString(TEXT("Portal"));
+		case ERuitkNodeKind::ErrorBoundary:
+			return FString(TEXT("ErrorBoundary"));
+		default:
+			return FString(TEXT("Fragment"));
+		}
 	}
 } // namespace
 
@@ -557,6 +611,11 @@ FRuitkFiber* FRuitkReconciler::BeginFunction(FRuitkFiber* Fiber)
 	// paired with their alternates for future passes).
 	if (bCanBail && !Fiber->bSubtreeHasUpdates && Alt != nullptr)
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log
+		{
+			Ruitk::TraceEmit(
+				FString::Printf(TEXT("[Ruitk][diff] Component %s: subtree-skip"), *Fiber->ComponentId.ToString()));
+		}
 		Fiber->Props = Fiber->PendingProps;
 		Fiber->Child = Alt->Child;
 		return nullptr;
@@ -565,10 +624,23 @@ FRuitkFiber* FRuitkReconciler::BeginFunction(FRuitkFiber* Fiber)
 	FRuitkChildren OutChildren;
 	if (bCanBail && Fiber->State.IsValid())
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Component %s: bailout (children re-reconciled)"),
+											 *Fiber->ComponentId.ToString()));
+		}
 		OutChildren = Fiber->State->LastOutput; // SAME shared list — grandchildren can bail
 	}
 	else
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — the props-equal verdict, spelled out
+		{
+			Ruitk::TraceEmit(FString::Printf(
+				TEXT(
+					"[Ruitk][diff] Component %s: render (pending=%d props-equal=%d context-clean=%d children-same=%d)"),
+				*Fiber->ComponentId.ToString(), Fiber->bHasPendingUpdate ? 1 : 0, bPropsEqual ? 1 : 0,
+				bContextOk ? 1 : 0, bChildrenSame ? 1 : 0));
+		}
 		Fiber->bHasPendingUpdate = false;
 		RenderComponent(Fiber);
 		OutChildren = Fiber->State.IsValid() ? Fiber->State->LastOutput : FRuitkChildren();
@@ -913,6 +985,15 @@ FRuitkFiber* FRuitkReconciler::ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFi
 		Fiber->Alternate = nullptr;
 		if (OldFiber != nullptr)
 		{
+			// Structural trace (M7/P-08): the replacement decision — same slot, Matches false,
+			// so the old subtree is torn down and a fresh one is built (delete + place follow).
+			if (Ruitk::TraceStructural())
+			{
+				Ruitk::TraceEmit(Ruitk::TraceDetail()
+									 ? FString::Printf(TEXT("[Ruitk][trace] Replace %s -> %s"),
+													   *TraceFiberLabel(OldFiber), *TraceVNodeLabel(VNode))
+									 : FString(TEXT("[Ruitk][trace] Replace")));
+			}
 			DeleteFiber(ParentFiber, OldFiber);
 		}
 	}
@@ -1021,6 +1102,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 	if (OldFirstFiber != nullptr && !VNodes.IsEmpty() &&
 		TryFastLeafList(ParentFiber, OldFirstFiber, VNodes, bReuseBySlot))
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children fast-leaf (%d)"), VNodes.Num()));
+		}
 		return true;
 	}
 
@@ -1044,6 +1129,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 		// FAST PATH: positionally-stable keyed list — no key map. [perf P2]
 		if (KeysStable(OldFirstFiber, VNodes))
 		{
+			if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+			{
+				Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children keys-stable (%d)"), VNodes.Num()));
+			}
 			FRuitkFiber* Ocs = OldFirstFiber;
 			for (int32 i = 0; i < VNodes.Num(); ++i)
 			{
@@ -1065,6 +1154,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 		// get NAMESPACED positional keys (FRuitkKey int with a reserved marker cannot collide
 		// with user keys because user int keys and positional keys live in the same space —
 		// so positional sentinels use FName "\x01idx%d"-style names, family [audit M1]).
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children full-keyed (%d)"), VNodes.Num()));
+		}
 		KeyMap.Reset();
 		FRuitkFiber* Ock = OldFirstFiber;
 		while (Ock != nullptr)
@@ -1119,6 +1212,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 	else
 	{
 		// index (positional) path
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children positional (%d)"), VNodes.Num()));
+		}
 		FRuitkFiber* Oci = OldFirstFiber;
 		for (int32 i = 0; i < VNodes.Num(); ++i)
 		{
@@ -1340,6 +1437,12 @@ void FRuitkReconciler::CommitRoot()
 {
 	bIsCommitting = true;
 	FRuitkDiagnostics::OnCommit();
+	// Per-commit structural counts for the trace summary (M7/P-08) — trace-only bookkeeping,
+	// unconditional int increments (the diagnostics counters and `stat Ruitk` stay untouched).
+	TraceCommitPlacements = 0;
+	TraceCommitUpdates = 0;
+	TraceCommitDeletions = 0;
+	++TraceCommitSeq;
 	Host.OnBeforeCommit(); // focus capture fence (host mutations start here)
 
 	for (FRuitkFiber* D : Deletions)
@@ -1386,6 +1489,15 @@ void FRuitkReconciler::CommitRoot()
 	}
 	ReorderSet.Reset();
 	Host.OnAfterCommit(); // focus restore fence (host mutations end here)
+
+	// Structural trace (M7/P-08): the commit summary — all host mutations for this commit are
+	// done at this point, so the per-kind counts are final.
+	if (Ruitk::TraceStructural())
+	{
+		Ruitk::TraceEmit(
+			FString::Printf(TEXT("[Ruitk][trace] Commit #%d: %d placement(s), %d update(s), %d deletion(s)"),
+							TraceCommitSeq, TraceCommitPlacements, TraceCommitUpdates, TraceCommitDeletions));
+	}
 
 	RootCurrent = WipRoot;
 	WipRoot = nullptr;			  // non-null WipRoot now always means "abandoned pass" (BeginRender reclaims)
@@ -1473,6 +1585,13 @@ void FRuitkReconciler::CommitPlacement(FRuitkFiber* Fiber)
 		Fiber->PendingProps->Ref(Fiber->Node);
 	}
 	FRuitkDiagnostics::OnPlacement();
+	++TraceCommitPlacements;
+	if (Ruitk::TraceStructural()) // M7/P-08 structural event (Basic bare; Verbose adds detail)
+	{
+		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Placement %s%s"),
+																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
+											  : FString(TEXT("[Ruitk][trace] Placement")));
+	}
 }
 
 void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
@@ -1484,11 +1603,25 @@ void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
 	Host.CommitUpdate(Fiber->Node, Fiber->ElementType, Fiber->Props.Get(), *Fiber->PendingProps);
 	Fiber->Props = Fiber->PendingProps;
 	FRuitkDiagnostics::OnUpdate();
+	++TraceCommitUpdates;
+	if (Ruitk::TraceStructural()) // M7/P-08 structural event
+	{
+		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Update %s%s"),
+																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
+											  : FString(TEXT("[Ruitk][trace] Update")));
+	}
 }
 
 void FRuitkReconciler::CommitDeletion(FRuitkFiber* Fiber)
 {
 	FRuitkDiagnostics::OnDeletion();
+	++TraceCommitDeletions;
+	if (Ruitk::TraceStructural()) // M7/P-08 structural event — one line per removed subtree root
+	{
+		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Deletion %s%s"),
+																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
+											  : FString(TEXT("[Ruitk][trace] Deletion")));
+	}
 	NullRefsRecursive(Fiber);
 	RunCleanupsRecursive(Fiber);
 	DetachPortalChildren(Fiber); // portal content lives under targets, not this subtree

@@ -46,6 +46,20 @@ bool FRuitkSettingsTest::RunTest(const FString&)
 	// suite never runs in Shipping (WITH_DEV_AUTOMATION_TESTS), so CDO == accessor holds here too.
 	TestEqual(TEXT("bStrictMode == FRuitkConfig::IsStrictModeEnabled"), Settings->bStrictMode,
 			  FRuitkConfig::IsStrictModeEnabled());
+	// TraceLevel: FRuitkConfig::TraceLevel() COLLAPSES out-of-range to None, so the parity row
+	// compares the raw CVar int against the CDO enum (default None == 0) — the Environment
+	// pattern. The Ruitk.Core.Trace* suite pins this CVar but restores the VALUE.
+	if (IConsoleVariable* TraceCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TraceLevel")))
+	{
+		TestEqual(TEXT("TraceLevel == ruitk.TraceLevel"), static_cast<int32>(Settings->TraceLevel),
+				  TraceCVar->GetInt());
+	}
+	else
+	{
+		TestTrue(TEXT("ruitk.TraceLevel CVar registered"), false);
+	}
+	TestEqual(TEXT("bDiffTracing == FRuitkConfig::IsDiffTracingEnabled"), Settings->bDiffTracing,
+			  FRuitkConfig::IsDiffTracingEnabled());
 	// Environment: Ruitk::GetEnvironment() RESOLVES auto per build config, so the parity row
 	// compares the raw CVar int against the CDO enum (default Auto == 0). The Ruitk.Core
 	// Environment suite Set()s this CVar but restores the VALUE, so the comparison holds

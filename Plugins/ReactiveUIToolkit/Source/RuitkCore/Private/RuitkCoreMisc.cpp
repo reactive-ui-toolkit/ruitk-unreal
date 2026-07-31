@@ -61,6 +61,20 @@ static TAutoConsoleVariable<bool>
 							 "discarded (flushes impure renders and stale captures)."));
 
 static TAutoConsoleVariable<int32>
+	CVarRuitkTraceLevel(TEXT("ruitk.TraceLevel"), 0,
+						TEXT("Trace-content level on the LogRuitkTrace category: 0 = off, 1 = Basic "
+							 "(structural events: placements, updates, deletions, node replacements, "
+							 "commit summaries), 2 = Verbose (adds per-element and per-hook detail, "
+							 "and implies ruitk.DiffTracing)."));
+
+static TAutoConsoleVariable<bool>
+	CVarRuitkDiffTracing(TEXT("ruitk.DiffTracing"), false,
+						 TEXT("Reconciler diff-decision logs ([Ruitk][diff] ...): bailout/subtree-skip "
+							  "verdicts and child-reconciliation tiers (fast-leaf/keys-stable/full-keyed/"
+							  "positional). Independent of ruitk.TraceLevel — diff lines emit when this "
+							  "is true OR the level is Verbose."));
+
+static TAutoConsoleVariable<int32>
 	CVarRuitkEnvironment(TEXT("ruitk.Environment"), 0,
 						 TEXT("The environment label surfaced READ-ONLY to components via "
 							  "Ctx.GetEnvironment(): 0 = auto (development in any non-shipping build, "
@@ -99,6 +113,23 @@ bool FRuitkConfig::IsStrictModeEnabled()
 	return CVarRuitkStrictMode.GetValueOnGameThread();
 #endif
 }
+ERuitkTraceLevel FRuitkConfig::TraceLevel()
+{
+	switch (CVarRuitkTraceLevel.GetValueOnGameThread())
+	{
+	case 1:
+		return ERuitkTraceLevel::Basic;
+	case 2:
+		return ERuitkTraceLevel::Verbose;
+	default:
+		// 0 and any out-of-range value: off (the ruitk.Environment precedent — never garbage).
+		return ERuitkTraceLevel::None;
+	}
+}
+bool FRuitkConfig::IsDiffTracingEnabled()
+{
+	return CVarRuitkDiffTracing.GetValueOnGameThread();
+}
 
 // ── Diagnostics ──────────────────────────────────────────────────────────────────────────
 
@@ -129,6 +160,14 @@ void FRuitkDiagnostics::Reset()
 	Renders = Commits = Placements = Updates = Deletions = 0;
 }
 
+// ── Trace transport (M7/P-08) ────────────────────────────────────────────────────────────
+// ONE dedicated category carries ALL trace output. Content is gated at the call sites
+// (Ruitk::TraceStructural/TraceDetail/TraceDiff before any formatting); this category gates
+// TRANSPORT — a single `log LogRuitkTrace off` silences/redirects the tracer without touching
+// the plugin's other categories.
+
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkTrace, Log, All);
+
 // ── Render-error latch (D-10) ────────────────────────────────────────────────────────────
 
 namespace
@@ -141,6 +180,12 @@ namespace
 
 namespace Ruitk
 {
+	void TraceEmit(const FString& Line)
+	{
+		FRuitkDiagnostics::Emit(Line); // capture path — headless suites assert here, never log-scrape
+		UE_LOG(LogRuitkTrace, Log, TEXT("%s"), *Line);
+	}
+
 	void FailRender(const FString& Reason)
 	{
 		if (!GRuitkRenderFailure.IsSet()) // first failure wins (nested failures are fallout)

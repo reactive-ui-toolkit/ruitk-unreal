@@ -42,6 +42,11 @@ ledgered in [TESTING_BUGS.md](TESTING_BUGS.md).)*
       2026-07-25). The install is PARTIAL (Engine/Binaries present, Engine/Source absent —
       TB-29 ledger): launcher repair/reinstall first; its per-engine zip is blocked until
       then.
+- [ ] **LogRuitkTrace spot-check** (family-parity M7 Done-when — a look, NOT a merge gate):
+      in a live editor set `ruitk.TraceLevel 2` (+ `ruitk.DiffTracing 1` to taste) on a
+      running demo and eyeball the Output Log's LogRuitkTrace stream — structural lines with
+      element/key detail, hook writes, `[Ruitk][diff]` verdicts; `log LogRuitkTrace off`
+      silences the transport.
 
 **Engine legs done ⇒** note the sessions (dates, engine versions) in
 `PENDING_CHANGELOG.md`'s next drain.

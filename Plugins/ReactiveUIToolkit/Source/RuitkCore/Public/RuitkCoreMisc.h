@@ -23,6 +23,15 @@ DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuitkDeletions, STATGR
 // Config (ruitk.* CVars — dotted PascalCase per D-14; defaults mirror config.gd)
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
+/** The trace-content ladder (family knob 8, M7/P-08) — what the tracer emits, resolved from
+ *  the `ruitk.TraceLevel` int CVar (0/1/2; out-of-range collapses to None, never garbage). */
+enum class ERuitkTraceLevel : uint8
+{
+	None,
+	Basic,
+	Verbose
+};
+
 struct RUITKCORE_API FRuitkConfig
 {
 	/** Run render passes as time-sliced scheduler actions (commit stays atomic). Off =
@@ -48,6 +57,17 @@ struct RUITKCORE_API FRuitkConfig
 
 	/** StrictMode double-render (dev-only; flushes impure renders + stale captures, D-14). */
 	static bool IsStrictModeEnabled();
+
+	/** Trace-content level (family trace_level, default None — M7/P-08): Basic = structural
+	 *  events at the commit-phase sites (placements, updates, deletions, node replacements,
+	 *  commit summaries); Verbose adds per-element detail on each structural line + per-hook
+	 *  detail (effect captures, state writes) and implies diff tracing. Content only — the
+	 *  transport is the LogRuitkTrace category (see Ruitk::TraceEmit). */
+	static ERuitkTraceLevel TraceLevel();
+	/** Reconciler diff-decision logs (family diff_tracing, default false): bailout /
+	 *  SUBTREE-SKIP verdicts and child-reconciliation tiers. An INDEPENDENT OR-switch —
+	 *  diff lines emit when this is on OR TraceLevel is Verbose (Ruitk::TraceDiff). */
+	static bool IsDiffTracingEnabled();
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
@@ -135,6 +155,47 @@ struct RUITKCORE_API FRuitkDiagnostics
 		}
 	}
 };
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// Trace ladder (family knobs 8 + 9, M7/P-08) — content gates + the single transport.
+// Content is gated HERE (what is emitted); transport is the dedicated LogRuitkTrace category
+// (defined with Ruitk::TraceEmit — one `log LogRuitkTrace off` silences the tracer without
+// touching the plugin's other categories). `stat Ruitk` and the FRuitkDiagnostics counters
+// are a separate, untouched surface.
+// ─────────────────────────────────────────────────────────────────────────────────────────
+
+class FRuitkComponentState;
+
+namespace Ruitk
+{
+	/** Content gates — the family truth table (Unity TraceGateTests §6): structural ⇐ level
+	 *  != None; detail ⇐ level == Verbose; diff ⇐ DiffTracing OR Verbose. ALWAYS check a gate
+	 *  before building a message — when everything is off no trace call ever reaches a
+	 *  Printf (the P-08 cheap-early-out rule). */
+	FORCEINLINE bool TraceStructural()
+	{
+		return FRuitkConfig::TraceLevel() != ERuitkTraceLevel::None;
+	}
+	FORCEINLINE bool TraceDetail()
+	{
+		return FRuitkConfig::TraceLevel() == ERuitkTraceLevel::Verbose;
+	}
+	FORCEINLINE bool TraceDiff()
+	{
+		return FRuitkConfig::IsDiffTracingEnabled() || TraceDetail();
+	}
+
+	/** THE transport (P-08): every trace line — structural `[Ruitk][trace]` and diff
+	 *  `[Ruitk][diff]` alike — goes to the LogRuitkTrace category, plus
+	 *  FRuitkDiagnostics::Emit under capture (headless suites assert on capture, never
+	 *  log-scrape — the house rule). */
+	RUITKCORE_API void TraceEmit(const FString& Line);
+
+	/** Verbose per-hook write line (`[Ruitk][trace] Hook …` — the Hooks.cs:1241 precedent).
+	 *  Out-of-line so the header-inline setter/dispatch sites need no complete FRuitkFiber;
+	 *  gate with TraceDetail() BEFORE calling. Kind is a literal ("state"/"reducer"). */
+	RUITKCORE_API void TraceHookWrite(const FRuitkComponentState& State, int32 Slot, const TCHAR* Kind);
+} // namespace Ruitk
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // Cooperative render-error latch (D-10). UE ships without C++ exceptions, so there is no

@@ -23,6 +23,8 @@ URuitkSettings::URuitkSettings()
 	bStrictDiagnostics = true;
 #endif
 	bStrictMode = false;
+	TraceLevel = ERuitkTraceLevelSetting::None;
+	bDiffTracing = false;
 	Environment = ERuitkEnvironmentSetting::Auto;
 }
 
@@ -113,9 +115,11 @@ void URuitkSettings::PushSettingsToCVars() const
 	PushBool(TEXT("ruitk.HookValidation"), bHookValidation);
 	PushBool(TEXT("ruitk.StrictDiagnostics"), bStrictDiagnostics);
 	PushBool(TEXT("ruitk.StrictMode"), bStrictMode);
-	// Enum row: pushed as the underlying int (the in-editor live path does the same —
+	// Enum rows: pushed as the underlying int (the in-editor live path does the same —
 	// UDeveloperSettings::ExportValuesToConsoleVariables handles FEnumProperty natively,
 	// DeveloperSettings.cpp:153-158).
+	PushInt(TEXT("ruitk.TraceLevel"), static_cast<int32>(TraceLevel));
+	PushBool(TEXT("ruitk.DiffTracing"), bDiffTracing);
 	PushInt(TEXT("ruitk.Environment"), static_cast<int32>(Environment));
 
 #if WITH_EDITOR

@@ -77,6 +77,16 @@ void FRuitkContext::WarnOnce(FName Key, const FString& Msg)
 	Ruitk::DiagWarnOnce(State, Key, [&Msg]() -> FString { return Msg; });
 }
 
+void Ruitk::TraceHookWrite(const FRuitkComponentState& State, int32 Slot, const TCHAR* Kind)
+{
+	// Verbose per-hook detail (M7/P-08, the Hooks.cs:1241 precedent). Out-of-line: the
+	// header-inline setter/dispatch call sites see only a forward-declared FRuitkFiber; the
+	// TraceDetail() gate ran BEFORE the call, so the Printf is never paid when off.
+	TraceEmit(FString::Printf(TEXT("[Ruitk][trace] Hook %s: %s write slot=%d"),
+							  State.Fiber != nullptr ? *State.Fiber->ComponentId.ToString() : TEXT("<detached>"), Kind,
+							  Slot));
+}
+
 void FRuitkContext::NotifyEffects()
 {
 	Reconciler.NotifyEffectKinds(Fiber, !State.Effects.IsEmpty(), !State.LayoutEffects.IsEmpty());

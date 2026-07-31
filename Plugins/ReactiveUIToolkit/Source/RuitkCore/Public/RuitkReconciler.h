@@ -227,6 +227,15 @@ private:
 	 *  cascade without a crash or a hang (FiberFunctionComponent.cs:16-18, :140-155). */
 	int32 RenderDepth = 0;
 
+	/** Per-commit structural counts + the running commit ordinal for the trace summary line
+	 *  (M7/P-08). Trace-only bookkeeping — the FRuitkDiagnostics counters and `stat Ruitk`
+	 *  stay untouched. Maintained unconditionally (int increments) so a mid-session
+	 *  ruitk.TraceLevel flip still reports true commit ordinals. */
+	int32 TraceCommitPlacements = 0;
+	int32 TraceCommitUpdates = 0;
+	int32 TraceCommitDeletions = 0;
+	int32 TraceCommitSeq = 0;
+
 	static constexpr int32 MaxRenderDepth = 25; // FiberFunctionComponent.cs:18
 	/** Error-boundary rebuilds per work cycle. Structurally each rebuild newly activates a
 	 *  boundary (active ones can't re-capture), so this cap only guards the pathological
