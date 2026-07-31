@@ -10,6 +10,7 @@
 #include "CoreMinimal.h"
 #include "RuitkNode.h"
 #include "RuitkHooksInternal.h"
+#include "RuitkCoreMisc.h" // Ruitk::TraceDetail / TraceHookWrite (M7 — Verbose per-hook detail)
 
 struct FRuitkFiber;
 
@@ -172,6 +173,10 @@ template <typename T> void TRuitkSetter<T>::operator()(T NewValue) const
 		return;
 	}
 	Cell->Value = MoveTemp(NewValue);
+	if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08) — accepted writes only
+	{
+		Ruitk::TraceHookWrite(*S, Slot, TEXT("state"));
+	}
 	S->NotifyStateUpdated();
 }
 
@@ -190,5 +195,9 @@ template <typename T> void TRuitkSetter<T>::operator()(TFunction<T(const T&)> Up
 		return;
 	}
 	Cell->Value = MoveTemp(Next);
+	if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08) — accepted writes only
+	{
+		Ruitk::TraceHookWrite(*S, Slot, TEXT("state"));
+	}
 	S->NotifyStateUpdated();
 }

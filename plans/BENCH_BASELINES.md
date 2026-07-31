@@ -28,30 +28,40 @@ Values are min/med of n=5 in-process reps (µs).
 ## Bench.Core / mount_1000_leaves (cold mount: render + fibers + host nodes; 1 container + 1000 unkeyed leaf boxes)
 | date | sha | machine | config | min µs | med µs | notes |
 |---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, mock host | 192 | 204 | campaign "after" row at the NEW defaults (`ruitk.TimeSlicing` true, quantum 2.0, budget 4.0) — mount is ALWAYS sync by design, so this measures the same path; at the quiet-machine 07-15 level, well under the inflated M0 row: NO regression |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, mock host | 289 | 300 | campaign "before" row (pre-scheduler, `ruitk.TimeSlicing` false). Whole set runs ~1.5-2x the 07-15 rows on the SAME machine/config — ambient-load shift, not a code regression (all suites unchanged); M8 compares against THIS same-day row |
 | 2026-07-15 | 10d35cd+0.4.0-prep | M1 | Dev editor, mock host | 193 | 193 | re-run for the 0.4.0 campaign; parity with 2026-07-10 within noise |
 | 2026-07-10 | 286fecb | M1 | Dev editor, mock host | 188 | 199 | labels precomputed; teardown untimed |
 
 ## Bench.Core / noop_rerender_1000 (root RequestUpdate, zero prop changes)
 | date | sha | machine | config | min µs | med µs | notes |
 |---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, mock host | 0 | 0 | campaign "after" row (new defaults); max 3 |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, mock host | 0 | 0 | campaign "before" row; max 9 |
 | 2026-07-15 | 10d35cd+0.4.0-prep | M1 | Dev editor, mock host | 0 | 0 | unchanged |
 | 2026-07-10 | 286fecb | M1 | Dev editor, mock host | 0 | 0 | SUBTREE-SKIP adopts the whole tree — measures the skip path, not a bailout walk |
 
 ## Bench.Core / update_1_of_1000 (setState → 1 changed label among 1000)
 | date | sha | machine | config | min µs | med µs | notes |
 |---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, mock host | 135 | 142 | campaign "after" row — setState now rides the scheduler Slice path at defaults (one 2 ms slice absorbs the whole pass); parity with the historic sync rows, well under the M0 row: NO regression |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, mock host | 196 | 286 | campaign "before" row |
 | 2026-07-15 | 10d35cd+0.4.0-prep | M1 | Dev editor, mock host | 133 | 143 | slightly faster than 2026-07-10 (152) — same machine, treat as noise |
 | 2026-07-10 | 286fecb | M1 | Dev editor, mock host | 134 | 152 | full component re-render + fast-leaf diff + 1 CommitUpdate; 1 FString::Printf |
 
 ## Bench.Core / keyed_reverse_500 (500 keyed boxes, order fully reversed)
 | date | sha | machine | config | min µs | med µs | notes |
 |---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, mock host | 169 | 174 | campaign "after" row (new defaults); parity with 07-15, under M0: NO regression |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, mock host | 294 | 319 | campaign "before" row |
 | 2026-07-15 | 10d35cd+0.4.0-prep | M1 | Dev editor, mock host | 174 | 188 | slightly slower than 2026-07-10 (173) — same machine, treat as noise |
 | 2026-07-10 | 286fecb | M1 | Dev editor, mock host | 165 | 173 | keyed mark-sweep + ReorderChildren enforce |
 
 ## Bench.Core / mount_unmount_churn_200 (20 rows × 10 cells, mount + full teardown)
 | date | sha | machine | config | min µs | med µs | notes |
 |---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, mock host | 56 | 56 | campaign "after" row (new defaults); parity with 07-15, under M0: NO regression |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, mock host | 90 | 91 | campaign "before" row |
 | 2026-07-15 | 10d35cd+0.4.0-prep | M1 | Dev editor, mock host | 54 | 56 | parity |
 | 2026-07-10 | 286fecb | M1 | Dev editor, mock host | 54 | 55 | includes cleanups + slab release + mock-node teardown |
 
@@ -64,6 +74,14 @@ wrap variant was not measured: the two strategies don't disagree badly enough to
 
 | date | sha | machine | config | workload | strategy | min µs | med µs |
 |---|---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate widgets | 1 moved end→front | minimal-move | 3 | 3 |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate widgets | 1 moved end→front | clear+rebuild | 59 | 59 |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate widgets | full reverse | minimal-move | 87 | 87 |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate widgets | full reverse | clear+rebuild | 58 | 59 |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate widgets | 1 moved end→front | minimal-move | 5 | 5 |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate widgets | 1 moved end→front | clear+rebuild | 103 | 103 |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate widgets | full reverse | minimal-move | 184 | 186 |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate widgets | full reverse | clear+rebuild | 102 | 102 |
 | 2026-07-10 | M7 | M1 | Dev editor, real Slate widgets | 1 moved end→front | minimal-move | 3 | 3 |
 | 2026-07-10 | M7 | M1 | Dev editor, real Slate widgets | 1 moved end→front | clear+rebuild | 59 | 60 |
 | 2026-07-10 | M7 | M1 | Dev editor, real Slate widgets | full reverse | minimal-move | 89 | 91 |
@@ -77,6 +95,14 @@ full framebuffer, ~168 quads churning). Context M1 (see above) · UE 5.6.1 · De
 
 | date | sha | machine | config | workload | min µs | med µs | max µs | notes |
 |---|---|---|---|---|---|---|---|---|
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate | doom_newgame_e1m1 | 566 | 570 | 715 | campaign "after" row, new defaults (n=5) |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate | doom_sim_tick | 16 | 16 | 155 | campaign "after" row (n=300) |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate | doom_build_geometry | 28 | 28 | 80 | campaign "after" row (n=100) |
+| 2026-07-31 | 8c9e8f0+M8-flip | M1 | Dev editor, real Slate | doom_reconcile_frame | 165 | 170 | 289 | campaign "after" row (n=120) — the interactive headline is FlushSync-driven (force-unsliced by P-06), immune to the flip by design; faster than both the M0 and 07-15 rows: NO regression |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate | doom_newgame_e1m1 | 587 | 613 | 745 | campaign "before" row (n=5) |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate | doom_sim_tick | 16 | 31 | 276 | campaign "before" row (n=300) |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate | doom_build_geometry | 48 | 48 | 129 | campaign "before" row (n=100) |
+| 2026-07-31 | 0f63db6 (family-parity M0) | M1 | Dev editor, real Slate | doom_reconcile_frame | 280 | 312 | 488 | campaign "before" row (n=120) |
 | 2026-07-15 | 24e2a77+bench | M1 | Dev editor, real Slate | doom_newgame_e1m1 | 600 | 683 | 845 | level build + spawn + first cast (n=5) |
 | 2026-07-15 | 24e2a77+bench | M1 | Dev editor, real Slate | doom_sim_tick | 18 | 19 | 141 | Tick incl. CastFrame, walking+turning (n=300) |
 | 2026-07-15 | 24e2a77+bench | M1 | Dev editor, real Slate | doom_build_geometry | 34 | 34 | 110 | ~168 quads, warm brush pool (n=100) |

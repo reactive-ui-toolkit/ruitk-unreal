@@ -89,6 +89,10 @@ bool FRuitkPresenceTest::RunTest(const FString&)
 {
 	using namespace PresenceTest;
 
+	// ExitItem's completion probe deliberately runs every commit (Ruitk::EveryCommit()) — the
+	// M5 strict no-deps warning is expected (once per mounted instance) and suppressed.
+	AddExpectedError(TEXT("has no dependency array"), EAutomationExpectedErrorFlags::Contains, 0);
+
 	FRuitkTestHarness H;
 	H.Host.MockTimeSeconds = 100.0;
 

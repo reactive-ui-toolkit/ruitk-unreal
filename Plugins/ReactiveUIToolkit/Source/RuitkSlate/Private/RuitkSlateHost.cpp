@@ -416,6 +416,15 @@ void FRuitkSlateHost::OnSlatePreTick(float)
 	{
 		PumpFrameQueue();
 	}
+	// P-03: the once-per-frame scheduler pump (lanes/budget/batched effects — frame flow
+	// RenderScheduler.cs:116-164). Cheap when idle; frames are counted for the metrics.
+	Scheduler.PumpFrame();
+}
+
+FRuitkScheduler* FRuitkSlateHost::GetScheduler()
+{
+	EnsurePreTickRegistered(); // the lanes only drain if the pump seam is armed
+	return &Scheduler;
 }
 
 void FRuitkSlateHost::EnsurePreTickRegistered()

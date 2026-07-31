@@ -16,10 +16,14 @@ export TTuple<int32, TFunction<void()>> UseCounter(int32 Start) {
 const CVARS: Array<[string, string]> = [
   ['ruitk.StrictMode', 'Double-invoke render in dev to surface impure components and effect mistakes (default off).'],
   ['ruitk.HookValidation', 'Detect hook-order mismatches between renders (default on in dev, off in shipping).'],
-  ['ruitk.StrictDiagnostics', 'Warn on misuse such as setting state during render (default on in dev).'],
-  ['ruitk.TimeSlicing', 'Chunk the render phase across frames (default off).'],
-  ['ruitk.FrameBudgetMs', 'Per-frame render budget when time-slicing (default 8.0).'],
+  ['ruitk.StrictDiagnostics', 'Warn on misuse such as setting state during render (default on in dev, off in shipping).'],
+  ['ruitk.TimeSlicing', 'Time-slice render passes on the frame scheduler (default ON; 0 = synchronous single-pass).'],
+  ['ruitk.TimeSliceMs', 'The render quantum per slice (default 2.0 ms).'],
+  ['ruitk.FrameBudgetMs', 'The scheduler’s per-frame budget, cumulative across lanes (default 4.0 ms).'],
   ['ruitk.HostNodePool', 'Recycle childless leaf widgets instead of reconstructing (default on).'],
+  ['ruitk.TraceLevel', 'Structural reconciler tracing on LogRuitkTrace: None/Basic/Verbose (default None).'],
+  ['ruitk.DiffTracing', 'Reconciler diff-decision logs, independent of the trace level (default off).'],
+  ['ruitk.Environment', 'auto/development/production — read-only to components via Ctx.GetEnvironment() (default auto).'],
 ]
 
 export const ConceptsPage: FC = () => (
@@ -59,11 +63,23 @@ export const ConceptsPage: FC = () => (
       The reconciler
     </Typography>
     <Typography variant="body1" paragraph>
-      Rendering is <strong>synchronous</strong>: a state change requests an update, and the next
-      reconcile builds the new tree, diffs it against the committed fibers, and applies a minimal set
-      of widget mutations in one atomic commit. Children are matched by <code>key</code> for stable
-      identity across reorders, and a component whose props and state are unchanged{' '}
-      <strong>bails out</strong> without re-rendering its subtree. Effects run after commit.
+      A state change requests an update; the reconcile builds the new tree, diffs it against the
+      committed fibers, and applies a minimal set of widget mutations in <strong>one atomic
+      commit</strong> — you never see a half-applied tree. Children are matched by{' '}
+      <code>key</code> for stable identity across reorders, and a component whose props and state
+      are unchanged <strong>bails out</strong> without re-rendering its subtree. Effects run after
+      commit.
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Render work is <strong>time-sliced by default</strong>: passes run as self-re-enqueueing
+      actions on a frame scheduler (four lanes under one per-frame budget, 4 ms by default), each
+      slice bounded by a 2 ms quantum, so a large render spreads across frames instead of spiking
+      one. <strong>Mount is always synchronous</strong>, as is every <code>FlushSync</code>{' '}
+      surface — first frames never wait. A state update that arrives while a pass is in flight is{' '}
+      <strong>deferred, never restarted</strong>: it replays after the commit as one coalesced
+      follow-up render. Prefer the old fully synchronous single-pass behavior? Set{' '}
+      <code>ruitk.TimeSlicing 0</code> (or the settings row) — the bypass is a first-class,
+      fully tested mode.
     </Typography>
 
     <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
@@ -81,7 +97,7 @@ export const ConceptsPage: FC = () => (
     <Typography variant="body1" paragraph>
       The core talks to the engine only through <code>IRuitkHostConfig</code>, so the same runtime
       drives Slate today and the Epic-interop hosts (UMG, CommonUI, MVVM). Behavior is tuned at
-      runtime with <code>rui.</code> console variables, and live reconciler counters (renders,
+      runtime with <code>ruitk.</code> console variables, and live reconciler counters (renders,
       commits, placements, updates, deletions) are on <code>stat Ruitk</code>:
     </Typography>
     <TableContainer sx={{ mb: 2 }}>

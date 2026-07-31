@@ -512,8 +512,19 @@ node scripts/corpus-hash.mjs --check
 cd RuitkUnrealDocs~ && npm ci && npm run build && npm run lint
 ```
 
-M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false` via
-`-ExecCmds="ruitk.TimeSlicing 0; Automation RunTests Ruitk; Quit"`).
+M8 additionally runs the battery TWICE (defaults, then a `ruitk.TimeSlicing=false` world).
+**Execution correction (2026-07-31, discovered at M8 — recorded per stop-ask 4's plan-conflict
+rule):** the incantation originally written here (`-ExecCmds="ruitk.TimeSlicing 0; Automation
+RunTests Ruitk; Quit"`) does NOT work — `-ExecCmds` is executed as ONE command (only the
+Automation handler tolerates a trailing `; Quit`), so the CVar parser consumed the whole line,
+no tests ran, and the editor idled forever. And ANY external ambient pin of the CVar
+(console rung, `-dpcvars`) collides post-flip with the `Ruitk.Umg.Settings` CDO↔accessor
+parity row by construction: CDO true, pinned CVar false, ProjectSetting-rung push correctly
+rejected below the pin's rung — observed 166/167 with exactly that row red and every
+behavioral suite green. The CORRECT bypass world is the product's own opt-out — a temporary
+`[/Script/RuitkUMG.RuitkSettings]` `bTimeSlicing=False` section in the demo's
+`Config/DefaultGame.ini` (CDO and CVar then move TOGETHER; revert the ini after the run):
+167/167 green.
 
 ## §8 — Already conforming — no-ops, with evidence (state, do not "improve")
 
@@ -563,17 +574,17 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
 
 ## §10 — Close-out checklist (every box is a merge gate)
 
-- [ ] M1 FlushSync force-unsliced + regression test
-- [ ] M2 `FRuitkScheduler` + `Ruitk.Scheduler` suite (fake clock)
-- [ ] M3 defer-don't-restart + sliced Slice actions + depth-25 + park/resume tests, both-worlds green
-- [ ] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice
-- [ ] M5 strict diagnostics: both warnings, deduped, `[Ruitk][strict]` prefix, tests
-- [ ] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate
-- [ ] M7 trace ladder + `LogRuitkTrace` + diff-tracing OR-switch + tests; `stat Ruitk` untouched
-- [ ] M8 default flip + coupling sweep + bench before/after in BENCH_BASELINES.md (no regression)
-- [ ] M9 docs pages + PENDING_CHANGELOG bullets staged per milestone + version plan + TECH_DEBT entries
-- [ ] §7 full verify block green end-to-end
-- [ ] STOP-AND-ASK items resolved with the owner (below), none guessed
+- [x] M1 FlushSync force-unsliced + regression test — DONE 2026-07-31 (fail-first verified; battery 134/134)
+- [x] M2 `FRuitkScheduler` + `Ruitk.Scheduler` suite (fake clock) — DONE 2026-07-31 (12 tests, battery 146/146)
+- [x] M3 defer-don't-restart + sliced Slice actions + depth-25 + park/resume tests, both-worlds green — DONE 2026-07-31 (10 tests, both worlds per-test via CVar fixture; battery 156/156)
+- [x] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice — DONE 2026-07-31 (battery 156/156; TimeSliceMs settings row auto-appears in both IDetailsView surfaces)
+- [x] M5 strict diagnostics: both warnings, deduped, `[Ruitk][strict]` prefix, tests — DONE 2026-07-31 (4 tests; battery 160/160; library-internal every-commit effects exempt via InternalUseEffect; strict-test CVar pins land at SetByProjectSetting so the settings push-test vehicle stays viable)
+- [x] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate — DONE 2026-07-31 (2 tests; battery 162/162; grep gate clean: in-plugin `GetEnvironment` = RuitkCoreMisc decl/impl + the RuitkContext accessor only; settings enum row pushes as int, the live-edit path is the engine's native FEnumProperty export)
+- [x] M7 trace ladder + `LogRuitkTrace` + diff-tracing OR-switch + tests; `stat Ruitk` untouched — DONE 2026-07-31 (5 tests incl. the family six-row gate matrix, exact per-kind counts both worlds; battery 167/167; `stat Ruitk`/FRuitkDiagnostics counters verified untouched by diff; transport = ONE category, all lines also FRuitkDiagnostics::Emit under capture; owner LogRuitkTrace spot-check listed in REMAINING.md §1)
+- [x] M8 default flip + coupling sweep + bench before/after in BENCH_BASELINES.md (no regression) — DONE 2026-07-31 (`ruitk.TimeSlicing` default true in CVar + ctor together; battery 167/167 under new defaults AND 167/167 in the bypass world via the ini opt-out row — see the §7 execution correction for why the original bypass incantation is void; coupling sweep found ZERO failures — M1's FlushSync + M3's both-worlds fixtures pre-paid it, and the FlushSync caller universe re-grepped intact; bench after-rows appended to BENCH_BASELINES.md with no regression on any scenario — the FlushSync-driven doom_reconcile_frame headline is flip-immune by design and measured faster than both before-rows, so stop-ask 2 never triggered; P-05 notice re-checked, unaffected by the flip)
+- [x] M9 docs pages + PENDING_CHANGELOG bullets staged per milestone + version plan + TECH_DEBT entries — DONE 2026-07-31 under the OWNER'S FOLD RULING: the campaign folds INTO the staged-unpublished 0.16.0 (no 0.17.0 anywhere; no bump — `.uplugin` stays VersionName 0.16.0 / Version 17; extensions untouched). CHANGELOG.md [0.16.0] reshaped in place into the one settings+parity wave (loud flip entry at the top of Changed with opt-out + bench proof, FrameBudgetMs re-point + P-05 note, defer-don't-restart; scheduler/strict/trace/environment under Added with the settings bullets evolved to the ten-CVar surface; FlushSync under Fixed; plugin mirror resynced byte-identically, script- and fc-verified); all eight staged lane-A bullets drained + the lane-C Discord [0.16.0] entry REPLACED to cover the full wave (1998 chars); docs: DebuggingPage 10-knob table + sliced-by-default + opt-out + migration note + LogRuitkTrace, ConceptsPage scheduler/defer rewrite + 10-knob table + stale `rui.` fix, KnownIssues/Differences/HooksGuide UseTransition rationale re-grounded ("no lane classification yet"), docs.tsx search keywords; README bench refresh to the 2026-07-31 after-rows + 165+-test floor (docs-drift registry floor raised in lockstep) + scheduler blurb; CLAUDE.md ten-CVar set + scheduler in architecture; TECH_DEBT TD-036 (P-04 lanes without producers)
+- [x] §7 full verify block green end-to-end — DONE 2026-07-31: engine-free gates all green (mirror, Lane-B changelog verify, headers, skills, docs-drift, machine-paths, corpus-hash, style-builders); build clean; `RuitkCompile -check` 45/0/0; battery 167/167 at the shipped defaults (report-parsed, incl. an independent bench re-run within noise of the recorded after-rows); docs `npm run build` + `lint` green
+- [x] STOP-AND-ASK items resolved (none guessed) — (1) moot: unified-settings had merged before the branch cut (M0 proceeded per banner); (2) never triggered: no bench scenario regressed, the interactive headline got faster; (3) remains an owner coordination item for the sibling legs — this leg shipped `[Ruitk][strict]` per P-10 as planned; (4) exercised once: the §7 bypass-world execution correction, recorded at M8 per the plan-conflict rule
 
 **STOP AND ASK the owner (do not guess):**
 1. Branch cut point if the unified-settings campaign has not merged at start (banner).
@@ -582,6 +593,27 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
    coordination only; this leg proceeds with `[Ruitk][strict]` regardless.
 4. Any conflict discovered between this plan and the §1 contract text — the contract wins,
    but the conflict gets recorded here first.
+
+**Cross-leg conformance (2026-07-31)** — the post-campaign three-leg conformance pass over
+this plan's §1 contract; supervisor-ruled, fix round landed on `feat/family-parity` (PR #53):
+
+- **Defaults verified identical ×10×3**: all ten family knobs compared value-by-value across
+  the Unity, Godot, and Unreal legs — no divergence.
+- **Blessed engine-native (recorded, not changed)**, the items touching this leg: the
+  `ruitk.*` CVar naming; bool-shaped validator knobs with build-conditional (dev-on /
+  Shipping-off) compiled defaults; key-based per-lane scheduler enqueue dedup; the
+  truly-unbudgeted `PumpNow` batched-effects flush (B1); missing-deps warning coverage at
+  2 of the family's 6 sites (C4 — structural: `FRuitkDeps` makes the memo-family
+  no-deps mistake inexpressible in this leg, so the gap is recorded, not coded around); and
+  the `[Ruitk][strict]` prefix shape (C1, per P-10).
+- **Fixed in this round**: **C2** — the per-element `Update` trace line moved from the
+  structural (Basic) gate to the detail (Verbose) gate; the family Basic set is
+  placements/deletions/replacements/commit summaries (Godot emits updates at Verbose only),
+  and the commit summary's update COUNT still rides Basic. **C5** — the
+  setState-during-render strict warning unified to the family reference sentence
+  ("State update scheduled during render of '<component>'. Move this set call to an effect
+  or event handler."); the prefix and the per-component dedup key stay engine-native per
+  the blessings above.
 
 ## §11 — Reference reading list (read BEFORE M2; re-read the exact ranges at each milestone)
 

@@ -27,7 +27,7 @@ const HOOKS: Array<[string, string, string]> = [
   ['UseContext', 'Context', 'Read the nearest provided value; pair with the ProvideContext statement.'],
   ['UseStableCallback / UseStableFunc / UseStableAction', 'Identity', 'A callable whose identity never changes but always calls the latest closure.'],
   ['UseDeferredValue', 'Scheduling', 'A lagging copy of a value to keep interactions responsive.'],
-  ['UseTransition', 'Scheduling', 'Mark an update non-urgent — synchronous on Unreal (no concurrent renderer).'],
+  ['UseTransition', 'Scheduling', 'Mark an update non-urgent — synchronous on Unreal (no lane classification yet).'],
   ['UseSignal / UseSignalKey', 'Shared state', 'Subscribe to a process-wide reactive store outside the tree (see Signals).'],
   ['UseAnimate / UseTween / UseTweenValue', 'Animation', 'Drive animated values from a component.'],
   ['UseSfx', 'Media', 'Fire a sound effect as a declarative side effect.'],

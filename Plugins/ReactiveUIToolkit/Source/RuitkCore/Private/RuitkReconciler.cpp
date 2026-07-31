@@ -14,6 +14,8 @@
 #include "RuitkReconciler.h"
 #include "RuitkContext.h"
 #include "RuitkCoreElements.h"
+#include "RuitkElementRegistry.h" // GetElementTypeName — Verbose trace detail (M7)
+#include "RuitkScheduler.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRuitkReconciler, Log, All);
 
@@ -25,6 +27,59 @@ namespace
 	{
 		static TArray<FRuitkReconciler*> Instances;
 		return Instances;
+	}
+
+	// ── Verbose structural-line detail (M7/P-08: element type / ComponentId / key) ────────
+	// Only ever called behind Ruitk::TraceDetail() — Basic keeps the bare per-kind line and
+	// pays no formatting.
+
+	FString TraceKeySuffix(const FRuitkKey& Key)
+	{
+		switch (Key.Kind)
+		{
+		case FRuitkKey::EKind::Int:
+			return FString::Printf(TEXT(" key=%lld"), Key.IntValue);
+		case FRuitkKey::EKind::Name:
+			return FString::Printf(TEXT(" key=%s"), *Key.NameValue.ToString());
+		default:
+			return FString();
+		}
+	}
+
+	FString TraceFiberLabel(const FRuitkFiber* Fiber)
+	{
+		switch (Fiber->Tag)
+		{
+		case ERuitkFiberTag::Host:
+			return Ruitk::GetElementTypeName(Fiber->ElementType).ToString();
+		case ERuitkFiberTag::Function:
+			return Fiber->ComponentId.ToString();
+		case ERuitkFiberTag::Fragment:
+			return FString(TEXT("Fragment"));
+		case ERuitkFiberTag::Portal:
+			return FString(TEXT("Portal"));
+		case ERuitkFiberTag::ErrorBoundary:
+			return FString(TEXT("ErrorBoundary"));
+		default:
+			return FString(TEXT("Root"));
+		}
+	}
+
+	FString TraceVNodeLabel(const FRuitkNode& VNode)
+	{
+		switch (VNode.Kind)
+		{
+		case ERuitkNodeKind::Host:
+			return Ruitk::GetElementTypeName(VNode.ElementType).ToString();
+		case ERuitkNodeKind::Function:
+			return VNode.ComponentId.ToString();
+		case ERuitkNodeKind::Portal:
+			return FString(TEXT("Portal"));
+		case ERuitkNodeKind::ErrorBoundary:
+			return FString(TEXT("ErrorBoundary"));
+		default:
+			return FString(TEXT("Fragment"));
+		}
 	}
 } // namespace
 
@@ -71,46 +126,29 @@ void FRuitkReconciler::Render(FRuitkNode RootNode)
 	{
 		return; // torn down — a render after unmount is a no-op, not a crash [audit]
 	}
-	// Initial / top-level mount is always synchronous (no empty first frame).
-	bTickPending = false; // pre-empt any parked sliced render (its Tick self-guards)
+	// Initial / top-level mount is ALWAYS synchronous, regardless of ruitk.TimeSlicing (the
+	// family rule, FiberReconciler.cs:125-129 — no empty first frame). A parked sliced pass
+	// and its queued Slice action are pre-empted: the new root vnode supersedes them.
+	bTickPending = false;
+	CancelQueuedSlice();
 	RootVNode = MoveTemp(RootNode);
 	RootCurrent->bHasPendingUpdate = true;
-	bWorkActive = true;
-	bRestart = false;
-	BeginRender();
-	int32 MountRestarts = 0;
-	for (;;)
-	{
-		while (NextUnit != nullptr && !bRestart)
-		{
-			NextUnit = PerformUnit(NextUnit);
-		}
-		if (!bRestart)
-		{
-			break;
-		}
-		// The pass was poisoned mid-mount (a render failure activated a boundary, or a
-		// setState fired during render). Godot commits the poisoned pass and re-ticks; we
-		// restart from the root NOW instead — mount promises a coherent first frame, and a
-		// boundary fallback must never lose to a half-built tree (React's render-phase-
-		// update semantics; documented divergence).
-		if (++MountRestarts > MaxRestarts)
-		{
-			UE_LOG(LogRuitkReconciler, Error,
-				   TEXT("[Ruitk] Too many re-renders during mount (setState during render?). Aborting mount."));
-			bRestart = false;
-			bWorkActive = false;
-			NextUnit = nullptr;
-			return; // abandoned WIP is reclaimed by the next BeginRender / Unmount
-		}
-		bRestart = false;
-		BeginRender();
-	}
-	bWorkActive = false;
-	CommitRoot();
+	bWorkActive = false; // force a fresh BeginRender from the new root vnode (reclaims WIP)
+	// A setState during a mount render DEFERS like any mid-flight update (P-11) and replays
+	// as a queued follow-up after this commit; a render FAILURE still rebuilds from the root
+	// inside DoWork — mount promises a coherent first frame, and a boundary fallback must
+	// never lose to a half-built tree (documented divergence from the Godot commit-and-
+	// re-tick shape).
+	TGuardValue<bool> ForceSync(bForceSyncPass, true);
+	DoWork(/*bViaScheduler=*/false);
 }
 
 void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
+{
+	ScheduleUpdateInternal(Fiber, /*bScheduleWork=*/true);
+}
+
+void FRuitkReconciler::ScheduleUpdateInternal(FRuitkFiber* Fiber, bool bScheduleWork)
 {
 	checkf(
 		IsInGameThread(),
@@ -120,6 +158,32 @@ void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
 		return; // torn down — ignore late setState/effect callbacks [audit]
 	}
 	FRuitkFiber* Target = Fiber ? Fiber : RootCurrent;
+
+	// Membership walk BEFORE touching any flags (FiberReconciler.cs:204-300): a fiber inside
+	// a subtree deleted this pass bails silently — its deletion is already committed intent;
+	// a walk that tops out anywhere but a root we own means a detached/stale fiber — warn
+	// and bail rather than mark garbage. A walk that tops out at the SUPERSEDED root
+	// (RootCurrent->Alternate — the home of deferred updates captured mid-pass and replayed
+	// post-commit) falls through: the both-twin marking below re-marks the pending flags on
+	// the live counterparts, which IS the reference's redirect re-mark (:254-281).
+	FRuitkFiber* Top = Target;
+	for (FRuitkFiber* F = Target; F != nullptr; F = F->Parent)
+	{
+		if ((F->EffectTag & RuitkEffect_Deletion) != 0)
+		{
+			return; // deleted mid-pass — the update dies with the subtree (:236-239)
+		}
+		Top = F;
+	}
+	const bool bKnownRoot = (Top == RootCurrent) || (Top == WipRoot) ||
+							(RootCurrent->Alternate != nullptr && Top == RootCurrent->Alternate);
+	if (!bKnownRoot)
+	{
+		UE_LOG(LogRuitkReconciler, Warning,
+			   TEXT("[Ruitk] update on a detached fiber — ignored (a released/unmounted component's setter?)"));
+		return;
+	}
+
 	// Mark the target AND its alternate twin, and set the subtree flag on every ancestor AND
 	// its twin (React's markUpdateLaneFromFiberToRoot parity). A shared state's Fiber may point
 	// at whichever buffer last rendered THIS component — but a bailed-out ancestor is reached
@@ -140,16 +204,52 @@ void FRuitkReconciler::ScheduleUpdateOnFiber(FRuitkFiber* Fiber)
 			P->Alternate->bSubtreeHasUpdates = true;
 		}
 	}
+	if (!bScheduleWork)
+	{
+		return; // deferred replay: CommitRoot's tail schedules ONCE after the drain (P-11(b))
+	}
 	if (bIsCommitting)
 	{
+		// Mutating the WIP mid-commit would corrupt the tree being committed — defer.
 		DeferredUpdates.Add(Target);
 		return;
 	}
-	if (bWorkActive)
+	// Mid-flight (a synchronous pass on this stack, or a sliced pass parked between quanta):
+	// DEFER, never restart (P-11(a), FiberReconciler.cs:311-325). Restarting on every update
+	// starves large trees under sustained per-frame updates — the pass never reaches commit —
+	// and the aborted walk's fresh fibers leak. The deferred update replays from CommitRoot's
+	// tail, coalescing everything that arrived during the pass into ONE follow-up render.
+	if (bWorkActive && !bReplayingDeferred)
 	{
-		bRestart = true; // update mid-render -> rebuild from root next tick
+		DeferredUpdates.Add(Target);
+		if (Ruitk::IsRendering())
+		{
+			bDeferredFromRender = true; // a render-phase setState — feeds the depth ladder
+			// Strict diagnostics, family warning 1 (M5): the component set its OWN state while
+			// its render was on the stack (Target->State->bIsRendering — the per-component
+			// discriminator; a parent's setter fired from a child's render is the legal
+			// lift-state-up shape and stays silent). Warn only — the defer above IS the
+			// behavior. Deduped per component (P-10 core); StrictMode's second invoke dedups
+			// through the same set (diagnostics count once). The post-commit REPLAY can never
+			// reach this line: replayed updates re-mark with bScheduleWork=false and return
+			// above, and replay runs outside render anyway (CommitRoot's tail).
+			if (FRuitkConfig::IsStrictDiagnosticsEnabled() && Target->State.IsValid() && Target->State->bIsRendering)
+			{
+				Ruitk::DiagWarnOnce(*Target->State, FName(TEXT("strict-setstate-in-render")),
+									[Target]() -> FString
+									{
+										// The family reference sentence (conformance C5); the
+										// [Ruitk][strict] prefix is the blessed engine-native shape (C1).
+										return FString::Printf(
+											TEXT("[Ruitk][strict] State update scheduled during render of '%s'. "
+												 "Move this set call to an effect or event handler."),
+											*Target->ComponentId.ToString());
+									});
+			}
+		}
+		return;
 	}
-	EnsureTick();
+	EnsureWork();
 }
 
 void FRuitkReconciler::RequestUpdate()
@@ -172,13 +272,45 @@ void FRuitkReconciler::EnsureTick()
 
 void FRuitkReconciler::FlushSync()
 {
-	if (bTickPending || bWorkActive)
+	// P-06: "synchronously and unsliced" is enforced, not assumed — while bForceSyncPass is
+	// raised, every slicing decision reads false, so a pass below can never park. Loop to
+	// quiescence: the commit's deferred-update replay (CommitRoot's tail) may schedule a
+	// follow-up pass via EnsureTick — run that too before returning, mirroring the family
+	// scheduler's PumpNow full drain (RenderScheduler.cs:214-223) and the sync-mode replay
+	// (FiberReconciler.cs:901-905). Bounded: an effect-driven setState loop must not spin
+	// forever here — leave the residual work queued (EnsureTick is already pending) and log.
+	TGuardValue<bool> ForceSync(bForceSyncPass, true);
+	// Claim this reconciler's queued Slice action (M3): its work drains synchronously below,
+	// and the cancelled action must not fire later against an already-quiescent tree.
+	if (bSliceQueued)
 	{
+		CancelQueuedSlice();
+		bTickPending = true; // hand the claimed work to the sync loop
+	}
+	// A render-phase setState cascade resolves via the MaxRenderDepth guard (26 passes),
+	// so this cap must sit ABOVE it — it then only catches effect-driven loops.
+	constexpr int32 MaxFlushPasses = MaxRenderDepth + 7;
+	int32 Passes = 0;
+	while (bTickPending || bWorkActive || !PendingPassive.IsEmpty())
+	{
+		if (++Passes > MaxFlushPasses)
+		{
+			UE_LOG(LogRuitkReconciler, Error,
+				   TEXT("[Ruitk] FlushSync did not reach quiescence after %d passes (setState loop in an "
+						"effect?); remaining work stays scheduled."),
+				   MaxFlushPasses);
+			break;
+		}
+		if (!PendingPassive.IsEmpty())
+		{
+			// A prior sliced commit parked its passive flush on the scheduler's frame-end
+			// lane — flush it first; its setStates then join this drain. (The parked action
+			// still fires at frame end and finds PendingPassive empty — a no-op.)
+			FlushPassive();
+			continue;
+		}
 		bTickPending = false;
-		const bool bWasSlicing = FRuitkConfig::IsTimeSlicing();
-		// Run one full unsliced pass now (tests/HMR/mount surfaces).
 		Tick();
-		(void)bWasSlicing;
 	}
 }
 
@@ -211,68 +343,147 @@ void FRuitkReconciler::HmrRefreshAll()
 	}
 }
 
+bool FRuitkReconciler::ShouldUseScheduler()
+{
+	// ORDER MATTERS: GetScheduler() may arm the host's frame pump (the Slate host registers
+	// its PreTick seam) — it must not be touched while slicing is off, so untouched-defaults
+	// behavior stays byte-equivalent.
+	return FRuitkConfig::IsTimeSlicing() && !bForceSyncPass && Host.GetScheduler() != nullptr;
+}
+
+void FRuitkReconciler::EnsureWork()
+{
+	if (ShouldUseScheduler())
+	{
+		EnqueueSlice();
+	}
+	else
+	{
+		EnsureTick();
+	}
+}
+
+void FRuitkReconciler::EnqueueSlice()
+{
+	if (bSliceQueued)
+	{
+		return; // one queued Slice at a time (the scheduler's key dedup mirrors this)
+	}
+	FRuitkScheduler* Scheduler = Host.GetScheduler();
+	if (Scheduler == nullptr)
+	{
+		EnsureTick();
+		return;
+	}
+	bSliceQueued = true;
+	// Self-re-enqueueing Slice on the Normal lane, keyed to this reconciler (P-02/P-04,
+	// FiberReconciler.cs:405-424). Two quanta can run inside one frame budget. The weak
+	// token guards teardown races (the host-owned scheduler outlives us); Unmount/dtor also
+	// Cancel(this) for cleanliness.
+	TWeakPtr<int32> Token = LifeToken;
+	Scheduler->Enqueue(
+		this,
+		[this, Token]()
+		{
+			if (Token.IsValid())
+			{
+				RunSlice();
+			}
+		},
+		ERuitkLane::Normal);
+}
+
+void FRuitkReconciler::RunSlice()
+{
+	bSliceQueued = false;
+	if (!ShouldUseScheduler())
+	{
+		Tick(); // slicing flipped off since the enqueue — run the synchronous shape instead
+		return;
+	}
+	DoWork(/*bViaScheduler=*/true);
+}
+
+void FRuitkReconciler::CancelQueuedSlice()
+{
+	if (!bSliceQueued)
+	{
+		return;
+	}
+	bSliceQueued = false;
+	if (FRuitkScheduler* Scheduler = Host.GetScheduler())
+	{
+		Scheduler->Cancel(this);
+	}
+}
+
 void FRuitkReconciler::Tick()
 {
 	bTickPending = false;
+	DoWork(/*bViaScheduler=*/false);
+}
+
+void FRuitkReconciler::DoWork(bool bViaScheduler)
+{
 	if (!RootVNode.IsSet() || RootCurrent == nullptr)
 	{
 		bWorkActive = false;
 		return;
 	}
-	if (!bWorkActive || bRestart)
+	if (!bWorkActive)
 	{
-		if (bRestart)
-		{
-			++RestartCount;
-			if (RestartCount > MaxRestarts)
-			{
-				UE_LOG(LogRuitkReconciler, Error,
-					   TEXT("[Ruitk] Too many re-renders (setState during render?). Aborting pass."));
-				bWorkActive = false;
-				bRestart = false;
-				RestartCount = 0;
-				return;
-			}
-		}
-		else
-		{
-			RestartCount = 0;
-		}
 		BeginRender();
-		bRestart = false;
 		bWorkActive = true;
 	}
 
-	const double Start = FPlatformTime::Seconds();
-	const bool bSliced = FRuitkConfig::IsTimeSlicing();
-	const double BudgetSec = FRuitkConfig::FrameBudgetMs() / 1000.0;
+	// The two family axes (contract §1): the QUANTUM (ruitk.TimeSliceMs) is checked inside
+	// the pass AFTER each unit — no preemption (FiberReconciler.cs:429-472); the per-frame
+	// budget across lanes belongs to the SCHEDULER (PumpFrame). Host time is the clock so
+	// the mock host's settable clock drives park/resume deterministically. Slicing off (or
+	// FlushSync/mount): synchronous single-pass — the scheduler is bypassed entirely.
+	const bool bSliced = FRuitkConfig::IsTimeSlicing() && !bForceSyncPass;
+	const double QuantumSec = static_cast<double>(FRuitkConfig::TimeSliceMs()) / 1000.0;
+	const double Start = Host.GetTimeSeconds();
+	int32 ErrorRestarts = 0;
 	while (NextUnit != nullptr)
 	{
 		NextUnit = PerformUnit(NextUnit);
-		if (bRestart)
+		if (bPassPoisoned)
 		{
-			break;
+			// A render failure activated a boundary (HandleRenderFailure): abandon the
+			// poisoned WIP and rebuild from the root NOW so the fallback lands in THIS
+			// commit. Bounded: a rebuild happens only when a boundary NEWLY activates
+			// (active ones can't re-capture), capped for the mount-path adopt-miss loop.
+			bPassPoisoned = false;
+			if (++ErrorRestarts > MaxErrorRestarts)
+			{
+				UE_LOG(LogRuitkReconciler, Error,
+					   TEXT("[Ruitk] Too many error-boundary rebuilds (%d). Abandoning the pass."), MaxErrorRestarts);
+				bWorkActive = false;
+				NextUnit = nullptr;
+				return; // abandoned WIP is reclaimed by the next BeginRender / Unmount
+			}
+			BeginRender();
+			continue;
 		}
-		if (bSliced && (FPlatformTime::Seconds() - Start) >= BudgetSec)
+		if (bSliced && (Host.GetTimeSeconds() - Start) >= QuantumSec)
 		{
-			break;
+			break; // quantum exhausted — park
 		}
 	}
 
-	if (bRestart)
-	{
-		EnsureTick();
-		return;
-	}
 	if (NextUnit == nullptr)
 	{
 		bWorkActive = false;
-		RestartCount = 0;
 		CommitRoot();
+	}
+	else if (bViaScheduler)
+	{
+		EnqueueSlice(); // park: next quantum (same frame if the scheduler budget allows)
 	}
 	else
 	{
-		EnsureTick(); // park: resume on the next frame (time-slicing only)
+		EnsureTick(); // park: resume on the next host frame (sliced, no scheduler)
 	}
 }
 
@@ -294,8 +505,11 @@ void FRuitkReconciler::BeginRender()
 	LastEffect = nullptr;
 	Deletions.Reset();
 	ReorderSet.Reset();
-	PendingPassive.Reset();
-	// An aborted (restarted) pass may have left provider stacks pushed — pop them all.
+	// PendingPassive is NOT reset here: it fills during COMMIT (never during a render pass,
+	// so an abandoned pass cannot have touched it) and, in the sliced world, survives until
+	// the scheduler's frame-end batched flush — a follow-up pass beginning before that flush
+	// must not wipe the still-pending effects (M3).
+	// An aborted (error-restarted) pass may have left provider stacks pushed — pop them all.
 	while (!ProviderStack.IsEmpty())
 	{
 		PopProvidedContext(ProviderStack.Last());
@@ -399,6 +613,11 @@ FRuitkFiber* FRuitkReconciler::BeginFunction(FRuitkFiber* Fiber)
 	// paired with their alternates for future passes).
 	if (bCanBail && !Fiber->bSubtreeHasUpdates && Alt != nullptr)
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log
+		{
+			Ruitk::TraceEmit(
+				FString::Printf(TEXT("[Ruitk][diff] Component %s: subtree-skip"), *Fiber->ComponentId.ToString()));
+		}
 		Fiber->Props = Fiber->PendingProps;
 		Fiber->Child = Alt->Child;
 		return nullptr;
@@ -407,10 +626,23 @@ FRuitkFiber* FRuitkReconciler::BeginFunction(FRuitkFiber* Fiber)
 	FRuitkChildren OutChildren;
 	if (bCanBail && Fiber->State.IsValid())
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Component %s: bailout (children re-reconciled)"),
+											 *Fiber->ComponentId.ToString()));
+		}
 		OutChildren = Fiber->State->LastOutput; // SAME shared list — grandchildren can bail
 	}
 	else
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — the props-equal verdict, spelled out
+		{
+			Ruitk::TraceEmit(FString::Printf(
+				TEXT(
+					"[Ruitk][diff] Component %s: render (pending=%d props-equal=%d context-clean=%d children-same=%d)"),
+				*Fiber->ComponentId.ToString(), Fiber->bHasPendingUpdate ? 1 : 0, bPropsEqual ? 1 : 0,
+				bContextOk ? 1 : 0, bChildrenSame ? 1 : 0));
+		}
 		Fiber->bHasPendingUpdate = false;
 		RenderComponent(Fiber);
 		OutChildren = Fiber->State.IsValid() ? Fiber->State->LastOutput : FRuitkChildren();
@@ -429,6 +661,20 @@ void FRuitkReconciler::RenderComponent(FRuitkFiber* Fiber)
 {
 	TSharedPtr<FRuitkComponentState>& State = Fiber->State;
 	check(State.IsValid());
+
+	// Runaway guard (P-11(d), FiberFunctionComponent.cs:140-155): past MaxRenderDepth
+	// consecutive render-phase-update follow-ups, the component renders NOTHING for the
+	// pass — no setState fires, the cascade breaks, and the quiet commit resets the ladder.
+	// LogError names the component; no crash, no hang.
+	if (RenderDepth > MaxRenderDepth)
+	{
+		UE_LOG(LogRuitkReconciler, Error,
+			   TEXT("[Ruitk] Maximum render depth (%d) exceeded in '%s' — a component may be calling setState "
+					"unconditionally during render. Rendering nothing for this pass."),
+			   MaxRenderDepth, *Fiber->ComponentId.ToString());
+		State->LastOutput = Ruitk::MakeChildren(FRuitkNodeArray());
+		return;
+	}
 
 	// HMR: a live definition override for this ComponentId replaces the compiled Invoke; a
 	// new generation with bResetState runs the deliberate hook-shape reset ONCE per state.
@@ -646,10 +892,10 @@ void FRuitkReconciler::HandleRenderFailure(FRuitkFiber* FailedFiber, const FStri
 			else
 			{
 				// Mount-pass boundary: the WIP fiber is abandoned with this pass and has no
-				// committed twin, so record the activation by key-path for the restart pass
+				// committed twin, so record the activation by key-path for the rebuild pass
 				// to re-adopt (BeginErrorBoundary). If an ancestor renders differently and
 				// the path misses, the child just fails again and re-records — self-healing,
-				// bounded by the restart guard.
+				// bounded by MaxErrorRestarts (DoWork).
 				FPendingEbActivation& Pending = PendingEbActivations.AddDefaulted_GetRef();
 				Pending.Reason = Reason;
 				for (const FRuitkFiber* P = F; P != nullptr && P->Tag != ERuitkFiberTag::Root; P = P->Parent)
@@ -661,9 +907,10 @@ void FRuitkReconciler::HandleRenderFailure(FRuitkFiber* FailedFiber, const FStri
 			{
 				F->EbOnError(Reason);
 			}
-			// Restart from the root: the boundary renders its fallback next pass; the
-			// poisoned WIP is abandoned (never committed) and reclaimed by BeginRender.
-			bRestart = true;
+			// Poison the pass: DoWork abandons the WIP (never committed; BeginRender
+			// reclaims it) and rebuilds from the root so the boundary renders its fallback.
+			// This is the ERROR path's rebuild — setState never poisons a pass (P-11).
+			bPassPoisoned = true;
 			UE_LOG(LogRuitkReconciler, Error, TEXT("[Ruitk] render failed: %s (caught by error boundary)"), *Reason);
 			return;
 		}
@@ -740,6 +987,15 @@ FRuitkFiber* FRuitkReconciler::ReconcileFiber(FRuitkFiber* ParentFiber, FRuitkFi
 		Fiber->Alternate = nullptr;
 		if (OldFiber != nullptr)
 		{
+			// Structural trace (M7/P-08): the replacement decision — same slot, Matches false,
+			// so the old subtree is torn down and a fresh one is built (delete + place follow).
+			if (Ruitk::TraceStructural())
+			{
+				Ruitk::TraceEmit(Ruitk::TraceDetail()
+									 ? FString::Printf(TEXT("[Ruitk][trace] Replace %s -> %s"),
+													   *TraceFiberLabel(OldFiber), *TraceVNodeLabel(VNode))
+									 : FString(TEXT("[Ruitk][trace] Replace")));
+			}
 			DeleteFiber(ParentFiber, OldFiber);
 		}
 	}
@@ -848,6 +1104,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 	if (OldFirstFiber != nullptr && !VNodes.IsEmpty() &&
 		TryFastLeafList(ParentFiber, OldFirstFiber, VNodes, bReuseBySlot))
 	{
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children fast-leaf (%d)"), VNodes.Num()));
+		}
 		return true;
 	}
 
@@ -871,6 +1131,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 		// FAST PATH: positionally-stable keyed list — no key map. [perf P2]
 		if (KeysStable(OldFirstFiber, VNodes))
 		{
+			if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+			{
+				Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children keys-stable (%d)"), VNodes.Num()));
+			}
 			FRuitkFiber* Ocs = OldFirstFiber;
 			for (int32 i = 0; i < VNodes.Num(); ++i)
 			{
@@ -892,6 +1156,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 		// get NAMESPACED positional keys (FRuitkKey int with a reserved marker cannot collide
 		// with user keys because user int keys and positional keys live in the same space —
 		// so positional sentinels use FName "\x01idx%d"-style names, family [audit M1]).
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children full-keyed (%d)"), VNodes.Num()));
+		}
 		KeyMap.Reset();
 		FRuitkFiber* Ock = OldFirstFiber;
 		while (Ock != nullptr)
@@ -946,6 +1214,10 @@ bool FRuitkReconciler::ReconcileChildren(FRuitkFiber* ParentFiber, FRuitkFiber* 
 	else
 	{
 		// index (positional) path
+		if (Ruitk::TraceDiff()) // M7/P-08 diff-decision log — child-reconciliation tier
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][diff] Children positional (%d)"), VNodes.Num()));
+		}
 		FRuitkFiber* Oci = OldFirstFiber;
 		for (int32 i = 0; i < VNodes.Num(); ++i)
 		{
@@ -1167,6 +1439,12 @@ void FRuitkReconciler::CommitRoot()
 {
 	bIsCommitting = true;
 	FRuitkDiagnostics::OnCommit();
+	// Per-commit structural counts for the trace summary (M7/P-08) — trace-only bookkeeping,
+	// unconditional int increments (the diagnostics counters and `stat Ruitk` stay untouched).
+	TraceCommitPlacements = 0;
+	TraceCommitUpdates = 0;
+	TraceCommitDeletions = 0;
+	++TraceCommitSeq;
 	Host.OnBeforeCommit(); // focus capture fence (host mutations start here)
 
 	for (FRuitkFiber* D : Deletions)
@@ -1214,22 +1492,72 @@ void FRuitkReconciler::CommitRoot()
 	ReorderSet.Reset();
 	Host.OnAfterCommit(); // focus restore fence (host mutations end here)
 
+	// Structural trace (M7/P-08): the commit summary — all host mutations for this commit are
+	// done at this point, so the per-kind counts are final.
+	if (Ruitk::TraceStructural())
+	{
+		Ruitk::TraceEmit(
+			FString::Printf(TEXT("[Ruitk][trace] Commit #%d: %d placement(s), %d update(s), %d deletion(s)"),
+							TraceCommitSeq, TraceCommitPlacements, TraceCommitUpdates, TraceCommitDeletions));
+	}
+
 	RootCurrent = WipRoot;
 	WipRoot = nullptr;			  // non-null WipRoot now always means "abandoned pass" (BeginRender reclaims)
 	PendingEbActivations.Reset(); // activations that never found their boundary are stale now
 	bIsCommitting = false;
 
-	FlushPassive();
-
-	if (!DeferredUpdates.IsEmpty())
+	// Passive effects: direct two-pass flush in the synchronous world; in the sliced world
+	// the flush rides the scheduler's frame-end batched-effects lane, UNBUDGETED (the
+	// reference's post-frame passive timing — FiberReconciler.cs:830-859 /
+	// RenderScheduler.cs:225-243). PendingPassive stays a member either way so ReleaseFiber
+	// can scrub entries of fibers deleted before the flush fires (slab memory recycles).
+	FRuitkScheduler* Scheduler = ShouldUseScheduler() ? Host.GetScheduler() : nullptr;
+	if (Scheduler != nullptr && !PendingPassive.IsEmpty())
 	{
+		TWeakPtr<int32> Token = LifeToken;
+		Scheduler->EnqueueBatchedEffect(
+			[this, Token]()
+			{
+				if (Token.IsValid())
+				{
+					FlushPassive();
+				}
+			});
+	}
+	else
+	{
+		FlushPassive();
+	}
+
+	// Deferred replay — ONE coalesced follow-up (P-11(b), FiberReconciler.cs:884-909):
+	// re-mark every queued target under the replay guard WITHOUT scheduling per item, then
+	// schedule ONCE. A pass whose defers included a render-phase setState climbs the
+	// RenderDepth ladder (the MaxRenderDepth guard consumes it); any quiet commit resets it.
+	if (DeferredUpdates.IsEmpty())
+	{
+		RenderDepth = 0;
+		bDeferredFromRender = false;
+		return;
+	}
+	{
+		TGuardValue<bool> Replaying(bReplayingDeferred, true);
 		TArray<FRuitkFiber*> Deferred = MoveTemp(DeferredUpdates);
 		DeferredUpdates.Reset();
 		for (FRuitkFiber* Target : Deferred)
 		{
-			ScheduleUpdateOnFiber(Target);
+			ScheduleUpdateInternal(Target, /*bScheduleWork=*/false);
 		}
 	}
+	if (bDeferredFromRender)
+	{
+		++RenderDepth;
+	}
+	else
+	{
+		RenderDepth = 0;
+	}
+	bDeferredFromRender = false;
+	EnsureWork();
 }
 
 void FRuitkReconciler::CommitPlacement(FRuitkFiber* Fiber)
@@ -1259,6 +1587,13 @@ void FRuitkReconciler::CommitPlacement(FRuitkFiber* Fiber)
 		Fiber->PendingProps->Ref(Fiber->Node);
 	}
 	FRuitkDiagnostics::OnPlacement();
+	++TraceCommitPlacements;
+	if (Ruitk::TraceStructural()) // M7/P-08 structural event (Basic bare; Verbose adds detail)
+	{
+		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Placement %s%s"),
+																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
+											  : FString(TEXT("[Ruitk][trace] Placement")));
+	}
 }
 
 void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
@@ -1270,11 +1605,27 @@ void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
 	Host.CommitUpdate(Fiber->Node, Fiber->ElementType, Fiber->Props.Get(), *Fiber->PendingProps);
 	Fiber->Props = Fiber->PendingProps;
 	FRuitkDiagnostics::OnUpdate();
+	++TraceCommitUpdates;
+	// M7/P-08 — Verbose-only, NOT structural: the family Basic set is placements/deletions/
+	// replacements/commit summaries; per-element Update lines emit at Verbose (conformance C2,
+	// Godot parity). The commit summary's update COUNT still rides Basic.
+	if (Ruitk::TraceDetail())
+	{
+		Ruitk::TraceEmit(
+			FString::Printf(TEXT("[Ruitk][trace] Update %s%s"), *TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key)));
+	}
 }
 
 void FRuitkReconciler::CommitDeletion(FRuitkFiber* Fiber)
 {
 	FRuitkDiagnostics::OnDeletion();
+	++TraceCommitDeletions;
+	if (Ruitk::TraceStructural()) // M7/P-08 structural event — one line per removed subtree root
+	{
+		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Deletion %s%s"),
+																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
+											  : FString(TEXT("[Ruitk][trace] Deletion")));
+	}
 	NullRefsRecursive(Fiber);
 	RunCleanupsRecursive(Fiber);
 	DetachPortalChildren(Fiber); // portal content lives under targets, not this subtree
@@ -1674,6 +2025,37 @@ const TArray<FRuitkNode>& FRuitkReconciler::NormalizedChildren(const FRuitkChild
 // Teardown
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
+void FRuitkReconciler::ReleaseFiber(FRuitkFiber* Fiber)
+{
+	// The release choke point (M3): fibers are slab memory, not GC objects — queues holding
+	// raw fiber pointers are scrubbed BEFORE the memory recycles. A deferred update whose
+	// fiber dies but whose twin survives (abandoned-pass reclaim) REDIRECTS to the twin —
+	// the flags were twin-marked at schedule time, and keeping an entry keeps the follow-up
+	// wake-up. No surviving twin = the reference's deleted-fiber bail (silent).
+	if (!DeferredUpdates.IsEmpty())
+	{
+		for (int32 i = DeferredUpdates.Num() - 1; i >= 0; --i)
+		{
+			if (DeferredUpdates[i] == Fiber)
+			{
+				if (Fiber->Alternate != nullptr)
+				{
+					DeferredUpdates[i] = Fiber->Alternate;
+				}
+				else
+				{
+					DeferredUpdates.RemoveAt(i);
+				}
+			}
+		}
+	}
+	if (!PendingPassive.IsEmpty())
+	{
+		PendingPassive.Remove(Fiber); // its effects died with it (cleanups already ran)
+	}
+	Slab.Release(Fiber);
+}
+
 void FRuitkReconciler::ReleaseFiberTree(FRuitkFiber* Fiber)
 {
 	if (Fiber == nullptr)
@@ -1688,11 +2070,18 @@ void FRuitkReconciler::ReleaseFiberTree(FRuitkFiber* Fiber)
 		C = Nxt;
 	}
 	FRuitkFiber* Alt = Fiber->Alternate;
-	Slab.Release(Fiber); // ResetForReuse severs everything
+	if (Alt != nullptr)
+	{
+		// Sever the pair FIRST: both twins die here, so neither may serve as a deferred-
+		// update redirect target for the other (ReleaseFiber would hand out dead memory).
+		Alt->Alternate = nullptr;
+		Fiber->Alternate = nullptr;
+	}
+	ReleaseFiber(Fiber); // ResetForReuse severs everything
 	if (Alt != nullptr)
 	{
 		// Release the buddy too (its children are buddies of ours, already handled).
-		Slab.Release(Alt);
+		ReleaseFiber(Alt);
 	}
 }
 
@@ -1736,7 +2125,7 @@ void FRuitkReconciler::ReleaseAbandonedChildren(FRuitkFiber* Parent)
 			// misdirect ScheduleUpdateOnFiber) — repoint at the committed twin, if any.
 			Child->State->Fiber = Child->Alternate;
 		}
-		Slab.Release(Child);
+		ReleaseFiber(Child);
 		Child = Next;
 	}
 }
@@ -1748,6 +2137,11 @@ void FRuitkReconciler::Unmount()
 		return;
 	}
 	bTickPending = false;
+	CancelQueuedSlice(); // a parked Slice action must not fire against the torn-down tree
+	NextUnit = nullptr;
+	bWorkActive = false;
+	DeferredUpdates.Reset();
+	PendingPassive.Reset(); // a sliced commit's parked frame-end flush dies with the tree
 	if (WipRoot != nullptr)
 	{
 		ReleaseAbandonedChildren(WipRoot); // an abandoned pass dies with the root

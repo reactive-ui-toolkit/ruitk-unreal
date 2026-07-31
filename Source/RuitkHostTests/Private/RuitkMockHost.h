@@ -10,6 +10,7 @@
 #include "RuitkHostConfig.h"
 #include "RuitkElementRegistry.h"
 #include "RuitkReconciler.h"
+#include "RuitkScheduler.h"
 #include "RuitkCoreElements.h"
 
 /** A mock host node: enough structure to assert identity, order, props, and lifecycle. */
@@ -141,10 +142,28 @@ public:
 	double MockTimeSeconds = 0.0;
 	virtual double GetTimeSeconds() const override { return MockTimeSeconds; }
 
+	/** The frame scheduler (M2, P-01/P-03) on the SAME settable clock — lane/budget tests
+	 *  advance MockTimeSeconds instead of sleeping. Pumped manually (PumpSchedulerFrame). */
+	FRuitkScheduler Scheduler{TFunction<double()>([this]() { return MockTimeSeconds; })};
+	virtual FRuitkScheduler* GetScheduler() override { return &Scheduler; }
+
+	/** One scheduler "frame" (the mock's PreTick analog). */
+	void PumpSchedulerFrame() { Scheduler.PumpFrame(); }
+
 	/** Any frame callbacks queued? (tween tests assert the chain arms/drains) */
 	bool HasQueuedFrames() const { return !FrameQueue.IsEmpty(); }
 
-	/** Run one "frame": drain the callbacks queued so far (new ones queue for the next). */
+	/** Anything parked on the scheduler? (sliced render passes live there — M3) */
+	bool SchedulerHasWork() const
+	{
+		return Scheduler.NumQueued(ERuitkLane::High) > 0 || Scheduler.NumQueued(ERuitkLane::Normal) > 0 ||
+			   Scheduler.NumQueued(ERuitkLane::Low) > 0 || Scheduler.NumQueued(ERuitkLane::Idle) > 0 ||
+			   Scheduler.NumBatchedEffects() > 0;
+	}
+
+	/** Run one host "frame", mirroring the Slate PreTick seam (M3): drain the frame
+	 *  callbacks queued so far (new ones queue for the next), then pump the scheduler once —
+	 *  sliced render passes and the frame-end batched-effects flush live there. */
 	void PumpFrame()
 	{
 		TArray<TFunction<void()>> Batch = MoveTemp(FrameQueue);
@@ -153,6 +172,7 @@ public:
 		{
 			Fn();
 		}
+		Scheduler.PumpFrame();
 	}
 
 	void Pump(int32 Frames = 2)
@@ -163,11 +183,11 @@ public:
 		}
 	}
 
-	/** Pump until nothing is queued (bounded — a runaway loop fails the assert). */
+	/** Pump until nothing is queued on either seam (bounded — a runaway loop fails the assert). */
 	bool PumpUntilIdle(int32 MaxFrames = 64)
 	{
 		int32 n = 0;
-		while (!FrameQueue.IsEmpty())
+		while (!FrameQueue.IsEmpty() || SchedulerHasWork())
 		{
 			if (++n > MaxFrames)
 			{

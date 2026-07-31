@@ -3,14 +3,17 @@
 #include "RuitkSettings.h"
 #include "HAL/IConsoleManager.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogRuitkSettings, Log, All);
+
 #define LOCTEXT_NAMESPACE "Ruitk"
 
 URuitkSettings::URuitkSettings()
 {
 	// Per-build default parity with RuitkCoreMisc.cpp's CVar declarations — an untouched CDO must
 	// be a no-op push in EVERY configuration (the diff guard in PushSettingsToCVars relies on it).
-	bTimeSlicing = false;
-	FrameBudgetMs = 8.0f;
+	bTimeSlicing = true; // family default ON since the M8 flip (quantum 2.0, scheduler budget 4.0)
+	TimeSliceMs = 2.0f;
+	FrameBudgetMs = 4.0f;
 	bHostNodePool = true;
 #if UE_BUILD_SHIPPING
 	bHookValidation = false;
@@ -20,6 +23,9 @@ URuitkSettings::URuitkSettings()
 	bStrictDiagnostics = true;
 #endif
 	bStrictMode = false;
+	TraceLevel = ERuitkTraceLevelSetting::None;
+	bDiffTracing = false;
+	Environment = ERuitkEnvironmentSetting::Auto;
 }
 
 #if WITH_EDITOR
@@ -91,13 +97,48 @@ void URuitkSettings::PushSettingsToCVars() const
 			}
 		}
 	};
+	const auto PushInt = [&Console](const TCHAR* Name, int32 Value)
+	{
+		if (IConsoleVariable* CVar = Console.FindConsoleVariable(Name))
+		{
+			if (CVar->GetInt() != Value)
+			{
+				CVar->Set(Value, ECVF_SetByProjectSetting);
+			}
+		}
+	};
 
 	PushBool(TEXT("ruitk.TimeSlicing"), bTimeSlicing);
+	PushFloat(TEXT("ruitk.TimeSliceMs"), TimeSliceMs);
 	PushFloat(TEXT("ruitk.FrameBudgetMs"), FrameBudgetMs);
 	PushBool(TEXT("ruitk.HostNodePool"), bHostNodePool);
 	PushBool(TEXT("ruitk.HookValidation"), bHookValidation);
 	PushBool(TEXT("ruitk.StrictDiagnostics"), bStrictDiagnostics);
 	PushBool(TEXT("ruitk.StrictMode"), bStrictMode);
+	// Enum rows: pushed as the underlying int (the in-editor live path does the same —
+	// UDeveloperSettings::ExportValuesToConsoleVariables handles FEnumProperty natively,
+	// DeveloperSettings.cpp:153-158).
+	PushInt(TEXT("ruitk.TraceLevel"), static_cast<int32>(TraceLevel));
+	PushBool(TEXT("ruitk.DiffTracing"), bDiffTracing);
+	PushInt(TEXT("ruitk.Environment"), static_cast<int32>(Environment));
+
+#if WITH_EDITOR
+	// P-05 — the FrameBudgetMs semantic change (single-axis render budget, default 8.0 →
+	// scheduler per-frame budget, default 4.0): NO silent rewrite of a saved value — an
+	// explicit 8.0 may be intentional, and 8.0-as-scheduler-budget is safe (more generous,
+	// never wrong). Instead, a ONE-SHOT editor notice when the loaded ini value still equals
+	// the OLD default, naming the new meaning and default.
+	static bool bBudgetSemanticNoticeShown = false;
+	if (!bBudgetSemanticNoticeShown && FMath::IsNearlyEqual(FrameBudgetMs, 8.0f))
+	{
+		bBudgetSemanticNoticeShown = true;
+		UE_LOG(LogRuitkSettings, Display,
+			   TEXT("[Ruitk] Project Settings: Frame Budget Ms is 8.0 — the pre-scheduler default. Its meaning "
+					"changed: it is now the frame scheduler's per-frame budget across lanes (new default 4.0); the "
+					"per-slice render quantum is Time Slice Ms (2.0). 8.0 remains valid — just a more generous "
+					"budget. Adjust in Project Settings > Plugins > Reactive UI Toolkit if desired."));
+	}
+#endif
 }
 
 #undef LOCTEXT_NAMESPACE

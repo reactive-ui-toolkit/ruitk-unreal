@@ -121,7 +121,7 @@ export const sections: DocSection[] = [
         path: '/concepts',
         keywords: ['concepts', 'reconciler', 'components', 'hooks', 'values', 'utils', 'companion', 'cvars'],
         searchContent:
-          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuitkNode Use-prefixed value export util function synchronous rendering keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuitkHostConfig umg commonui mvvm ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.FrameBudgetMs ruitk.HostNodePool stat Ruitk console variables cvars',
+          'concepts environment react-style function components fiber reconciler diffs patches slate widgets pure c++ no javascript no uobject in core components hooks values utils signature classification file is a module companion files .hooks.uetkx export FRuitkNode Use-prefixed value export util function time-sliced rendering scheduler lanes frame budget quantum atomic commit defer coalesced replay synchronous mount FlushSync keyed reconciliation bailout effects after commit positional hooks call order unconditional top level IRuitkHostConfig umg commonui mvvm ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.TimeSliceMs ruitk.FrameBudgetMs ruitk.HostNodePool ruitk.TraceLevel ruitk.DiffTracing ruitk.Environment GetEnvironment stat Ruitk console variables cvars',
         element: () => <ConceptsPage />,
       },
       {
@@ -429,7 +429,7 @@ export const sections: DocSection[] = [
         path: '/reference/debugging',
         keywords: ['debugging', 'generated code', 'diags.json', 'message log', 'cvars', 'breakpoints'],
         searchContent:
-          'debugging guide generated code committed uetkx.inl readable c++ Ruitk::FC Ruitk::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.FrameBudgetMs ruitk.HostNodePool stat Ruitk counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
+          'debugging guide generated code committed uetkx.inl readable c++ Ruitk::FC Ruitk::Slate lowered breakpoints compiler diagnostics UETKX code uetkx.diags.json sidecar gitignored Reactive UI Toolkit message log editor extensions inline restart language server runtime cvars ruitk.StrictMode ruitk.HookValidation ruitk.StrictDiagnostics ruitk.TimeSlicing ruitk.TimeSliceMs ruitk.FrameBudgetMs ruitk.HostNodePool ruitk.TraceLevel ruitk.DiffTracing ruitk.Environment LogRuitkTrace trace level diff tracing time slicing opt-out stat Ruitk counters hook called conditionally desync positional slots wrong state re-render unconditional top level live coding',
         element: () => <DebuggingPage />,
       },
     ],

@@ -16,6 +16,8 @@
 #include "RuitkTypes.h"
 #include "RuitkPropsBase.h"
 
+class FRuitkScheduler;
+
 class RUITKCORE_API IRuitkHostConfig
 {
 public:
@@ -83,6 +85,11 @@ public:
 	/** Schedule Callback once before the next frame's paint (OnPreTick in Slate; manual pump
 	 *  in the mock). The reconciler coalesces all updates into one such callback. */
 	virtual void RequestFrame(TFunction<void()> Callback) = 0;
+
+	/** The host's frame scheduler (lanes/budget — FAMILY_PARITY M2+, P-03), if it drives
+	 *  one. Null = no scheduler; consumers keep the RequestFrame path. Obtaining it may arm
+	 *  the host's frame pump (the Slate host registers its PreTick seam). */
+	virtual FRuitkScheduler* GetScheduler() { return nullptr; }
 
 	/** Host-supplied platform data for UseSafeArea (mock returns a test value; Slate host
 	 *  reads FDisplayMetrics; CommonUI overrides in Phase 6 — the D-27 stub-owner chain). */

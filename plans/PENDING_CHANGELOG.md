@@ -56,4 +56,14 @@ around.
      Lane B this wave (changelog.json 2026-07-31, vscode+vs2022 0.9.1 — the TB-31
      embedded-clangd false-positive suppression) was authored directly at release prep;
      nothing extension-side was staged here, so there was nothing to drain for B. -->
+<!-- Drained 2026-07-31 for the family-parity fold (OWNER'S FOLD RULING: the campaign folds
+     INTO the staged-unpublished plugin 0.16.0 — no 0.17.0 anywhere; the [0.16.0] section was
+     reshaped in place from the settings-wave entries into the one settings+parity wave):
+     all eight lane-A bullets (M1 FlushSync fix → Fixed; M2 scheduler, M5 strict diagnostics,
+     M6 environment, M7 trace ladder → Added; M3 defer-don't-restart, M4 FrameBudgetMs
+     re-point + TimeSliceMs, M8 THE FLIP (loud, top of section) → Changed) verified present
+     in Lane A (CHANGELOG.md [0.16.0] + byte-identical plugin mirror); the lane-C
+     family-parity summary was folded into the REPLACED DISCORD_CHANGELOG [0.16.0] entry
+     (1998 chars — settings + parity, battery 167/167 both worlds), owner pastes after
+     publishing. Lane B: extensions untouched by this campaign — nothing to drain. -->
 (empty — drained 2026-07-31)

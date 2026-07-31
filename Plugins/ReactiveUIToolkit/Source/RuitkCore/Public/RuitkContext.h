@@ -28,6 +28,15 @@ struct FRuitkSafeArea
 	float Left = 0, Top = 0, Right = 0, Bottom = 0;
 };
 
+namespace Ruitk
+{
+	/** The warn-once dedup core (P-10): ONE mechanism — the component's DiagWarned key set —
+	 *  with two entry points: FRuitkContext::WarnOnce (hook-site warnings, a context on the
+	 *  stack) and the reconciler's strict set-state-during-render site (no context exists
+	 *  there). The message is built lazily so deduped repeat calls never pay the Printf. */
+	RUITKCORE_API void DiagWarnOnce(FRuitkComponentState& State, FName Key, TFunctionRef<FString()> BuildMsg);
+} // namespace Ruitk
+
 class RUITKCORE_API FRuitkContext
 {
 public:
@@ -99,6 +108,10 @@ public:
 				return;
 			}
 			C->Value = MoveTemp(Next);
+			if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08) — accepted writes only
+			{
+				Ruitk::TraceHookWrite(*S, i, TEXT("reducer"));
+			}
 			S->NotifyStateUpdated();
 		};
 		return MakeTuple(Cell->Value, MoveTemp(Dispatch));
@@ -194,10 +207,34 @@ public:
 		UseLayoutEffectImpl(WrapEffect(Forward<TFn>(Effect)), MoveTemp(Deps));
 	}
 
-	void UseEffectImpl(TFunction<FRuitkEffectCleanup()> Effect, FRuitkDeps Deps)
+	void UseEffectImpl(TFunction<FRuitkEffectCleanup()> Effect, FRuitkDeps Deps, bool bWarnNoDeps = true)
 	{
 		Record(ERuitkHookKind::Effect); // own cursor; logged for order validation like any hook
 		const int32 i = State.EffectIndex++;
+		// Strict diagnostics, family warning 2 (M5): unset Deps — Ruitk::EveryCommit(), the
+		// family's "no dependency array" (Unity warns on null deps the same way, Hooks.cs:551-575)
+		// — re-runs the effect every render. Legal, but usually a forgotten deps argument, so it
+		// costs one warning per component+slot per session (DiagWarnOnce; StrictMode's double
+		// invoke dedups through the same set, the diagnostics-count-once clause). Library-owned
+		// every-commit effects opt out via InternalUseEffect — the message names the USER's
+		// component, which must not be blamed for library plumbing it cannot change.
+		if (bWarnNoDeps && !Deps.IsSet() && FRuitkConfig::IsStrictDiagnosticsEnabled())
+		{
+			Ruitk::DiagWarnOnce(State, FName(TEXT("strict-nodeps-effect"), i + 1),
+								[this]() -> FString
+								{
+									return FString::Printf(
+										TEXT("[Ruitk][strict] %s: effect has no dependency array — it re-runs every "
+											 "render; pass deps (Ruitk::Deps() for run-once)"),
+										*Fiber.ComponentId.ToString());
+								});
+		}
+		if (Ruitk::TraceDetail()) // Verbose per-hook detail (M7/P-08, the Hooks.cs:1241 precedent;
+		{						  // StrictMode's double invoke logs twice — truthful: two captures)
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][trace] Hook %s: effect captured slot=%d deps=%s"),
+											 *Fiber.ComponentId.ToString(), i,
+											 Deps.IsSet() ? *FString::FromInt(Deps->Num()) : TEXT("every-commit")));
+		}
 		if (i >= State.Effects.Num())
 		{
 			State.Effects.AddDefaulted();
@@ -211,6 +248,24 @@ public:
 	{
 		Record(ERuitkHookKind::LayoutEffect);
 		const int32 i = State.LayoutIndex++;
+		// Strict diagnostics, family warning 2 — the layout twin (own cursor, own key family).
+		if (!Deps.IsSet() && FRuitkConfig::IsStrictDiagnosticsEnabled())
+		{
+			Ruitk::DiagWarnOnce(State, FName(TEXT("strict-nodeps-layout"), i + 1),
+								[this]() -> FString
+								{
+									return FString::Printf(
+										TEXT("[Ruitk][strict] %s: layout effect has no dependency array — it re-runs "
+											 "every render; pass deps (Ruitk::Deps() for run-once)"),
+										*Fiber.ComponentId.ToString());
+								});
+		}
+		if (Ruitk::TraceDetail()) // Verbose per-hook detail — the layout twin
+		{
+			Ruitk::TraceEmit(FString::Printf(TEXT("[Ruitk][trace] Hook %s: layout effect captured slot=%d deps=%s"),
+											 *Fiber.ComponentId.ToString(), i,
+											 Deps.IsSet() ? *FString::FromInt(Deps->Num()) : TEXT("every-commit")));
+		}
 		if (i >= State.LayoutEffects.Num())
 		{
 			State.LayoutEffects.AddDefaulted();
@@ -390,6 +445,13 @@ public:
 		return Out;
 	}
 
+	/** The family `environment` label (knob 10): auto resolves development in any non-shipping
+	 *  build (editor included) and production in Shipping; override via `ruitk.Environment`.
+	 *  Branch YOUR OWN components on it (debug overlays, dev panels) — the library never does.
+	 *  NOT a hook: consumes no slot, records no subscription — changing the CVar does not
+	 *  re-render anything by itself (it is a build-environment tag, not state). */
+	ERuitkEnvironment GetEnvironment() const { return Ruitk::GetEnvironment(); }
+
 	// ── animation (Phase 7) ───────────────────────────────────────────────────────────
 
 	/**
@@ -506,9 +568,12 @@ public:
 	FRuitkComponentState& GetState() { return State; }
 	FRuitkFiber& GetFiber() { return Fiber; }
 	IRuitkHostConfig& GetHost() { return Host; }
+	/** \internal — library-owned effect registration (signal subscriptions, CommonUI focus
+	 *  designation, …): identical to UseEffect minus the strict no-deps warning, which names
+	 *  the USER's component and must not fire for plumbing the user did not write. */
 	void InternalUseEffect(TFunction<FRuitkEffectCleanup()> Effect, FRuitkDeps Deps)
 	{
-		UseEffect(MoveTemp(Effect), MoveTemp(Deps));
+		UseEffectImpl(MoveTemp(Effect), MoveTemp(Deps), /*bWarnNoDeps=*/false);
 	}
 
 private:

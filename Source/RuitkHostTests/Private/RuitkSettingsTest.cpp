@@ -1,10 +1,11 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // The unified-settings suite: URuitkSettings (Project Settings ▸ Plugins ▸ Reactive UI Toolkit)
-// must mirror the six ruitk.* CVars — CDO defaults equal to the FRuitkConfig accessor values in
+// must mirror the ruitk.* CVars — CDO defaults equal to the FRuitkConfig accessor values in
 // the CURRENT build config (per-build default parity, the invariant the diff-guarded push relies
 // on), and the explicit-push route must actually carry an edited property onto its CVar at
-// ECVF_SetByProjectSetting.
+// ECVF_SetByProjectSetting. The defaults-equality rows are what turn a future ctor/CVar default
+// drift into a test failure instead of a silent stale-settings-page bug (family-parity M4).
 
 #include "HAL/IConsoleManager.h"
 #include "Misc/AutomationTest.h"
@@ -27,11 +28,12 @@ bool FRuitkSettingsTest::RunTest(const FString&)
 
 	AddInfo(TEXT("[settings] 2/3 defaults match FRuitkConfig in this build config"));
 	// The demo project ships no [/Script/RuitkUMG.RuitkSettings] ini section and nothing else
-	// mutates these four CVars mid-suite (Ruitk.Core.TimeSlicing touches TimeSlicing/FrameBudgetMs
-	// but restores the defaults), so CDO == accessor proves constructor parity with the per-build
-	// CVar defaults in RuitkCoreMisc.cpp.
+	// mutates these CVars mid-suite (the Ruitk.Core slicing/defer suites touch TimeSlicing/
+	// TimeSliceMs/FrameBudgetMs but restore the prior values), so CDO == accessor proves
+	// constructor parity with the per-build CVar defaults in RuitkCoreMisc.cpp.
 	TestEqual(TEXT("bTimeSlicing == FRuitkConfig::IsTimeSlicing"), Settings->bTimeSlicing,
 			  FRuitkConfig::IsTimeSlicing());
+	TestEqual(TEXT("TimeSliceMs == FRuitkConfig::TimeSliceMs"), Settings->TimeSliceMs, FRuitkConfig::TimeSliceMs());
 	TestEqual(TEXT("FrameBudgetMs == FRuitkConfig::FrameBudgetMs"), Settings->FrameBudgetMs,
 			  FRuitkConfig::FrameBudgetMs());
 	TestEqual(TEXT("bHostNodePool == FRuitkConfig::IsHostNodePoolEnabled"), Settings->bHostNodePool,
@@ -44,12 +46,40 @@ bool FRuitkSettingsTest::RunTest(const FString&)
 	// suite never runs in Shipping (WITH_DEV_AUTOMATION_TESTS), so CDO == accessor holds here too.
 	TestEqual(TEXT("bStrictMode == FRuitkConfig::IsStrictModeEnabled"), Settings->bStrictMode,
 			  FRuitkConfig::IsStrictModeEnabled());
+	// TraceLevel: FRuitkConfig::TraceLevel() COLLAPSES out-of-range to None, so the parity row
+	// compares the raw CVar int against the CDO enum (default None == 0) — the Environment
+	// pattern. The Ruitk.Core.Trace* suite pins this CVar but restores the VALUE.
+	if (IConsoleVariable* TraceCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TraceLevel")))
+	{
+		TestEqual(TEXT("TraceLevel == ruitk.TraceLevel"), static_cast<int32>(Settings->TraceLevel),
+				  TraceCVar->GetInt());
+	}
+	else
+	{
+		TestTrue(TEXT("ruitk.TraceLevel CVar registered"), false);
+	}
+	TestEqual(TEXT("bDiffTracing == FRuitkConfig::IsDiffTracingEnabled"), Settings->bDiffTracing,
+			  FRuitkConfig::IsDiffTracingEnabled());
+	// Environment: Ruitk::GetEnvironment() RESOLVES auto per build config, so the parity row
+	// compares the raw CVar int against the CDO enum (default Auto == 0). The Ruitk.Core
+	// Environment suite Set()s this CVar but restores the VALUE, so the comparison holds
+	// regardless of suite order.
+	if (IConsoleVariable* EnvCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.Environment")))
+	{
+		TestEqual(TEXT("Environment == ruitk.Environment"), static_cast<int32>(Settings->Environment),
+				  EnvCVar->GetInt());
+	}
+	else
+	{
+		TestTrue(TEXT("ruitk.Environment CVar registered"), false);
+	}
 
 	AddInfo(TEXT("[settings] 3/3 explicit push propagates an edit to the CVar"));
 	// Use ruitk.StrictMode: no other test touches it, so its CVar still sits at constructor
-	// priority and a ECVF_SetByProjectSetting push must win. (ruitk.TimeSlicing/FrameBudgetMs are
-	// unusable here — Ruitk.Core.TimeSlicing Sets them at the higher ECVF_SetByCode, after which a
-	// project-setting-priority push is correctly rejected by the CVar system.)
+	// priority and a ECVF_SetByProjectSetting push must win. (ruitk.TimeSlicing/TimeSliceMs/
+	// FrameBudgetMs are unusable here — the Ruitk.Core slicing/defer suites Set them at the
+	// higher ECVF_SetByCode, after which a project-setting-priority push is correctly rejected
+	// by the CVar system; their DEFAULT parity is locked by the 2/3 rows above instead.)
 	IConsoleVariable* StrictMode = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.StrictMode"));
 	if (!TestNotNull(TEXT("ruitk.StrictMode CVar registered"), StrictMode))
 	{

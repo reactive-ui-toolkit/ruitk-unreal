@@ -2,11 +2,31 @@ import type { FC } from 'react'
 import { Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 
 const CVARS: Array<[string, string]> = [
-  ['ruitk.StrictMode', 'Double-invoke render to surface impure components and effect mistakes.'],
-  ['ruitk.HookValidation', 'Detect hook-order mismatches between renders (on by default in dev).'],
-  ['ruitk.StrictDiagnostics', 'Warn on misuse such as setting state during render (on by default in dev).'],
-  ['ruitk.TimeSlicing / ruitk.FrameBudgetMs', 'Chunk render work across frames / the per-frame budget.'],
-  ['ruitk.HostNodePool', 'Recycle childless leaf widgets (turn off to bisect pooling suspicions).'],
+  ['ruitk.StrictMode', 'Double-invoke render to surface impure components and effect mistakes (default off).'],
+  ['ruitk.HookValidation', 'Detect hook-order mismatches between renders (default on in dev, off in shipping).'],
+  [
+    'ruitk.StrictDiagnostics',
+    'The [Ruitk][strict] misuse warnings — state update during the component’s own render, effect with no dependency array — deduped per component (default on in dev, off in shipping).',
+  ],
+  [
+    'ruitk.TimeSlicing',
+    'Run render passes as time-sliced scheduler actions; commits stay atomic (default ON — set to 0 for fully synchronous single-pass renders).',
+  ],
+  ['ruitk.TimeSliceMs', 'The render quantum per slice (default 2.0 ms).'],
+  ['ruitk.FrameBudgetMs', 'The scheduler’s per-frame budget, cumulative across lanes (default 4.0 ms).'],
+  ['ruitk.HostNodePool', 'Recycle childless leaf widgets (turn off to bisect pooling suspicions; default on).'],
+  [
+    'ruitk.TraceLevel',
+    '0=None/1=Basic/2=Verbose — structural reconciler events (placements, deletions, replacements, commit summaries) on the LogRuitkTrace category; Verbose adds per-element update lines and per-element/per-hook detail (default None).',
+  ],
+  [
+    'ruitk.DiffTracing',
+    'Reconciler diff-decision logs — bailout/subtree-skip verdicts, props-equal breakdown, child-reconciliation tiers — independent of the trace level; Verbose implies it (default off).',
+  ],
+  [
+    'ruitk.Environment',
+    'auto/development/production — read-only in components via Ctx.GetEnvironment() for your own dev-vs-prod branches; the library never branches on it (default auto: development in any non-shipping build).',
+  ],
 ]
 
 export const DebuggingPage: FC = () => (
@@ -70,11 +90,24 @@ export const DebuggingPage: FC = () => (
       </Table>
     </TableContainer>
     <Typography variant="body1" paragraph>
-      The same six CVars are also editable in the <strong>Reactive UI Toolkit ▸ Settings</strong>{' '}
+      The same ten CVars are also editable in the <strong>Reactive UI Toolkit ▸ Settings</strong>{' '}
       window&apos;s <em>Runtime</em> section (opened from the plugin&apos;s main menu; mirrored under{' '}
       <em>Project Settings ▸ Plugins ▸ Reactive UI Toolkit</em>) — edits apply live in the editor and
       persist to your project&apos;s <code>DefaultGame.ini</code> (which ships with packaged builds),
       while console, command-line, and ini overrides keep the last word.
+    </Typography>
+    <Typography variant="body1" paragraph>
+      Since the family parity wave, <strong>time slicing is on by default</strong>: render work
+      spreads across frames in 2 ms slices under a 4 ms per-frame budget, and every commit stays
+      atomic — mount and <code>FlushSync</code> are always synchronous. Set{' '}
+      <code>ruitk.TimeSlicing 0</code> (or untick it in Settings) to bisect a suspicion against the
+      fully synchronous single-pass world. All trace output rides the single{' '}
+      <code>LogRuitkTrace</code> category — <code>log LogRuitkTrace off</code> silences it without
+      touching the level. Migration note: <code>ruitk.FrameBudgetMs</code> used to be the render
+      budget itself (default 8.0) — it is now the scheduler&apos;s per-frame budget (default 4.0),
+      and the per-slice quantum is <code>ruitk.TimeSliceMs</code>. A project that saved the old 8.0
+      keeps working (a more generous budget, never wrong); the editor logs a one-shot notice while
+      the saved value still equals the old default.
     </Typography>
 
     <Alert severity="warning">

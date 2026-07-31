@@ -134,12 +134,13 @@ const CHECKS = [
     source: countGalleryScreens,
   },
   {
-    // README: "green under a 100+-test headless automation battery" — floor claim.
+    // README: "green under a 165+-test headless automation battery" — floor claim
+    // (raised from 100 at the family-parity fold; the battery ran 167 that day).
     file: 'README.md',
     pattern: /(\d+)\+-test headless/,
     source: () => {
       const actual = countAutomationTests();
-      return actual >= 100 ? 100 : actual;
+      return actual >= 165 ? 165 : actual;
     },
   },
   {

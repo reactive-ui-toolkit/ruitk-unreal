@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // The unified runtime settings page — Project Settings ▸ Plugins ▸ Reactive UI Toolkit — over the
-// six ruitk.* CVars (declared in RuitkCore/Private/RuitkCoreMisc.cpp, read via FRuitkConfig; the
+// ruitk.* CVars (declared in RuitkCore/Private/RuitkCoreMisc.cpp, read via FRuitkConfig; the
 // accessors keep reading the CVars, so this class changes zero call sites).
 //
 // WHY DEFAULTS LIVE IN C++, NOT A PLUGIN INI: plugin-shipped Config/Default*.ini files are not
@@ -38,6 +38,33 @@
 #include "Engine/DeveloperSettings.h"
 #include "RuitkSettings.generated.h"
 
+/** The ruitk.Environment values (int CVar: 0/1/2) — the family `environment` knob's Unreal
+ *  spelling. Components read the RESOLVED label via Ctx.GetEnvironment(); the library itself
+ *  never branches on it. */
+UENUM()
+enum class ERuitkEnvironmentSetting : uint8
+{
+	/** Development in any non-shipping build (editor included), Production in Shipping. */
+	Auto = 0,
+	Development = 1,
+	Production = 2,
+};
+
+/** The ruitk.TraceLevel values (int CVar: 0/1/2) — the family `trace_level` knob's Unreal
+ *  spelling. Content only: every trace line rides the dedicated LogRuitkTrace log category
+ *  (`log LogRuitkTrace off` silences the transport). */
+UENUM()
+enum class ERuitkTraceLevelSetting : uint8
+{
+	/** No trace output (the shipping default). */
+	None = 0,
+	/** Structural events: placements, deletions, node replacements, commit summaries. */
+	Basic = 1,
+	/** Basic + per-element update lines and per-element/per-hook detail; also implies Diff
+	 *  Tracing. */
+	Verbose = 2,
+};
+
 /**
  * Runtime configuration for the Reactive UI Toolkit reconciler — the ruitk.* console variables as
  * a persistable Project Settings page. Edits apply live in the editor and are written to your
@@ -69,12 +96,23 @@ public:
 	 *  Runs on the CDO at startup (after config load); callable again after programmatic edits. */
 	void PushSettingsToCVars() const;
 
-	/** ruitk.TimeSlicing — chunk the Reactive UI Toolkit render phase across frames on a budget
-	 *  (commit stays atomic). */
+	/** ruitk.TimeSlicing — run render passes as time-sliced actions on the frame scheduler
+	 *  (commit stays atomic). Off = scheduler bypass: fully synchronous single-pass renders. */
 	UPROPERTY(config, EditAnywhere, Category = "Performance", meta = (ConsoleVariable = "ruitk.TimeSlicing"))
 	bool bTimeSlicing;
 
-	/** ruitk.FrameBudgetMs — render-phase work per frame before parking, when Time Slicing is on. */
+	/** ruitk.TimeSliceMs — the render-phase quantum: a sliced pass runs units of work until
+	 *  this many milliseconds elapse (checked after each unit), then parks — resuming the same
+	 *  frame if the scheduler budget allows, else next frame. Only read when Time Slicing is on. */
+	UPROPERTY(config, EditAnywhere, Category = "Performance",
+			  meta = (ConsoleVariable = "ruitk.TimeSliceMs", ClampMin = "0.1", UIMin = "0.5", UIMax = "16.0",
+					  Units = "Milliseconds"))
+	float TimeSliceMs;
+
+	/** ruitk.FrameBudgetMs — the scheduler's per-frame budget, cumulative across lanes (render
+	 *  slices, idle work; the frame-end batched-effects flush is unbudgeted). Per-slice length
+	 *  is Time Slice Ms. NOTE: before the scheduler this was the single render-phase budget
+	 *  with default 8.0 — a saved 8.0 still works (it is simply a more generous budget). */
 	UPROPERTY(config, EditAnywhere, Category = "Performance",
 			  meta = (ConsoleVariable = "ruitk.FrameBudgetMs", ClampMin = "0.1", UIMin = "1.0", UIMax = "16.0",
 					  Units = "Milliseconds"))
@@ -90,8 +128,9 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.HookValidation"))
 	bool bHookValidation;
 
-	/** ruitk.StrictDiagnostics — warn on state updates during render and similar misuse.
-	 *  Defaults off in Shipping. */
+	/** ruitk.StrictDiagnostics — misuse warnings, prefixed [Ruitk][strict] and deduped per
+	 *  component: state updates during a component's own render + effects registered with no
+	 *  dependency array (Ruitk::EveryCommit()). Defaults off in Shipping. */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.StrictDiagnostics"))
 	bool bStrictDiagnostics;
 
@@ -99,4 +138,23 @@ public:
 	 *  (flushes impure renders and stale captures). Ignored in Shipping builds. */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.StrictMode"))
 	bool bStrictMode;
+
+	/** ruitk.TraceLevel — trace-content level on the LogRuitkTrace log category: Basic =
+	 *  structural events (placements, deletions, node replacements, commit summaries),
+	 *  Verbose = Basic + per-element update lines and per-element/per-hook detail (and
+	 *  implies Diff Tracing). */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.TraceLevel"))
+	ERuitkTraceLevelSetting TraceLevel;
+
+	/** ruitk.DiffTracing — reconciler diff-decision logs (bailout/subtree-skip verdicts,
+	 *  child-reconciliation tiers), independent of Trace Level: on when this is true OR the
+	 *  level is Verbose. */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.DiffTracing"))
+	bool bDiffTracing;
+
+	/** ruitk.Environment — the environment label surfaced READ-ONLY to components
+	 *  (Ctx.GetEnvironment()). Auto = development in any non-shipping build, production in
+	 *  Shipping. For YOUR components' dev-vs-prod branches — the library never branches on it. */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.Environment"))
+	ERuitkEnvironmentSetting Environment;
 };

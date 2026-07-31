@@ -56,6 +56,12 @@ jobs:
         run: node scripts/corpus-hash.mjs --check
       - name: machine-local paths (no one-machine path in a tracked file)
         run: node scripts/check-machine-paths.mjs
+      # Family gate (mirrored in ruitk-godot / ruitk-unity): every plans/DISCORD_CHANGELOG.md
+      # entry must fit Discord's 2000-char message cap, carry no masked [text](url) links (they
+      # do not render in plain Discord messages), and keep its `## [<version>]` header unique —
+      # that header is also publish.yml's discord-job dedup key against the channel history.
+      - name: discord changelog (format + caps)
+        run: node scripts/discord-changelog.mjs verify
       - name: Install clang-format
         run: sudo apt-get update -q && sudo apt-get install -y -q clang-format
       - name: clang-format check (Source trees against .clang-format)
