@@ -60,6 +60,13 @@ static TAutoConsoleVariable<bool>
 						TEXT("Dev double-render: render functions run twice, first result "
 							 "discarded (flushes impure renders and stale captures)."));
 
+static TAutoConsoleVariable<int32>
+	CVarRuitkEnvironment(TEXT("ruitk.Environment"), 0,
+						 TEXT("The environment label surfaced READ-ONLY to components via "
+							  "Ctx.GetEnvironment(): 0 = auto (development in any non-shipping build, "
+							  "production in Shipping), 1 = development, 2 = production. For YOUR "
+							  "components' dev-vs-prod branches - the library never branches on it."));
+
 bool FRuitkConfig::IsTimeSlicing()
 {
 	return CVarRuitkTimeSlicing.GetValueOnGameThread();
@@ -156,5 +163,24 @@ namespace Ruitk
 	void SetRendering(bool bInRendering)
 	{
 		bGRuitkIsRendering = bInRendering;
+	}
+
+	ERuitkEnvironment GetEnvironment()
+	{
+		switch (CVarRuitkEnvironment.GetValueOnGameThread())
+		{
+		case 1:
+			return ERuitkEnvironment::Development;
+		case 2:
+			return ERuitkEnvironment::Production;
+		default:
+			// auto (and any out-of-range value): the contract's "editor-or-debug → development"
+			// in UE terms — development in any non-shipping build, production in Shipping.
+#if UE_BUILD_SHIPPING
+			return ERuitkEnvironment::Production;
+#else
+			return ERuitkEnvironment::Development;
+#endif
+		}
 	}
 } // namespace Ruitk

@@ -38,6 +38,18 @@
 #include "Engine/DeveloperSettings.h"
 #include "RuitkSettings.generated.h"
 
+/** The ruitk.Environment values (int CVar: 0/1/2) — the family `environment` knob's Unreal
+ *  spelling. Components read the RESOLVED label via Ctx.GetEnvironment(); the library itself
+ *  never branches on it. */
+UENUM()
+enum class ERuitkEnvironmentSetting : uint8
+{
+	/** Development in any non-shipping build (editor included), Production in Shipping. */
+	Auto = 0,
+	Development = 1,
+	Production = 2,
+};
+
 /**
  * Runtime configuration for the Reactive UI Toolkit reconciler — the ruitk.* console variables as
  * a persistable Project Settings page. Edits apply live in the editor and are written to your
@@ -111,4 +123,10 @@ public:
 	 *  (flushes impure renders and stale captures). Ignored in Shipping builds. */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.StrictMode"))
 	bool bStrictMode;
+
+	/** ruitk.Environment — the environment label surfaced READ-ONLY to components
+	 *  (Ctx.GetEnvironment()). Auto = development in any non-shipping build, production in
+	 *  Shipping. For YOUR components' dev-vs-prod branches — the library never branches on it. */
+	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.Environment"))
+	ERuitkEnvironmentSetting Environment;
 };

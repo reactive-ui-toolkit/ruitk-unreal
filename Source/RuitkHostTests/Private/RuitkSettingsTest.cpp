@@ -46,6 +46,19 @@ bool FRuitkSettingsTest::RunTest(const FString&)
 	// suite never runs in Shipping (WITH_DEV_AUTOMATION_TESTS), so CDO == accessor holds here too.
 	TestEqual(TEXT("bStrictMode == FRuitkConfig::IsStrictModeEnabled"), Settings->bStrictMode,
 			  FRuitkConfig::IsStrictModeEnabled());
+	// Environment: Ruitk::GetEnvironment() RESOLVES auto per build config, so the parity row
+	// compares the raw CVar int against the CDO enum (default Auto == 0). The Ruitk.Core
+	// Environment suite Set()s this CVar but restores the VALUE, so the comparison holds
+	// regardless of suite order.
+	if (IConsoleVariable* EnvCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.Environment")))
+	{
+		TestEqual(TEXT("Environment == ruitk.Environment"), static_cast<int32>(Settings->Environment),
+				  EnvCVar->GetInt());
+	}
+	else
+	{
+		TestTrue(TEXT("ruitk.Environment CVar registered"), false);
+	}
 
 	AddInfo(TEXT("[settings] 3/3 explicit push propagates an edit to the CVar"));
 	// Use ruitk.StrictMode: no other test touches it, so its CVar still sits at constructor

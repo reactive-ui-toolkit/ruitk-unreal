@@ -429,6 +429,13 @@ public:
 		return Out;
 	}
 
+	/** The family `environment` label (knob 10): auto resolves development in any non-shipping
+	 *  build (editor included) and production in Shipping; override via `ruitk.Environment`.
+	 *  Branch YOUR OWN components on it (debug overlays, dev panels) — the library never does.
+	 *  NOT a hook: consumes no slot, records no subscription — changing the CVar does not
+	 *  re-render anything by itself (it is a build-environment tag, not state). */
+	ERuitkEnvironment GetEnvironment() const { return Ruitk::GetEnvironment(); }
+
 	// ── animation (Phase 7) ───────────────────────────────────────────────────────────
 
 	/**

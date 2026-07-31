@@ -51,6 +51,29 @@ struct RUITKCORE_API FRuitkConfig
 };
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
+// Environment label (family knob 10, P-07) — a READ-ONLY tag for USER components
+// ─────────────────────────────────────────────────────────────────────────────────────────
+
+/** The resolved environment label. Components read it via FRuitkContext::GetEnvironment()
+ *  (or Ruitk::GetEnvironment() outside a render) to branch THEIR OWN dev-vs-prod concerns
+ *  (debug overlays, verbose panels). The library itself NEVER branches on it — that clause
+ *  is grep-gated in the family-parity plan (M6). */
+enum class ERuitkEnvironment : uint8
+{
+	Development,
+	Production
+};
+
+namespace Ruitk
+{
+	/** Resolve `ruitk.Environment` (0=auto, 1=development, 2=production; out-of-range = auto).
+	 *  Auto is the contract's "editor-or-debug → development" in UE terms: development in any
+	 *  non-shipping build (editor included), production in Shipping. Read-only surface — no
+	 *  subscription; changing the CVar does not re-render anything by itself. */
+	RUITKCORE_API ERuitkEnvironment GetEnvironment();
+} // namespace Ruitk
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
 // Diagnostics counters (diagnostics.gd) — cheap, opt-in, test-assertable
 // ─────────────────────────────────────────────────────────────────────────────────────────
 

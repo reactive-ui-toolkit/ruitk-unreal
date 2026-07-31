@@ -568,7 +568,7 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
 - [x] M3 defer-don't-restart + sliced Slice actions + depth-25 + park/resume tests, both-worlds green — DONE 2026-07-31 (10 tests, both worlds per-test via CVar fixture; battery 156/156)
 - [x] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice — DONE 2026-07-31 (battery 156/156; TimeSliceMs settings row auto-appears in both IDetailsView surfaces)
 - [x] M5 strict diagnostics: both warnings, deduped, `[Ruitk][strict]` prefix, tests — DONE 2026-07-31 (4 tests; battery 160/160; library-internal every-commit effects exempt via InternalUseEffect; strict-test CVar pins land at SetByProjectSetting so the settings push-test vehicle stays viable)
-- [ ] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate
+- [x] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate — DONE 2026-07-31 (2 tests; battery 162/162; grep gate clean: in-plugin `GetEnvironment` = RuitkCoreMisc decl/impl + the RuitkContext accessor only; settings enum row pushes as int, the live-edit path is the engine's native FEnumProperty export)
 - [ ] M7 trace ladder + `LogRuitkTrace` + diff-tracing OR-switch + tests; `stat Ruitk` untouched
 - [ ] M8 default flip + coupling sweep + bench before/after in BENCH_BASELINES.md (no regression)
 - [ ] M9 docs pages + PENDING_CHANGELOG bullets staged per milestone + version plan + TECH_DEBT entries

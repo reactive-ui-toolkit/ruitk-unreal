@@ -18,6 +18,11 @@
 // Shipping-default-off is a compiled default (RuitkCoreMisc.cpp per-build #if) locked by the
 // Ruitk.Umg.Settings defaults-equality rows — a WITH_DEV_AUTOMATION_TESTS build cannot
 // execute the Shipping branch, so there is nothing more to run here.
+//
+// Also hosts Ruitk.Core.Environment* (M6/P-07, the roster's designated home): ruitk.Environment
+// auto-resolution (0=auto → development in this non-shipping build), explicit override through
+// Ctx.GetEnvironment() inside a rendered component, and the read-only clause — changing the
+// CVar re-renders NOTHING by itself (no subscription; the next ordinary render reads fresh).
 
 #include "Misc/AutomationTest.h"
 #include "HAL/IConsoleManager.h"
@@ -283,6 +288,114 @@ bool FRuitkStrictModeCountsOnceTest::RunTest(const FString&)
 			  StrictDiagTest::CountContaining(TEXT("has no dependency array")), 3);
 	TestEqual(TEXT("4 strict messages total"), StrictDiagTest::CountContaining(TEXT("[Ruitk][strict]")), 4);
 	StrictDiagTest::Reset();
+	return true;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════════════════
+// Ruitk.Core.Environment* — the M6 environment label (family knob 10, P-07)
+// ═════════════════════════════════════════════════════════════════════════════════════════
+
+namespace EnvTest
+{
+	static int32 RendersEnv = 0;
+	static ERuitkEnvironment LastSeen = ERuitkEnvironment::Development;
+	static TRuitkSetter<int32> SetterEnv;
+
+	static void Reset()
+	{
+		RendersEnv = 0;
+		LastSeen = ERuitkEnvironment::Development;
+		SetterEnv = TRuitkSetter<int32>();
+	}
+
+	/** Pin ruitk.Environment; restores the prior VALUE in all paths. SetByProjectSetting rung
+	 *  (the M5 lesson): the value must stay reachable by the URuitkSettings push machinery,
+	 *  and the Ruitk.Umg.Settings parity row compares values, which this restores. */
+	struct FScopedEnvironment
+	{
+		IConsoleVariable* Env;
+		int32 Prev;
+		explicit FScopedEnvironment(int32 Value)
+			: Env(IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.Environment")))
+		{
+			Prev = Env->GetInt();
+			Env->Set(Value, ECVF_SetByProjectSetting);
+		}
+		~FScopedEnvironment() { Env->Set(Prev, ECVF_SetByProjectSetting); }
+	};
+} // namespace EnvTest
+
+/** Reads the label through the component-facing surface every render. */
+static FRuitkNodeArray EnvReaderComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
+{
+	++EnvTest::RendersEnv;
+	auto [V, SetV] = Ctx.UseState<int32>(0);
+	EnvTest::SetterEnv = SetV;
+	EnvTest::LastSeen = Ctx.GetEnvironment();
+	return {Ruitk::TextBlock(EnvTest::LastSeen == ERuitkEnvironment::Production ? TEXT("prod") : TEXT("dev"))};
+}
+RUITK_COMPONENT(EnvReaderComp)
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkEnvironmentResolutionTest, "Ruitk.Core.EnvironmentResolution", RUITK_TEST_FLAGS)
+bool FRuitkEnvironmentResolutionTest::RunTest(const FString&)
+{
+	AddInfo(TEXT("[environment] auto resolves per build config (this build is non-shipping)"));
+	{
+		EnvTest::FScopedEnvironment Env(0); // auto
+		TestEqual(TEXT("auto -> Development in a non-shipping build"), static_cast<int32>(Ruitk::GetEnvironment()),
+				  static_cast<int32>(ERuitkEnvironment::Development));
+	}
+	{
+		EnvTest::FScopedEnvironment Env(7); // out-of-range collapses to auto, never garbage
+		TestEqual(TEXT("out-of-range -> auto"), static_cast<int32>(Ruitk::GetEnvironment()),
+				  static_cast<int32>(ERuitkEnvironment::Development));
+	}
+
+	AddInfo(TEXT("[environment] explicit overrides, visible through Ctx.GetEnvironment() in a render"));
+	{
+		EnvTest::FScopedEnvironment Env(1);
+		TestEqual(TEXT("1 -> Development"), static_cast<int32>(Ruitk::GetEnvironment()),
+				  static_cast<int32>(ERuitkEnvironment::Development));
+	}
+	{
+		EnvTest::Reset();
+		EnvTest::FScopedEnvironment Env(2);
+		TestEqual(TEXT("2 -> Production"), static_cast<int32>(Ruitk::GetEnvironment()),
+				  static_cast<int32>(ERuitkEnvironment::Production));
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&EnvReaderComp));
+		TestTrue(TEXT("mounts"), H.Host.PumpUntilIdle(16));
+		TestEqual(TEXT("a rendered component sees Production"), static_cast<int32>(EnvTest::LastSeen),
+				  static_cast<int32>(ERuitkEnvironment::Production));
+		TestEqual(TEXT("rendered output reflects it"), H.TextAt(0), FString(TEXT("prod")));
+	}
+	EnvTest::Reset();
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkEnvironmentReadOnlyTest, "Ruitk.Core.EnvironmentReadOnly", RUITK_TEST_FLAGS)
+bool FRuitkEnvironmentReadOnlyTest::RunTest(const FString&)
+{
+	EnvTest::Reset();
+	EnvTest::FScopedEnvironment Env(1); // pin Development explicitly
+	FRuitkTestHarness H;
+	H.Mount(Ruitk::FC(&EnvReaderComp));
+	TestTrue(TEXT("mounts"), H.Host.PumpUntilIdle(16));
+	TestEqual(TEXT("one mount render"), EnvTest::RendersEnv, 1);
+	TestEqual(TEXT("sees Development"), H.TextAt(0), FString(TEXT("dev")));
+
+	AddInfo(TEXT("[environment] changing the CVar re-renders NOTHING by itself (read-only, no subscription)"));
+	EnvTest::FScopedEnvironment Flip(2);
+	TestTrue(TEXT("nothing scheduled by the change"), H.Host.PumpUntilIdle(8));
+	TestEqual(TEXT("still one render"), EnvTest::RendersEnv, 1);
+	TestEqual(TEXT("committed output untouched"), H.TextAt(0), FString(TEXT("dev")));
+
+	AddInfo(TEXT("[environment] the next ORDINARY render reads the fresh value (unsubscribed, not stale)"));
+	EnvTest::SetterEnv(1);
+	TestTrue(TEXT("re-render settles"), H.Host.PumpUntilIdle(16));
+	TestEqual(TEXT("two renders"), EnvTest::RendersEnv, 2);
+	TestEqual(TEXT("the re-render saw Production"), H.TextAt(0), FString(TEXT("prod")));
+	EnvTest::Reset();
 	return true;
 }
 

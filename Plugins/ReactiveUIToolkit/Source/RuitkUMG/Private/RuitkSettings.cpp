@@ -23,6 +23,7 @@ URuitkSettings::URuitkSettings()
 	bStrictDiagnostics = true;
 #endif
 	bStrictMode = false;
+	Environment = ERuitkEnvironmentSetting::Auto;
 }
 
 #if WITH_EDITOR
@@ -94,6 +95,16 @@ void URuitkSettings::PushSettingsToCVars() const
 			}
 		}
 	};
+	const auto PushInt = [&Console](const TCHAR* Name, int32 Value)
+	{
+		if (IConsoleVariable* CVar = Console.FindConsoleVariable(Name))
+		{
+			if (CVar->GetInt() != Value)
+			{
+				CVar->Set(Value, ECVF_SetByProjectSetting);
+			}
+		}
+	};
 
 	PushBool(TEXT("ruitk.TimeSlicing"), bTimeSlicing);
 	PushFloat(TEXT("ruitk.TimeSliceMs"), TimeSliceMs);
@@ -102,6 +113,10 @@ void URuitkSettings::PushSettingsToCVars() const
 	PushBool(TEXT("ruitk.HookValidation"), bHookValidation);
 	PushBool(TEXT("ruitk.StrictDiagnostics"), bStrictDiagnostics);
 	PushBool(TEXT("ruitk.StrictMode"), bStrictMode);
+	// Enum row: pushed as the underlying int (the in-editor live path does the same —
+	// UDeveloperSettings::ExportValuesToConsoleVariables handles FEnumProperty natively,
+	// DeveloperSettings.cpp:153-158).
+	PushInt(TEXT("ruitk.Environment"), static_cast<int32>(Environment));
 
 #if WITH_EDITOR
 	// P-05 — the FrameBudgetMs semantic change (single-axis render budget, default 8.0 →
