@@ -48,6 +48,26 @@ Our discord channel - https://discord.gg/Knedqu4Wyv - currently under constructi
 
 ---
 
+## [0.16.0] - 2026-07-31
+
+### One window for every setting
+
+**Reactive UI Toolkit ▸ Settings** — a new window on the plugin's own main menu (also under Window ▸ Tools) now holds every knob the plugin has, in two sections:
+- **Runtime** — the six `ruitk.*` reconciler CVars (TimeSlicing, FrameBudgetMs, HostNodePool, HookValidation, StrictDiagnostics, StrictMode) are now real, persistable settings (`URuitkSettings`): edit them live in the editor and they save to your project's `DefaultGame.ini` — which packaged builds ship. Console, command-line, and ini overrides still win (project-setting priority), and untouched projects behave byte-identically.
+- **Editor / Hot Reload** — the seven HMR options (watched roots, debounce, notifications, follow-PIE, Live Coding console hiding, …) plus the two rebindable HMR shortcuts.
+
+Both sections edit the same objects their Project Settings pages show — the pages stay as mirrors, now reading as a pair: *Reactive UI Toolkit* and *Reactive UI Toolkit — Editor*. The **Hot Reload window now only runs HMR** (Start/Stop, live stats — the Watched row reports your real watched roots instead of echoing the defaults — and recent errors); its settings checkboxes and shortcut rows moved into the new window, and its "All settings…" link opens it directly.
+
+Family parity: the Unity and Godot legs ship the same one-window settings surface — same tunables, engine-native spelling on each.
+
+**Update:** drop-in — no API or markup changes.
+
+**Tooling:** UETKX 0.9.1 (VS Code + VS 2022) — embedded-C++ ERROR false-positives on UE-interop `.uetkx` files are suppressed (TB-31): cascades from UE headers clang can't fully parse, bogus overload-resolution errors on the hook/API surface, and "undeclared identifier" noise on cross-file imports are dropped; genuine local typos still surface, and `RuitkCompile` + your C++ build stay the authoritative error source.
+
+Full automation battery green on UE 5.6: 133/133.
+
+---
+
 ## [0.15.0] - 2026-07-28
 
 ### One family, one name: Reactive UI Toolkit
