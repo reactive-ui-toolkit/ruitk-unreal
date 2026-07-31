@@ -63,9 +63,9 @@ static TAutoConsoleVariable<bool>
 static TAutoConsoleVariable<int32>
 	CVarRuitkTraceLevel(TEXT("ruitk.TraceLevel"), 0,
 						TEXT("Trace-content level on the LogRuitkTrace category: 0 = off, 1 = Basic "
-							 "(structural events: placements, updates, deletions, node replacements, "
-							 "commit summaries), 2 = Verbose (adds per-element and per-hook detail, "
-							 "and implies ruitk.DiffTracing)."));
+							 "(structural events: placements, deletions, node replacements, commit "
+							 "summaries), 2 = Verbose (adds per-element update lines, per-element and "
+							 "per-hook detail, and implies ruitk.DiffTracing)."));
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkDiffTracing(TEXT("ruitk.DiffTracing"), false,

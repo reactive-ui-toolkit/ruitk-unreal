@@ -2,7 +2,8 @@
 //
 // Ruitk.Core.Trace* — the M7 trace-ladder suite (FAMILY_PARITY_PLAN §5/P-08, family knobs
 // 8 + 9): `ruitk.TraceLevel` gates CONTENT (Basic = structural events at the commit-phase
-// sites — placements, updates, deletions, node replacements, commit summaries; Verbose adds
+// sites — placements, deletions, node replacements, commit summaries; per-element Update
+// lines are Verbose-only, the family Basic set — conformance C2; Verbose also adds
 // per-element detail on each structural line + per-hook detail) and `ruitk.DiffTracing` is
 // the INDEPENDENT OR-switch for reconciler diff-decision logs (bailout/subtree-skip verdicts,
 // child-reconciliation tiers) — diff lines emit when DiffTracing OR Verbose. The gate matrix
@@ -258,7 +259,9 @@ bool FRuitkTraceBasicTest::RunTest(const FString&)
 		TraceTest::FScopedTraceWorld World(1, false);
 		RunTraceScenario(*this, bSliced);
 		TestEqual(TEXT("5 placements"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Placement")), 5);
-		TestEqual(TEXT("3 updates"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Update")), 3);
+		// Update lines are Verbose-only (family Basic excludes them — conformance C2); the
+		// commit summaries below still carry the update COUNTS at Basic.
+		TestEqual(TEXT("no update lines at Basic"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Update")), 0);
 		TestEqual(TEXT("3 deletions"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Deletion")), 3);
 		TestEqual(TEXT("1 replacement decision"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Replace")), 1);
 		TestEqual(TEXT("4 commit summaries"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Commit #")), 4);
@@ -300,9 +303,10 @@ bool FRuitkTraceVerboseTest::RunTest(const FString&)
 		AddInfo(FString::Printf(TEXT("[trace/verbose] world: %s"), bSliced ? TEXT("sliced") : TEXT("sync")));
 		TraceTest::FScopedTraceWorld World(2, false);
 		RunTraceScenario(*this, bSliced);
-		// Superset: the structural counts are EXACTLY Basic's — detail rides the same lines.
+		// Superset: the structural counts are EXACTLY Basic's — detail rides the same lines —
+		// plus the Verbose-only per-element Update lines (C2).
 		TestEqual(TEXT("5 placements"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Placement")), 5);
-		TestEqual(TEXT("3 updates"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Update")), 3);
+		TestEqual(TEXT("3 updates (Verbose-only)"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Update")), 3);
 		TestEqual(TEXT("3 deletions"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Deletion")), 3);
 		TestEqual(TEXT("1 replacement decision"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Replace")), 1);
 		TestEqual(TEXT("4 commit summaries"), TraceTest::CountPrefix(TEXT("[Ruitk][trace] Commit #")), 4);

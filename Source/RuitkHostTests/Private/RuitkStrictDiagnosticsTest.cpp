@@ -185,7 +185,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStrictSetStateInRenderTest, "Ruitk.Core.S
 								 RUITK_TEST_FLAGS)
 bool FRuitkStrictSetStateInRenderTest::RunTest(const FString&)
 {
-	AddExpectedError(TEXT("state update during render"), EAutomationExpectedErrorFlags::Contains, 0);
+	AddExpectedError(TEXT("State update scheduled during render"), EAutomationExpectedErrorFlags::Contains, 0);
 	for (const bool bSliced : {false, true})
 	{
 		AddInfo(FString::Printf(TEXT("[strict/setstate] world: %s"), bSliced ? TEXT("sliced") : TEXT("sync")));
@@ -200,9 +200,13 @@ bool FRuitkStrictSetStateInRenderTest::RunTest(const FString&)
 		// Five warn attempts (one per render that set state) — ONE message: dedup across
 		// renders, and the five deferred REPLAYS never re-warned (bScheduleWork=false path).
 		TestEqual(TEXT("EXACTLY ONE warning across the cascade"),
-				  StrictDiagTest::CountContaining(TEXT("state update during render")), 1);
+				  StrictDiagTest::CountContaining(TEXT("State update scheduled during render")), 1);
+		// The family reference sentence (conformance C5), [Ruitk][strict]-prefixed (blessed C1).
 		TestEqual(TEXT("prefixed and component-named"),
-				  StrictDiagTest::CountContaining(TEXT("[Ruitk][strict] SelfSetComp")), 1);
+				  StrictDiagTest::CountContaining(
+					  TEXT("[Ruitk][strict] State update scheduled during render of 'SelfSetComp'. "
+						   "Move this set call to an effect or event handler.")),
+				  1);
 	}
 
 	AddInfo(TEXT("[strict/setstate] cross-component poke: the per-component discriminator stays silent"));
@@ -216,7 +220,7 @@ bool FRuitkStrictSetStateInRenderTest::RunTest(const FString&)
 		TestTrue(TEXT("settles"), H.Host.PumpUntilIdle(64));
 		TestEqual(TEXT("the parent's update landed"), H.TextAt(0), FString(TEXT("p1")));
 		TestEqual(TEXT("no warning: the target's own render was not on the stack"),
-				  StrictDiagTest::CountContaining(TEXT("state update during render")), 0);
+				  StrictDiagTest::CountContaining(TEXT("State update scheduled during render")), 0);
 	}
 	StrictDiagTest::Reset();
 	return true;
@@ -275,7 +279,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkStrictModeCountsOnceTest, "Ruitk.Core.Str
 								 RUITK_TEST_FLAGS)
 bool FRuitkStrictModeCountsOnceTest::RunTest(const FString&)
 {
-	AddExpectedError(TEXT("state update during render"), EAutomationExpectedErrorFlags::Contains, 0);
+	AddExpectedError(TEXT("State update scheduled during render"), EAutomationExpectedErrorFlags::Contains, 0);
 	AddExpectedError(TEXT("has no dependency array"), EAutomationExpectedErrorFlags::Contains, 0);
 	StrictDiagTest::Reset();
 	StrictDiagTest::FScopedStrictWorld StrictWorld(/*bStrictOn=*/true, /*bStrictModeOn=*/true);
@@ -283,7 +287,7 @@ bool FRuitkStrictModeCountsOnceTest::RunTest(const FString&)
 	H.Mount(Ruitk::Fragment({Ruitk::FC(&SelfSetComp), Ruitk::FC(&NoDepsComp)}));
 	TestTrue(TEXT("settles under double-invoke"), H.Host.PumpUntilIdle(128));
 	TestEqual(TEXT("warning 1 not doubled by the second invoke"),
-			  StrictDiagTest::CountContaining(TEXT("state update during render")), 1);
+			  StrictDiagTest::CountContaining(TEXT("State update scheduled during render")), 1);
 	TestEqual(TEXT("warning 2 not doubled by the second invoke"),
 			  StrictDiagTest::CountContaining(TEXT("has no dependency array")), 3);
 	TestEqual(TEXT("4 strict messages total"), StrictDiagTest::CountContaining(TEXT("[Ruitk][strict]")), 4);

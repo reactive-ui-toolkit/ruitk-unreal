@@ -58,9 +58,10 @@ enum class ERuitkTraceLevelSetting : uint8
 {
 	/** No trace output (the shipping default). */
 	None = 0,
-	/** Structural events: placements, updates, deletions, node replacements, commit summaries. */
+	/** Structural events: placements, deletions, node replacements, commit summaries. */
 	Basic = 1,
-	/** Basic + per-element and per-hook detail; also implies Diff Tracing. */
+	/** Basic + per-element update lines and per-element/per-hook detail; also implies Diff
+	 *  Tracing. */
 	Verbose = 2,
 };
 
@@ -139,8 +140,9 @@ public:
 	bool bStrictMode;
 
 	/** ruitk.TraceLevel — trace-content level on the LogRuitkTrace log category: Basic =
-	 *  structural events (placements, updates, deletions, node replacements, commit summaries),
-	 *  Verbose = Basic + per-element and per-hook detail (and implies Diff Tracing). */
+	 *  structural events (placements, deletions, node replacements, commit summaries),
+	 *  Verbose = Basic + per-element update lines and per-element/per-hook detail (and
+	 *  implies Diff Tracing). */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.TraceLevel"))
 	ERuitkTraceLevelSetting TraceLevel;
 

@@ -17,7 +17,7 @@ const CVARS: Array<[string, string]> = [
   ['ruitk.HostNodePool', 'Recycle childless leaf widgets (turn off to bisect pooling suspicions; default on).'],
   [
     'ruitk.TraceLevel',
-    '0=None/1=Basic/2=Verbose — structural reconciler events (placements, updates, deletions, replacements, commit summaries) on the LogRuitkTrace category; Verbose adds per-element and per-hook detail (default None).',
+    '0=None/1=Basic/2=Verbose — structural reconciler events (placements, deletions, replacements, commit summaries) on the LogRuitkTrace category; Verbose adds per-element update lines and per-element/per-hook detail (default None).',
   ],
   [
     'ruitk.DiffTracing',

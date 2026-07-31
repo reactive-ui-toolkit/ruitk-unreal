@@ -59,10 +59,11 @@ struct RUITKCORE_API FRuitkConfig
 	static bool IsStrictModeEnabled();
 
 	/** Trace-content level (family trace_level, default None — M7/P-08): Basic = structural
-	 *  events at the commit-phase sites (placements, updates, deletions, node replacements,
-	 *  commit summaries); Verbose adds per-element detail on each structural line + per-hook
-	 *  detail (effect captures, state writes) and implies diff tracing. Content only — the
-	 *  transport is the LogRuitkTrace category (see Ruitk::TraceEmit). */
+	 *  events at the commit-phase sites (placements, deletions, node replacements, commit
+	 *  summaries — per-element Update lines are Verbose-only, the family Basic set); Verbose
+	 *  adds the update lines, per-element detail on each structural line + per-hook detail
+	 *  (effect captures, state writes) and implies diff tracing. Content only — the transport
+	 *  is the LogRuitkTrace category (see Ruitk::TraceEmit). */
 	static ERuitkTraceLevel TraceLevel();
 	/** Reconciler diff-decision logs (family diff_tracing, default false): bailout /
 	 *  SUBTREE-SKIP verdicts and child-reconciliation tiers. An INDEPENDENT OR-switch —

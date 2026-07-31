@@ -238,9 +238,11 @@ void FRuitkReconciler::ScheduleUpdateInternal(FRuitkFiber* Fiber, bool bSchedule
 				Ruitk::DiagWarnOnce(*Target->State, FName(TEXT("strict-setstate-in-render")),
 									[Target]() -> FString
 									{
+										// The family reference sentence (conformance C5); the
+										// [Ruitk][strict] prefix is the blessed engine-native shape (C1).
 										return FString::Printf(
-											TEXT("[Ruitk][strict] %s: state update during render — move it into an "
-												 "effect or event handler"),
+											TEXT("[Ruitk][strict] State update scheduled during render of '%s'. "
+												 "Move this set call to an effect or event handler."),
 											*Target->ComponentId.ToString());
 									});
 			}
@@ -1604,11 +1606,13 @@ void FRuitkReconciler::CommitUpdate(FRuitkFiber* Fiber)
 	Fiber->Props = Fiber->PendingProps;
 	FRuitkDiagnostics::OnUpdate();
 	++TraceCommitUpdates;
-	if (Ruitk::TraceStructural()) // M7/P-08 structural event
+	// M7/P-08 — Verbose-only, NOT structural: the family Basic set is placements/deletions/
+	// replacements/commit summaries; per-element Update lines emit at Verbose (conformance C2,
+	// Godot parity). The commit summary's update COUNT still rides Basic.
+	if (Ruitk::TraceDetail())
 	{
-		Ruitk::TraceEmit(Ruitk::TraceDetail() ? FString::Printf(TEXT("[Ruitk][trace] Update %s%s"),
-																*TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key))
-											  : FString(TEXT("[Ruitk][trace] Update")));
+		Ruitk::TraceEmit(
+			FString::Printf(TEXT("[Ruitk][trace] Update %s%s"), *TraceFiberLabel(Fiber), *TraceKeySuffix(Fiber->Key)));
 	}
 }
 

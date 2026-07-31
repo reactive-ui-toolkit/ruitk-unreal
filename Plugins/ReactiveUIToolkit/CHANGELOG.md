@@ -90,15 +90,15 @@ across the Unity, Godot, and Unreal legs.
   dependency array (it re-runs every render; pass deps, `{}` for run-once). Dev builds
   default on, Shipping off (unchanged compiled defaults); a warning never changes behavior.
 - **The trace ladder.** NEW `ruitk.TraceLevel` (0=None/1=Basic/2=Verbose, default None):
-  Basic emits structural events — placements, updates, deletions, node-replacement
-  decisions, per-commit summaries with counts — on the NEW dedicated `LogRuitkTrace`
-  category; Verbose adds per-element detail (element type/ComponentId/key) and per-hook
-  detail (effect captures, state/reducer writes). NEW `ruitk.DiffTracing` (default off) is
-  the independent switch for reconciler diff-decision logs (bailout/subtree-skip/render
-  verdicts with the props-equal breakdown + child-reconciliation tiers); Verbose implies
-  it. One category carries all trace output (`log LogRuitkTrace off` silences it); every
-  emission early-outs before formatting when off; `stat Ruitk` and the diagnostics counters
-  are untouched.
+  Basic emits structural events — placements, deletions, node-replacement decisions,
+  per-commit summaries with counts — on the NEW dedicated `LogRuitkTrace` category;
+  Verbose adds per-element update lines, per-element detail (element type/ComponentId/key)
+  and per-hook detail (effect captures, state/reducer writes). NEW `ruitk.DiffTracing`
+  (default off) is the independent switch for reconciler diff-decision logs
+  (bailout/subtree-skip/render verdicts with the props-equal breakdown +
+  child-reconciliation tiers); Verbose implies it. One category carries all trace output
+  (`log LogRuitkTrace off` silences it); every emission early-outs before formatting when
+  off; `stat Ruitk` and the diagnostics counters are untouched.
 - **The environment label.** NEW `ruitk.Environment` (auto/development/production, default
   auto = development in any non-shipping build, production in Shipping), surfaced read-only
   to components as `Ctx.GetEnvironment()` — a plain accessor, not a hook (no slot, no
