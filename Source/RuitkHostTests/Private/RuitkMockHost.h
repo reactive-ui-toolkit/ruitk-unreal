@@ -10,6 +10,7 @@
 #include "RuitkHostConfig.h"
 #include "RuitkElementRegistry.h"
 #include "RuitkReconciler.h"
+#include "RuitkScheduler.h"
 #include "RuitkCoreElements.h"
 
 /** A mock host node: enough structure to assert identity, order, props, and lifecycle. */
@@ -140,6 +141,14 @@ public:
 	/** Settable clock — the tween hooks read host time, so tests advance deterministically. */
 	double MockTimeSeconds = 0.0;
 	virtual double GetTimeSeconds() const override { return MockTimeSeconds; }
+
+	/** The frame scheduler (M2, P-01/P-03) on the SAME settable clock — lane/budget tests
+	 *  advance MockTimeSeconds instead of sleeping. Pumped manually (PumpSchedulerFrame). */
+	FRuitkScheduler Scheduler{TFunction<double()>([this]() { return MockTimeSeconds; })};
+	virtual FRuitkScheduler* GetScheduler() override { return &Scheduler; }
+
+	/** One scheduler "frame" (the mock's PreTick analog). */
+	void PumpSchedulerFrame() { Scheduler.PumpFrame(); }
 
 	/** Any frame callbacks queued? (tween tests assert the chain arms/drains) */
 	bool HasQueuedFrames() const { return !FrameQueue.IsEmpty(); }

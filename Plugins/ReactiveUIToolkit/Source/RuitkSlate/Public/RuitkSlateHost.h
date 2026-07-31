@@ -15,6 +15,7 @@
 #include "RuitkElementAdapter.h"
 #include "RuitkEventProxy.h"
 #include "RuitkHostConfig.h"
+#include "RuitkScheduler.h"
 #include "Widgets/SWidget.h"
 
 /** One mounted widget: the concrete payload behind FRuitkHostHandle on the Slate host. */
@@ -89,6 +90,9 @@ public:
 	virtual FRuitkElementTypeId GetTextElementType() const override;
 	virtual void RequestFrame(TFunction<void()> Callback) override;
 	virtual void GetSafeArea(float& OutLeft, float& OutTop, float& OutRight, float& OutBottom) const override;
+	/** P-03: this host owns the scheduler instance and pumps it once per Slate PreTick.
+	 *  Obtaining it arms the PreTick seam (same lazy registration as RequestFrame). */
+	virtual FRuitkScheduler* GetScheduler() override;
 
 	/** Drain the frame queue now (tests / FlushSync surfaces — same batch rule as PreTick:
 	 *  callbacks queued while draining run on the NEXT drain). */
@@ -110,6 +114,10 @@ private:
 	FDelegateHandle PreTickHandle;
 	bool bPreTickRegistered = false;
 	bool bWarnedNoSlateApp = false;
+
+	/** The frame scheduler (M2, P-01/P-03): default engine clock; pumped in OnSlatePreTick
+	 *  right after the frame-queue drain, once per frame. */
+	FRuitkScheduler Scheduler;
 
 	/** GO-05 node pool: detached event-less leaves, stashed with their last props + applied
 	 *  style, diffed on reuse. Per-type cap; drained with the host. */
