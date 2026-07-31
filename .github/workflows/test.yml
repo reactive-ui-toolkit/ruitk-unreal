@@ -1,13 +1,19 @@
-# Tests — every gate that can run without money runs on every push/PR; engine legs are
-# armed by the repo variable RUITK_CI_ENGINE_ARMED (the "inert until armed" pattern).
+# Tests — the family CI contract: every push/PR to master/dev reports EXACTLY four check
+# contexts — `gates`, `tests`, `extensions`, `docs` (the job `name:`s below). Those four names
+# are the required status checks in the canonical branch-ruleset pair (.github/rulesets/);
+# rename a job here and dev becomes un-mergeable until the rulesets are re-imported.
 #
-# REQUIRED-CHECKS TRAP (deliberate, keep it): NO `paths:` filters anywhere in this file.
-# These jobs become required status checks; a paths-filtered required check never reports on
+# REQUIRED-CHECKS TRAP (deliberate, keep it): NO `paths:` filters on gates/tests/extensions/docs.
+# These four jobs ARE the required status checks; a paths-filtered required check never reports on
 # unrelated PRs and makes them permanently un-mergeable (the sibling repo documented this
 # failure mode in-file — house style is to write the reason down, so: this comment).
-# Staged jobs (lsp-server, docs) instead SELF-GUARD inside the job: if their directory
-# doesn't exist yet (they land in Phases 5/0.8), they log "not armed yet" and exit 0 —
-# required checks always report from commit one.
+# Staged jobs (tests, docs) instead SELF-GUARD inside the job: if their directory
+# doesn't exist yet, they log "not armed yet" and exit 0 — required checks always report on
+# every commit of every branch lineage.
+#
+# NO engine job here (deliberate — do not "helpfully" re-add the 5.6/5.7/5.8 matrix): engine
+# verification runs at publish time ONLY (owner decision, 2026-07-31). publish.yml's armed
+# verify-engines legs call .github/workflows/engine-tests.yml, which stays for exactly that.
 name: Tests
 
 on:
@@ -19,9 +25,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  # Everything engine-free that guards the tree: the node script gates + the clang-format
+  # style check, folded in as steps so they report as ONE required check context.
   gates:
-    name: engine-free gates
+    name: gates
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -44,15 +56,9 @@ jobs:
         run: node scripts/corpus-hash.mjs --check
       - name: machine-local paths (no one-machine path in a tracked file)
         run: node scripts/check-machine-paths.mjs
-
-  clang-format:
-    name: clang-format check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
       - name: Install clang-format
         run: sudo apt-get update -q && sudo apt-get install -y -q clang-format
-      - name: Check Source trees against .clang-format
+      - name: clang-format check (Source trees against .clang-format)
         run: |
           set -e
           # GENERATED code is excluded: *.uetkx.inl + *.Uetkx.gen.cpp are RuitkCompile output
@@ -62,8 +68,10 @@ jobs:
           if [ -z "$FILES" ]; then echo "no C++ files yet"; exit 0; fi
           clang-format --dry-run -Werror $FILES
 
-  lsp-server:
-    name: lsp-server (self-guarded until Phase 5)
+  # The repo's engine-free test suite: the shared language server's unit tests + e2e smoke
+  # (the engine-side automation suites run at publish time with the engines — see header).
+  tests:
+    name: tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -71,7 +79,7 @@ jobs:
         id: guard
         run: |
           if [ ! -f ide-extensions/lsp-server/package.json ]; then
-            echo "lsp-server not armed yet (lands in Phase 5) — reporting success so required checks always report."
+            echo "lsp-server not armed yet — reporting success so required checks always report."
             echo "armed=false" >> "$GITHUB_OUTPUT"
           else
             echo "armed=true" >> "$GITHUB_OUTPUT"
@@ -89,8 +97,32 @@ jobs:
           node --test out/test/*.test.js
           node scripts/smoke.js
 
+  # The VS Code extension (vscode-uetkx) compiles: npm ci + tsc + the server bundle. The
+  # language server is built first because the extension's build step bundles it
+  # (scripts/bundle-server.mjs copies ../lsp-server/out into ./server). The VS2022 extension
+  # stays OUT of push/PR CI as before — it needs MSBuild + the VS SDK and is built by
+  # publish.yml's publish-vs2022 leg on a Windows runner.
+  extensions:
+    name: extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Build language server (bundle input for the extension)
+        working-directory: ide-extensions/lsp-server
+        run: |
+          npm ci
+          npm run build
+      - name: Build VS Code extension (compile + bundle server)
+        working-directory: ide-extensions/vscode-uetkx
+        run: |
+          npm ci
+          npm run build
+
   docs:
-    name: docs site (self-guarded until the scaffold lands)
+    name: docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -114,19 +146,3 @@ jobs:
           npm ci
           npm run build
           npm run lint
-
-  # Engine legs — cost money/minutes and need the Epic-org-gated container registry, so they
-  # are armed by the repo variable RUITK_CI_ENGINE_ARMED (owner-created; see CLAUDE.md's secrets
-  # inventory). Skipped jobs satisfy branch protection, so arming later needs no re-wiring.
-  engine:
-    name: engine matrix
-    if: vars.RUITK_CI_ENGINE_ARMED == 'true'
-    strategy:
-      fail-fast: false
-      matrix:
-        engine: ["5.6", "5.7", "5.8"]
-    uses: ./.github/workflows/engine-tests.yml
-    with:
-      engine-version: ${{ matrix.engine }}
-    secrets:
-      EPIC_GHCR_PAT: ${{ secrets.EPIC_GHCR_PAT }}
