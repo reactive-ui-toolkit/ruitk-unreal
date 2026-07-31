@@ -60,8 +60,7 @@ bool FRuitkSchedulerLaneOrderTest::RunTest(const FString&)
 
 	// Frame 3: otherwise idle -> Idle finally runs.
 	S.PumpFrame();
-	TestEqual(TEXT("frame 3: Idle ran on the idle frame"), FString::Join(Order, TEXT(",")),
-			  FString(TEXT("A,B,D,C,I")));
+	TestEqual(TEXT("frame 3: Idle ran on the idle frame"), FString::Join(Order, TEXT(",")), FString(TEXT("A,B,D,C,I")));
 	TestEqual(TEXT("no Low was cancelled"), S.GetMetrics().LowCancelled, 0);
 	TestEqual(TEXT("IdleRan counted"), S.GetMetrics().IdleRan, 1);
 	return true;
@@ -107,9 +106,9 @@ bool FRuitkSchedulerLowMidFrameTest::RunTest(const FString&)
 
 	// Low enqueued MID-FRAME (from the High action, after the frame-start cancel check):
 	// it is NOT cancelled and runs in the same frame's Low phase.
-	S.Enqueue(&KeyH,
-			  [&S, &bLowRan, &KeyL]() { S.Enqueue(&KeyL, [&bLowRan]() { bLowRan = true; }, ERuitkLane::Low); },
-			  ERuitkLane::High);
+	S.Enqueue(
+		&KeyH, [&S, &bLowRan, &KeyL]() { S.Enqueue(&KeyL, [&bLowRan]() { bLowRan = true; }, ERuitkLane::Low); },
+		ERuitkLane::High);
 	S.PumpFrame();
 	TestTrue(TEXT("mid-frame Low ran the same frame"), bLowRan);
 	TestEqual(TEXT("nothing was cancelled"), S.GetMetrics().LowCancelled, 0);
@@ -128,13 +127,14 @@ bool FRuitkSchedulerEscalationTest::RunTest(const FString&)
 	TArray<FString> Order;
 	int32 KeyH1 = 0, KeyH2 = 0, KeyN = 0;
 
-	S.Enqueue(&KeyH1,
-			  [&]()
-			  {
-				  Order.Add(TEXT("H1"));
-				  Clock += 5 * Ms; // blows the 4 ms budget
-			  },
-			  ERuitkLane::High);
+	S.Enqueue(
+		&KeyH1,
+		[&]()
+		{
+			Order.Add(TEXT("H1"));
+			Clock += 5 * Ms; // blows the 4 ms budget
+		},
+		ERuitkLane::High);
 	S.Enqueue(&KeyH2, [&Order]() { Order.Add(TEXT("H2")); }, ERuitkLane::High);
 	S.Enqueue(&KeyN, [&Order]() { Order.Add(TEXT("N")); }, ERuitkLane::Normal);
 
@@ -145,8 +145,7 @@ bool FRuitkSchedulerEscalationTest::RunTest(const FString&)
 	TestEqual(TEXT("N still queued"), S.NumQueued(ERuitkLane::Normal), 1);
 
 	S.PumpFrame();
-	TestEqual(TEXT("frame 2: High drains then Normal runs"), FString::Join(Order, TEXT(",")),
-			  FString(TEXT("H1,H2,N")));
+	TestEqual(TEXT("frame 2: High drains then Normal runs"), FString::Join(Order, TEXT(",")), FString(TEXT("H1,H2,N")));
 	TestEqual(TEXT("no second escalation"), S.GetMetrics().Escalations, 1);
 	return true;
 }
@@ -172,13 +171,14 @@ bool FRuitkSchedulerIdleTest::RunTest(const FString&)
 	// Frame 2: an otherwise-idle frame runs Idle. The budget check is BEFORE each dequeue,
 	// so J1 (cheap) runs at elapsed 0 and J2 is dequeued at elapsed 0 too — its 3 ms cost
 	// lands AFTER it ran, past the 2 ms sub-budget.
-	S.Enqueue(&KeyJ2,
-			  [&]()
-			  {
-				  ++IdleRuns;
-				  Clock += 3 * Ms; // over the 2 ms half-budget
-			  },
-			  ERuitkLane::Idle);
+	S.Enqueue(
+		&KeyJ2,
+		[&]()
+		{
+			++IdleRuns;
+			Clock += 3 * Ms; // over the 2 ms half-budget
+		},
+		ERuitkLane::Idle);
 	S.PumpFrame();
 	TestEqual(TEXT("idle frame ran both queued idle actions (check precedes dequeue)"), IdleRuns, 2);
 
@@ -186,13 +186,14 @@ bool FRuitkSchedulerIdleTest::RunTest(const FString&)
 	int32 KeyJ3 = 0, KeyJ4 = 0;
 	bool bJ3Ran = false, bJ4Ran = false;
 	S.Enqueue(&KeyJ3, [&bJ3Ran]() { bJ3Ran = true; }, ERuitkLane::Idle);
-	S.Enqueue(&KeyJ1,
-			  [&]()
-			  {
-				  ++IdleRuns;
-				  Clock += 3 * Ms;
-			  },
-			  ERuitkLane::Idle);
+	S.Enqueue(
+		&KeyJ1,
+		[&]()
+		{
+			++IdleRuns;
+			Clock += 3 * Ms;
+		},
+		ERuitkLane::Idle);
 	S.Enqueue(&KeyJ4, [&bJ4Ran]() { bJ4Ran = true; }, ERuitkLane::Idle);
 	S.PumpFrame(); // J3 (0 < 2 ms), J1 (0 < 2 ms, then +3 ms), J4 blocked (3 > 2)
 	TestTrue(TEXT("J3 ran under the sub-budget"), bJ3Ran);
@@ -307,8 +308,7 @@ bool FRuitkSchedulerBudgetCutoffTest::RunTest(const FString&)
 
 // ── Batched effects: unbudgeted frame-end flush, even on an exhausted frame ───────────────
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSchedulerBatchedEffectsTest, "Ruitk.Scheduler.BatchedEffects",
-								 RUITK_TEST_FLAGS)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkSchedulerBatchedEffectsTest, "Ruitk.Scheduler.BatchedEffects", RUITK_TEST_FLAGS)
 bool FRuitkSchedulerBatchedEffectsTest::RunTest(const FString&)
 {
 	using namespace SchedulerTest;
@@ -319,13 +319,14 @@ bool FRuitkSchedulerBatchedEffectsTest::RunTest(const FString&)
 	int32 KeyN = 0;
 
 	S.EnqueueBatchedEffect([&bEffectRan]() { bEffectRan = true; });
-	S.Enqueue(&KeyN,
-			  [&]()
-			  {
-				  Clock += 10 * Ms; // exhaust the whole frame budget
-				  S.EnqueueBatchedEffect([&bMidFrameEffectRan]() { bMidFrameEffectRan = true; });
-			  },
-			  ERuitkLane::Normal);
+	S.Enqueue(
+		&KeyN,
+		[&]()
+		{
+			Clock += 10 * Ms; // exhaust the whole frame budget
+			S.EnqueueBatchedEffect([&bMidFrameEffectRan]() { bMidFrameEffectRan = true; });
+		},
+		ERuitkLane::Normal);
 	S.PumpFrame();
 	TestTrue(TEXT("pre-queued effect flushed despite the exhausted budget (unbudgeted)"), bEffectRan);
 	TestTrue(TEXT("mid-frame effect flushed the same frame"), bMidFrameEffectRan);

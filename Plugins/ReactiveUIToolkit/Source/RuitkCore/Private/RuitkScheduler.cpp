@@ -4,7 +4,9 @@
 #include "RuitkCoreMisc.h"
 #include "HAL/PlatformTime.h"
 
-FRuitkScheduler::FRuitkScheduler(TFunction<double()> InClockSeconds) : Clock(MoveTemp(InClockSeconds)) {}
+FRuitkScheduler::FRuitkScheduler(TFunction<double()> InClockSeconds) : Clock(MoveTemp(InClockSeconds))
+{
+}
 
 double FRuitkScheduler::Now() const
 {
