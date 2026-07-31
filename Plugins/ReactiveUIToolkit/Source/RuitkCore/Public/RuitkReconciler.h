@@ -46,7 +46,11 @@ public:
 	void ScheduleUpdateOnFiber(FRuitkFiber* Fiber);
 	void RequestUpdate();
 
-	/** Run any pending work NOW, synchronously and unsliced (tests, HMR, mount surfaces). */
+	/** Run any pending work NOW, synchronously and unsliced (tests, HMR, mount surfaces).
+	 *  "Unsliced" is enforced, not assumed (P-06): bForceSyncPass is raised for the duration,
+	 *  every slicing decision reads IsTimeSlicing() && !bForceSyncPass, and passes run to
+	 *  quiescence — a commit's deferred-update replay that schedules a follow-up pass is run
+	 *  too, so no parked WIP survives the call. */
 	void FlushSync();
 
 	/** HMR: mark EVERY function fiber dirty (defeats bailout caches — component definitions
@@ -173,6 +177,9 @@ private:
 	bool bIsCommitting = false;
 	TArray<FRuitkFiber*> DeferredUpdates;
 	bool bWorkActive = false;
+	/** Raised only inside FlushSync (scoped): forces every slicing decision to false so the
+	 *  in-flight pass cannot park (P-06 — the ":unsliced" contract of FlushSync). */
+	bool bForceSyncPass = false;
 	bool bRestart = false;
 	bool bTickPending = false;
 	int32 RestartCount = 0;

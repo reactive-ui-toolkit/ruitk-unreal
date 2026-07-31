@@ -563,7 +563,7 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
 
 ## §10 — Close-out checklist (every box is a merge gate)
 
-- [ ] M1 FlushSync force-unsliced + regression test
+- [x] M1 FlushSync force-unsliced + regression test — DONE 2026-07-31 (fail-first verified; battery 134/134)
 - [ ] M2 `FRuitkScheduler` + `Ruitk.Scheduler` suite (fake clock)
 - [ ] M3 defer-don't-restart + sliced Slice actions + depth-25 + park/resume tests, both-worlds green
 - [ ] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice

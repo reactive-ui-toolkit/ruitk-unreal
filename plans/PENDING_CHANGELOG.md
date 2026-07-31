@@ -56,4 +56,4 @@ around.
      Lane B this wave (changelog.json 2026-07-31, vscode+vs2022 0.9.1 — the TB-31
      embedded-clangd false-positive suppression) was authored directly at release prep;
      nothing extension-side was staged here, so there was nothing to drain for B. -->
-(empty — drained 2026-07-31)
+- [lane A] [plugin] FlushSync is now genuinely "synchronously and unsliced" (family-parity M1/P-06): a scoped force-sync pass + run-to-quiescence loop replaces the voided `bWasSlicing` no-op — with time slicing on, mount surfaces/HMR/item-model row roots can no longer return with parked uncommitted WIP; regression test `Ruitk.Core.FlushSyncUnderSlicing` (PR #53)

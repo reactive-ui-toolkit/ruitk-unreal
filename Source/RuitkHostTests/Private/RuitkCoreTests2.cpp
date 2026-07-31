@@ -492,6 +492,69 @@ bool FRuitkCoreTimeSlicingTest::RunTest(const FString&)
 	return true;
 }
 
+// -- FlushSync under slicing: "synchronously and unsliced" must be literal -- with slicing on
+//    and a zero budget a plain Tick MUST park, but ONE FlushSync call commits everything
+//    (P-06/M1; every mount surface + HMR + the item-model row roots depend on this)
+//    -------------
+
+static FRuitkNodeArray FlushSyncWideComp(FRuitkContext& Ctx, const FRuitkEmptyProps&, const TArray<FRuitkNode>&)
+{
+	auto [Frame, SetFrame] = Ctx.UseState<int32>(0);
+	CoreTest2::IntSetter = SetFrame;
+	const int32 F = Frame;
+	Ctx.UseEffect([F]() { CoreTest2::SeenInt = F; }, Ruitk::Deps(F));
+	TArray<FRuitkNode> Items;
+	for (int32 i = 0; i < 32; ++i)
+	{
+		Items.Add(RuitkTest::Box(RuitkTest::BoxProps(FString::Printf(TEXT("w %d-%d"), i, Frame)), {}, FRuitkKey(i)));
+	}
+	return {RuitkTest::Box(RuitkTest::BoxProps(TEXT("wide")), MoveTemp(Items))};
+}
+RUITK_COMPONENT(FlushSyncWideComp)
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkCoreFlushSyncUnderSlicingTest, "Ruitk.Core.FlushSyncUnderSlicing",
+								 RUITK_TEST_FLAGS)
+bool FRuitkCoreFlushSyncUnderSlicingTest::RunTest(const FString&)
+{
+	CoreTest2::Reset();
+	CoreTest2::SeenInt = -1; // effect writes 0 on mount -- must be distinguishable
+	IConsoleVariable* Slicing = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.TimeSlicing"));
+	IConsoleVariable* Budget = IConsoleManager::Get().FindConsoleVariable(TEXT("ruitk.FrameBudgetMs"));
+	Slicing->Set(true);
+	Budget->Set(0.0f); // parks after every unit -- a plain Tick cannot finish this pass
+
+	{
+		FRuitkTestHarness H;
+		H.Mount(Ruitk::FC(&FlushSyncWideComp)); // mount is always synchronous
+		FMockNode* Wide = H.ChildAt(0);
+		if (TestNotNull(TEXT("mounted container"), Wide))
+		{
+			TestEqual(TEXT("32 leaves mounted"), Wide->Children.Num(), 32);
+			TestEqual(TEXT("mount effect flushed"), CoreTest2::SeenInt, 0);
+
+			CoreTest2::IntSetter(1);   // dirty -> queues a (sliced) tick
+			H.Reconciler->FlushSync(); // ONE call: must run to full commit, unsliced
+
+			TestEqual(TEXT("first leaf committed by FlushSync"), Wide->Children[0]->PropsAs<FTestBoxProps>()->Label,
+					  FString(TEXT("w 0-1")));
+			TestEqual(TEXT("last leaf committed by FlushSync"), Wide->Children[31]->PropsAs<FTestBoxProps>()->Label,
+					  FString(TEXT("w 31-1")));
+			TestEqual(TEXT("passive effects flushed by FlushSync"), CoreTest2::SeenInt, 1);
+			TestTrue(TEXT("still mounted"), H.Reconciler->IsMounted());
+			TestTrue(TEXT("ruitk.TimeSlicing still reads true after FlushSync"), FRuitkConfig::IsTimeSlicing());
+
+			// No parked WIP survives the call: draining the host queue afterwards changes nothing.
+			TestTrue(TEXT("host queue drains"), H.Host.PumpUntilIdle(200));
+			TestEqual(TEXT("no further commit was needed"), Wide->Children[31]->PropsAs<FTestBoxProps>()->Label,
+					  FString(TEXT("w 31-1")));
+		}
+	}
+
+	Slicing->Set(false);
+	Budget->Set(8.0f);
+	return true;
+}
+
 // â”€â”€ Refs: attach on placement, null on removal (React lifecycle, D-08.4)
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 

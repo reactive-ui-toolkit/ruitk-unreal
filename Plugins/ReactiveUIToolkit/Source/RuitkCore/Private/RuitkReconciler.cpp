@@ -172,13 +172,28 @@ void FRuitkReconciler::EnsureTick()
 
 void FRuitkReconciler::FlushSync()
 {
-	if (bTickPending || bWorkActive)
+	// P-06: "synchronously and unsliced" is enforced, not assumed — while bForceSyncPass is
+	// raised, every slicing decision reads false, so a pass below can never park. Loop to
+	// quiescence: the commit's deferred-update replay (CommitRoot's tail) may schedule a
+	// follow-up pass via EnsureTick — run that too before returning, mirroring the family
+	// scheduler's PumpNow full drain (RenderScheduler.cs:214-223) and the sync-mode replay
+	// (FiberReconciler.cs:901-905). Bounded: an effect-driven setState loop must not spin
+	// forever here — leave the residual work queued (EnsureTick is already pending) and log.
+	TGuardValue<bool> ForceSync(bForceSyncPass, true);
+	constexpr int32 MaxFlushPasses = 25;
+	int32 Passes = 0;
+	while (bTickPending || bWorkActive)
 	{
 		bTickPending = false;
-		const bool bWasSlicing = FRuitkConfig::IsTimeSlicing();
-		// Run one full unsliced pass now (tests/HMR/mount surfaces).
 		Tick();
-		(void)bWasSlicing;
+		if (++Passes > MaxFlushPasses)
+		{
+			UE_LOG(LogRuitkReconciler, Error,
+				   TEXT("[Ruitk] FlushSync did not reach quiescence after %d passes (setState loop in an "
+						"effect?); remaining work stays scheduled."),
+				   MaxFlushPasses);
+			break;
+		}
 	}
 }
 
@@ -244,7 +259,7 @@ void FRuitkReconciler::Tick()
 	}
 
 	const double Start = FPlatformTime::Seconds();
-	const bool bSliced = FRuitkConfig::IsTimeSlicing();
+	const bool bSliced = FRuitkConfig::IsTimeSlicing() && !bForceSyncPass; // P-06: FlushSync never parks
 	const double BudgetSec = FRuitkConfig::FrameBudgetMs() / 1000.0;
 	while (NextUnit != nullptr)
 	{
