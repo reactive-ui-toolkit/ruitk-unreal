@@ -86,7 +86,9 @@ Docs site: `cd "RuitkUnrealDocs~" && npm ci && npm run dev` (or `npm run build &
 
 ## Architecture (one paragraph + pointers)
 
-`RuitkCore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks and
+`RuitkCore` (Runtime, **no UObject/CoreUObject**) holds vnodes/fibers/reconciler/hooks plus the
+frame scheduler (`FRuitkScheduler` — lanes/budget/batched effects; render passes are time-sliced
+on it by default, mount/FlushSync always synchronous, defer-don't-restart update semantics) and
 talks to engines only through `IRuitkHostConfig`. `RuitkSlate` implements the host with
 per-widget adapters (typed props structs + set-bitmask, setter tables, reconstruct masks, event
 proxies). `RuitkUMG`/`RuitkCommonUI`/`RuitkMVVMBridge` are the Epic-interop
@@ -112,10 +114,12 @@ MASTER_PLAN §1; module table: D-27.
   Codegen emits it only for THIS repo's files; user-project output gets the neutral
   "belongs to your project" banner (D-32).
 - **Logs:** per-module categories `LogRuitkCore`/`LogRuitkSlate`/`LogRuitkUmg`/`LogRuitkInterp`/
-  `LogRuitkEditor`. **CVars:** `rui.` + dotted PascalCase — the shipped set: `ruitk.TimeSlicing`,
-  `ruitk.FrameBudgetMs`, `ruitk.HostNodePool`, `ruitk.HookValidation`, `ruitk.StrictDiagnostics`,
-  `ruitk.StrictMode` (runtime stats via `stat Ruitk`, not a CVar). **MessageLog page:**
-  `"Ruitk"`.
+  `LogRuitkEditor` (+ the dedicated trace transport `LogRuitkTrace`). **CVars:** `ruitk.` +
+  dotted PascalCase — the shipped set (the ten family knobs): `ruitk.TimeSlicing` (default ON
+  since the family parity wave), `ruitk.TimeSliceMs`, `ruitk.FrameBudgetMs` (the scheduler's
+  per-frame budget), `ruitk.HostNodePool`, `ruitk.HookValidation`, `ruitk.StrictDiagnostics`,
+  `ruitk.StrictMode`, `ruitk.TraceLevel`, `ruitk.DiffTracing`, `ruitk.Environment` (runtime
+  stats via `stat Ruitk`, not a CVar). **MessageLog page:** `"Ruitk"`.
 - **Line endings:** LF everywhere (`.gitattributes` pins it; two CI gates byte-compare files).
 - **Generated code is COMMITTED** (`*.uetkx.inl`, `<Module>.Uetkx.gen.cpp`) and reflection-free;
   sidecars (`*.uetkx.diags.json`) are machine-local and gitignored.

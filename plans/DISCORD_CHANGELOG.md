@@ -50,21 +50,24 @@ Our discord channel - https://discord.gg/Knedqu4Wyv - currently under constructi
 
 ## [0.16.0] - 2026-07-31
 
-### One window for every setting
+### One window for every setting + the family runtime lands
 
-**Reactive UI Toolkit ▸ Settings** — a new window on the plugin's own main menu (also under Window ▸ Tools) now holds every knob the plugin has, in two sections:
-- **Runtime** — the six `ruitk.*` reconciler CVars (TimeSlicing, FrameBudgetMs, HostNodePool, HookValidation, StrictDiagnostics, StrictMode) are now real, persistable settings (`URuitkSettings`): edit them live in the editor and they save to your project's `DefaultGame.ini` — which packaged builds ship. Console, command-line, and ini overrides still win (project-setting priority), and untouched projects behave byte-identically.
-- **Editor / Hot Reload** — the seven HMR options (watched roots, debounce, notifications, follow-PIE, Live Coding console hiding, …) plus the two rebindable HMR shortcuts.
+**Reactive UI Toolkit ▸ Settings** — a new window on the plugin's own menu holds every knob, in two sections: **Runtime** — now TEN `ruitk.*` CVars as real, persistable settings (`URuitkSettings`, saved to your `DefaultGame.ini`, which packaged builds ship; console/ini overrides still win) — and **Editor / Hot Reload** — the seven HMR options plus both rebindable shortcuts. The Hot Reload window now only runs HMR; the Project Settings pages stay as mirrors.
 
-Both sections edit the same objects their Project Settings pages show — the pages stay as mirrors, now reading as a pair: *Reactive UI Toolkit* and *Reactive UI Toolkit — Editor*. The **Hot Reload window now only runs HMR** (Start/Stop, live stats — the Watched row reports your real watched roots instead of echoing the defaults — and recent errors); its settings checkboxes and shortcut rows moved into the new window, and its "All settings…" link opens it directly.
+**Time slicing is now ON by default.** Render passes run as time-sliced actions on the new family render scheduler (ported from the Unity leg): 2 ms slices inside a 4 ms per-frame budget, commits always atomic, mount always synchronous. And setState mid-render now **defers and replays once** post-commit — the restart-from-root machinery is gone (it starved big trees). Opt out anytime: `bTimeSlicing` off in Project Settings — the synchronous single-pass world stays fully tested.
 
-Family parity: the Unity and Godot legs ship the same one-window settings surface — same tunables, engine-native spelling on each.
+New debugging surface:
+- `ruitk.TraceLevel` (Basic/Verbose) — structural + per-hook trace on one `LogRuitkTrace` category; `ruitk.DiffTracing` adds reconciler diff verdicts
+- `ruitk.StrictDiagnostics` is now real: `[Ruitk][strict]` warnings for setState-during-render and no-deps effects, deduped
+- `ruitk.Environment` — auto/dev/prod, read-only via `Ctx.GetEnvironment()`, for your own debug overlays
 
-**Update:** drop-in — no API or markup changes.
+Bench at the new defaults: no regression anywhere — the Doom demo's whole-game-frame headline got FASTER (312 → 170 µs median).
 
-**Tooling:** UETKX 0.9.1 (VS Code + VS 2022) — embedded-C++ ERROR false-positives on UE-interop `.uetkx` files are suppressed (TB-31): cascades from UE headers clang can't fully parse, bogus overload-resolution errors on the hook/API surface, and "undeclared identifier" noise on cross-file imports are dropped; genuine local typos still surface, and `RuitkCompile` + your C++ build stay the authoritative error source.
+**Update:** drop-in; a saved FrameBudgetMs=8 keeps working (now the scheduler's per-frame budget, default 4).
 
-Full automation battery green on UE 5.6: 133/133.
+**Tooling:** UETKX 0.9.1 (VS Code + VS 2022) — embedded-C++ ERROR false-positives on UE-interop `.uetkx` files are suppressed (TB-31); genuine local typos still surface, and `RuitkCompile` + your C++ build stay the authoritative error source.
+
+Full automation battery green on UE 5.6: 167/167 — in BOTH scheduler worlds.
 
 ---
 

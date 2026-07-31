@@ -940,3 +940,21 @@ referenced from plans/PRs.
   2102s null-only) + both siblings adopt the mirrored cases — paste-ready JSON generated
   (scratchpad return-null-cases-{godot,unity}.json). Cross-repo hash alignment stays TD-009
   (the corpora already diverged before this).
+
+## TD-036 — Scheduler lanes ship without High/Low/Idle producers (family-parity P-04)
+- **Where:** `Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkScheduler.h` /
+  `Private/RuitkScheduler.cpp` (the four lanes + cancel/escalation/idle-gate semantics);
+  the reconciler's Slice enqueue (`RuitkReconciler.cpp`, Normal lane).
+- **What/why deferred:** the family-parity campaign (FAMILY_PARITY_PLAN P-04, owner-locked
+  §1 contract) ported the full lane semantics — frame-start Low-cancel, High-starvation
+  escalation counting, Idle gate with budget/2 sub-budget — exactly and under test
+  (`Ruitk.Scheduler`, 12 tests, fake clock), but the reconciler only ever enqueues on the
+  Normal lane: NO code in the family classifies updates into High/Low/Idle yet (the Unity
+  reference enqueues Normal too, RenderScheduler consumers pending family-wide). The
+  semantics were locked NOW so future producers (e.g. `UseTransition` → Low, input-driven →
+  High) can arrive without re-litigating scheduler behavior.
+- **Production-grade resolution:** a family decision assigning producers to lanes
+  (`UseTransition`/`UseDeferredValue` are the natural Low candidates — the docs' "no lane
+  classification yet" wording is the user-facing echo of this entry), landed in all three
+  legs against the already-tested semantics.
+- **Status:** OPEN (accepted caveat, family-parity M9 2026-07-31).

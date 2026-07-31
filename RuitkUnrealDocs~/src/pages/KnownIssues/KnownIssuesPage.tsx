@@ -16,8 +16,10 @@ const ITEMS: Array<[string, ReactNode]> = [
   ],
   [
     'Transitions are synchronous',
-    <><code>UseTransition</code> does not defer work — there is no concurrent renderer on Unreal, so it
-      runs synchronously. It exists for API parity and intent, not background scheduling.</>,
+    <><code>UseTransition</code> does not defer work. Render passes are time-sliced on the frame
+      scheduler by default (family parity wave), but transitions do not yet classify updates into
+      the scheduler&apos;s priority lanes — <code>UseTransition</code> exists for API parity and
+      intent, not background scheduling.</>,
   ],
   [
     'Removed plain props do not reset',

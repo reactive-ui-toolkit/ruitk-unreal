@@ -14,7 +14,7 @@ const ROWS: Array<[string, string]> = [
   ['Hooks', 'PascalCase — UseState, UseEffect, UseMemo (C++/family convention).'],
   ['Events', 'The Unreal delegate name — OnClicked, OnCheckStateChanged — never onClick/onChange.'],
   ['Elements', 'The Slate class minus its S — VerticalBox, TextBlock, Slider; custom widgets carry the Ruitk mark.'],
-  ['Transitions', 'UseTransition is synchronous — there is no concurrent renderer to defer to.'],
+  ['Transitions', 'UseTransition is synchronous — it does not yet classify updates into the render scheduler’s priority lanes.'],
   ['Error boundaries', 'Structural, declared in markup — C++ cannot try/catch across a render the way JS can.'],
 ]
 

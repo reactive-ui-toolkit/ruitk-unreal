@@ -10,34 +10,42 @@ they use `ide-extensions/changelog.json` (Lane B; see the release-process skill)
 
 ## [0.16.0] — 2026-07-31
 
-The unified-settings release: every setting the plugin has now lives in one window opened
-from its own menu, and the six `ruitk.*` runtime CVars become persistable Project
-Settings — family parity with the Unity and Godot legs' settings surfaces. Runtime
-behavior of untouched projects is byte-identical.
-
-### Added
-
-- **One settings window: Reactive UI Toolkit ▸ Settings.** Every setting of the plugin now
-  lives in a single window opened from the plugin's own main menu (also under Window ▸
-  Tools), in two sections: **Runtime** — the six `ruitk.*` reconciler CVars (TimeSlicing,
-  FrameBudgetMs, HostNodePool, HookValidation, StrictDiagnostics, StrictMode) as
-  `URuitkSettings`, with the CVar help text as tooltips — and **Editor / Hot Reload** — the
-  seven HMR options (watched roots, debounce, notifications, follow-PIE, Live Coding console
-  hiding, …) plus the two rebindable HMR shortcuts. Each section edits the same settings
-  object its Project Settings page shows, and persists the same way that page always did
-  (runtime → the project's `DefaultGame.ini`, which packaged builds ship — plugin-shipped
-  ini files don't; editor → the per-user editor config; shortcuts → the editor's key-binding
-  store, shared with Editor Preferences ▸ Keyboard Shortcuts). The Project Settings pages
-  remain as mirrors of the same objects.
-- **Runtime CVars are now persistable settings.** `URuitkSettings` backs the Runtime section
-  (and its Project Settings mirror): edits apply live in the editor; at startup the stored
-  values are pushed onto the CVars at project-setting priority, so ini/command-line/console
-  overrides still win. Untouched defaults match the per-build CVar defaults exactly (nothing
-  is pushed, shipping behavior byte-identical — including StrictMode's shipping force-off).
-  `FRuitkConfig` accessors are unchanged.
+The settings + family-parity release, one wave: every setting the plugin has now lives in
+one window and persists as real Project Settings, and the runtime adopts the
+family-canonical reconciler semantics — the render scheduler, defer-don't-restart, strict
+diagnostics, the trace ladder, the environment label, and (the headline) **time slicing is
+now ON by default**. All ten family knobs now ship with identical semantics and defaults
+across the Unity, Godot, and Unreal legs.
 
 ### Changed
 
+- **Time slicing is now ON by default** (`ruitk.TimeSlicing` = true). Render passes run as
+  self-re-enqueueing time-sliced actions on the new frame scheduler — a 2.0 ms quantum per
+  slice (`ruitk.TimeSliceMs`), inside a 4.0 ms per-frame scheduler budget
+  (`ruitk.FrameBudgetMs`) — so large renders spread across frames while every commit stays
+  atomic (you never see a half-applied tree). **Mount is always synchronous**, and so is
+  every `FlushSync` surface (host widgets, activatable screens, item-model row roots, HMR,
+  the editor preview): first frames are identical to 0.15.0. **Migration:** nothing to do
+  for most projects; to keep the old fully-synchronous single-pass behavior, set
+  `bTimeSlicing` false in Project Settings ▸ Plugins ▸ Reactive UI Toolkit (or
+  `ruitk.TimeSlicing 0`) — the scheduler-bypass path is a supported, tested first-class
+  mode (the full battery runs green in both worlds). Bench proof at the new defaults: no
+  scenario regressed; the interactive headline (`Bench.Doom` `doom_reconcile_frame`)
+  measured faster than the pre-campaign baseline (`plans/BENCH_BASELINES.md`).
+- **`ruitk.FrameBudgetMs` changed meaning and default (8.0 → 4.0).** It used to be the
+  single-axis render-phase budget; it is now the scheduler's per-frame budget, cumulative
+  across lanes — the per-slice render quantum is the new `ruitk.TimeSliceMs` (2.0 ms). A
+  project that saved the old 8.0 keeps working (8.0 is simply a more generous budget —
+  never wrong); the editor logs a one-shot notice when a saved value still equals the old
+  default.
+- **setState no longer restarts the render pass — it defers.** A state update arriving
+  mid-render, mid-park, or mid-commit is deferred and replayed post-commit as ONE coalesced
+  follow-up render (the family defer-don't-restart semantics). The old restart-from-root
+  machinery (25-restart guard) is deleted — restarting starved large trees under sustained
+  per-frame updates and leaked the aborted walk's fibers. Updates aimed at a superseded
+  in-flight tree redirect to their live fibers; updates on detached fibers warn and bail;
+  a runaway setState-during-render cascade hits a render-depth-25 guard (error log +
+  render-nothing for that pass — no crash, no hang).
 - **The Hot Reload window now only runs HMR.** Start/Stop, ACTIVE/Idle, the live stats
   (including a **Watched** row that reports the actual `Watched roots` setting instead of a
   hardcoded echo of the defaults), the build-pause warning, and recent errors stay; its four
@@ -46,6 +54,65 @@ behavior of untouched projects is byte-identical.
 - The editor settings page is renamed **Reactive UI Toolkit — Editor** (display only; config
   file and section storage unchanged), so the runtime and editor pages read as a pair under
   Project Settings ▸ Plugins.
+
+### Added
+
+- **One settings window: Reactive UI Toolkit ▸ Settings.** Every setting of the plugin now
+  lives in a single window opened from the plugin's own main menu (also under Window ▸
+  Tools), in two sections: **Runtime** — the ten `ruitk.*` reconciler CVars (TimeSlicing,
+  TimeSliceMs, FrameBudgetMs, HostNodePool, HookValidation, StrictDiagnostics, StrictMode,
+  TraceLevel, DiffTracing, Environment) as `URuitkSettings`, with the CVar help text as
+  tooltips — and **Editor / Hot Reload** — the seven HMR options (watched roots, debounce,
+  notifications, follow-PIE, Live Coding console hiding, …) plus the two rebindable HMR
+  shortcuts. Each section edits the same settings object its Project Settings page shows,
+  and persists the same way that page always did (runtime → the project's
+  `DefaultGame.ini`, which packaged builds ship — plugin-shipped ini files don't; editor →
+  the per-user editor config; shortcuts → the editor's key-binding store, shared with
+  Editor Preferences ▸ Keyboard Shortcuts). The Project Settings pages remain as mirrors of
+  the same objects.
+- **Runtime CVars are now persistable settings.** `URuitkSettings` backs the Runtime section
+  (and its Project Settings mirror): edits apply live in the editor; at startup the stored
+  values are pushed onto the CVars at project-setting priority, so ini/command-line/console
+  overrides still win. Untouched defaults match the per-build CVar defaults exactly (nothing
+  is pushed — including StrictMode's shipping force-off). `FRuitkConfig` accessors are
+  unchanged.
+- **`FRuitkScheduler` — the family render scheduler** (the Unity leg's `RenderScheduler`
+  ported): four lanes (High/Normal/Low/Idle) under one per-frame budget cumulative across
+  lanes — frame-start Low-queue cancel when High contends, High-starvation escalation
+  accounting, an Idle gate with a budget/2 sub-budget, per-lane enqueue dedup by key,
+  batch-deferred non-High enqueues, and an UNBUDGETED frame-end batched-effects flush.
+  Owned by the Slate host and pumped once per Slate PreTick; render passes ride the Normal
+  lane; the mock host drives it headlessly with a fake clock.
+- **Strict diagnostics are now real.** `ruitk.StrictDiagnostics` (the knob existed but
+  gated nothing) now emits the two family misuse warnings, `[Ruitk][strict]`-prefixed and
+  deduped per component: (1) a state update during the component's OWN render — move it
+  into an effect or event handler — and (2) an effect/layout effect registered with no
+  dependency array (it re-runs every render; pass deps, `{}` for run-once). Dev builds
+  default on, Shipping off (unchanged compiled defaults); a warning never changes behavior.
+- **The trace ladder.** NEW `ruitk.TraceLevel` (0=None/1=Basic/2=Verbose, default None):
+  Basic emits structural events — placements, updates, deletions, node-replacement
+  decisions, per-commit summaries with counts — on the NEW dedicated `LogRuitkTrace`
+  category; Verbose adds per-element detail (element type/ComponentId/key) and per-hook
+  detail (effect captures, state/reducer writes). NEW `ruitk.DiffTracing` (default off) is
+  the independent switch for reconciler diff-decision logs (bailout/subtree-skip/render
+  verdicts with the props-equal breakdown + child-reconciliation tiers); Verbose implies
+  it. One category carries all trace output (`log LogRuitkTrace off` silences it); every
+  emission early-outs before formatting when off; `stat Ruitk` and the diagnostics counters
+  are untouched.
+- **The environment label.** NEW `ruitk.Environment` (auto/development/production, default
+  auto = development in any non-shipping build, production in Shipping), surfaced read-only
+  to components as `Ctx.GetEnvironment()` — a plain accessor, not a hook (no slot, no
+  subscription; changing it never re-renders by itself) — for YOUR dev-vs-prod branches
+  (debug overlays, dev panels). The library itself never branches on it.
+
+### Fixed
+
+- **`FlushSync` is now genuinely "synchronously and unsliced".** It documented that
+  contract but simply ran a normal tick, which re-read the slicing CVar — with slicing on,
+  a `FlushSync` could park mid-pass and return with uncommitted work-in-progress. It now
+  forces a synchronous pass and runs to quiescence (draining its queued slice and the
+  deferred-update replay). Every mount surface depends on it; under the new sliced defaults
+  this would have been a first-frame correctness bug.
 
 ## [0.15.0] — 2026-07-28
 
