@@ -42,10 +42,13 @@ export const HmrPage: FC = () => (
     <Typography variant="body1" paragraph>
       The <strong>Reactive UI Toolkit</strong> menu and window drive the loop from inside the editor: watch
       status, trigger a compile, and toggle <strong>Follow Play</strong> to tie hot-reload to
-      PIE&apos;s Play/Stop. Live Coding must be enabled for the reload half to fire. Tuning lives in{' '}
-      <em>Project Settings ▸ Plugins ▸ Reactive UI Toolkit</em> (watched roots, debounce, notifications,
-      follow-PIE, hide the Live Coding console), and <code>RuitkUetkx.HMR.Start</code> /{' '}
-      <code>Stop</code> / <code>Toggle</code> drive it from the console.
+      PIE&apos;s Play/Stop. Live Coding must be enabled for the reload half to fire. Tuning lives in
+      the <strong>Reactive UI Toolkit ▸ Settings</strong> window (watched roots, debounce,
+      notifications, follow-PIE, hide the Live Coding console, the rebindable shortcuts — the Hot
+      Reload window&apos;s <em>All settings…</em> link jumps straight there; the same options are
+      mirrored under <em>Project Settings ▸ Plugins ▸ Reactive UI Toolkit — Editor</em>), and{' '}
+      <code>RuitkUetkx.HMR.Start</code> / <code>Stop</code> / <code>Toggle</code> drive it from the
+      console.
     </Typography>
 
     <Alert severity="info" sx={{ mt: 2 }}>

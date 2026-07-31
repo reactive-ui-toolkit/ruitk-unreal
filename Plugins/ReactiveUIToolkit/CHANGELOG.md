@@ -8,6 +8,45 @@ byte-compares them via `scripts/verify-mirror.mjs`). The IDE extensions are NOT 
 they use `ide-extensions/changelog.json` (Lane B; see the release-process skill). Entries below
 0.15.0 predate the rebrand and keep their original wording.
 
+## [0.16.0] — 2026-07-31
+
+The unified-settings release: every setting the plugin has now lives in one window opened
+from its own menu, and the six `ruitk.*` runtime CVars become persistable Project
+Settings — family parity with the Unity and Godot legs' settings surfaces. Runtime
+behavior of untouched projects is byte-identical.
+
+### Added
+
+- **One settings window: Reactive UI Toolkit ▸ Settings.** Every setting of the plugin now
+  lives in a single window opened from the plugin's own main menu (also under Window ▸
+  Tools), in two sections: **Runtime** — the six `ruitk.*` reconciler CVars (TimeSlicing,
+  FrameBudgetMs, HostNodePool, HookValidation, StrictDiagnostics, StrictMode) as
+  `URuitkSettings`, with the CVar help text as tooltips — and **Editor / Hot Reload** — the
+  seven HMR options (watched roots, debounce, notifications, follow-PIE, Live Coding console
+  hiding, …) plus the two rebindable HMR shortcuts. Each section edits the same settings
+  object its Project Settings page shows, and persists the same way that page always did
+  (runtime → the project's `DefaultGame.ini`, which packaged builds ship — plugin-shipped
+  ini files don't; editor → the per-user editor config; shortcuts → the editor's key-binding
+  store, shared with Editor Preferences ▸ Keyboard Shortcuts). The Project Settings pages
+  remain as mirrors of the same objects.
+- **Runtime CVars are now persistable settings.** `URuitkSettings` backs the Runtime section
+  (and its Project Settings mirror): edits apply live in the editor; at startup the stored
+  values are pushed onto the CVars at project-setting priority, so ini/command-line/console
+  overrides still win. Untouched defaults match the per-build CVar defaults exactly (nothing
+  is pushed, shipping behavior byte-identical — including StrictMode's shipping force-off).
+  `FRuitkConfig` accessors are unchanged.
+
+### Changed
+
+- **The Hot Reload window now only runs HMR.** Start/Stop, ACTIVE/Idle, the live stats
+  (including a **Watched** row that reports the actual `Watched roots` setting instead of a
+  hardcoded echo of the defaults), the build-pause warning, and recent errors stay; its four
+  settings checkboxes and two shortcut-recorder rows moved into the new Settings window, and
+  its **"All settings…" link** now opens that window instead of Project Settings.
+- The editor settings page is renamed **Reactive UI Toolkit — Editor** (display only; config
+  file and section storage unchanged), so the runtime and editor pages read as a pair under
+  Project Settings ▸ Plugins.
+
 ## [0.15.0] — 2026-07-28
 
 The family rebrand release: the umbrella is now **Reactive UI Toolkit** (org

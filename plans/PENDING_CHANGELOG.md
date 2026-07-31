@@ -46,4 +46,14 @@ around.
      directly — Lane A (CHANGELOG.md [0.15.0] BREAKING section + mirror), Lane B
      (changelog.json 2026-07-28 entry, 4 shared bullets — vscode+vs2022 0.9.0), Lane C
      (DISCORD_CHANGELOG [0.15.0]). -->
-(empty — drained 2026-07-28)
+
+<!-- Drained 2026-07-31 for the unified-settings release (plugin 0.16.0, extensions 0.9.1,
+     staged-unpublished): both lane-A bullets verified present in Lane A (CHANGELOG.md
+     [0.16.0] — URuitkSettings/persistable CVars under Added, the settings window under
+     Added, the HMR-window slimdown + "Reactive UI Toolkit — Editor" page rename under
+     Changed; mirror resynced); the lane-C bullet became DISCORD_CHANGELOG [0.16.0],
+     written at staging time per the 0.15.0 precedent (owner pastes after publishing).
+     Lane B this wave (changelog.json 2026-07-31, vscode+vs2022 0.9.1 — the TB-31
+     embedded-clangd false-positive suppression) was authored directly at release prep;
+     nothing extension-side was staged here, so there was nothing to drain for B. -->
+(empty — drained 2026-07-31)

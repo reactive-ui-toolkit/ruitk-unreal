@@ -12,7 +12,13 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--file-uri=file:///C:/Yanivs/GameDev/ReactiveUI/ruitk-unreal/ide-extensions/vscode-uetkx/uetkx-dev.code-workspace"
+        // The dev host opens the .code-workspace (whose single folder is `../..` = the repo root),
+        // NOT the bare folder: a folder can't restore UI state into two windows, so the workspace
+        // file gives the host its own identity and open editors survive an F5 cycle.
+        // ${workspaceFolder} — never a written-down absolute path. This line used to hardcode one,
+        // the rebrand sweep rewrote the repo-folder segment inside it, and F5 broke for every clone
+        // whose folder name differs (see CLAUDE.md "Machine-local paths").
+        "${workspaceFolder}/uetkx-dev.code-workspace"
       ],
       "outFiles": ["${workspaceFolder}/out/**/*.js"],
       "preLaunchTask": "npm: build"

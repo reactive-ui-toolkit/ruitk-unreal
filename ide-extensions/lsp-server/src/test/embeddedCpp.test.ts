@@ -10,6 +10,7 @@ import * as path from "node:path";
 import { SourceMap, offsetToPosition, positionToOffset } from "../sourceMap";
 import { buildVirtualCpp } from "../virtualDoc";
 import { ClangdProxy, findCompileCommands } from "../clangdProxy";
+import { embeddedParseCompromised, isEmbeddedCascadeError, shouldDropEmbeddedDiagnostic } from "../embeddedIntel";
 
 test("source map round-trips offsets across a span", () => {
   const map = new SourceMap([
@@ -145,6 +146,39 @@ test("TB-28: `return null;` neutralizes to __ruitk_rn inside the setup scaffold"
   assert.ok(vd.text.includes("FRuitkNode __ruitk_setup_Gate"), "scaffold returns FRuitkNode");
   assert.ok(vd.text.includes("return __ruitk_rn;\n\t}"), "the null token neutralizes in place (typed, legal)");
   assert.ok(!/\breturn null;/.test(vd.text), "raw `null` never reaches clangd");
+});
+
+test("TB-31: embedded-error filter drops the UNRELIABLE categories, keeps the reliable ones", () => {
+  const imports = new Set<string>(["PanelBackground", "UseCounter"]);
+
+  // (a) cascade detection — an error rooted in an included file / template / the error ceiling.
+  assert.ok(isEmbeddedCascadeError({ message: "In included file: no viable overloaded '='" }));
+  assert.ok(isEmbeddedCascadeError({ message: "In template: use of undeclared identifier 'UEArrayCountHelper'" }));
+  assert.ok(isEmbeddedCascadeError({ code: "fatal_too_many_errors", message: "Too many errors emitted, stopping now" }));
+  assert.ok(!isEmbeddedCascadeError({ message: "No matching function for call to 'Deps'" }));
+
+  // (b) a compromised parse (any cascade error present) → EVERY mapped error is dropped.
+  const umgSet = [
+    { severity: 1, code: "ovl_no_viable_oper", message: "In included file: no viable overloaded '='" },
+    { severity: 1, code: "ovl_no_viable_function_in_call", message: "No matching function for call to 'UseField'" },
+    { severity: 1, code: "undeclared_var_use", message: "In template: use of undeclared identifier 'UEArrayCountHelper'" },
+  ];
+  assert.ok(embeddedParseCompromised(umgSet), "the UMG interop set is a compromised parse");
+  for (const d of umgSet) {
+    assert.ok(shouldDropEmbeddedDiagnostic(d, { compromised: true, importedNames: imports }), "cascade error dropped");
+  }
+
+  // (c) CLEAN parse: Ruitk-API overload false-positive (Deps / UseCounter) dropped; imported
+  //     name's "undeclared" dropped; but a GENUINE local typo and a syntax error are KEPT.
+  const clean = { compromised: false, importedNames: imports };
+  assert.ok(shouldDropEmbeddedDiagnostic({ severity: 1, code: "ovl_no_viable_function_in_call", message: "No matching function for call to 'Deps'" }, clean), "Ruitk overload dropped");
+  assert.ok(shouldDropEmbeddedDiagnostic({ severity: 1, code: "undeclared_var_use", message: "Use of undeclared identifier 'PanelBackground'" }, clean), "imported name dropped");
+  assert.ok(!shouldDropEmbeddedDiagnostic({ severity: 1, code: "undeclared_var_use", message: "Use of undeclared identifier 'Cout'" }, clean), "GENUINE local typo KEPT");
+  assert.ok(!shouldDropEmbeddedDiagnostic({ severity: 1, code: "expected_semi_declaration", message: "Expected ';' at end of declaration" }, clean), "syntax error KEPT");
+
+  // (d) warnings/info/hints ALWAYS pass — they never assert an error (even in a compromised TU).
+  assert.ok(!shouldDropEmbeddedDiagnostic({ severity: 2, code: "-Wunused-variable", message: "unused variable 'x'" }, { compromised: true, importedNames: imports }), "warning kept even when compromised");
+  assert.ok(!embeddedParseCompromised([{ severity: 2, message: "In included file: some warning" }]), "a header WARNING does not compromise the parse");
 });
 
 test("findCompileCommands returns null in an empty temp tree", () => {

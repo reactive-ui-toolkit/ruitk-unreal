@@ -14,6 +14,7 @@ namespace RuitkUetkxTabs
 	// Shared with RuitkEditorModule's nomad-tab registrations.
 	extern const FName HmrWindow;
 	extern const FName Preview;
+	extern const FName Settings; // the one settings window (SRuitkSettingsPanel)
 } // namespace RuitkUetkxTabs
 
 class FRuitkUetkxMenu

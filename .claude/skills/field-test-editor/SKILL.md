@@ -11,13 +11,18 @@ a bandaid.
 
 ## Environment facts (verify, don't assume, if anything fails)
 
-- **Live tree** (where the owner tests): `C:\Yanivs\GameDev\ReactiveUI\ruitk-unreal`.
-  NEVER edit it while the owner's Unreal editor is open (UE locks module DLLs — your edits +
-  rebuild will fail loudly anyway); NEVER kill their editor process.
-- **Work tree** (where you develop): create a git worktree (e.g.
-  `C:\Yanivs\GameDev\Reactive UI Toolkit\RUITKU-work`) on first need; branches off `origin/dev`.
-- Engine path: per the `test-run` skill's environment facts. ALWAYS redirect engine output to a
-  file.
+- **Live tree** (where the owner tests): **the checkout you are in** — the repo root that contains
+  this skill. Derive it (`git rev-parse --show-toplevel`); never write it down, and never assume a
+  folder name (see CLAUDE.md "Machine-local paths"). NEVER edit the live tree while the owner's
+  Unreal editor is open (UE locks module DLLs — your edits + rebuild will fail loudly anyway);
+  NEVER kill their editor process.
+- **Work tree** (where you develop): `git worktree list` — the FIRST row is the live tree, the rest
+  are work trees. If none fits, create one as a SIBLING of the live tree so the checkout stays
+  clean, naming it after the branch:
+  `git worktree add ../<live-folder-name>-work-<topic> -b feat/<topic> origin/dev`. Relative `../`
+  keeps the location derived; `git worktree list` is how the next session finds it again.
+- Engine path, and the output-redirection rule: per the `test-run` skill's environment facts —
+  don't restate them here.
 - **Live Coding** (Ctrl+Alt+F11) hot-patches `.cpp` function bodies only. Any header change,
   UPROPERTY/UFUNCTION change, module add/remove, or Build.cs change ⇒ tell the owner to CLOSE
   the editor and rebuild — the analogue of Godot's "plugin scripts don't hot-swap reliably;
@@ -51,6 +56,10 @@ means the plugin is NOT running — silence is never "nothing to do".
 
 ## Scar tissue (why these steps exist)
 
+- **Neither tree is written down here.** This skill used to state the live tree as an absolute path
+  and suggest a work tree under a folder with spaces that never existed — a rename sweep had rewritten
+  both. A recorded path rots silently; a derived one can't. `scripts/check-machine-paths.mjs` now
+  fails CI on any tracked absolute path outside the standard roots.
 - **Two-tree separation** exists because editing the live tree under an open editor produced
   locked-file half-states in the sibling repo's loop; the worktree makes it structurally
   impossible.

@@ -2,7 +2,7 @@
   "name": "uetkx",
   "displayName": "UETKX (Unreal - VS Code)",
   "description": "Syntax highlighting + language intelligence for .uetkx markup (Reactive UI Toolkit for Unreal) — completions, hover, diagnostics, formatting from the compiler schema. Fully offline. Discord: discord.gg/Knedqu4Wyv | github.com/reactive-ui-toolkit/ruitk-unreal",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "ReactiveUITK",
   "license": "SEE LICENSE IN LICENSE",
   "icon": "icon.png",

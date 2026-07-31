@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "TEMPLATE — copy this file to `.ruitk-local.json` (gitignored) and fill in what is true for THIS",
+    "machine. Every key is OPTIONAL: discovery must succeed with no file present, so add a key only",
+    "when the probe can't find a tool or finds the wrong one. Backslashes are doubled, as JSON wants.",
+    "",
+    "Resolution chain (authoritative copy: CLAUDE.md's \"Machine-local paths\" section):",
+    "  $ENV_VAR  ->  .ruitk-local.json  ->  PATH + the standard install roots  ->  an error naming all three.",
+    "",
+    "Repo locations are NEVER listed here. They are DERIVED — ${workspaceFolder} in .vscode/**, a",
+    "script's own '..', `git rev-parse --show-toplevel` in a skill, `git worktree list` for worktrees.",
+    "A written-down repo path breaks every clone whose folder name differs, which is exactly how this",
+    "repo's F5 broke when a rename sweep rewrote the folder segment inside a hardcoded launch argument.",
+    "",
+    "`node scripts/check-machine-paths.mjs` is the gate that keeps machine paths out of tracked files."
+  ],
+
+  "engineRoot": "",
+  "_engineRoot": [
+    "Unreal Engine install to build/test against, e.g. \"C:\\Program Files\\Epic Games\\UE_5.6\".",
+    "Order: $UE_ROOT wins, then this key, then every Launcher install under the Epic Games root",
+    "(scripts/package-plugin.ps1 enumerates them). Set it only to pin one install or to point at an",
+    "engine outside the Launcher root. 5.6 is the floor."
+  ],
+
+  "clangFormat": "",
+  "_clangFormat": [
+    "clang-format 19.1.5 — the pinned version; another one reflows Source/ and fails the CI check.",
+    "Probed on PATH first, then this key, then the VS 2022 bundle at",
+    "<VS install>\\VC\\Tools\\Llvm\\x64\\bin\\clang-format.exe. Set it when neither probe finds it."
+  ]
+}

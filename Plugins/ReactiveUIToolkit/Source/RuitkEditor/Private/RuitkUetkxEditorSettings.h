@@ -15,7 +15,10 @@
 #include "Engine/DeveloperSettings.h"
 #include "RuitkUetkxEditorSettings.generated.h"
 
-UCLASS(config = EditorPerProjectUser, defaultconfig, meta = (DisplayName = "Reactive UI Toolkit"))
+// DisplayName carries the "— Editor" suffix so this page and the runtime URuitkSettings page read
+// as a pair under Project Settings ▸ Plugins. Display-only: config file + section name (the class
+// FName) are unchanged, so no ini migration.
+UCLASS(config = EditorPerProjectUser, defaultconfig, meta = (DisplayName = "Reactive UI Toolkit — Editor"))
 class URuitkUetkxEditorSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()

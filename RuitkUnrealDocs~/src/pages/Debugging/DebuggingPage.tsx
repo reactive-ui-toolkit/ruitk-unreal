@@ -69,6 +69,13 @@ export const DebuggingPage: FC = () => (
         </TableBody>
       </Table>
     </TableContainer>
+    <Typography variant="body1" paragraph>
+      The same six CVars are also editable in the <strong>Reactive UI Toolkit ▸ Settings</strong>{' '}
+      window&apos;s <em>Runtime</em> section (opened from the plugin&apos;s main menu; mirrored under{' '}
+      <em>Project Settings ▸ Plugins ▸ Reactive UI Toolkit</em>) — edits apply live in the editor and
+      persist to your project&apos;s <code>DefaultGame.ini</code> (which ships with packaged builds),
+      while console, command-line, and ini overrides keep the last word.
+    </Typography>
 
     <Alert severity="warning">
       A hook called conditionally desyncs the positional slots — the most common source of

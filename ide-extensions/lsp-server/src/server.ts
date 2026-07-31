@@ -68,9 +68,11 @@ import {
 import { ClangdProxy, findClangd, type ClangdPublishedDiagnostics } from "./clangdProxy";
 import {
   buildEmbeddedView,
+  embeddedParseCompromised,
   embeddedPositionRequest,
   isEmbeddedOffset,
   realUriOfVirtual,
+  shouldDropEmbeddedDiagnostic,
   translateEmbeddedCompletion,
   translateEmbeddedRename,
   virtualUriOf,
@@ -375,14 +377,18 @@ function publishEmbeddedDiagnostics(params: ClangdPublishedDiagnostics): void {
   for (const imp of scanFile(text, path.basename(fsPathOf(doc), ".uetkx")).imports) {
     for (const n of imp.names ?? []) importedNames.add(n);
   }
-  const undeclaredRe = /undeclared identifier '([A-Za-z_][A-Za-z0-9_]*)'/;
+  // TB-31: a compromised parse (errors rooted in unparseable UE headers) makes EVERY mapped
+  // error a cascade — computed over the WHOLE set before the per-diagnostic decision below.
+  const compromised = embeddedParseCompromised(params.diagnostics);
   const mapped: Diagnostic[] = [];
   for (const d of params.diagnostics) {
     const startOff = view.sourceOffsetOf(d.range.start);
     const endOff = view.sourceOffsetOf(d.range.end);
     if (startOff === null || endOff === null || endOff < startOff) continue; // prelude/scaffold
-    const undeclared = undeclaredRe.exec(d.message);
-    if (undeclared && importedNames.has(undeclared[1])) continue; // cross-file import, not a typo
+    // TB-31: drop the error categories the embedded clang view is UNRELIABLE about (cascade
+    // from a broken type environment; Ruitk-API overload resolution; cross-file imports) — the
+    // compiler is authoritative. Syntax errors + genuine local typos still pass.
+    if (shouldDropEmbeddedDiagnostic(d, { compromised, importedNames })) continue;
     mapped.push({
       range: { start: doc.positionAt(startOff), end: doc.positionAt(Math.max(endOff, startOff + 1)) },
       severity: (d.severity ?? 1) as DiagnosticSeverity,

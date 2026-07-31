@@ -57,11 +57,13 @@ node scripts/check-headers.mjs                        # copyright header lint (C
 node scripts/lint-skills.mjs                          # skills frontmatter + scar-tissue lint (CI gate)
 node scripts/docs-drift.mjs                           # claimed counts vs registries (CI gate)
 node scripts/check-style-builders.mjs                 # schema style/slot keys have builder methods (CI gate)
+node scripts/check-machine-paths.mjs                  # no machine-local paths in tracked files (CI gate; --list to audit)
 node scripts/bump.mjs <artifact> <version>            # version bump + lockstep partners + changelog scaffold
 scripts/engine-api-diff.ps1 -From 5.6 -To 5.7 ...     # new-UE-version Slate/UMG header diff (engine-catchup skill)
 ```
 
-Engine commands (require UE 5.6+ installed; paths per the `test-run` skill's environment facts):
+Engine commands (require UE 5.6+ installed; `<Engine>` resolves per **Machine-local paths** below,
+`<abs>` = this checkout, `<scratch>` = a temp dir; the `test-run` skill owns the full ladder):
 
 ```bat
 :: 0. Build (there IS a compile step — unlike Godot)
@@ -146,10 +148,40 @@ MASTER_PLAN §1; module table: D-27.
 | `OVSX_TOKEN` | secret | publish.yml vscode leg, Open VSX (Phase 5+) | `ovsxToken` |
 | `VS_MARKETPLACE_TOKEN` | secret | publish.yml vs2022 leg (Phase 5+) | `vsMarketplaceToken` |
 
+## Machine-local paths
+
+**No tracked file may name a path that exists only on one machine.** `node scripts/check-machine-paths.mjs`
+enforces it in the engine-free gates job (`--list` prints every absolute path found, with a verdict).
+
+- **Repo locations are DERIVED, never written down.** `${workspaceFolder}` in `.vscode/**`, the
+  script's own `..` (`$MyInvocation`/`import.meta.url`), `git rev-parse --show-toplevel` in a skill,
+  `git worktree list` for worktrees. A committed absolute path breaks every clone whose folder name
+  differs — which is exactly how this repo's F5 broke: the rebrand sweep rewrote the repo-folder
+  segment *inside* a hardcoded `--file-uri=file:///…` argument pointing at `uetkx-dev.code-workspace`
+  (in BOTH copies of the launch config), and three audits read the line as "owner machine path, leave
+  it". This paragraph names no drive letter on purpose — the gate reads prose too.
+- **Tools are PROBED, then overridable** — one chain, in this order: `$ENV_VAR` →
+  `.ruitk-local.json` → PATH and the standard install roots → an error naming all three. Standard
+  roots (`C:\Program Files\…`) and CI-container roots (`/home/ue4/…`, the Epic Linux image's engine)
+  MAY appear in discovery code and workflows — they are facts about a platform or an image, not about
+  a person — and the gate allows them. Reference implementations: `scripts/package-plugin.ps1`
+  (engine roots) and `ide-extensions/lsp-server/src/clangdProxy.ts` (clangd).
+- **`.ruitk-local.json` holds this machine's irreducible values** — engine root, clang-format.
+  Gitignored; copy `.ruitk-local.example.json` and fill in only what discovery can't find (both keys
+  optional — everything must work with no file present). Same house style as the tracked
+  `.ruitk-seller-repo` sentinel: a small dot-file at the project root that tooling reads.
+
+Resolution chains — **authoritative here; other docs reference this section instead of restating it**:
+
+| Value | Chain |
+|---|---|
+| `<Engine>` (engine root) | `$UE_ROOT` → `.ruitk-local.json` `engineRoot` → Launcher installs under `C:\Program Files\Epic Games\UE_*`. `scripts/package-plugin.ps1` implements the chain (and on the last rung takes ALL installs — a release ships one zip per engine version; a test run picks one, 5.6 is the floor). CI's Linux legs get the engine from the container image instead. |
+| clang-format (pin **19.1.5**) | `clang-format` on PATH → `.ruitk-local.json` `clangFormat` → the VS 2022 bundle, `C:\Program Files\Microsoft Visual Studio\2022\<edition>\VC\Tools\Llvm\x64\bin\clang-format.exe`. CI installs it from apt. |
+
 ## Environment facts (owner machine — fill/verify at first engine use)
 
-- Engines: Launcher installs under **`C:\Program Files\Epic Games\UE_<ver>`**. Battery verified
-  green on 5.6, 5.7, and 5.8 (2026-07-14). The `engine-catchup` skill is the per-version
+- Engines: resolved per **Machine-local paths** above (Launcher installs, newest wins). Battery
+  verified green on 5.6, 5.7, and 5.8 (2026-07-14). The `engine-catchup` skill is the per-version
   runbook, `scripts/engine-api-diff.ps1` the discovery tool. When switching engines on one
   working copy, a stale-UHT clean may be needed (`rm -rf Intermediate/Build
   Plugins/ReactiveUIToolkit/Intermediate Binaries Plugins/ReactiveUIToolkit/Binaries`) — a newer engine's
@@ -161,7 +193,8 @@ MASTER_PLAN §1; module table: D-27.
   "is not a preferred version (prefers 14.38)" but accepts it. If strict toolchain matching is
   ever needed (e.g. chasing a compiler-specific bug), install the 14.38 toolset via the VS
   Installer's Individual Components.
-- clang-format 19.1.5 at `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\clang-format.exe`.
+- clang-format **19.1.5** (the pinned version — a different one reflows `Source/`); located per the
+  chain in **Machine-local paths** above. On this box it's the VS2022 Community bundle.
 - Always redirect engine console output to a file — piping block-buffers and hides everything.
 - The editor WRITES to `Config/` on close: first boot normalized `DefaultInput.ini` (committed
   once, stable after) and tried to add an AndroidFileServer section **with a generated

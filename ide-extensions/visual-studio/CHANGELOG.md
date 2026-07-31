@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.9.1] - 2026-07-31
+- Embedded-C++ false-positive suppression on UE-interop `.uetkx` files (TB-31): the embedded clangd view cannot reliably parse the heaviest UE headers from scratch (the real build gets them pre-compiled in the SharedPCH), so ERROR diagnostics rooted in an `#include`d file or a template instantiation now mark the virtual TU as compromised and the whole cascade is dropped, as are clang's overload-resolution false-positives on the heavily-templated hook/API surface and `undeclared identifier` errors naming cross-file imports (the virtual TU cannot see other files' exports — a real unimported name still gets UETKX2305). Genuine local typos and syntax errors still surface; `RuitkCompile` and the C++ build remain the authoritative error source.
+
 ## [0.9.0] - 2026-07-28
 - Family rebrand to Reactive UI Toolkit (repo ruitk-unreal): every embedded-C++ and scaffold identifier follows the plugin's 0.15.0 renames — FRuitk*/URuitk* types, the Ruitk:: namespace, RUITK_* macros, Ruitk* modules — across the grammar, completions, hovers, diagnostics, quick-fixes, and the synthetic virtual document. Pair with plugin 0.15.0 (see MIGRATION-0.15.md and -run=RuitkMigrateBrand).
 - Quick-fix and documentation texts now reference the renamed commandlets (-run=RuitkCompile / RuitkExportSchema).

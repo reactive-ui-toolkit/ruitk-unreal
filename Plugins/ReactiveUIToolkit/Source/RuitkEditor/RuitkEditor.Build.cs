@@ -27,12 +27,14 @@ public class RuitkEditor : ModuleRules
 			"Projects",			 // sweep roots
 			"RuitkCore",	 // FRuitkNode / FRuitkRoot (the preview panel, TD-006)
 			"RuitkSlate",	 // FRuitkRoot mount surface (the preview panel, TD-006)
+			"RuitkUMG",		 // URuitkSettings CDO — the Runtime section of the Settings window
 			"RuitkInterp",	 // FUetkxFileScan parser (preview scan — HMR v2 deleted the interpreter)
 			"RuitkToolchain", // FUetkxDriver / FUetkxCodegen
 			"InputCore",			 // SEditableTextBox in the preview panel
 			"WorkspaceMenuStructure", // group the preview/HMR tabs under Window > Tools (grouped entries)
 			"ToolMenus",			  // the top-level RuitkUetkx main-menu (HMR v2 Phase 2)
 			"DeveloperSettings",	  // URuitkUetkxEditorSettings (HMR v2 Phase 3)
+			"PropertyEditor",		  // IDetailsView — the Settings window (SRuitkSettingsPanel)
 			"UnrealEd",				  // FEditorDelegates PIE hooks for "Follow Play" (HMR v2)
 			"DirectoryWatcher",		 // watcher trigger 1
 			"Slate",			 // window-activation trigger

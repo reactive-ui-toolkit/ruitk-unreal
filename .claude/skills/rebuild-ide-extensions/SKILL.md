@@ -5,7 +5,9 @@ description: Rebuild the VS Code and/or VS2022 .uetkx extensions locally for F5 
 
 # Rebuild IDE extensions for F5
 
-Repo root (Windows): `C:\Yanivs\GameDev\ReactiveUI\ruitk-unreal`. Both IDE clients load
+All paths below are relative to the repo root — **the checkout you are in** (`git rev-parse
+--show-toplevel`); never a written-down absolute path, and never an assumed folder name (CLAUDE.md
+"Machine-local paths"). Both IDE clients load
 the **same bundled Node language server** (`lsp-server/out` + runtime deps copied to a
 `server/` dir); there is no native/.NET piece, so one `.vsix` serves every platform.
 
@@ -92,6 +94,11 @@ at F5-ready local artifacts. Local `.vsix` packaging for sideloading is
 - **The launch config MUST live in the root `.vscode/`** — VS Code only reads the open
   folder's `.vscode/`. The config originally lived only in `vscode-uetkx/`, so F5 from the
   repo root did nothing (owner-reported, 2026-07-11). Don't consolidate it back down.
+- **Both launch.json copies are `${workspaceFolder}`-relative, and there ARE two** (root, and
+  `vscode-uetkx/.vscode/` for the open-the-extension-folder flow). Each once hardcoded an absolute
+  path to `uetkx-dev.code-workspace`; the rebrand sweep rewrote the repo-folder segment inside those
+  strings, so F5 opened nothing on any clone whose folder name differed. `scripts/check-machine-paths.mjs`
+  now fails CI on an absolute path in either. Edit one, edit the other.
 - **VS Code never hot-swaps a running server** — after a rebuild with the dev host still
   open, run "Developer: Reload Window" *in the dev host* (or stop and F5 again); the old
   node process keeps serving otherwise.
