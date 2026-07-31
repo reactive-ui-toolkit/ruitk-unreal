@@ -117,6 +117,9 @@ RUITK_COMPONENT(NoRestartC)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDeferNoRestartTest, "Ruitk.Core.DeferNoRestart", RUITK_TEST_FLAGS)
 bool FRuitkDeferNoRestartTest::RunTest(const FString&)
 {
+	// The mid-render setState is exactly what strict diagnostics (M5) warns about — expected
+	// (and asserted ≥1) here; the warning's own suite is RuitkStrictDiagnosticsTest.cpp.
+	AddExpectedError(TEXT("state update during render"), EAutomationExpectedErrorFlags::Contains, 0);
 	for (const bool bSliced : {false, true})
 	{
 		AddInfo(FString::Printf(TEXT("[no-restart] world: %s"), bSliced ? TEXT("sliced") : TEXT("sync")));
@@ -169,6 +172,8 @@ RUITK_COMPONENT(CoalesceB)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDeferCoalesceTest, "Ruitk.Core.DeferCoalesce", RUITK_TEST_FLAGS)
 bool FRuitkDeferCoalesceTest::RunTest(const FString&)
 {
+	// CoalesceB's own-state burst fires mid-render — the M5 strict warning is expected here.
+	AddExpectedError(TEXT("state update during render"), EAutomationExpectedErrorFlags::Contains, 0);
 	for (const bool bSliced : {false, true})
 	{
 		AddInfo(FString::Printf(TEXT("[coalesce] world: %s"), bSliced ? TEXT("sliced") : TEXT("sync")));
@@ -431,6 +436,8 @@ bool FRuitkDeferDepth25Test::RunTest(const FString&)
 		AddInfo(FString::Printf(TEXT("[depth-25] world: %s"), bSliced ? TEXT("sliced") : TEXT("sync")));
 		DeferTest::Reset();
 		AddExpectedError(TEXT("Maximum render depth"), EAutomationExpectedErrorFlags::Contains, 0);
+		// The unconditional mid-render setState also draws the M5 strict warning (once).
+		AddExpectedError(TEXT("state update during render"), EAutomationExpectedErrorFlags::Contains, 0);
 		DeferTest::FScopedWorld World(bSliced, /*QuantumMs=*/0.0f);
 		FRuitkTestHarness H;
 		H.Mount(Ruitk::FC(&RunawayComp));

@@ -39,8 +39,11 @@ struct RUITKCORE_API FRuitkConfig
 	/** Host-node pooling opt-out (A/B measurement). */
 	static bool IsHostNodePoolEnabled();
 
-	/** Hook-order validation + set-during-render warnings (dev builds default-on). */
+	/** Hook-order mismatch detection (dev builds default-on). */
 	static bool IsHookValidationEnabled();
+	/** The two family misuse warnings, prefixed `[Ruitk][strict]` and deduped per component
+	 *  (family strict_diagnostics, M5): state update during a component's own render + effect
+	 *  registered with no dependency array (dev builds default-on). */
 	static bool IsStrictDiagnosticsEnabled();
 
 	/** StrictMode double-render (dev-only; flushes impure renders + stale captures, D-14). */
@@ -125,7 +128,9 @@ namespace Ruitk
 	/** Reconciler-side: consume the latch (returns unset optional when no failure). */
 	RUITKCORE_API TOptional<FString> ConsumeRenderFailure();
 
-	/** True while a component render is on the stack (debug in-render assert support). */
+	/** True while a component render is on the stack. Consumers: the reconciler's render-phase
+	 *  defer discriminator (ScheduleUpdateInternal's depth ladder) and — refined per component
+	 *  via FRuitkComponentState::bIsRendering — the strict set-state-during-render warning. */
 	RUITKCORE_API bool IsRendering();
 	RUITKCORE_API void SetRendering(bool bInRendering);
 } // namespace Ruitk

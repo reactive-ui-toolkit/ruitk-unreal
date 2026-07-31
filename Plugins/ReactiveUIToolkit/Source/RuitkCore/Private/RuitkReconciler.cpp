@@ -171,6 +171,25 @@ void FRuitkReconciler::ScheduleUpdateInternal(FRuitkFiber* Fiber, bool bSchedule
 		if (Ruitk::IsRendering())
 		{
 			bDeferredFromRender = true; // a render-phase setState — feeds the depth ladder
+			// Strict diagnostics, family warning 1 (M5): the component set its OWN state while
+			// its render was on the stack (Target->State->bIsRendering — the per-component
+			// discriminator; a parent's setter fired from a child's render is the legal
+			// lift-state-up shape and stays silent). Warn only — the defer above IS the
+			// behavior. Deduped per component (P-10 core); StrictMode's second invoke dedups
+			// through the same set (diagnostics count once). The post-commit REPLAY can never
+			// reach this line: replayed updates re-mark with bScheduleWork=false and return
+			// above, and replay runs outside render anyway (CommitRoot's tail).
+			if (FRuitkConfig::IsStrictDiagnosticsEnabled() && Target->State.IsValid() && Target->State->bIsRendering)
+			{
+				Ruitk::DiagWarnOnce(*Target->State, FName(TEXT("strict-setstate-in-render")),
+									[Target]() -> FString
+									{
+										return FString::Printf(
+											TEXT("[Ruitk][strict] %s: state update during render — move it into an "
+												 "effect or event handler"),
+											*Target->ComponentId.ToString());
+									});
+			}
 		}
 		return;
 	}

@@ -51,7 +51,9 @@ static TAutoConsoleVariable<bool>
 #else
 							   true,
 #endif
-							   TEXT("Warn on state updates during render and similar misuse."));
+							   TEXT("Misuse warnings, prefixed [Ruitk][strict] and deduped per component: state "
+									"updates during a component's own render + effects registered with no "
+									"dependency array (Ruitk::EveryCommit())."));
 
 static TAutoConsoleVariable<bool>
 	CVarRuitkStrictMode(TEXT("ruitk.StrictMode"), false,

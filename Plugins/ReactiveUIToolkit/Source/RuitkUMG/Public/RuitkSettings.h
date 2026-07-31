@@ -101,8 +101,9 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.HookValidation"))
 	bool bHookValidation;
 
-	/** ruitk.StrictDiagnostics — warn on state updates during render and similar misuse.
-	 *  Defaults off in Shipping. */
+	/** ruitk.StrictDiagnostics — misuse warnings, prefixed [Ruitk][strict] and deduped per
+	 *  component: state updates during a component's own render + effects registered with no
+	 *  dependency array (Ruitk::EveryCommit()). Defaults off in Shipping. */
 	UPROPERTY(config, EditAnywhere, Category = "Development", meta = (ConsoleVariable = "ruitk.StrictDiagnostics"))
 	bool bStrictDiagnostics;
 

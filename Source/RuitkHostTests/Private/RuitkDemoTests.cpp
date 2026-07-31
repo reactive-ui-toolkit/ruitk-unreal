@@ -83,6 +83,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRuitkDemosTest, "Ruitk.Demos",
 								 EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FRuitkDemosTest::RunTest(const FString&)
 {
+	// AcceptanceLab's Ref-attach probe deliberately runs every commit (Ruitk::EveryCommit(),
+	// section 9) — the M5 strict no-deps warning is expected once and suppressed.
+	AddExpectedError(TEXT("has no dependency array"), EAutomationExpectedErrorFlags::Contains, 0);
+
 	AddInfo(TEXT("[demos] every compiled .uetkx screen self-registered its factory"));
 	for (const FName& Name : RuitkDemo::GetCompiledScreenNames())
 	{

@@ -58,15 +58,23 @@ void FRuitkContext::Record(ERuitkHookKind Kind)
 	}
 }
 
-void FRuitkContext::WarnOnce(FName Key, const FString& Msg)
+void Ruitk::DiagWarnOnce(FRuitkComponentState& State, FName Key, TFunctionRef<FString()> BuildMsg)
 {
+	// The P-10 dedup core — see the declaration's note on its two entry points. Emit feeds the
+	// test-capture path (FRuitkDiagnostics::Messages); the log line is the user-facing surface.
 	if (State.DiagWarned.Contains(Key))
 	{
 		return;
 	}
 	State.DiagWarned.Add(Key);
+	const FString Msg = BuildMsg();
 	FRuitkDiagnostics::Emit(Msg);
 	UE_LOG(LogRuitkCoreHooks, Warning, TEXT("%s"), *Msg);
+}
+
+void FRuitkContext::WarnOnce(FName Key, const FString& Msg)
+{
+	Ruitk::DiagWarnOnce(State, Key, [&Msg]() -> FString { return Msg; });
 }
 
 void FRuitkContext::NotifyEffects()

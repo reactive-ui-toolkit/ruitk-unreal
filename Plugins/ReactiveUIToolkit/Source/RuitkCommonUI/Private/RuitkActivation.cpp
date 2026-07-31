@@ -96,9 +96,11 @@ void Ruitk::CommonUI::UseDesiredFocus(FRuitkContext& Ctx, TFunction<void()> Focu
 	const TSharedPtr<FRuitkFocusTargetRegistry> Registry = Ctx.UseContext(FocusTargetContext());
 	// One effect slot, re-run every commit: the render phase stays pure, the LATEST action wins
 	// (it may capture fresh state), and the cleanup clears the designation on unmount. The weak
-	// capture never extends the screen-owned registry's lifetime.
+	// capture never extends the screen-owned registry's lifetime. Internal path: this is
+	// library plumbing — the strict no-deps warning (M5) must not blame the user's component
+	// for an every-commit effect it did not write.
 	TWeakPtr<FRuitkFocusTargetRegistry> Weak = Registry;
-	Ctx.UseEffect(
+	Ctx.InternalUseEffect(
 		[Weak, Action = MoveTemp(FocusAction)]() -> TFunction<void()>
 		{
 			if (const TSharedPtr<FRuitkFocusTargetRegistry> Pinned = Weak.Pin())
