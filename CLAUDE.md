@@ -142,7 +142,7 @@ MASTER_PLAN §1; module table: D-27.
 
 | Name | Kind | Consumed by | Local mirror key (`publisher-secrets.json`) |
 |---|---|---|---|
-| `RUITK_CI_ENGINE_ARMED` | repo variable | test.yml/publish.yml engine legs (gate) | — |
+| `RUITK_CI_ENGINE_ARMED` | repo variable | publish.yml verify-engines legs (gate; engines verify at publish time only) | — |
 | `EPIC_GHCR_PAT` | secret | engine-container pulls (Linux CI legs) | — |
 | `VSCE_PAT` | secret | publish.yml vscode leg (Phase 5+) | `vscePatToken` |
 | `OVSX_TOKEN` | secret | publish.yml vscode leg, Open VSX (Phase 5+) | `ovsxToken` |

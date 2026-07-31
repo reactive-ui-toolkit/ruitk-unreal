@@ -143,8 +143,9 @@ jobs:
             --notes-file /tmp/release-body.md \
             dist/ReactiveUIToolkit-*.zip
 
-  # Pre-release engine verification + packaged per-engine zips — armed runs only. Reuses the SAME
-  # engine workflow test.yml uses (one definition, no drift). Zip packaging on the Windows
+  # Pre-release engine verification + packaged per-engine zips — armed runs only. This is CI's
+  # ONLY engine entry point (engine-tests.yml; engines verify at publish time, not per-PR —
+  # owner decision 2026-07-31, see test.yml's header). Zip packaging on the Windows
   # self-hosted runner attaches per-engine assets to the release created above (added when the owner
   # stands the runner up — the job body documents the plan so arming is wiring, not design).
   verify-engines:
