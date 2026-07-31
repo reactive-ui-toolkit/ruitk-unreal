@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Yaniv Kalfa. All Rights Reserved.
 //
 // The unified runtime settings page — Project Settings ▸ Plugins ▸ Reactive UI Toolkit — over the
-// six ruitk.* CVars (declared in RuitkCore/Private/RuitkCoreMisc.cpp, read via FRuitkConfig; the
+// ruitk.* CVars (declared in RuitkCore/Private/RuitkCoreMisc.cpp, read via FRuitkConfig; the
 // accessors keep reading the CVars, so this class changes zero call sites).
 //
 // WHY DEFAULTS LIVE IN C++, NOT A PLUGIN INI: plugin-shipped Config/Default*.ini files are not
@@ -69,12 +69,23 @@ public:
 	 *  Runs on the CDO at startup (after config load); callable again after programmatic edits. */
 	void PushSettingsToCVars() const;
 
-	/** ruitk.TimeSlicing — chunk the Reactive UI Toolkit render phase across frames on a budget
-	 *  (commit stays atomic). */
+	/** ruitk.TimeSlicing — run render passes as time-sliced actions on the frame scheduler
+	 *  (commit stays atomic). Off = scheduler bypass: fully synchronous single-pass renders. */
 	UPROPERTY(config, EditAnywhere, Category = "Performance", meta = (ConsoleVariable = "ruitk.TimeSlicing"))
 	bool bTimeSlicing;
 
-	/** ruitk.FrameBudgetMs — render-phase work per frame before parking, when Time Slicing is on. */
+	/** ruitk.TimeSliceMs — the render-phase quantum: a sliced pass runs units of work until
+	 *  this many milliseconds elapse (checked after each unit), then parks — resuming the same
+	 *  frame if the scheduler budget allows, else next frame. Only read when Time Slicing is on. */
+	UPROPERTY(config, EditAnywhere, Category = "Performance",
+			  meta = (ConsoleVariable = "ruitk.TimeSliceMs", ClampMin = "0.1", UIMin = "0.5", UIMax = "16.0",
+					  Units = "Milliseconds"))
+	float TimeSliceMs;
+
+	/** ruitk.FrameBudgetMs — the scheduler's per-frame budget, cumulative across lanes (render
+	 *  slices, idle work; the frame-end batched-effects flush is unbudgeted). Per-slice length
+	 *  is Time Slice Ms. NOTE: before the scheduler this was the single render-phase budget
+	 *  with default 8.0 — a saved 8.0 still works (it is simply a more generous budget). */
 	UPROPERTY(config, EditAnywhere, Category = "Performance",
 			  meta = (ConsoleVariable = "ruitk.FrameBudgetMs", ClampMin = "0.1", UIMin = "1.0", UIMax = "16.0",
 					  Units = "Milliseconds"))

@@ -12,13 +12,18 @@ DEFINE_STAT(STAT_RuitkDeletions);
 
 // ── CVars (ruitk.*, dotted PascalCase — D-14) ──────────────────────────────────────────────
 
-static TAutoConsoleVariable<bool> CVarRuitkTimeSlicing(
-	TEXT("ruitk.TimeSlicing"), false,
-	TEXT("Chunk the Reactive UI Toolkit render phase across frames on a budget (commit stays atomic)."));
+static TAutoConsoleVariable<bool>
+	CVarRuitkTimeSlicing(TEXT("ruitk.TimeSlicing"), false,
+						 TEXT("Run Reactive UI Toolkit render passes as time-sliced actions on the frame scheduler "
+							  "(commit stays atomic). Off = scheduler bypass: fully synchronous single-pass renders."));
 
 static TAutoConsoleVariable<float>
-	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 8.0f,
-						   TEXT("Render-phase work per frame before parking, when ruitk.TimeSlicing is on."));
+	CVarRuitkFrameBudgetMs(TEXT("ruitk.FrameBudgetMs"), 4.0f,
+						   TEXT("The scheduler's per-frame budget in ms, cumulative across lanes "
+								"(render slices, idle work; the frame-end batched-effects flush is "
+								"unbudgeted). Per-slice length is ruitk.TimeSliceMs. NOTE: before the "
+								"scheduler (family-parity M2-M4) this was the single render-phase "
+								"budget with default 8.0."));
 
 static TAutoConsoleVariable<float>
 	CVarRuitkTimeSliceMs(TEXT("ruitk.TimeSliceMs"), 2.0f,

@@ -25,9 +25,11 @@ DECLARE_DWORD_COUNTER_STAT_EXTERN(TEXT("Deletions"), STAT_RuitkDeletions, STATGR
 
 struct RUITKCORE_API FRuitkConfig
 {
-	/** Chunk the render phase across frames on a budget (commit stays atomic). Off by
-	 *  default — synchronous renders are simplest and fast for normal UIs. */
+	/** Run render passes as time-sliced scheduler actions (commit stays atomic). Off =
+	 *  scheduler bypass, synchronous single-pass — the family time_slicing knob. */
 	static bool IsTimeSlicing();
+	/** The scheduler's per-frame budget, cumulative across lanes (family frame_budget_ms,
+	 *  default 4.0 — was the single-axis render budget, default 8.0, before M2-M4). */
 	static float FrameBudgetMs();
 	/** Render-phase quantum (family knob time_slice_ms, default 2.0): a sliced pass runs
 	 *  units of work until the quantum elapses — checked AFTER each unit, no preemption

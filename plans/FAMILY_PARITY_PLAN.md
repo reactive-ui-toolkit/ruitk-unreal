@@ -566,7 +566,7 @@ M8 additionally runs the battery TWICE (defaults, then `ruitk.TimeSlicing=false`
 - [x] M1 FlushSync force-unsliced + regression test — DONE 2026-07-31 (fail-first verified; battery 134/134)
 - [x] M2 `FRuitkScheduler` + `Ruitk.Scheduler` suite (fake clock) — DONE 2026-07-31 (12 tests, battery 146/146)
 - [x] M3 defer-don't-restart + sliced Slice actions + depth-25 + park/resume tests, both-worlds green — DONE 2026-07-31 (10 tests, both worlds per-test via CVar fixture; battery 156/156)
-- [ ] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice
+- [x] M4 `ruitk.TimeSliceMs` + FrameBudgetMs re-point (4.0) + settings rows + equality tests + P-05 notice — DONE 2026-07-31 (battery 156/156; TimeSliceMs settings row auto-appears in both IDetailsView surfaces)
 - [ ] M5 strict diagnostics: both warnings, deduped, `[Ruitk][strict]` prefix, tests
 - [ ] M6 environment: CVar + `Ctx.GetEnvironment()` + settings row + grep gate
 - [ ] M7 trace ladder + `LogRuitkTrace` + diff-tracing OR-switch + tests; `stat Ruitk` untouched
