@@ -17,47 +17,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Docs redeploy on every dispatch (not version-gated) — GitHub Pages serves the
-  # `documentations` branch root (owner enables Pages once; see the ROADMAP setup checklist).
+  # Documentation site — delegated to docs-sync.yml, which publishes into the family
+  # documentation site (reactive-ui-toolkit/documentation) at /unreal/ rather than to this
+  # repo's `documentations` branch.
+  #
+  # The old branch-deploy job is gone deliberately: since `base` is now '/unreal/', a build
+  # deployed to this repo's own Pages root would 404 on every asset. One publish path, one
+  # base value — they cannot drift.
   deploy-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Guard (docs scaffold present?)
-        id: guard
-        run: |
-          if [ -f "RuitkUnrealDocs~/package.json" ]; then echo "armed=true" >> "$GITHUB_OUTPUT"; else
-            echo "docs not present yet — skipping deploy."; echo "armed=false" >> "$GITHUB_OUTPUT"; fi
-      - uses: actions/setup-node@v7
-        if: steps.guard.outputs.armed == 'true'
-        with:
-          node-version: 22
-      - name: Build
-        if: steps.guard.outputs.armed == 'true'
-        working-directory: RuitkUnrealDocs~
-        run: npm ci && npm run build
-      - name: Push dist/ to the documentations branch
-        if: steps.guard.outputs.armed == 'true'
-        run: |
-          set -e
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin documentations || true
-          if git show-ref --quiet refs/remotes/origin/documentations; then
-            git worktree add /tmp/docs-deploy origin/documentations
-          else
-            git worktree add --detach /tmp/docs-deploy
-            (cd /tmp/docs-deploy && git checkout --orphan documentations && git rm -rf . >/dev/null 2>&1 || true)
-          fi
-          rm -rf /tmp/docs-deploy/*
-          cp -r "RuitkUnrealDocs~/dist"/* /tmp/docs-deploy/
-          touch /tmp/docs-deploy/.nojekyll
-          cd /tmp/docs-deploy
-          git add -A
-          if git diff --cached --quiet; then echo "no docs changes"; else
-            git commit -m "docs: deploy $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push origin HEAD:documentations
-          fi
+    uses: ./.github/workflows/docs-sync.yml
+    secrets:
+      DOCUMENTATION_SYNC_PATS: ${{ secrets.DOCUMENTATION_SYNC_PATS }}
 
   # The plugin release: tag v<VersionName> + GitHub Release whose body is the top `## [`
   # section of CHANGELOG.md. ALWAYS attaches the Fab-uploadable SOURCE zip (Plugins/ReactiveUIToolkit minus
