@@ -51,6 +51,37 @@ Our discord channel - https://discord.gg/Knedqu4Wyv - currently under constructi
 
 ---
 
+## [0.16.1] - 2026-09-25
+
+### The docs now report the phase we are actually in
+
+**Docs accuracy patch — no runtime changes.** The site and both READMEs still said the remaining
+work before v1 was the **docs build-out**. That finished back in July; what is left is **release
+and publishing** — per-engine packages, the Fab listing, the v1 ship gate. The Roadmap page had
+the two phases' badges inverted as well, and credited an animation **media** hook that does not
+exist (only `UseSfx` ships).
+
+**A CI gate was green about something it could not see.** `docs-drift` is the check that stops
+the docs claiming numbers the code does not have. Its router-hook reader scanned past the return
+type with a pattern that breaks on parentheses — so the four hooks whose return type contains
+them (`UseNavigate`, `UseGo`, `UseBackStack`, `UseSearchParams`) were never counted: it read
+**13** where the header declares **17**. It still passed, because on a mismatch the check fell
+back to the number it was supposed to be verifying. Both halves fixed: the reader keys on the
+parameter list, and a mismatch now fails loudly naming both counts.
+
+To be clear about what was and was not wrong: **every number the docs claim was correct** — 23
+core hooks, 17 router hooks, 63 widgets, 19 gallery screens. The verifier was the broken part.
+
+Also tidied: every repository link on the docs site is now built in one place against one branch
+(two used `master`, two used `HEAD`), and the introduction links to the site's own Roadmap page
+instead of sending you to a planning file on GitHub.
+
+**Update:** drop-in — documentation and CI tooling only; no API, no behavior, no markup changes.
+
+Full automation battery green on UE 5.6.
+
+---
+
 ## [0.16.0] - 2026-07-31
 
 ### One window for every setting + the family runtime lands
