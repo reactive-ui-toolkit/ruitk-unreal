@@ -51,11 +51,11 @@ Our discord channel - https://discord.gg/Knedqu4Wyv - currently under constructi
 
 ---
 
-## [0.16.1] - 2026-09-25
+## [0.16.2] - 2026-09-25
 
 ### The docs now report the phase we are actually in
 
-**Docs accuracy patch — no runtime changes.** The site and both READMEs still said the remaining
+**Docs accuracy patch (shipped in 0.16.1) — no runtime changes.** The site and both READMEs still said the remaining
 work before v1 was the **docs build-out**. That finished back in July; what is left is **release
 and publishing** — per-engine packages, the Fab listing, the v1 ship gate. The Roadmap page had
 the two phases' badges inverted as well, and credited an animation **media** hook that does not
