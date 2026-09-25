@@ -8,6 +8,21 @@ byte-compares them via `scripts/verify-mirror.mjs`). The IDE extensions are NOT 
 they use `ide-extensions/changelog.json` (Lane B; see the release-process skill). Entries below
 0.15.0 predate the rebrand and keep their original wording.
 
+## [0.16.2] — 2026-09-25
+
+Release-note plumbing for 0.16.1. No code, markup, or API changes.
+
+### Fixed
+
+- **0.16.1 shipped without its community release note.** The version was bumped and the plugin
+  changelog written, but `plans/DISCORD_CHANGELOG.md` never got the matching entry — so the
+  publish workflow's Discord step, which looks a release up by its `## [<version>]` header,
+  failed with "no [0.16.1] entry". The entry exists now and carries this version, because the
+  step is gated on a newly created tag: `v0.16.1` already exists, so re-running publish skips
+  that job entirely rather than retrying it. Cutting 0.16.2 is what lets the note post through
+  the pipeline instead of by hand. The note covers the 0.16.1 documentation-accuracy work it
+  was written for.
+
 ## [0.16.1] — 2026-09-25
 
 A documentation-accuracy pass: the status the docs reported was a phase behind the project, and
