@@ -73,14 +73,25 @@ function countGalleryScreens() {
   ).length;
 }
 
-/** Router hooks = the RUITKCORE_API Use* free functions in RuitkRouter.h. */
+/** Router hooks = the Use* free functions in RuitkRouter.h — matched by their PARAMETER LIST.
+ *
+ * A router hook is `Use…(FRuitkContext& Ctx, …)`, and that is what this keys on, because the
+ * obvious alternative does not work: matching forward from `RUITKCORE_API` across the return type
+ * needs a character class, and four of the seventeen hooks return types that contain parentheses —
+ * `TFunction<void(const FString&, bool)> UseNavigate(…)`, `UseGo`, `UseBackStack`,
+ * `UseSearchParams`. The old class excluded `(`, so the scan stopped inside the return type and
+ * those four were never counted.
+ *
+ * IT READ 13 AND THE GATE STAYED GREEN, because the two catalog checks below used to fall back to
+ * the catalog's own number whenever it disagreed with the registry — so a broken registry reader
+ * and a drifted catalog were indistinguishable from a healthy pair. Both halves are fixed. */
 function countRouterHooks() {
   const text = readFileSync(
     resolve(REPO_ROOT, 'Plugins/ReactiveUIToolkit/Source/RuitkCore/Public/RuitkRouter.h'),
     'utf8',
   );
   const names = new Set();
-  for (const m of text.matchAll(/RUITKCORE_API [\w<>,&:\s]+?\b(Use[A-Z]\w+)\s*\(/g)) {
+  for (const m of text.matchAll(/\b(Use[A-Z]\w*)\s*\(\s*FRuitkContext/g)) {
     names.add(m[1]);
   }
   return names.size;
@@ -103,6 +114,17 @@ function countAutomationTests() {
     count += (text.match(/IMPLEMENT_\w*AUTOMATION_TEST\s*\(/g) ?? []).length;
   }
   return count;
+}
+
+/** The registry and the catalog must agree. Returns the agreed count, or -1 (which can never
+ *  equal a claimed count) after naming both numbers — a check that silently substitutes one
+ *  source for the other is not a check. */
+function mustAgree(what, registry, catalog) {
+  if (registry === catalog) {
+    return registry;
+  }
+  console.error(`  ! ${what}: registry says ${registry}, hooksCatalog.ts has ${catalog}`);
+  return -1;
 }
 
 const CHECKS = [
@@ -177,7 +199,10 @@ const CHECKS = [
     source: () => {
       const registry = countCoreHooks();
       const catalog = countHooksCatalog('core');
-      return catalog === registry ? registry : catalog; // any mismatch surfaces both ways
+      // MISMATCH IS A FAILURE, not a number. Returning the CATALOG's own count made the check
+      // compare the claim against the thing the claim is written beside — so catalog-vs-registry
+      // drift, the one thing this check exists to catch, passed silently.
+      return mustAgree('core hooks', registry, catalog);
     },
   },
   {
@@ -187,7 +212,7 @@ const CHECKS = [
     source: () => {
       const registry = countRouterHooks();
       const catalog = countHooksCatalog('router');
-      return catalog === registry ? registry : catalog;
+      return mustAgree('router hooks', registry, catalog);
     },
   },
 ];

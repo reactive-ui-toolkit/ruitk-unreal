@@ -1,5 +1,7 @@
 import type { FC, ReactNode } from 'react'
-import { Alert, Box, Typography } from '@mui/material'
+import { Alert, Box, Link, Typography } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
+import { ROADMAP_URL } from '../../links'
 
 const ITEMS: Array<[string, ReactNode]> = [
   [
@@ -54,8 +56,15 @@ export const KnownIssuesPage: FC = () => (
       </Box>
     ))}
     <Alert severity="info">
-      The living status — what is built and what remains — is the <strong>Roadmap</strong>, mirrored
-      from <code>plans/ROADMAP.md</code> in the repository.
+      The living status — what is built and what remains — is the{' '}
+      <Link component={RouterLink} to="/roadmap">
+        Roadmap
+      </Link>
+      , mirrored from{' '}
+      <Link href={ROADMAP_URL} target="_blank" rel="noreferrer">
+        <code>plans/ROADMAP.md</code>
+      </Link>{' '}
+      in the repository.
     </Alert>
   </Box>
 )
