@@ -548,7 +548,7 @@ export const sections: DocSection[] = [
         path: '/roadmap',
         keywords: ['roadmap', 'status', 'phases', 'progress', 'release'],
         searchContent:
-          'roadmap living status plans/ROADMAP.md phases core reconciler hooks signals suspense slate host widgets style uetkx compiler build committed inl schema RuitkCompile formatter hot reload live coding ide extensions language server vs code vs2022 umg commonui mvvm interop UseField activatables production gaps virtualized lists focus animation portals drag and drop widget batch 2 localization gather culture switch demos gallery benchmarks docs site in progress release publishing owner gated ship gate fab marketplace done in progress planned',
+          'roadmap living status plans/ROADMAP.md phases core reconciler hooks signals suspense slate host widgets style uetkx compiler build committed inl schema RuitkCompile formatter hot reload live coding ide extensions language server vs code vs2022 umg commonui mvvm interop UseField activatables production gaps virtualized lists focus animation sfx portals drag and drop widget batch 2 localization gather culture switch demos gallery benchmarks docs site done release publishing in progress owner gated ship gate per-engine packages fab marketplace demo video',
         element: () => <RoadmapPage />,
       },
     ],

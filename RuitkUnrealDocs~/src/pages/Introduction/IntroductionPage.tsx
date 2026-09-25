@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Alert, Box, Link, List, ListItem, ListItemText, Typography } from '@mui/material'
+import { Link as RouterLink } from 'react-router-dom'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
-import { ROADMAP_URL } from '../../links'
 import Styles from './IntroductionPage.style'
 
 const QUICK_SAMPLE = `export FRuitkNode Counter() {
@@ -38,9 +38,10 @@ export const IntroductionPage: FC = () => (
     <Alert severity="info" sx={{ mb: 2 }}>
       Reactive UI Toolkit for Unreal is in <strong>beta</strong>: the product is built end to end (reconciler,
       compiler, hot reload, IDE tooling, Epic interop, localization) and green under the headless
-      automation battery. Remaining before v1: docs build-out — see{' '}
-      <Link href={ROADMAP_URL} target="_blank" rel="noreferrer">
-        plans/ROADMAP.md
+      automation battery. Remaining before v1 is <strong>release and publishing</strong> — per-engine
+      packages, the Fab listing, and the v1 ship gate. See the{' '}
+      <Link component={RouterLink} to="/roadmap">
+        Roadmap
       </Link>{' '}
       for the living status.
     </Alert>
