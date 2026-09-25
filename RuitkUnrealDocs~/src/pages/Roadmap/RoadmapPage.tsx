@@ -9,9 +9,10 @@ const PHASES: Array<[string, string, Status, string]> = [
   ['4', 'Hot reload', 'done', 'Live Coding-driven HMR, editor watcher, the Reactive UI Toolkit window, status line.'],
   ['5', 'IDE extensions', 'done', 'uetkx-language-server + VS Code and VS2022 extensions (completion, hover, diagnostics, formatting).'],
   ['6', 'UMG / CommonUI / MVVM interop', 'done', 'URuitkHostWidget, Ruitk::Umg::UserWidget, UseField, CommonUI activatables, MVVM collection, UMG prop-map.'],
-  ['7', 'Production gaps', 'done', 'Virtualized lists, focus, animation/media hooks, portals, drag-and-drop, widget batch 2, localization (gather + live culture switch).'],
-  ['8', 'Demos, docs, benchmarks', 'progress', 'Gallery and benchmark baselines done; the docs site content (this site) is being written.'],
-  ['9', 'Release & publishing', 'planned', 'Owner-gated: the v1 ship gate, the merge to release, and the Fab/marketplace uploads.'],
+  // `media` was struck by the 2026-07-14 audit — only UseSfx exists, so the note says so.
+  ['7', 'Production gaps', 'done', 'Virtualized lists, focus, animation + SFX hooks, portals, drag-and-drop, widget batch 2, localization (gather + live culture switch).'],
+  ['8', 'Demos, docs, benchmarks', 'done', 'Demo gallery, Doom demo, benchmark baselines, and this docs site — built out and committed.'],
+  ['9', 'Release & publishing', 'progress', 'Owner-gated: per-engine packages, the Fab listing and demo video, and the v1 ship gate.'],
 ]
 
 const LABEL: Record<Status, { text: string; color: 'success' | 'warning' | 'default' }> = {
@@ -27,8 +28,8 @@ export const RoadmapPage: FC = () => (
     </Typography>
     <Typography variant="body1" paragraph>
       The living status of the project, mirrored from <code>plans/ROADMAP.md</code>. The runtime,
-      compiler, tooling and Epic interop are built; the docs and the v1 release are the remaining
-      work.
+      compiler, tooling, Epic interop, demos and these docs are built; release and publishing are
+      the remaining work.
     </Typography>
 
     <TableContainer sx={{ mb: 2 }}>

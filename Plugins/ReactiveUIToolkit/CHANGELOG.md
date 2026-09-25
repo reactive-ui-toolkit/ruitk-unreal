@@ -8,6 +8,44 @@ byte-compares them via `scripts/verify-mirror.mjs`). The IDE extensions are NOT 
 they use `ide-extensions/changelog.json` (Lane B; see the release-process skill). Entries below
 0.15.0 predate the rebrand and keep their original wording.
 
+## [0.16.1] — 2026-09-25
+
+A documentation-accuracy pass: the status the docs reported was a phase behind the project, and
+the CI gate that exists to catch exactly that had a blind spot of its own.
+
+### Fixed
+
+- **The published docs said the wrong thing was left before v1.** The landing page, both READMEs
+  and the Roadmap page all reported "docs build-out" as the remaining work. Phase 8 (demos, docs
+  site, benchmarks) completed on 2026-07-25; what remains is Phase 9 — release and publishing.
+  The Roadmap page had the two phases' badges inverted as well: 8 "In progress", 9 "Planned".
+- **The Roadmap page credited a hook that does not exist.** Phase 7's note read
+  "animation/media hooks"; the 2026-07-14 audit struck media — only `UseSfx` ships. The note now
+  says "animation + SFX hooks", and the page's search keywords no longer carry the old
+  "docs site in progress" status text.
+- **`docs-drift` undercounted the router and stayed green about it.** `countRouterHooks()`
+  scanned forward from `RUITKCORE_API` with a character class that excludes `(`, so the four
+  hooks whose return type contains parentheses — `UseNavigate`, `UseGo`, `UseBackStack`,
+  `UseSearchParams` — were never counted: the registry read 13 where the header declares 17. It
+  passed because the two catalog checks fell back to the catalog's own number whenever it
+  disagreed with the registry, which made a broken reader indistinguishable from a healthy one.
+  The reader now keys on the parameter list, and a registry/catalog mismatch fails loud naming
+  both numbers. (The counts the docs claim were correct throughout; the gate verifying them was
+  not.)
+
+### Changed
+
+- **Repo links on the docs site are built in one place, against one ref.** Two licence links
+  pointed at `blob/master` while the roadmap and migration links used `blob/HEAD` — one site
+  speaking with two voices about the same repository. A `repoFile()` helper in `src/links.ts`
+  now states the ref once and pins it to `master`, which is what a reader of a published docs
+  site should see: `master` is release-only, so it holds the state matching the documented
+  version, where `HEAD` tracks `dev`.
+- **The introduction links to the site's own Roadmap page** instead of sending readers off to a
+  planning file on GitHub — the site renders that file already. The Known Issues page now links
+  both the Roadmap page and the source document rather than naming a path the reader has to go
+  and find.
+
 ## [0.16.0] — 2026-07-31
 
 The settings + family-parity release, one wave: every setting the plugin has now lives in

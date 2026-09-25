@@ -28,8 +28,9 @@ the UI update in under a second, no C++ recompile, no script VM in your shipped 
 > automation battery**. The demo gallery's 19 screens all compile from `.uetkx`, and markup text
 > is **localizable through the stock Localization Dashboard** (with live culture switching). Open
 > `RuitkUnrealDemo.uproject` (UE 5.6+; the battery is verified green on 5.6, 5.7, AND 5.8)
-> and press Play. Remaining before v1: the **docs-site content build-out** — tracked in
-> [plans/ROADMAP.md](plans/ROADMAP.md) and [plans/REMAINING.md](plans/REMAINING.md).
+> and press Play. Remaining before v1: **release and publishing** — per-engine packages, the Fab
+> listing, and the v1 ship gate — tracked in [plans/ROADMAP.md](plans/ROADMAP.md) and
+> [plans/REMAINING.md](plans/REMAINING.md).
 
 **Quick taste** — `Source/RuitkDemo/Screens/SimpleCounter/SimpleCounter.uetkx` (compiles to the
 committed sibling `.inl`; edit it while the editor runs and the screen hot-swaps in place):

@@ -9,6 +9,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
+import { LICENSE_COMMERCIAL_URL, LICENSE_URL } from '../../links'
 
 const QA: Array<[string, ReactNode]> = [
   [
@@ -116,19 +117,11 @@ export const LicensingPage: FC = () => (
       To purchase, email <a href="mailto:yanivkalfa@gmail.com">yanivkalfa@gmail.com</a> — you get
       a license certificate PDF, the document your producer files for publisher and platform
       paperwork. The full texts live in the repository:{' '}
-      <a
-        href="https://github.com/reactive-ui-toolkit/ruitk-unreal/blob/master/LICENSE"
-        target="_blank"
-        rel="noreferrer"
-      >
+      <a href={LICENSE_URL} target="_blank" rel="noreferrer">
         Reactive UI Toolkit Community License
       </a>{' '}
       and{' '}
-      <a
-        href="https://github.com/reactive-ui-toolkit/ruitk-unreal/blob/master/LICENSE-COMMERCIAL.md"
-        target="_blank"
-        rel="noreferrer"
-      >
+      <a href={LICENSE_COMMERCIAL_URL} target="_blank" rel="noreferrer">
         Commercial License Agreement
       </a>
       .

@@ -16,7 +16,7 @@ The Unreal sibling of [Reactive UI Toolkit for Unity](https://github.com/reactiv
 > drag-and-drop, exit animations, localization (markup text gathers through the stock
 > Localization Dashboard; culture switches re-render live), and first-class UMG/CommonUI/MVVM
 > interop — all green under the repository's headless automation battery. Remaining before v1:
-> docs-site build-out. Progress and the v1 ship gate:
+> release and publishing (per-engine packages, the Fab listing, the v1 ship gate). Progress:
 > <https://github.com/reactive-ui-toolkit/ruitk-unreal>
 
 ## What it is

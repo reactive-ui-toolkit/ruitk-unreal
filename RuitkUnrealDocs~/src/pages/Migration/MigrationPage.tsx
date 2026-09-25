@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { CodeBlock } from '../../components/CodeBlock/CodeBlock'
-import { GITHUB_URL } from '../../links'
+import { MIGRATION_0_15_URL } from '../../links'
 
 const LEAF = `// Stage 1 — in the UMG Designer: drop a "Reactive UI Toolkit Host" (URuitkHostWidget)
 // into your EXISTING UserWidget layout and set ComponentName to a registered
@@ -177,7 +177,7 @@ export const MigrationPage: FC = () => (
       Full detail — the complete rule set, the automation-suite (<code>Ruitk.*</code>) and
       commandlet (<code>-run=Ruitk*</code>) renames, <code>ruitk.*</code> console variables, and
       the license retitle to the Reactive UI Toolkit Community License 1.1 — lives in{' '}
-      <a href={`${GITHUB_URL}/blob/HEAD/MIGRATION-0.15.md`} target="_blank" rel="noreferrer">
+      <a href={MIGRATION_0_15_URL} target="_blank" rel="noreferrer">
         MIGRATION-0.15.md
       </a>{' '}
       in the repo.
